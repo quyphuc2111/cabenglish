@@ -1,0 +1,6 @@
+{
+  "prettier.singleQuote": false,
+  "prettier.trailingComma": "none",
+  "prisma-smart-formatter.typescript.defaultFormatter": "esbenp.prettier-vscode",
+  "prisma-smart-formatter.typescriptreact.defaultFormatter": "esbenp.prettier-vscode"
+}

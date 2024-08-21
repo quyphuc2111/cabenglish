@@ -1,0 +1,44 @@
+import React from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import UnitBound from "./course-card/unit-bound";
+
+function UnitsSection() {
+  return (
+    <Tabs defaultValue="1">
+      <TabsList className="grid w-1/3 grid-cols-3">
+        <TabsTrigger value="1">Học kì 1</TabsTrigger>
+        <TabsTrigger value="2">Học kì 2</TabsTrigger>
+        <TabsTrigger value="3">Học kì hè</TabsTrigger>
+      </TabsList>
+      <TabsContent value="1">
+        <div className="grid grid-cols-6 gap-5">
+          <UnitBound />
+          <UnitBound />
+          <UnitBound />
+          <UnitBound />
+          <UnitBound />
+        </div>
+      </TabsContent>
+      <TabsContent value="2">
+        <div className="grid grid-cols-6 gap-5">
+          <UnitBound />
+          <UnitBound />
+          <UnitBound />
+          <UnitBound />
+          <UnitBound />
+          <UnitBound />
+          <UnitBound />
+          <UnitBound />
+        </div>
+      </TabsContent>
+      <TabsContent value="3">
+        <div className="grid grid-cols-6 gap-5">
+          <UnitBound />
+          <UnitBound />
+        </div>
+      </TabsContent>
+    </Tabs>
+  );
+}
+
+export default UnitsSection;
