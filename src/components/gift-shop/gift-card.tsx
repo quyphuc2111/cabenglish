@@ -34,9 +34,9 @@ function GiftCard({ title, content, footer, backgroundImage, image, ...props }: 
           <path
             d="M8.5 4.5L15.5 11.5L8.5 18.5"
             stroke="black"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           ></path>
         </svg>
       </Link>

@@ -75,9 +75,14 @@
     body {
       @apply bg-background text-foreground;
     }
+
+   
   }
 
-
+  .start-course-btn {
+    @apply bg-[#ff9213] shadow-course-inset py-6 text-lg font-semibold;
+  }
+  
   .avatar-container {
     box-shadow: 0 0 0 12px #ffffff1a, 0 0 0 20px #ffffff1a;
     border-radius: 100%;
@@ -92,6 +97,33 @@
     margin-left: 12px !important;
     -webkit-box-shadow: none;
     box-shadow: none;
-    padding: 12px 22px !important;
+    padding: 22px !important;
     font-weight: 600;
   }
+
+  .btn__medium {
+    padding: 8px 16px;
+    font-weight: 700;
+    line-height: 32px;
+    border-radius: 24px;
+    border: none;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.btn__cyan100, .btn__cyan100:hover {
+  color: #21bdc6;
+  background-color: #e9f8f9;
+}
+
+@media (max-width: 600px) {
+ .btn-orange-head {
+      padding: 5px !important;
+      background: unset;
+      font-size: 13px;
+      line-height: 21px;
+  }
+}

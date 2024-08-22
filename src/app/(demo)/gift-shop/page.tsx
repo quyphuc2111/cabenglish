@@ -65,12 +65,12 @@ export default function GiftShopPage() {
   return (
     <ContentLayout title="GiftShop">
       <div className="flex flex-col gap-5">
-        <div className="flex gap-5">
+        <div className="flex flex-col md:flex-row gap-5">
           {GiftData.map((item, index) => {
             return (
               <GiftCard
                 key={index}
-                className="w-1/2 px-8 py-6 rounded-3xl shadow-course-inset flex flex-col gap-3 relative"
+                className="md:w-1/2 px-8 py-6 rounded-3xl shadow-course-inset flex flex-col gap-3 relative"
                 title={item.title}
                 content={item.content}
                 footer={item.footer}
@@ -118,7 +118,7 @@ export default function GiftShopPage() {
           <>
             <p className="font-semibold">Sắp xếp:</p>
             <Select defaultValue="1">
-              <SelectTrigger className="w-3/5 py-6 rounded-2xl font-semibold shadow-sm bg-white">
+              <SelectTrigger className="xl:w-3/5 py-6 rounded-2xl font-semibold shadow-sm bg-white">
                 <SelectValue placeholder="Mặc định" />
               </SelectTrigger>
               <SelectContent>
@@ -131,7 +131,7 @@ export default function GiftShopPage() {
             </Select>
 
             <p className="font-semibold">Bộ lọc:</p>
-            <div className="flex gap-5 p-4 bg-white rounded-2xl border w-3/5 shadow-sm">
+            <div className="flex gap-5 p-4 bg-white rounded-2xl flex-wrap border xl:w-3/5 shadow-sm">
               <div className="flex items-center space-x-2">
                 <Checkbox id="trafic" />
                 <label

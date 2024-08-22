@@ -39,6 +39,7 @@ interface CollapseMenuButtonProps {
   active: boolean;
   submenus: Submenu[];
   isOpen: boolean | undefined;
+  href: string;
 }
 
 export function CollapseMenuButton({
@@ -46,10 +47,15 @@ export function CollapseMenuButton({
   label,
   active,
   submenus,
-  isOpen
+  isOpen,
+  href
 }: CollapseMenuButtonProps) {
   const isSubmenuActive = submenus.some((submenu) => submenu.active);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(isSubmenuActive);
+
+  const handleToggleMenu = () => {
+    setIsCollapsed((prev) => !prev);
+  };
 
   return isOpen ? (
     <Collapsible
@@ -67,9 +73,20 @@ export function CollapseMenuButton({
         >
           <div className="w-full items-center flex justify-between">
             <div className="flex items-center">
-              <span className="mr-4">
+              <span className="mr-4 z-50" onClick={handleToggleMenu}>
                 <Icon size={18} />
               </span>
+              {/* <p
+                className={cn(
+                  "max-w-[150px] truncate",
+                  isOpen
+                    ? "translate-x-0 opacity-100"
+                    : "-translate-x-96 opacity-0"
+                )}
+              >
+                {label}
+              </p> */}
+              <Link href={href}>
               <p
                 className={cn(
                   "max-w-[150px] truncate",
@@ -80,6 +97,7 @@ export function CollapseMenuButton({
               >
                 {label}
               </p>
+              </Link>
             </div>
             <div
               className={cn(

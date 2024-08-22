@@ -24,7 +24,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated }) => {
       />
       <input type="email" placeholder="Email" className="bg-gray-100 p-3 rounded w-full mt-2" />
       <input type="password" placeholder="Password" className="bg-gray-100 p-3 rounded w-full mt-2" />
-      <button className="bg-purple-700 text-white mt-4 p-2 px-6 rounded uppercase tracking-wide" onClick={() => router.push('/dashboard')}>
+      <button className="bg-purple-700 text-white mt-4 p-2 px-6 rounded uppercase tracking-wide" onClick={() => router.push('/lop-hoc')}>
         {type}
       </button>
     </div>

@@ -16,12 +16,12 @@ export default function AdminPanelLayout({
   if (!sidebar) return null;
 
   return (
-    <div className="bg-[#21bdc6]">
+    <div className="lg:bg-[#21bdc6]">
       <Sidebar />
       <main
         className={cn(
-          "min-h-screen dark:bg-zinc-900 transition-[margin-left] ease-in-out duration-300 flex-1 h-screen bg-[#f5fcff] rounded-l-[48px] p-[30px] pb-[100px] pt-[30px] overflow-y-hidden",
-          sidebar?.isOpen === false ? "lg:ml-[90px]" : "lg:ml-72"
+          "min-h-screen dark:bg-zinc-900 transition-[margin-left] ease-in-out duration-300 flex-1 h-screen bg-[#f5fcff] lg:rounded-l-[48px] p-[40px] 2xl:p-[60px] pb-[100px] pt-[30px] overflow-y-hidden",
+          sidebar?.isOpen === false ? "lg:ml-[100px]" : "lg:ml-72"
         )}
       >
         {children}

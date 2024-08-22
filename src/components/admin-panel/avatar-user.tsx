@@ -2,7 +2,8 @@ import React from 'react'
 import Image from 'next/image'
 import { Badge } from '../ui/badge'
 
-function AvatarUser({avatarUrl, name}: any) {
+
+function AvatarUser({avatarUrl, name, sidebar}: any) {
   return (
     <div className='flex flex-col items-center gap-3 text-white'>
         <div className='relative avatar-container'>
@@ -11,7 +12,7 @@ function AvatarUser({avatarUrl, name}: any) {
             </div>
             <Badge className='bg-[#1ACAEF] rounded-full absolute bottom-0 left-1/2 transform -translate-x-1/2 w-14'>Lớp 5</Badge>
         </div>
-        <div className="ml-2 text-lg font-semibold">{name || 'Bê Ka Tê'}</div>
+        {sidebar?.isOpen && <div className="ml-2 text-lg font-semibold">{name || 'Bê Ka Tê'}</div> }
     </div>
   )
 }

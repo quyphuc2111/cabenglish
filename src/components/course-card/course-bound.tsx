@@ -13,12 +13,18 @@ import {
 } from "../ui/avatar";
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "../ui/tooltip";
 
 function CourseBound({ className }: any) {
   return (
     <div
       className={cn(
-        "px-3 py-5 bg-white rounded-3xl flex flex-col gap-3 shadow-course-inset border relative",
+        "px-3 py-5 bg-white rounded-3xl flex flex-col gap-3 shadow-course-inset border relative overflow-hidden",
         className
       )}
     >
@@ -27,27 +33,65 @@ function CourseBound({ className }: any) {
         alt="course-image"
         width={300}
         height={150}
-        className="rounded-3xl absolute left-0 top-0 right-0"
+        className="rounded-3xl w-full h-auto "
       />
-      <div className="flex flex-col gap-2 mt-44">
+      <div className="flex flex-col gap-2 ">
         <div className="flex justify-between">
           <h2 className="text-2xl font-bold">Tiếng anh lớp 1</h2>
         </div>
-        <p className="text-sm text-gray-500 line-clamp-3">
-          Khoá học bám sát khung chương trình tiếng Anh lớp 1. Mỗi buổi học bao
-          gồm 01 video bài giảng hoặc bài hát, và các bài tập giúp con học từ
-          vựng, phát âm, phát triển 04 kỹ năng Nghe - Nói - Đọc - Viết. Các con
-          học phát âm các âm đơn cơ bản, chữ cái tiếng Anh, nói được các từ vựng
-          đơn chứa âm, và nói các mẫu câu đơn ngắn thường gặp về chủ đề đời sống
-          hằng ngày
-        </p>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <p className="text-sm text-gray-500 line-clamp-3 cursor-pointer">
+                Khoá học bám sát khung chương trình tiếng Anh lớp 1. Mỗi buổi
+                học bao gồm 01 video bài giảng hoặc bài hát, và các bài tập giúp
+                con học từ vựng, phát âm, phát triển 04 kỹ năng Nghe - Nói - Đọc
+                - Viết. Các con học phát âm các âm đơn cơ bản, chữ cái tiếng
+                Anh, nói được các từ vựng đơn chứa âm, và nói các mẫu câu đơn
+                ngắn thường gặp về chủ đề đời sống hằng ngày
+              </p>
+            </TooltipTrigger>
+            <TooltipContent className="bg-white text-black">
+              <div className="w-[300px] py-5 px-3 rounded-xl shadow-lg">
+                <div className="flex justify-between">
+                  <h2 className="text-2xl font-bold">Tiếng anh lớp 1</h2>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Khoá học bám sát khung chương trình tiếng Anh lớp 1. Mỗi buổi
+                  học bao gồm 01 video bài giảng hoặc bài hát, và các bài tập
+                  giúp con học từ vựng, phát âm, phát triển 04 kỹ năng Nghe -
+                  Nói - Đọc - Viết. Các con học phát âm các âm đơn cơ bản, chữ
+                  cái tiếng Anh, nói được các từ vựng đơn chứa âm, và nói các
+                  mẫu câu đơn ngắn thường gặp về chủ đề đời sống hằng ngày
+                </p>
+                <p className="text-xs font-semibold py-5">
+                  Giáo viên giảng dạy
+                </p>
+                <div className="flex justify-between">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div className="flex gap-2 items-center" key={i}>
+                      <Avatar className="w-7 h-7 flex">
+                        <AvatarImage
+                          src={`https://xsgames.co/randomusers/assets/avatars/female/${i}.jpg`}
+                          alt="@shadcn"
+                        />
+                        <AvatarFallback>CN</AvatarFallback>
+                      </Avatar>
+                      <p className="text-xs font-medium">Adam Lewis</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         <p className="text-xs font-semibold">Giáo viên giảng dạy</p>
 
         <div className="flex justify-between">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div className="flex gap-2 items-center">
-              <Avatar key={i} className="w-7 h-7 flex">
+            <div className="flex gap-2 items-center" key={i}>
+              <Avatar className="w-7 h-7 flex">
                 <AvatarImage
                   src={`https://xsgames.co/randomusers/assets/avatars/female/${i}.jpg`}
                   alt="@shadcn"
@@ -78,7 +122,7 @@ function CourseBound({ className }: any) {
           <span className="text-xs font-medium">100.000.000 bạn đang học</span>
         </div>
 
-        <Button>Học ngay</Button>
+        <Button className="start-course-btn">Học ngay</Button>
       </div>
     </div>
   );

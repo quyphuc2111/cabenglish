@@ -9,7 +9,7 @@ function MainCourse() {
       <div className="flex flex-col gap-5">
         <div>
           <h2 className="font-semibold text-lg mb-4">Khoá học mới ra mắt</h2>
-          <div className="grid grid-cols-3 gap-5">
+          <div className="flex flex-col lg:flex-row flex-wrap gap-5">
             <CourseNew />
             <CourseNew />
           </div>
@@ -17,7 +17,7 @@ function MainCourse() {
 
         <div>
           <h2 className="font-semibold text-lg mb-4">Khoá học tiếng anh</h2>
-          <div className="grid grid-cols-5 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-5">
             <CourseBound />
             <CourseBound />
             <CourseBound />

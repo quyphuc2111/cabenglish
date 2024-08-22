@@ -101,6 +101,7 @@ export function Menu({ isOpen }: MenuProps) {
                     active={active}
                     submenus={submenus}
                     isOpen={isOpen}
+                    href={href}
                   />
                 </div>
               )

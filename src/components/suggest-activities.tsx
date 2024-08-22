@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import SuggestCard from "./course-card/suggest-card";
 
 function SuggestActivities() {
@@ -7,7 +7,11 @@ function SuggestActivities() {
       {Array(1)
         .fill("")
         .map((item, index) => {
-          return <SuggestCard />;
+          return (
+            <Fragment key={index}>
+              <SuggestCard />
+            </Fragment>
+          );
         })}
     </>
   );

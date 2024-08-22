@@ -33,9 +33,9 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "",
       menus: [
         {
-          href: "/dashboard",
+          href: "/lop-hoc",
           label: "Lớp BKT",
-          active: pathname.includes("/dashboard"),
+          active: pathname.includes("/lop-hoc"),
           icon: LayoutGrid,
           submenus: []
         }
@@ -45,42 +45,47 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "",
       menus: [
         {
-          href: "",
+          href: "/main/khoa-hoc",
           label: "Khóa học",
-          active: pathname.includes("/posts"),
+          active: pathname.includes("/main/khoa-hoc"),
           icon: SquarePen,
           submenus: [
+            // {
+            //   href: "/main/khoa-hoc",
+            //   label: "Khóa học mới",
+            //   active: pathname === "/main/khoa-hoc"
+            // },
             {
-              href: "/posts",
+              href: "/main/khoa-hoc/lop-1",
               label: "Tiếng anh lớp 1",
-              active: pathname === "/posts"
+              active: pathname === "/main/khoa-hoc/lop-1"
             },
             {
-              href: "/posts/new",
+              href: "/main/khoa-hoc/lop-2",
               label: "Tiếng anh lớp 2",
-              active: pathname === "/posts/new"
+              active: pathname === "/main/khoa-hoc/lop-2"
             },
             {
-              href: "/posts",
+              href: "/main/khoa-hoc/lop-3",
               label: "Tiếng anh lớp 3",
-              active: pathname === "/posts"
+              active: pathname === "/main/khoa-hoc/lop-3"
             },
             {
-              href: "/posts/new",
+              href: "/main/khoa-hoc/lop-4",
               label: "Tiếng anh lớp 4",
-              active: pathname === "/posts/new"
+              active: pathname === "/main/khoa-hoc/lop-4"
             },
             {
-              href: "/posts/new",
+              href: "/main/khoa-hoc/lop-5",
               label: "Tiếng anh lớp 5",
-              active: pathname === "/posts/new"
+              active: pathname === "/main/khoa-hoc/lop-5"
             }
           ]
         },
         {
-          href: "/tags",
+          href: "/gift-shop",
           label: "Quà tặng",
-          active: pathname.includes("/tags"),
+          active: pathname.includes("/gift-shop"),
           icon: Tag,
           submenus: []
         }
