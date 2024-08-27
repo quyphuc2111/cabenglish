@@ -47,7 +47,7 @@ import { Checkbox } from "@/components/ui/checkbox";
     },
     footer: {
       image:
-        "https://static.edupia.vn/uploads/v3/assets/images/gift-shop/clock-outline.svg",
+        "https://static.edupia.vn/uploads/v3/assets/images/gift-shop/gift-outline.svg",
       link: "#",
       text: "Đổi quà"
     },

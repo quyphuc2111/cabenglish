@@ -18,6 +18,7 @@ import SectionContent from "../section-content";
 import { ACCOUNT_INFOMATION } from "@/mock/data";
 import { formatDate } from "date-fns";
 import UserInfoModal from "../modal/user-info-modal";
+import LogoutButton from "./logout-button";
 
 const LeaderBoardData = [
   {
@@ -352,6 +353,7 @@ function ListGroup() {
               </SectionContent>
             </div>
           </div>
+          <LogoutButton />
         </TabsContent>
       </Tabs>
 

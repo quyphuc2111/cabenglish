@@ -18,14 +18,14 @@ function SectionTitle({ title }: any) {
       <h2 className="text-xl font-semibold">{title}</h2>
 
       
-      <Button className="flex gap-1" onClick={handleChangeModal}>
+      <Button className="flex gap-1 bg-transparent border-none shadow-none text-cyan hover:text-white" onClick={handleChangeModal}>
         <Image
           src="https://static.edupia.vn/uploads/v3/assets/images/icons/pencil-line.svg"
           width={16}
           height={16}
           alt="pencil"
         />
-        <span className="text-md">Chỉnh sửa</span>
+        <span className="text-md ">Chỉnh sửa</span>
       </Button>
       
     </div>

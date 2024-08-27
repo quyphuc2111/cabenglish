@@ -42,7 +42,7 @@ const HistoryData = [
 function StudyReport() {
   return (
     <div className="bg-white shadow-course-inset rounded-2xl p-1 md:p-4 lg:grid grid-cols-12 ">
-      <div className="col-span-4 flex flex-col md:flex-row md:items-center md:gap-12 lg:gap-0 lg:block">
+      <div className="col-span-4 flex flex-col md:flex-row md:items-center md:gap-12  md:gap-5">
         <div className="relative w-1/4 lg:w-1/3">
           <div className="rounded-full">
             <Image
