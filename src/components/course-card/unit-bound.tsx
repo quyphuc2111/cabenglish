@@ -1,15 +1,24 @@
+'use client'
 import React from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Progress } from "../ui/progress";
+import { useRouter } from "next/navigation";
 
 function UnitBound({ className }: any) {
+  const router = useRouter()
+
+  const handleChooseCourse = () => {
+   router.push('/khoahoc/tieng-anh-lop-1/unit/4432')
+  };
+
   return (
     <div
       className={cn(
-        "bg-white border shadow-course-inset rounded-3xl p-5",
+        "bg-white border shadow-course-inset rounded-3xl p-5 cursor-pointer scale-100 hover:scale-105 transition-transform duration-300",
         className
       )}
+      onClick={handleChooseCourse}
     >
       <div className=" flex flex-col items-center gap-2">
         <div>

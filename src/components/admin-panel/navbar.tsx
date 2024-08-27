@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 interface NavbarProps {
   title: string;
-  type: string
+  type?: string
 }
 
 export function Navbar({ title, type }: NavbarProps) {

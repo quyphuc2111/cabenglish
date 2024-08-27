@@ -1,3 +1,4 @@
+import { withNextVideo } from "next-video/process";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
@@ -6,4 +7,4 @@ const nextConfig = {
     output: "standalone"
 };
 
-export default nextConfig;
+export default withNextVideo(nextConfig);

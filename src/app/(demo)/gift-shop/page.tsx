@@ -18,7 +18,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 
-const GiftData = [
+ const GiftData = [
   {
     title: "Số xu còn lại",
     content: {

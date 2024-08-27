@@ -127,3 +127,15 @@
       line-height: 21px;
   }
 }
+
+
+.how-to-play::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: -25px;
+  width: 30px;
+  height: 30px;
+  background-color: #f5f5f5;
+  clip-path: polygon(100% 0, 0 48%, 100% 100%);
+}

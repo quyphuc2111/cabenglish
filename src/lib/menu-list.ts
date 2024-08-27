@@ -56,29 +56,29 @@ export function getMenuList(pathname: string): Group[] {
             //   active: pathname === "/main/khoa-hoc"
             // },
             {
-              href: "/main/khoa-hoc/lop-1",
+              href: "/main/khoa-hoc/tieng-anh-lop-1",
               label: "Tiếng anh lớp 1",
-              active: pathname === "/main/khoa-hoc/lop-1"
+              active: pathname === "/main/khoa-hoc/tieng-anh-lop-1"
             },
             {
-              href: "/main/khoa-hoc/lop-2",
+              href: "/main/khoa-hoc/tieng-anh-lop-2",
               label: "Tiếng anh lớp 2",
-              active: pathname === "/main/khoa-hoc/lop-2"
+              active: pathname === "/main/khoa-hoc/tieng-anh-lop-2"
             },
             {
-              href: "/main/khoa-hoc/lop-3",
+              href: "/main/khoa-hoc/tieng-anh-lop-3",
               label: "Tiếng anh lớp 3",
-              active: pathname === "/main/khoa-hoc/lop-3"
+              active: pathname === "/main/khoa-hoc/tieng-anh-lop-3"
             },
             {
-              href: "/main/khoa-hoc/lop-4",
+              href: "/main/khoa-hoc/tieng-anh-lop-4",
               label: "Tiếng anh lớp 4",
-              active: pathname === "/main/khoa-hoc/lop-4"
+              active: pathname === "/main/khoa-hoc/tieng-anh-lop-4"
             },
             {
-              href: "/main/khoa-hoc/lop-5",
+              href: "/main/khoa-hoc/tieng-anh-lop-5",
               label: "Tiếng anh lớp 5",
-              active: pathname === "/main/khoa-hoc/lop-5"
+              active: pathname === "/main/khoa-hoc/tieng-anh-lop-5"
             }
           ]
         },
