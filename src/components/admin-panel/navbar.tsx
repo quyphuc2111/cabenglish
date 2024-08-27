@@ -5,15 +5,38 @@ import { SheetMenu } from "@/components/admin-panel/sheet-menu";
 import { Button } from "../ui/button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface NavbarProps {
   title: string;
   type?: string
 }
 
+type CourseNameMap = {
+  [key: string]: string;
+};
+
+const courseName: CourseNameMap = {
+  'tieng-anh-lop-1': "Tiếng anh lớp 1",
+  'tieng-anh-lop-2': "Tiếng anh lớp 2",
+  'tieng-anh-lop-3': "Tiếng anh lớp 3",
+  'tieng-anh-lop-4': "Tiếng anh lớp 4",
+  'tieng-anh-lop-5': "Tiếng anh lớp 5",
+}
+
 export function Navbar({ title, type }: NavbarProps) {
   // backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0
+  const [lastSlug, setLastSlug] = useState<string | any>('');
   const router  = useRouter()
+
+  useEffect(() => {
+    const url = window.location.href;
+    const parts = url.split('/');
+    const slug = parts.pop() || parts.pop(); 
+
+    setLastSlug(slug);
+  }, []);
+
 
   const handleBack = () => {
     router.push('/main/khoa-hoc')
@@ -57,7 +80,7 @@ export function Navbar({ title, type }: NavbarProps) {
                 alt="lesson"
               />
              </div>
-             <h2 className="font-semibold text-xl text-zinc-600">Tiếng anh lớp 1</h2>
+             <h2 className="font-semibold text-xl text-zinc-600">{courseName[lastSlug]}</h2>
            </div>
           )
         }

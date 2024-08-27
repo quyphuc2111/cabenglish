@@ -2,7 +2,7 @@
 import React, { Fragment, useState } from "react";
 import Image from "next/image";
 import LessonItem from "@/components/lesson/lesson-item";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 const UnitData = [
   {
@@ -109,11 +109,21 @@ const UnitData = [
 
 function UnitPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+ 
+  const lessonParams = searchParams.get('lesson')
   const [isSliding, setIsSliding] = useState(false);
   const [initialSliding, setInitialSliding] = useState(false)
 
+  console.log(lessonParams);
+
   const handleLessonClick = () => {
-    setIsSliding(true);
+    if(!lessonParams) {
+      setIsSliding(true);
+    } else {
+      router.push('/lop-hoc')
+    }
+    
   };
 
   const handleBackClick = () => {
@@ -128,7 +138,7 @@ function UnitPage() {
 
   return (
     <div className="bg-[url('/player_background.png')] w-screen h-screen bg-repeat bg-[length:560px_560px]">
-      <div className="container pt-6 pb-1">
+      <div className="px-2 md:px-0 md:container pt-6 pb-1">
         <div className="cursor-pointer" onClick={handleBackClick}>
           <Image src="/backic.png" width={64} height={64} alt="backic" />
         </div>
@@ -136,9 +146,12 @@ function UnitPage() {
           className={`shadow-md  ${isSliding ? "p-0" : "py-5"} rounded-2xl bg-[#f5fcff] lg:w-5/6 mx-auto relative h-[800px] overflow-hidden`}
         >
           <div className={`w-full ${isSliding ? "animate-slideLeft" : "animate-slideRight px-3"}`}>
-            <h2 className="text-2xl font-semibold text-zinc-700 mb-12 ml-7">
-              Unit 9 : In the shop
-            </h2>
+            {
+              !lessonParams && (     <h2 className="text-2xl font-semibold text-zinc-700 mb-12 ml-7">
+                Unit 9 : In the shop
+              </h2>)
+            }
+       
 
             {UnitData.map((item, index) => {
               return (
@@ -150,6 +163,7 @@ function UnitPage() {
                     rate={item.rate}
                     lessonInfo={item.lessonInfo}
                     onClick={handleLessonClick}
+                    params={lessonParams}
                   />
                 </Fragment>
               );
