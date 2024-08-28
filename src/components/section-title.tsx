@@ -4,13 +4,13 @@ import Image from "next/image";
 import UserInfoModal from "./modal/user-info-modal";
 import { useDialog } from "@/hooks/useDialog";
 
-function SectionTitle({ title }: any) {
-  const {isOpen, onClose, onOpen} = useDialog()
+function SectionTitle({ title, index }: any) {
+  const {isOpen, onClose, onOpen, setData} = useDialog()
 
   const handleChangeModal = () => {
     isOpen ? onClose() : onOpen()
+    setData({index: index})
 
-    console.log("123213",isOpen );
   }
 
   return (

@@ -29,7 +29,7 @@ import { Checkbox } from "@/components/ui/checkbox";
     footer: {
       image:
         "https://static.edupia.vn/uploads/v3/assets/images/gift-shop/clock-outline.svg",
-      link: "#",
+      link: null,
       text: "Lịch sử dùng xu"
     },
     backgroundImage:
@@ -48,7 +48,7 @@ import { Checkbox } from "@/components/ui/checkbox";
     footer: {
       image:
         "https://static.edupia.vn/uploads/v3/assets/images/gift-shop/gift-outline.svg",
-      link: "#",
+      link: "/gift-shop",
       text: "Đổi quà"
     },
     backgroundImage:

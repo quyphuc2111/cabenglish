@@ -23,7 +23,7 @@ function ExtraItem({ title, desc, imageUrl, type }: any) {
           <div className="flex justify-between">
             {type === "date" ? (
               <div className="flex gap-2">
-                <span className="text-[#21bdc6] text-xs md:text-sm flex gap-1">
+                <span className="text-[#21bdc6] text-xs md:text-sm flex gap-1 items-center">
                   <div className="w-4 h-4 relative">
                     <Image
                       src="https://static.edupia.vn/uploads/v3/assets/images/classroom/sapdienra.png"

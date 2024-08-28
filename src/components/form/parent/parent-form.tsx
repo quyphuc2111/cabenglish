@@ -131,7 +131,7 @@ export const ParentForm: React.FC<ParentFormProps> = ({ initialData }) => {
             />
           ))}
 
-          <div className="flex gap-5 items-center">
+          <div className="flex flex-col lg:flex-row  gap-5 lg:items-center">
             <FormField
               control={form.control}
               name="dateOfBirth"

@@ -26,7 +26,7 @@ function CourseBound({ className }: any) {
   const router = useRouter();
 
   const handleChooseCourse = () => {
-    router.push('/khoahoc/tieng-anh-lop-1/unit/4432')
+    router.push('/main/khoa-hoc/tieng-anh-lop-1')
    };
 
   return (

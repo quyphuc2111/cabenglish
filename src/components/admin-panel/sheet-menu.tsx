@@ -25,7 +25,7 @@ export function SheetMenu() {
             variant="link"
             asChild
           >
-            <Link href="/dashboard" className="flex items-center gap-2">
+            <Link href="/bao-cao-hoc-tap" className="flex items-center gap-2">
               <PanelsTopLeft className="w-6 h-6 mr-1" />
               <h1 className="font-bold text-lg">BKT Kids</h1>
             </Link>

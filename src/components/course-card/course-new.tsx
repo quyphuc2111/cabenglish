@@ -18,11 +18,11 @@ function CourseNew({ className }: any) {
   const router = useRouter();
 
   const handleChooseCourse = () => {
-    router.push('/khoahoc/tieng-anh-lop-1/unit/4222')
+    router.push('/main/khoa-hoc/tieng-anh-lop-1')
    };
 
   return (
-    <div onClick={handleChooseCourse} className={cn("lg:w-2/5 px-3 py-5 bg-white rounded-3xl flex gap-3 shadow-course-inset border overflow-hidden", className)}>
+    <div onClick={handleChooseCourse} className={cn("w-full 2xl:w-2/5 px-3 py-5 bg-white rounded-3xl flex gap-3 shadow-course-inset border overflow-hidden", className)}>
      <div className="relative ">
      <Image
         src="https://static.edupia.vn/uploads/v3/assets/images/thumb-math.png"

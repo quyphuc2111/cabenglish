@@ -138,7 +138,7 @@ export function Navbar({ title, type }: NavbarProps) {
                 alt="lesson"
               />
              </div>
-             <h2 className="font-semibold text-xl text-zinc-600">Tiếng anh lớp 1</h2>
+             <h2 className="font-semibold text-xl text-zinc-600">{courseName[lastSlug]}</h2>
            </div>
           )
         }

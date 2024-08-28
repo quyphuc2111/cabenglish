@@ -20,7 +20,7 @@ function UnitsSection() {
         </div>
       </TabsContent>
       <TabsContent value="2"  className="pt-5">
-        <div className="grid grid-cols-6 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-5">
           <UnitBound />
           <UnitBound />
           <UnitBound />
@@ -32,7 +32,7 @@ function UnitsSection() {
         </div>
       </TabsContent>
       <TabsContent value="3"  className="pt-5">
-        <div className="grid grid-cols-6 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-5">
           <UnitBound />
           <UnitBound />
         </div>

@@ -20,28 +20,53 @@ function GiftCard({ title, content, footer, backgroundImage, image, ...props }: 
           <p className="text-4xl font-semibold">{content.value}</p>
         </span>
       </div>
-      <CoinHistory>
-      <Link href={footer.link} className="flex gap-2">
-        <Image src={footer.image} alt="icon" width={24} height={24} />
-        <p className="font-semibold text-md">{footer.text}</p>
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M8.5 4.5L15.5 11.5L8.5 18.5"
-            stroke="black"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          ></path>
-        </svg>
-      </Link>
-
-      </CoinHistory>
+      {
+        !footer.link ? (
+          <CoinHistory>
+          <Link href={""} className="flex gap-2">
+            <Image src={footer.image} alt="icon" width={24} height={24} />
+            <p className="font-semibold text-md">{footer.text}</p>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8.5 4.5L15.5 11.5L8.5 18.5"
+                stroke="black"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              ></path>
+            </svg>
+          </Link>
+    
+          </CoinHistory>
+        ) : (
+          <Link href={footer.link.toString()} className="flex gap-2">
+          <Image src={footer.image} alt="icon" width={24} height={24} />
+          <p className="font-semibold text-md">{footer.text}</p>
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 4.5L15.5 11.5L8.5 18.5"
+              stroke="black"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            ></path>
+          </svg>
+        </Link>
+        )
+      }
+     
      
       <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
         <Image src={image} alt="icon-image" width={86} height={86} />

@@ -126,8 +126,12 @@ function UnitPage() {
   };
 
   const handleBackClick = () => {
-    // /main/khoa-hoc/tieng-anh-lop-1
-    if (!isSliding) {
+
+    if(lessonParams) { 
+      router.push("/lop-hoc")
+    }
+    
+    if (!isSliding && !lessonParams) {
       router.push("/main/khoa-hoc/tieng-anh-lop-1");
     } else {
       setIsSliding(false);
@@ -143,15 +147,15 @@ function UnitPage() {
         <div
           className={`shadow-md  ${
             isSliding ? "p-0" : "py-5"
-          } rounded-2xl bg-[#f5fcff] lg:w-5/6 mx-auto relative h-[800px] overflow-hidden`}
+          } rounded-2xl bg-[#f5fcff] lg:w-5/6 mx-auto h-[800px] relative overflow-hidden`}
         >
           <div
-            className={`w-full ${
+            className={`w-full h-full ${
               isSliding ? "animate-slideLeft" : "animate-slideRight px-3"
             }`}
           >
             {!lessonParams && (
-              <h2 className="text-2xl font-semibold text-zinc-700 mb-12 ml-7">
+              <h2 className="text-2xl font-semibold text-zinc-700 mb-3 lg:mb-12 ml-7">
                 Unit 9 : In the shop
               </h2>
             )}

@@ -19,6 +19,7 @@ import { ACCOUNT_INFOMATION } from "@/mock/data";
 import { formatDate } from "date-fns";
 import UserInfoModal from "../modal/user-info-modal";
 import LogoutButton from "./logout-button";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const LeaderBoardData = [
   {
@@ -82,7 +83,7 @@ const GiftData = [
     footer: {
       image:
         "https://static.edupia.vn/uploads/v3/assets/images/gift-shop/clock-outline.svg",
-      link: "#",
+      link: null,
       text: "Lịch sử dùng xu"
     },
     backgroundImage:
@@ -100,8 +101,8 @@ const GiftData = [
     },
     footer: {
       image:
-        "https://static.edupia.vn/uploads/v3/assets/images/gift-shop/clock-outline.svg",
-      link: "#",
+        "https://static.edupia.vn/uploads/v3/assets/images/gift-shop/gift-outline.svg",
+      link: '/gift-shop',
       text: "Đổi quà"
     },
     backgroundImage:
@@ -119,13 +120,54 @@ const resolveRankingImage: any = (index: string) => {
   return rankImage?.image;
 };
 
+const TabContent = [
+  {
+    index: 1,
+    title: "Báo cáo học tập"
+  },
+  {
+    index: 2,
+    title: "Bảng vinh danh"
+  },
+  {
+    index: 3,
+    title: "Quà của tôi"
+  },
+  {
+    index: 4,
+    title: "Quản trị thông tin tài khoản"
+  }
+];
+
 function ListGroup() {
   const { userInfo, parentInfo, studentInfo } = ACCOUNT_INFOMATION;
+
+  const router = useRouter()
+  const searchParams = useSearchParams();
+
+  const tabParams = searchParams.get("tab")
+
+  const handleChangeTab = (index: string) => {
+    router.push(`?tab=${index}`)
+
+  }
+  console.log(tabParams);
+
   return (
     <div className="md:w-full">
-      <Tabs defaultValue="4" className="w-full mt-10 ">
+      <Tabs defaultValue={tabParams ? tabParams.toString() : "4"} className="w-full mt-10 ">
         <TabsList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:w-full overflow-x-scroll md:overflow-x-hidden h-auto space-y-1">
-          <TabsTrigger
+          {TabContent.map((tab, index) => (
+            <TabsTrigger
+              key={index}
+              className={`h-12 text-xl basis-1/3 2xl:basis-1/4`}
+              value={tab.index.toString()}
+              onClick={() => handleChangeTab(tab.index.toString())}
+            >
+              {tab.title}
+            </TabsTrigger>
+          ))}
+          {/* <TabsTrigger
             className="h-12 text-xl basis-1/3 2xl:basis-1/4"
             value="1"
           >
@@ -148,7 +190,7 @@ function ListGroup() {
             value="4"
           >
             Quản trị thông tin tài khoản
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
         <TabsContent value="1"></TabsContent>
         <TabsContent value="2">
@@ -168,9 +210,9 @@ function ListGroup() {
             </Select>
           </div>
 
-          <div className="bg-white p-4 mt-12 shadow-course-inset rounded-2xl overflow-x-auto w-[400px] md:w-4/5 lg:w-full">
+          <div className="bg-white p-4 mt-12 shadow-course-inset rounded-2xl overflow-x-auto w-[320px] md:w-4/5 lg:w-full">
             <table className="w-full min-w-[600px]">
-              <tr>
+              <tr className="text-xl">
                 <th className="text-left w-[148px] pl-3">TT</th>
                 <th className="text-left">Họ và tên</th>
                 <th>Điểm</th>
@@ -227,7 +269,7 @@ function ListGroup() {
 
           <div className="flex justify-between my-5 lg:my-10 items-center gap-2">
             <Select defaultValue="1">
-              <SelectTrigger className="w-[230px] font-semibold bg-white rounded-xl h-11 text-md shadow-md">
+              <SelectTrigger className="w-[200px] lg:w-[230px] font-semibold bg-white rounded-xl h-11 text-md shadow-md">
                 <SelectValue placeholder="Tuần" />
               </SelectTrigger>
               <SelectContent>
@@ -256,7 +298,10 @@ function ListGroup() {
               .fill("")
               .map((item, index) => {
                 return (
-                  <div key={index} className="bg-white shadow-course-inset border rounded-3xl overflow-hidden">
+                  <div
+                    key={index}
+                    className="bg-white shadow-course-inset border rounded-3xl overflow-hidden"
+                  >
                     <div className=" relative w-full h-[150px] overflow-hidden bg-[#f9f9f9]">
                       <Image
                         src="https://static.edupia.vn/dungchung/dungchung/core_cms/resources/uploads/common/images/2022/06/14/property-1frame-8520.png"
@@ -274,7 +319,7 @@ function ListGroup() {
         <TabsContent value="4">
           <div className="flex flex-col gap-5">
             <div>
-              <SectionTitle title="Thông tin tài khoản" />
+              <SectionTitle title="Thông tin tài khoản" index="2" />
               <SectionContent className="mt-5">
                 <div className="grid grid-cols-2 font-semibold lg:w-1/2">
                   <div className="flex flex-col gap-3">
@@ -292,7 +337,7 @@ function ListGroup() {
             </div>
 
             <div>
-              <SectionTitle title="Thông tin học sinh" />
+              <SectionTitle title="Thông tin học sinh" index="3"  />
               <SectionContent className="mt-5">
                 <div className="grid grid-cols-2 font-semibold lg:w-1/2">
                   <div className="flex flex-col gap-3">
@@ -319,7 +364,7 @@ function ListGroup() {
             </div>
 
             <div>
-              <SectionTitle title="Thông tin phụ huynh" />
+              <SectionTitle title="Thông tin phụ huynh" index="4" />
               <SectionContent className="mt-5">
                 <div className="grid grid-cols-2 font-semibold lg:w-1/2">
                   <div className="flex flex-col gap-3">

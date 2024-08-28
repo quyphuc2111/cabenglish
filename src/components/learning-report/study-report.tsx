@@ -1,6 +1,8 @@
+"use client"
 import React from "react";
 import Image from "next/image";
 import { CalendarComponent } from "../ui/calendar";
+import { useDialog } from "@/hooks/useDialog";
 
 const ClassData = [
   {
@@ -40,10 +42,15 @@ const HistoryData = [
 ];
 
 function StudyReport() {
+  const {isOpen, setData, onClose, onOpen} = useDialog()
+  const handleSetDialogData = () => {
+    isOpen ? onClose() : onOpen()
+    setData({index: "1"})
+  }
   return (
     <div className="bg-white shadow-course-inset rounded-2xl p-1 md:p-4 lg:grid grid-cols-12 ">
       <div className="col-span-4 flex flex-col md:flex-row md:items-center md:gap-12  md:gap-5">
-        <div className="relative w-1/4 lg:w-1/3">
+        <div className="relative w-1/4 lg:w-1/3 cursor-pointer" onClick={handleSetDialogData}>
           <div className="rounded-full">
             <Image
               src="https://static.edupia.vn/images/avata_system/55.png"
@@ -80,7 +87,7 @@ function StudyReport() {
       </div>
       <div className="col-span-8 mt-2 lg:mt-0">
         <div className="flex flex-col h-full justify-center">
-          <div className="bg-[#e9f8f9] rounded-2xl border grid grid-cols-2 md:grid-cols-5">
+          <div className="bg-[#e9f8f9] rounded-2xl border grid grid-cols-2 md:grid-cols-5 cursor-pointer">
             {ClassData.map((item, index) => {
               return (
                 <div
