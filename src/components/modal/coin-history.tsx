@@ -56,17 +56,17 @@ function CoinHistory({ children }: any) {
   };
 
   return (
-    <Dialog>
+    <Dialog >
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[1000px]" style={{borderRadius: '50px'}}>
+      <DialogContent className="sm:max-w-[1000px] overflow-hidden" style={{borderRadius: '50px'}}>
         <DialogHeader>
           <DialogTitle>
             <h2 className="text-2xl border-l-[#ff9213] border-l-4 px-2 py-1">Lịch sử dùng xu</h2>
           </DialogTitle>
         </DialogHeader>
-        <div className="flex gap-3">
+        <div className="flex flex-col lg:flex-row gap-3">
           <Tabs defaultValue="1" className="w-[300px]">
             <TabsList className="grid w-full grid-cols-2 h-[48px]">
               <TabsTrigger className="py-2" value="1">Lịch sử đổi quà</TabsTrigger>

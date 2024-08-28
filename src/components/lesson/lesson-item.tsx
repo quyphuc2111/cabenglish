@@ -30,8 +30,6 @@ function LessonItem({
 
   const { alpha, beta, gamma } = useDeviceOrientation();
 
-  console.log("!23123", { alpha, beta, gamma });
-
   const handleTabClick = (index: number) => {
     setActiveIndexTab(index);
   };
@@ -41,21 +39,32 @@ function LessonItem({
       {!params && (
         <div
           onClick={onClick}
-          className="w-full cursor-pointer bg-white shadow-course-inset mb-4 p-5 rounded-3xl border flex justify-between flex-col lg:flex-row"
+          className={`w-full cursor-pointer bg-white shadow-course-inset mb-4 p-5 rounded-3xl border flex justify-between flex-col lg:flex-row ${!point && "lg:items-center"}`}
         >
           <div className="flex items-center gap-2">
             <Image src={image} width={58} height={58} alt="" />
             <h5 className="text-lg font-medium">{title}</h5>
           </div>
-          <div className="flex items-center gap-3 ">
-            <p className="text-xl font-semibold">{point} điểm</p>
-            <span className="w-3 h-3 bg-zinc-300 rounded-full"></span>
-            <p className="text-xl font-semibold text-zinc-500">{rate}%</p>
-          </div>
+          {point ? (
+            <div className="flex items-center gap-3 ">
+              <p className="text-xl font-semibold">{point} điểm</p>
+              <span className="w-3 h-3 bg-zinc-300 rounded-full"></span>
+              <p className="text-xl font-semibold text-zinc-500">{rate}%</p>
+            </div>
+          ) : (
+            <div className="w-8 h-8 relative">
+              <Image
+                src="/lock.png"
+                layout="fill"
+                objectFit="cover"
+                alt="lock"
+              />
+            </div>
+          )}
         </div>
       )}
       <div
-        className={`  absolute top-0 ${params ? "left-0" : "-right-[132px]"}`}
+        className={` tab-container absolute top-0 ${params ? "left-0" : "-right-[132px]"}`}
       >
         <div className="bg-[#f5fcff] w-[132px] h-[800px] ">
           <div className="p-7 text-white bg-[#00cccc] rounded-tl-3xl">

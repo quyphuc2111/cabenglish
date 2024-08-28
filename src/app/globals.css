@@ -141,7 +141,7 @@
 }
 
 
-@media screen and (max-width: 767px) and  (orientation:portrait) {
+@media screen and (max-width: 767px) and (orientation: portrait) {
   .video-container .video-content {
     display: none;
   }
@@ -152,9 +152,40 @@
     background-position: 2% 20%;
   }
 }
-@media screen and (max-width: 767px) and (orientation:landscape) {
-  .video-container{
+
+@media screen and (max-width: 767px) and (orientation: landscape) {
+  .video-container {
     width: 750px;
     right: -883px;
   }
 }
+
+@media screen and (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
+  .video-container {
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1023px) and (orientation: landscape) {
+  .tab-container {
+    width: 100px;
+  }
+  .video-container {
+    width: 650px;
+    right: -800px;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1365px) and (orientation: landscape) {
+  .video-container {
+    width: 800px;
+    right: -950px;
+  }
+}
+
+@media screen and (min-width: 1366px) {
+  .video-container {
+    width:1020px;
+    right: -1153px;
+  }
+}
+

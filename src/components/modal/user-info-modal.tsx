@@ -36,27 +36,27 @@ function UserInfoModal({ children }: any) {
           </DialogTitle>
         </DialogHeader>
         <Tabs orientation="vertical" defaultValue="1" className="flex">
-          <TabsList className="flex flex-col w-1/6 lg:w-1/3 h-full">
+          <TabsList className="flex flex-col w-1/6 lg:w-1/3 h-full overflow-hidden">
             <TabsTrigger
-              className="h-16 w-full font-semibold text-lg"
+              className="h-16 w-full font-semibold text-base md:text-lg break-words whitespace-pre-wrap overflow-hidden"
               value="1"
             >
               Avatar
             </TabsTrigger>
             <TabsTrigger
-              className="h-16 w-full font-semibold text-lg"
+              className="h-16 w-full font-semibold text-base md:text-lg break-words whitespace-pre-wrap overflow-hidden"
               value="2"
             >
               Thông tin tài khoản
             </TabsTrigger>
             <TabsTrigger
-              className="h-16 w-full font-semibold text-lg"
+              className="h-16 w-full font-semibold text-base md:text-lg break-words whitespace-pre-wrap overflow-hidden"
               value="3"
             >
               Thông tin học sinh
             </TabsTrigger>
             <TabsTrigger
-              className="h-16 w-full font-semibold text-lg"
+              className="h-16 w-full font-semibold text-base md:text-lg break-words whitespace-pre-wrap overflow-hidden"
               value="4"
             >
               Thông tin phụ huynh

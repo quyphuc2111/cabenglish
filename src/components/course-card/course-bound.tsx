@@ -1,3 +1,4 @@
+"use client"
 import Image from "next/image";
 import React from "react";
 import { Badge } from "../ui/badge";
@@ -19,10 +20,18 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "../ui/tooltip";
+import { useRouter } from "next/navigation";
 
 function CourseBound({ className }: any) {
+  const router = useRouter();
+
+  const handleChooseCourse = () => {
+    router.push('/khoahoc/tieng-anh-lop-1/unit/4432')
+   };
+
   return (
     <div
+    onClick={handleChooseCourse}
       className={cn(
         "px-3 py-5 bg-white rounded-3xl flex flex-col gap-3 shadow-course-inset border relative overflow-hidden",
         className

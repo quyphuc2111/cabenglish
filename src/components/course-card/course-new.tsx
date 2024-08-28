@@ -1,3 +1,4 @@
+'use client'
 import Image from "next/image";
 import React from "react";
 import { Badge } from "../ui/badge";
@@ -11,10 +12,17 @@ import {
   AvatarOverflowIndicator
 } from "../ui/avatar";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 function CourseNew({ className }: any) {
+  const router = useRouter();
+
+  const handleChooseCourse = () => {
+    router.push('/khoahoc/tieng-anh-lop-1/unit/4222')
+   };
+
   return (
-    <div className={cn("lg:w-2/5 px-3 py-5 bg-white rounded-3xl flex gap-3 shadow-course-inset border overflow-hidden", className)}>
+    <div onClick={handleChooseCourse} className={cn("lg:w-2/5 px-3 py-5 bg-white rounded-3xl flex gap-3 shadow-course-inset border overflow-hidden", className)}>
      <div className="relative ">
      <Image
         src="https://static.edupia.vn/uploads/v3/assets/images/thumb-math.png"

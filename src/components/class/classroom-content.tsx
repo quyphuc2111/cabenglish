@@ -1,3 +1,4 @@
+"use client"
 import React, { Fragment } from "react";
 import {
   Select,
@@ -14,6 +15,7 @@ import Image from "next/image";
 
 import coin from "@/assets/coin.png";
 import ExtraItem from "./extra-item";
+import { useRouter } from "next/navigation";
 
 const MissionData = [
   {
@@ -58,6 +60,7 @@ const ExtraData = [
 ]
 
 function ClassroomContent() {
+  const router = useRouter()
   return (
     <div>
       <Select defaultValue="Mission 1">
@@ -83,6 +86,7 @@ function ClassroomContent() {
                 <div
                   key={index}
                   className="flex gap-5 bg-white py-7 px-5 rounded-3xl shadow-course-inset cursor-pointer"
+                  onClick={() => router.push('khoahoc/tieng-anh-lop-1/unit/4432?lesson=23123')}
                 >
                   <Image
                     className="rounded-3xl"
