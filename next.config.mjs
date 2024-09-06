@@ -4,15 +4,15 @@ const nextConfig = {
   images: {
     domains: ["static.edupia.vn"]
   },
-  async redirects() {
-    return [
-      {
-        source: "/",
-        destination: "/",
-        permanent: true
-      }
-    ];
-  }
+  // async redirects() {
+  //   return [
+  //     {
+  //       source: "/",
+  //       destination: "/",
+  //       permanent: true
+  //     }
+  //   ];
+  // }
 };
 
 export default withNextVideo(nextConfig);
