@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+
+  @layer base {
+    :root {
+      --background: 0 0% 100%;
+      --foreground: 240 10% 3.9%;
+
+      --card: 0 0% 100%;
+      --card-foreground: 240 10% 3.9%;
+
+      --popover: 0 0% 100%;
+      --popover-foreground: 240 10% 3.9%;
+
+      --primary: 240 5.9% 10%;
+      --primary-foreground: 0 0% 98%;
+
+      --secondary: 240 4.8% 95.9%;
+      --secondary-foreground: 240 5.9% 10%;
+
+      --muted: 240 4.8% 95.9%;
+      --muted-foreground: 240 3.8% 46.1%;
+
+      --accent: 240 4.8% 95.9%;
+      --accent-foreground: 240 5.9% 10%;
+
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 0 0% 98%;
+
+      --border: 240 5.9% 90%;
+      --input: 240 5.9% 90%;
+      --ring: 240 10% 3.9%;
+
+      --radius: 0.5rem;
+    }
+
+    .dark {
+      --background: 240 10% 3.9%;
+      --foreground: 0 0% 98%;
+
+      --card: 240 10% 3.9%;
+      --card-foreground: 0 0% 98%;
+
+      --popover: 240 10% 3.9%;
+      --popover-foreground: 0 0% 98%;
+
+      --primary: 0 0% 98%;
+      --primary-foreground: 240 5.9% 10%;
+
+      --secondary: 240 3.7% 15.9%;
+      --secondary-foreground: 0 0% 98%;
+
+      --muted: 240 3.7% 15.9%;
+      --muted-foreground: 240 5% 64.9%;
+
+      --accent: 240 3.7% 15.9%;
+      --accent-foreground: 0 0% 98%;
+
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 0 0% 98%;
+
+      --border: 240 3.7% 15.9%;
+      --input: 240 3.7% 15.9%;
+      --ring: 240 4.9% 83.9%;
+    }
+  }
+
+  @layer base {
+    * {
+      @apply border-border;
+    }
+    body {
+      @apply bg-background text-foreground;
+    }
+
+   
+  }
+
+  .start-course-btn {
+    @apply bg-[#ff9213] shadow-course-inset py-6 text-lg font-semibold;
+  }
+  
+  .avatar-container {
+    box-shadow: 0 0 0 12px #ffffff1a, 0 0 0 20px #ffffff1a;
+    border-radius: 100%;
+  }
+
+  .btn-orange-head {
+    background: #fff2e2;
+    border-radius: 24px;
+    font-size: 18px;
+    line-height: 24px;
+    color: #ff9213 ;
+    margin-left: 12px !important;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    padding: 22px !important;
+    font-weight: 600;
+  }
+
+  .btn__medium {
+    padding: 8px 16px;
+    font-weight: 700;
+    line-height: 32px;
+    border-radius: 24px;
+    border: none;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.btn__cyan100, .btn__cyan100:hover {
+  color: #21bdc6;
+  background-color: #e9f8f9;
+}
+
+@media (max-width: 600px) {
+ .btn-orange-head {
+      padding: 5px !important;
+      background: unset;
+      font-size: 13px;
+      line-height: 21px;
+  }
+}
+
+
+.how-to-play::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: -25px;
+  width: 30px;
+  height: 30px;
+  background-color: #f5f5f5;
+  clip-path: polygon(100% 0, 0 48%, 100% 100%);
+}
+
+
+@media screen and (max-width: 767px) and (orientation: portrait) {
+  .video-container .video-content {
+    display: none;
+  }
+  .video-container {
+    background-image: url("/not-mobi.png");
+    background-size: 185px 165px;
+    background-repeat: no-repeat;
+    background-position: 5% 30%;
+  }
+}
+
+@media screen and (max-width: 767px) and (orientation: landscape) {
+  .video-container {
+    width: 550px;
+    right: -883px;
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
+  .video-container {
+    width: 630px;
+    right: -763px;
+  }
+}
+
+
+
+@media screen and (min-width: 768px) and (max-width: 1023px) and (orientation: landscape) {
+  .tab-container {
+    width: 100px;
+  }
+  .video-container {
+    width: 730px;
+    right: -800px;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1365px) and (orientation: landscape) {
+  .video-container {
+    width: 60%;
+    right: -850px;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1365px) and (orientation: portrait) {
+  .video-container {
+    width: 700px;
+    right: -850px;
+  }
+}
+
+@media screen and (min-width: 1366px) {
+  .video-container {
+    width: 90%;
+    right: -1153px;
+  }
+}
+
