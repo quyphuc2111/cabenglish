@@ -17,8 +17,11 @@ import OfficeSection from "@/components/about/OfficeSection";
 import { Badge } from "@/components/ui/badge";
 import AdviSection from "@/components/about/AdviSection";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "@/components/context/TranslationContext";
 
 export default function HomePage() {
+  const { t } = useTranslations()
+
   const router = useRouter()
   return (
     <div className="flex flex-col min-h-screen">

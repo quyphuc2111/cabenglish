@@ -13,10 +13,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated }) => {
   return (
     <div className={`absolute top-0 h-full w-1/2 flex items-center justify-center flex-col p-10 transition-all duration-700 ease-in-out ${type == 'Sign In' ? "" : "right-0"}`}>
       <h1 className="text-3xl font-bold">{type}</h1>
-      <SocialIcons />
-      <span className="text-sm mt-4 mb-2">
-        or use your email for {type === 'Sign Up' ? 'registration' : 'login'}
-      </span>
+      
       <input
         type="text"
         placeholder="Name"

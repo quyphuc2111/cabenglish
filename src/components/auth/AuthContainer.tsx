@@ -3,7 +3,6 @@ import { useState } from "react";
 import AuthForm from "./AuthForm";
 
 const AuthContainer = () => {
- 
   const [isSignIn, setIsSignIn] = useState(false);
 
   const handleSubmitButton = () => {
@@ -26,15 +25,14 @@ const AuthContainer = () => {
       >
         <div className="absolute w-full h-full flex items-center justify-center flex-col p-10">
           <h1 className="text-3xl font-bold text-white">
-            {isSignIn ? "Welcome Back!" : "Hello, Friend!"}
+            {isSignIn ? "Welcome Back!" : "Chào mừng bạn tham gia Smart Kid"}
           </h1>
 
           {!isSignIn && (
               <p
                 className={`text-white mt-4 text-center transition-all duration-700 ease-in-out transform translate-x-0 opacity-100`}
               >
-                Register with your personal details to use all of the site
-                features.
+                Đăng ký với thông tin cá nhân của bạn để sử  dụng tất cả các tính năng của trang web.
               </p>
             )}
 
@@ -48,7 +46,7 @@ const AuthContainer = () => {
             onClick={handleSubmitButton}
             className="bg-transparent border border-white text-white mt-4 p-2 px-6 rounded uppercase tracking-wide"
           >
-            {isSignIn ? "Sign In" : "Sign Up"}
+            {isSignIn ? "Đăng nhập" : "Đăng ký"}
           </button>
         </div>
       </div>

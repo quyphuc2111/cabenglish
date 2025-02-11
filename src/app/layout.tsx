@@ -5,6 +5,8 @@ import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 
 import { ThemeProvider } from "@/providers/theme-provider";
+import initTranslations from "@/locales/i18n";
+import { TranslationProvider } from "@/components/context/TranslationContext";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -35,17 +37,25 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({
-  children
+export default async function RootLayout({
+  children,
+  params: { lang }
 }: Readonly<{
   children: React.ReactNode;
+  params: { lang: string };
 }>) {
+  const { t, resources } = await initTranslations(lang, ["common"]);
+
+  const translations = resources?.[lang]?.common || {};
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       {/* className={GeistSans.className} */}
-      <body  className="font-poppins">
+      <body className="font-poppins">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
+          <TranslationProvider translations={translations}>
+            {children}
+          </TranslationProvider>
         </ThemeProvider>
       </body>
     </html>
