@@ -1,55 +1,103 @@
 "use client";
 import { useState } from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import AuthForm from "./AuthForm";
+import Image from "next/image";
 
 const AuthContainer = () => {
   const [isSignIn, setIsSignIn] = useState(false);
 
   const handleSubmitButton = () => {
-    setIsSignIn(!isSignIn)
-
-  }
+    setIsSignIn(!isSignIn);
+  };
 
   return (
     <div className="relative w-full max-w-3xl bg-white shadow-lg overflow-hidden rounded-3xl">
       <div className="flex w-full min-h-[480px]">
-        <AuthForm type="Sign In" animated={isSignIn} />
-        <AuthForm type="Sign Up" animated={isSignIn} />
+        <AuthForm type="signin" animated={isSignIn} />
+        <AuthForm type="signup" animated={isSignIn} />
       </div>
-      <div
-        className={`absolute top-0 left-1/2 transform ${
-          isSignIn
-            ? "-translate-x-full rounded-r-[150px]"
-            : "translate-x-0 rounded-l-[150px]"
-        } w-1/2 h-full bg-gradient-to-r from-purple-500 to-indigo-600 transition-all duration-700 ease-in-out`}
+      <motion.div
+        className="absolute top-0 left-1/2 w-1/2 h-full bg-gradient-to-r from-purple-500 to-indigo-600"
+        initial={false}
+        animate={{
+          x: isSignIn ? "-100%" : "0%",
+          borderTopRightRadius: isSignIn ? "150px" : "0px",
+          borderBottomRightRadius: isSignIn ? "150px" : "0px",
+          borderTopLeftRadius: isSignIn ? "0px" : "150px",
+          borderBottomLeftRadius: isSignIn ? "0px" : "150px"
+        }}
+        transition={{ duration: 0.7, ease: "easeInOut" }}
       >
-        <div className="absolute w-full h-full flex items-center justify-center flex-col p-10">
-          <h1 className="text-3xl font-bold text-white">
-            {isSignIn ? "Welcome Back!" : "Chào mừng bạn tham gia Smart Kid"}
-          </h1>
-
-          {!isSignIn && (
-              <p
-                className={`text-white mt-4 text-center transition-all duration-700 ease-in-out transform translate-x-0 opacity-100`}
-              >
-                Đăng ký với thông tin cá nhân của bạn để sử  dụng tất cả các tính năng của trang web.
-              </p>
-            )}
-
-          {isSignIn && (
-            <p className="text-white mt-4 text-center transition-all duration-700 ease-in-out transform translate-x-0 opacity-100">
-              Enter your personal details to use all of the site features.
-            </p>
-          )}
-
-          <button
-            onClick={handleSubmitButton}
-            className="bg-transparent border border-white text-white mt-4 p-2 px-6 rounded uppercase tracking-wide"
+        <div className="absolute w-full h-full flex items-start justify-center flex-col p-10 pb-24">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-3xl font-bold text-white"
           >
-            {isSignIn ? "Đăng nhập" : "Đăng ký"}
-          </button>
+            Chào mừng bạn tham gia Smart Kid
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-white mt-4"
+          >
+            Đăng ký với thông tin cá nhân của bạn để sử dụng tất cả các tính
+            năng của trang web.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <motion.div
+              whileTap={{ scale: 0.95 }}
+              animate={{
+                width: isSignIn ? 120 : 110,
+                rotate: isSignIn ? 360 : 0,
+                transition: {
+                  duration: 0.5,
+                  type: "spring",
+                  stiffness: 260,
+                  damping: 20
+                }
+              }}
+            >
+              <Button
+                variant="outline"
+                className="mt-4 hover:text-white border-white hover:bg-white/20 bg-white w-full"
+                onClick={() => {
+                  setIsSignIn(!isSignIn)
+                }}
+              >
+                {isSignIn ? "Đăng nhập" : "Đăng ký"}
+              </Button>
+            </motion.div>
+          </motion.div>
+
+          <motion.div
+            className="absolute bottom-0 w-full"
+            animate={{
+              x: isSignIn ? "-10%" : "50%"
+            }}
+            transition={{ duration: 0.7, ease: "easeInOut" }}
+          >
+            <Image
+              src="/auth/tree.png"
+              width={150}
+              height={150}
+              quality={100}
+              priority
+              className="object-contain"
+              alt="child_with_tree"
+            />
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
+import { Inter } from "next/font/google";
 // import {Popin} from "geist/font/"
 
 import "./globals.css";
@@ -7,6 +8,9 @@ import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import initTranslations from "@/locales/i18n";
 import { TranslationProvider } from "@/components/context/TranslationContext";
+import { ModalProvider } from "@/providers/modal-provider";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -51,12 +55,13 @@ export default async function RootLayout({
   return (
     <html lang={lang} suppressHydrationWarning>
       {/* className={GeistSans.className} */}
-      <body className="font-poppins">
+      <body className={`${inter.className} font-poppins`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TranslationProvider translations={translations}>
             {children}
           </TranslationProvider>
         </ThemeProvider>
+        <ModalProvider />
       </body>
     </html>
   );

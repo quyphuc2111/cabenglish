@@ -14,13 +14,15 @@ i18next
   .use(initReactI18next)
   .use(LanguageDetector)
   .use(resourcesToBackend((language: string, namespace: string) => 
-    import(`@/locales/${language}/${namespace}.json`))
+    import(`../locales/${language}/${namespace}.json`))
   )
   .init({
     ...getOptions('vi', 'common'),
-    lng: undefined, // Để cho language detector xác định
+    lng: 'vi',
+    fallbackLng: 'vi',
     detection: {
-      order: ['path', 'htmlTag', 'cookie', 'navigator'],
+      order: ['querystring','path', 'htmlTag', 'cookie', 'navigator'],
+      lookupQuerystring: 'lang',
     },
     preload: runsOnServerSide ? ['vi', 'en'] : []
   })

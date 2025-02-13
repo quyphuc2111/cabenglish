@@ -200,3 +200,19 @@
   }
 }
 
+
+.course-week {
+  color: #736E6E;
+  text-shadow: 0px 4px 4px #F5F1B3;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.course-category {
+  color: #736E6E;
+  text-shadow: 0px 4px 4px #DB8AB6;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}

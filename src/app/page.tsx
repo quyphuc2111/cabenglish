@@ -17,12 +17,13 @@ import OfficeSection from "@/components/about/OfficeSection";
 import { Badge } from "@/components/ui/badge";
 import AdviSection from "@/components/about/AdviSection";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "@/components/context/TranslationContext";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function HomePage() {
-  const { t } = useTranslations()
+  const { t } = useTranslation('', 'common')
 
   const router = useRouter()
+  
   return (
     <div className="flex flex-col min-h-screen">
       <header className="z-[50] sticky top-0 w-full bg-background/95 border-b backdrop-blur-sm dark:bg-black/[0.6] border-border/40">
