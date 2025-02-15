@@ -7,12 +7,14 @@ interface ContentLayoutProps {
   type?: string;
 }
 
-export function ContentLayout({ title, type,  children }: ContentLayoutProps) {
+export function ContentLayout({ title, type, children }: ContentLayoutProps) {
   return (
     <>
-      <ScrollArea className="h-full xl:p-[40px] 2xl:px-[60px]">
-        <Navbar title={title} type={type}  />
-        <div className="lg:pt-8 lg:pb-12 md:px-4 px-0">{children}</div>
+      <div className="2xl:pl-[40px] mt-5">
+        <Navbar title={title} type={type} />
+      </div>
+      <ScrollArea className="h-full 2xl:px-[40px] mt-7">
+        <div className="lg:pt-2 lg:pb-12">{children}</div>
       </ScrollArea>
     </>
   );

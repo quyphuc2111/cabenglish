@@ -103,7 +103,8 @@ const config = {
         'course-inset': 'inset 0 -4px 0 rgba(1, 84, 136, 0.1)',
       },
       backgroundImage: {
-        'player-texture': "url('/src/assets/player_background.png')"
+        'player-texture': "url('/src/assets/player_background.png')",
+        'menu-texture': "url('/menu-icon/pattern.png')"
       }
     }
   },

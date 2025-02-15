@@ -18,7 +18,8 @@ type Menu = {
   href: string;
   label: string;
   active: boolean;
-  icon: LucideIcon
+  icon?: LucideIcon
+  iconSrc: string;
   submenus: Submenu[];
 };
 
@@ -34,9 +35,10 @@ export function getMenuList(pathname: string): Group[] {
       menus: [
         {
           href: "/lop-hoc",
-          label: "Lớp BKT",
+          label: "Tổng quan",
           active: pathname.includes("/lop-hoc"),
           icon: LayoutGrid,
+          iconSrc: "/menu-icon/general_icon.png",
           submenus: []
         }
       ]
@@ -46,9 +48,10 @@ export function getMenuList(pathname: string): Group[] {
       menus: [
         {
           href: "/main/khoa-hoc",
-          label: "Khóa học",
+          label: "Tiến trình giảng dạy",
           active: pathname.includes("/main/khoa-hoc"),
           icon: SquarePen,
+          iconSrc: "/menu-icon/teaching_progress.png",
           submenus: [
             // {
             //   href: "/main/khoa-hoc",
@@ -57,36 +60,44 @@ export function getMenuList(pathname: string): Group[] {
             // },
             {
               href: "/main/khoa-hoc/tieng-anh-lop-1",
-              label: "Tiếng anh lớp 1",
+              label: "Bài giảng hoàn thành",
               active: pathname === "/main/khoa-hoc/tieng-anh-lop-1"
             },
             {
               href: "/main/khoa-hoc/tieng-anh-lop-2",
-              label: "Tiếng anh lớp 2",
+              label: "Bài giảng đang dạy",
               active: pathname === "/main/khoa-hoc/tieng-anh-lop-2"
             },
             {
               href: "/main/khoa-hoc/tieng-anh-lop-3",
-              label: "Tiếng anh lớp 3",
+              label: "Bài giảng chưa dạy",
               active: pathname === "/main/khoa-hoc/tieng-anh-lop-3"
             },
             {
               href: "/main/khoa-hoc/tieng-anh-lop-4",
-              label: "Tiếng anh lớp 4",
+              label: "Khởi tạo lại bài giảng",
               active: pathname === "/main/khoa-hoc/tieng-anh-lop-4"
-            },
-            {
-              href: "/main/khoa-hoc/tieng-anh-lop-5",
-              label: "Tiếng anh lớp 5",
-              active: pathname === "/main/khoa-hoc/tieng-anh-lop-5"
             }
+            // {
+            //   href: "/main/khoa-hoc/tieng-anh-lop-5",
+            //   label: "Tiếng anh lớp 5",
+            //   active: pathname === "/main/khoa-hoc/tieng-anh-lop-5"
+            // }
           ]
         },
+        // {
+        //   href: "/gift-shop",
+        //   label: "Quà tặng",
+        //   active: pathname.includes("/gift-shop"),
+        //   icon: Tag,
+        //   submenus: []
+        // },
         {
           href: "/gift-shop",
-          label: "Quà tặng",
+          label: "Cài đặt chế độ giảng dạy",
           active: pathname.includes("/gift-shop"),
           icon: Tag,
+          iconSrc: "/menu-icon/setting_mode.png",
           submenus: []
         }
       ]

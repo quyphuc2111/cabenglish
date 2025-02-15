@@ -26,6 +26,7 @@ import {
   DropdownMenuContent,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import Image from "next/image";
 
 type Submenu = {
   href: string;
@@ -34,7 +35,8 @@ type Submenu = {
 };
 
 interface CollapseMenuButtonProps {
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  iconSrc: string;
   label: string;
   active: boolean;
   submenus: Submenu[];
@@ -43,7 +45,8 @@ interface CollapseMenuButtonProps {
 }
 
 export function CollapseMenuButton({
-  icon: Icon,
+  // icon: Icon,
+  iconSrc,
   label,
   active,
   submenus,
@@ -69,12 +72,13 @@ export function CollapseMenuButton({
       >
         <Button
           variant={active ? "secondary" : "ghost"}
-          className="w-full justify-start h-10"
+          className="w-full justify-start h-20"
         >
           <div className="w-full items-center flex justify-between">
             <div className="flex items-center">
               <span className="mr-4 z-50" onClick={handleToggleMenu}>
-                <Icon size={18} />
+                {/* <Icon size={18} /> */}
+                <Image src={iconSrc} width={50} height={50} alt="icon" />
               </span>
               {/* <p
                 className={cn(
@@ -89,7 +93,7 @@ export function CollapseMenuButton({
               <Link href={href}>
               <p
                 className={cn(
-                  "max-w-[150px] truncate",
+                  "max-w-[130px] break-words whitespace-normal",
                   isOpen
                     ? "translate-x-0 opacity-100"
                     : "-translate-x-96 opacity-0"
@@ -97,6 +101,7 @@ export function CollapseMenuButton({
               >
                 {label}
               </p>
+            
               </Link>
             </div>
             <div
@@ -150,12 +155,13 @@ export function CollapseMenuButton({
             <DropdownMenuTrigger asChild>
               <Button
                 variant={active ? "secondary" : "ghost"}
-                className="w-full justify-start h-10 mb-1"
+                className="w-full justify-start mb-1"
               >
                 <div className="w-full items-center flex justify-between">
                   <div className="flex items-center">
                     <span className={cn(isOpen === false ? "" : "mr-4")}>
-                      <Icon size={18} />
+                      {/* <Icon size={18} /> */}
+                      <Image src={iconSrc} width={50} height={50} alt="icon" />
                     </span>
                     <p
                       className={cn(
