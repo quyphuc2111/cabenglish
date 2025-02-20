@@ -37,7 +37,8 @@ const courseData = [
     courseCategory: "3 - 4 tuổi",
     courseName: "Bảng chữ cái tiếng anh",
     courseProgress: 100,
-    courseLike: 668
+    courseLike: 668,
+    courseStatus: 'started'
   },
   {
     courseTitle: "Unit 2 - Bài học: Chào hỏi",
@@ -46,7 +47,8 @@ const courseData = [
     courseCategory: "3 - 4 tuổi",
     courseName: "Giới thiệu bản thân",
     courseProgress: 100,
-    courseLike: 568
+    courseLike: 568,
+    courseStatus: 'started'
   },
   {
     courseTitle: "Unit 3 - Bài học: Màu sắc",
@@ -55,7 +57,8 @@ const courseData = [
     courseCategory: "3 - 4 tuổi",
     courseName: "Khám phá các màu sắc",
     courseProgress: 100,
-    courseLike: 86
+    courseLike: 86,
+    courseStatus: 'started'
   },
   {
     courseTitle: "Unit 4 - Bài học: Từ vựng",
@@ -64,7 +67,8 @@ const courseData = [
     courseCategory: "3 - 4 tuổi",
     courseName: "Bảng chữ cái tiếng anh",
     courseProgress: 100,
-    courseLike: 668
+    courseLike: 668,
+    courseStatus: 'started'
   }
 ];
 
@@ -77,7 +81,7 @@ const ModeDescription = ({ items, className }: { items: string[], className?: st
 );
 
 const ModeHeader = ({ icon, title }: { icon: string; title: string }) => (
-  <div className="flex items-center gap-2 border-b-2 max-w-[250px] pb-2 mb-5">
+  <div className="flex items-center gap-2 border-b-2 max-w-[250px] w-[50px] pb-2 mb-5">
     <Image src={icon} alt={title} width={40} height={40} />
     <h2 className="text-xl">{title}</h2>
   </div>
@@ -114,7 +118,7 @@ const ModeOption = ({
     whileTap={{ scale: 0.95 }}
     initial={{ opacity: 0, x: mode === "default" ? -50 : 50 }}
     animate={{ opacity: 1, x: 0 }}
-    className={`w-1/2 flex items-center justify-center gap-4 rounded-lg border-4 ${borderColor} ${hoverColor} transition-all duration-200 cursor-pointer`}
+    className={`w-1/3 flex items-center justify-center  gap-5 rounded-lg border-4 ${borderColor} ${hoverColor} transition-all duration-200 cursor-pointer`}
     onClick={onClick}
   >
     <Image src={icon} alt={title} width={mode === "default" ? 75 : 40} height={mode === "default" ? 47 : 40} />

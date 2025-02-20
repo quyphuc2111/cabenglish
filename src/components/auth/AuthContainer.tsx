@@ -5,8 +5,25 @@ import { Button } from "@/components/ui/button";
 import AuthForm from "./AuthForm";
 import Image from "next/image";
 
+interface AuthFormProps {
+  type: "signup" | "signin" | "forgot_password" | "reset_password";
+  animated: boolean;
+  onSwitchForm: (type: "signin" | "signup" | "forgot_password" | "reset_password") => void;
+}
+
 const AuthContainer = () => {
   const [isSignIn, setIsSignIn] = useState(false);
+  const [formType, setFormType] = useState<"signin" | "signup" | "forgot_password" | "reset_password">("signin");
+
+  const handleSwitchForm = (type: "signin" | "signup" | "forgot_password" | "reset_password") => {
+    setFormType(type);
+    if (type === "forgot_password") {
+      setIsSignIn(true);
+    }
+    if (type === "signin") {
+      setIsSignIn(false);
+    }
+  };
 
   const handleSubmitButton = () => {
     setIsSignIn(!isSignIn);
@@ -15,8 +32,14 @@ const AuthContainer = () => {
   return (
     <div className="relative w-full max-w-3xl bg-white shadow-lg overflow-hidden rounded-3xl">
       <div className="flex w-full min-h-[480px]">
-        <AuthForm type="signin" animated={isSignIn} />
-        <AuthForm type="signup" animated={isSignIn} />
+        <AuthForm 
+          type={formType} 
+          animated={isSignIn} 
+          onSwitchForm={handleSwitchForm}
+        />
+        {formType === "signin" || formType === "signup" ? (
+          <AuthForm type="signup" animated={isSignIn} />
+        ) : null}
       </div>
       <motion.div
         className="absolute top-0 left-1/2 w-1/2 h-full bg-gradient-to-r from-purple-500 to-indigo-600"
@@ -72,6 +95,7 @@ const AuthContainer = () => {
                 className="mt-4 hover:text-white border-white hover:bg-white/20 bg-white w-full"
                 onClick={() => {
                   setIsSignIn(!isSignIn)
+                  setFormType(isSignIn ? "signin" : "signup")
                 }}
               >
                 {isSignIn ? "Đăng nhập" : "Đăng ký"}

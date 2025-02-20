@@ -1,16 +1,19 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
+// import { GeistSans } from "geist/font/sans";
 import { Inter } from "next/font/google";
 // import {Popin} from "geist/font/"
 
-import "./globals.css";
 
 import { ThemeProvider } from "@/providers/theme-provider";
 import initTranslations from "@/locales/i18n";
 import { TranslationProvider } from "@/components/context/TranslationContext";
 import { ModalProvider } from "@/providers/modal-provider";
+import { ToastContainer } from "react-toastify";
 
 const inter = Inter({ subsets: ["latin"] });
+
+import 'react-toastify/dist/ReactToastify.css';
+import "../app/globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -62,6 +65,14 @@ export default async function RootLayout({
           </TranslationProvider>
         </ThemeProvider>
         <ModalProvider />
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          closeOnClick
+          pauseOnHover
+          theme="light"
+        />
       </body>
     </html>
   );

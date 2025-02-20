@@ -1,117 +1,115 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
+@tailwind components;
+@tailwind utilities;
 
-  @layer base {
-    :root {
-      --background: 0 0% 100%;
-      --foreground: 240 10% 3.9%;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
 
-      --card: 0 0% 100%;
-      --card-foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
 
-      --popover: 0 0% 100%;
-      --popover-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
 
-      --primary: 240 5.9% 10%;
-      --primary-foreground: 0 0% 98%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
 
-      --secondary: 240 4.8% 95.9%;
-      --secondary-foreground: 240 5.9% 10%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
 
-      --muted: 240 4.8% 95.9%;
-      --muted-foreground: 240 3.8% 46.1%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
 
-      --accent: 240 4.8% 95.9%;
-      --accent-foreground: 240 5.9% 10%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
 
-      --destructive: 0 84.2% 60.2%;
-      --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
-      --border: 240 5.9% 90%;
-      --input: 240 5.9% 90%;
-      --ring: 240 10% 3.9%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
 
-      --radius: 0.5rem;
-    }
-
-    .dark {
-      --background: 240 10% 3.9%;
-      --foreground: 0 0% 98%;
-
-      --card: 240 10% 3.9%;
-      --card-foreground: 0 0% 98%;
-
-      --popover: 240 10% 3.9%;
-      --popover-foreground: 0 0% 98%;
-
-      --primary: 0 0% 98%;
-      --primary-foreground: 240 5.9% 10%;
-
-      --secondary: 240 3.7% 15.9%;
-      --secondary-foreground: 0 0% 98%;
-
-      --muted: 240 3.7% 15.9%;
-      --muted-foreground: 240 5% 64.9%;
-
-      --accent: 240 3.7% 15.9%;
-      --accent-foreground: 0 0% 98%;
-
-      --destructive: 0 62.8% 30.6%;
-      --destructive-foreground: 0 0% 98%;
-
-      --border: 240 3.7% 15.9%;
-      --input: 240 3.7% 15.9%;
-      --ring: 240 4.9% 83.9%;
-    }
+    --radius: 0.5rem;
   }
 
-  @layer base {
-    * {
-      @apply border-border;
-    }
-    body {
-      @apply bg-background text-foreground;
-    }
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-   
-  }
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-  .start-course-btn {
-    @apply bg-[#ff9213] shadow-course-inset py-6 text-lg font-semibold;
-  }
-  
-  .avatar-container {
-    box-shadow: 0 0 0 12px #ffffff1a, 0 0 0 20px #ffffff1a;
-    border-radius: 100%;
-  }
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-  .btn-orange-head {
-    background: #fff2e2;
-    border-radius: 24px;
-    font-size: 18px;
-    line-height: 24px;
-    color: #ff9213 ;
-    margin-left: 12px !important;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-    padding: 22px !important;
-    font-weight: 600;
-  }
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
 
-  .btn__medium {
-    padding: 8px 16px;
-    font-weight: 700;
-    line-height: 32px;
-    border-radius: 24px;
-    border: none;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.start-course-btn {
+  @apply bg-[#ff9213] shadow-course-inset py-6 text-lg font-semibold;
+}
+
+.avatar-container {
+  box-shadow: 0 0 0 12px #ffffff1a, 0 0 0 20px #ffffff1a;
+  border-radius: 100%;
+}
+
+.btn-orange-head {
+  background: #fff2e2;
+  border-radius: 24px;
+  font-size: 18px;
+  line-height: 24px;
+  color: #ff9213 ;
+  margin-left: 12px !important;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  padding: 22px !important;
+  font-weight: 600;
+}
+
+.btn__medium {
+  padding: 8px 16px;
+  font-weight: 700;
+  line-height: 32px;
+  border-radius: 24px;
+  border: none;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .btn__cyan100, .btn__cyan100:hover {
@@ -128,7 +126,6 @@
   }
 }
 
-
 .how-to-play::before {
   content: '';
   position: absolute;
@@ -139,7 +136,6 @@
   background-color: #f5f5f5;
   clip-path: polygon(100% 0, 0 48%, 100% 100%);
 }
-
 
 @media screen and (max-width: 767px) and (orientation: portrait) {
   .video-container .video-content {
@@ -166,8 +162,6 @@
     right: -763px;
   }
 }
-
-
 
 @media screen and (min-width: 768px) and (max-width: 1023px) and (orientation: landscape) {
   .tab-container {
@@ -200,7 +194,6 @@
   }
 }
 
-
 .course-week {
   color: #736E6E;
   text-shadow: 0px 4px 4px #F5F1B3;
@@ -215,4 +208,140 @@
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+}
+
+/* Các class bạn muốn giữ lại */
+@layer utilities {
+  .my-custom-class {
+    /* ... */
+  }
+}
+
+.swiper {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+}
+
+.swiper-slide {
+  background-position: center;
+  background-size: cover;
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+}
+
+.mySwiper {
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-slide {
+  border-radius: 18px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.swiper-slide-active {
+  transform: scale(1.05);
+}
+
+.book-swiper {
+  width: 100%;
+  max-width: 1200px;
+  height: 500px;
+  margin: 0 auto;
+  padding: 50px 0;
+}
+
+.book-swiper .swiper-slide {
+  width: 300px;
+  height: 400px;
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.book-swiper .swiper-slide-active {
+  transform: translateY(-20px) scale(1.1);
+}
+
+.book-swiper .swiper-slide::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+  filter: blur(10px);
+  transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.book-swiper .swiper-slide-active::after {
+  transform: translateY(20px) scale(1.1);
+  opacity: 0.3;
+}
+
+.book-swiper .swiper-pagination-bullet {
+  width: 12px;
+  height: 12px;
+  background: #63a079;
+  opacity: 0.5;
+  transition: all 0.3s;
+}
+
+.book-swiper .swiper-pagination-bullet-active {
+  width: 30px;
+  border-radius: 6px;
+  opacity: 1;
+  background: #63a079;
+}
+
+.book-swiper .swiper-slide img {
+  background-color: #f3f4f6;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.book-swiper .swiper-slide img.loading {
+  opacity: 0.5;
+}
+
+/* doi ngu chuyen gia */
+.expert-swiper {
+  width: 100%;
+  max-width: 1200px;
+  height: 550px;
+  padding: 50px 0;
+}
+
+.expert-swiper .swiper-slide {
+  width: 400px;
+  height: 450px;
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.expert-swiper .swiper-slide-active {
+  transform: translateY(-20px) scale(1.05);
+}
+
+.expert-swiper .swiper-slide::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+  filter: blur(10px);
+  transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.expert-swiper .swiper-slide-active::after {
+  transform: translateY(20px) scale(1.05);
+  opacity: 0.3;
 }
