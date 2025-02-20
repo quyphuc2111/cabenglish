@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import TeachingModeModal from "@/components/modal/teaching-mode-modal";
+import ChangeTheme from "@/components/modal/change-theme";
+import ResetUnitModal from "@/components/modal/reset-unit-modal";
+import ResetSchoolYearModal from "@/components/modal/reset-schoolyear-modal";
+import ChangeTeachingModeModal from "@/components/modal/change-teaching-mode-modal";
 
 export const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -18,6 +22,10 @@ export const ModalProvider = () => {
     <>
       {/* <UserInfoModal /> */}
       <TeachingModeModal />
+      <ChangeTheme />
+      <ResetUnitModal />
+      <ResetSchoolYearModal />
+      <ChangeTeachingModeModal />
       {/* <CoinHistory /> */}
     </>
   );

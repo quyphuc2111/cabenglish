@@ -1,19 +1,24 @@
 import { create } from 'zustand';
 
-export type ModalType = "userInfo" | "teachingMode" | "coinHistory";
+export type ModalType = "userInfo" | "teachingMode" | "coinHistory" | "changeTheme" | "resetUnit" | "resetSchoolYear" | "changeTeachingModeModal";
+
+interface ModalData {
+  onConfirm?: () => void;
+  mode?: "defaultMode" | "freeMode";
+}
 
 interface ModalStore {
   type: ModalType | null;
+  data: ModalData | null;
   isOpen: boolean;
-  data: any;
-  onOpen: (type: ModalType, data?: any) => void;
+  onOpen: (type: ModalType, data?: ModalData) => void;
   onClose: () => void;
 }
 
 export const useModal = create<ModalStore>((set) => ({
   type: null,
-  isOpen: false,
   data: null,
+  isOpen: false,
   onOpen: (type, data) => set({ isOpen: true, type, data }),
-  onClose: () => set({ type: null, isOpen: false })
+  onClose: () => set({ type: null, isOpen: false, data: null })
 }));
