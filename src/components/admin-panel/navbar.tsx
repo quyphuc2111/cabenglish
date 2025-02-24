@@ -115,8 +115,6 @@ export function Navbar({ title, type }: NavbarProps) {
   
   }
 
-  // console.log(teachingMode);
-
   return (
     <motion.header
       className="z-10 w-full"
@@ -124,27 +122,33 @@ export function Navbar({ title, type }: NavbarProps) {
       initial="hidden"
       animate="visible"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
         <SheetMenu />
         <motion.div
-          className={`w-3/4 max-h-24 h-24 ${foregroundThemeClasses[currentTheme]} rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
+          className={`w-full md:w-3/4 max-h-24 h-24 ${foregroundThemeClasses[currentTheme]} rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
           variants={navbarAnimations.item}
         >
           <motion.div
-            className="absolute -top-2 -left-4 -rotate-12"
+            className="absolute -top-2 -left-4 -rotate-12 hidden md:block"
             variants={navbarAnimations.floating}
             initial="initial"
             animate="animate"
           >
-            <Image src="/navbar/lixi.png" width={40} height={40} alt="lesson" />
+            <Image
+              src="/navbar/lixi.png"
+              width={30}
+              height={30}
+              alt="lixi"
+              className="w-[30px] h-[30px] md:w-[40px] md:h-[40px]"
+            />
           </motion.div>
 
-          <div className="w-3/4 bg-white absolute top-1/2 -translate-y-1/2 left-10  rounded-xl p-4 px-12">
+          <div className="w-full md:w-3/4 bg-white absolute top-1/2 -translate-y-1/2 left-0 md:left-10 rounded-xl p-2 md:p-4 px-4 md:px-12">
             <div className="w-fit relative">
               <LogoSection />
+              {/* Phần decorative elements */}
               <motion.div
-                className="absolute -top-3 -left-8 -rotate-12"
-                // variants={rotatingVariants}
+                className="absolute -top-3 -left-8 -rotate-12 hidden md:block"
                 initial="initial"
                 animate="animate"
               >
@@ -152,32 +156,31 @@ export function Navbar({ title, type }: NavbarProps) {
                   src="/navbar/hoa.gif"
                   width={30}
                   height={30}
-                  alt="lesson"
+                  alt="hoa"
                 />
               </motion.div>
 
-              <div className="absolute -top-3 -right-12 rotate-12">
+              <div className="absolute -top-3 -right-12 rotate-12 hidden md:block">
                 <Image
                   src="/navbar/banhchung.png"
                   width={40}
                   height={30}
-                  alt="lesson"
+                  alt="banhchung"
                 />
               </div>
 
-              <div className="absolute right-0 rotate-12">
+              <div className="absolute right-0 rotate-12 hidden md:block">
                 <Image
                   src="/navbar/kilan.png"
                   width={50}
                   height={50}
-                  alt="lesson"
+                  alt="kilan"
                 />
               </div>
             </div>
 
             <motion.div
-              className="absolute top-0 right-[42%]"
-              // variants={bellVariants}
+              className="absolute top-0 right-[42%] hidden md:block"
               initial="initial"
               animate="animate"
             >
@@ -185,35 +188,35 @@ export function Navbar({ title, type }: NavbarProps) {
                 src="/navbar/chuong_rung.gif"
                 width={33}
                 height={30}
-                alt="lesson"
+                alt="chuong_rung"
               />
             </motion.div>
-            <div className="absolute top-0 right-[32%] ">
+            <div className="absolute top-0 right-[32%] hidden md:block">
               <Image
                 src="/navbar/chuong_rung.gif"
                 width={33}
                 height={30}
-                alt="lesson"
+                alt="chuong_rung"
               />
             </div>
-            <div className="absolute top-0 right-[22%] ">
+            <div className="absolute top-0 right-[22%] hidden md:block">
               <Image
                 src="/navbar/chuong_rung.gif"
                 width={33}
                 height={30}
-                alt="lesson"
+                alt="chuong_rung"
               />
             </div>
-            <div className="absolute bottom-0 right-[13%]">
+            <div className="absolute bottom-0 right-[13%] hidden md:block">
               <Image
                 src="/navbar/langbac.png"
                 width={40}
                 height={30}
-                alt="lesson"
+                alt="langbac"
               />
             </div>
 
-            <div className="absolute top-0 right-0 bottom-0 rounded-r-xl overflow-hidden">
+            <div className="absolute top-0 right-0 bottom-0 rounded-r-xl overflow-hidden hidden md:block">
               <Image
                 src="/navbar/bkt_jsc_texture.png"
                 width={75}
@@ -224,8 +227,7 @@ export function Navbar({ title, type }: NavbarProps) {
             </div>
 
             <motion.div
-              className="absolute right-[42%]"
-              //  variants={fishVariants}
+              className="absolute right-[42%] hidden md:block"
               initial="initial"
               animate="animate"
             >
@@ -233,89 +235,71 @@ export function Navbar({ title, type }: NavbarProps) {
                 src="/navbar/ca-left.png"
                 width={40}
                 height={40}
-                alt="lesson"
+                alt="ca-left"
               />
             </motion.div>
 
-            <div className="absolute right-[37%] -bottom-4">
+            <div className="absolute right-[37%] -bottom-4 hidden md:block">
               <Image
                 src="/navbar/ca-right.png"
                 width={40}
                 height={40}
-                alt="lesson"
+                alt="ca-right"
               />
             </div>
 
-            <div className="absolute right-[25%] -bottom-6">
+            <div className="absolute right-[25%] -bottom-6 hidden md:block">
               <Image
                 src="/navbar/banhtet.png"
                 width={50}
                 height={60}
-                alt="lesson"
+                alt="banhtet"
               />
             </div>
 
             <motion.div
-              className="absolute -right-12 top-0 -rotate-6"
-              // animate={{
-              //   rotate: [-6, -3, -6],
-              //   scale: [1, 1.05, 1],
-              //   transition: {
-              //     duration: 2,
-              //     repeat: Infinity,
-              //     ease: "easeInOut"
-              //   }
-              // }}
+              className="absolute -right-12 top-0 -rotate-6 hidden md:block"
             >
               <Image
                 src="/navbar/hoadao.png"
                 width={50}
                 height={60}
-                alt="lesson"
+                alt="hoadao"
               />
             </motion.div>
           </div>
 
           <motion.div
-            className="absolute right-[11%] -bottom-2"
-            //  animate={{
-            //    y: [-2, 2, -2],
-            //    transition: {
-            //      duration: 1.5,
-            //      repeat: Infinity,
-            //      ease: "easeInOut",
-            //      delay: 0.2
-            //    }
-            //  }}
+            className="absolute right-[11%] -bottom-2 hidden md:block"
           >
             <Image
               src="/navbar/nguoi1.png"
               width={40}
               height={40}
-              alt="lesson"
+              alt="nguoi1"
             />
           </motion.div>
 
-          <div className="absolute right-[6%] -bottom-2 ">
+          <div className="absolute right-[6%] -bottom-2 hidden md:block ">
             <Image
               src="/navbar/nguoi2.png"
               width={40}
               height={40}
-              alt="lesson"
+              alt="nguoi2"
             />
           </div>
 
-          <div className="absolute right-[1%] -bottom-2 ">
+          <div className="absolute right-[1%] -bottom-2 hidden md:block ">
             <Image
               src="/navbar/nguoi3.png"
               width={40}
               height={40}
-              alt="lesson"
+              alt="nguoi3"
             />
           </div>
 
           <motion.div
-            className="absolute right-[12%] -top-4"
+            className="absolute right-[12%] -top-4 hidden md:block"
             variants={navbarAnimations.firework}
             initial="initial"
             animate="animate"
@@ -324,7 +308,7 @@ export function Navbar({ title, type }: NavbarProps) {
               src="/navbar/phaohoa1.png"
               width={35}
               height={35}
-              alt="lesson"
+              alt="phaohoa1"
             />
           </motion.div>
 
@@ -332,56 +316,57 @@ export function Navbar({ title, type }: NavbarProps) {
             variants={navbarAnimations.firework}
             initial="initial"
             animate="animate"
-            className="absolute right-[2%] -top-4 "
+            className="absolute right-[2%] -top-4 hidden md:block "
           >
             <Image
               src="/navbar/phaohoa1.png"
               width={35}
               height={35}
-              alt="lesson"
+              alt="phaohoa1"
             />
           </motion.div>
 
-          <div className="absolute right-[10%] top-[25%] ">
+          <div className="absolute right-[10%] top-[25%] hidden md:block ">
             <Image
               src="/navbar/hoa_do.png"
               width={25}
               height={25}
-              alt="lesson"
+              alt="hoa_do"
             />
           </div>
 
-          <div className="absolute right-[6%] top-0 ">
+          <div className="absolute right-[6%] top-0 hidden md:block">
             <Image
               src="/navbar/hoa_do.png"
               width={25}
               height={25}
-              alt="lesson"
+              alt="hoa_do"
             />
           </div>
 
-          <div className="absolute right-[2%] top-[20%] ">
+          <div className="absolute right-[2%] top-[20%] hidden md:block">
             <Image
               src="/navbar/phaohoa2.png"
               width={40}
               height={40}
-              alt="lesson"
+              alt="phaohoa2"
             />
           </div>
 
-          <div className="absolute -right-6 top-0 -rotate-12">
+          <div className="absolute -right-6 top-0 -rotate-12 hidden md:block">
             <Image
               src="/navbar/phaono.png"
               width={40}
               height={40}
-              alt="lesson"
+              alt="phaono"
             />
           </div>
         </motion.div>
 
-        <motion.div className=" flex gap-5" variants={navbarAnimations.item}>
+        <motion.div className="flex flex-row flex-wrap md:flex-nowrap gap-3 md:gap-5 items-center md:items-start" variants={navbarAnimations.item}>
+          {/* Thay đổi ngôn ngữ */}
           <motion.div
-            className="border-[#61685B] border rounded-md flex items-center bg-white px-2 gap-2 h-12"
+            className="border-[#61685B] border rounded-md flex items-center bg-white px-2 gap-2 h-10 md:h-12 w-auto"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleContainerClick}
@@ -419,6 +404,7 @@ export function Navbar({ title, type }: NavbarProps) {
           </motion.div>
 
           <div className="flex flex-col gap-3">
+            {/* Thay đổi chủ đề */}
             <motion.div
               className="border-[#61685B] border rounded-md flex items-center bg-white px-2 gap-2 h-12 w-full"
               whileHover={{ scale: 1.05 }}
@@ -434,6 +420,7 @@ export function Navbar({ title, type }: NavbarProps) {
               <p className="font-bold text-center w-full">{t('changeTheme')}</p>
             </motion.div>
 
+            {/* Chọn chế độ giảng dạy */}
             <motion.div
               className="border-[#61685B] border rounded-md flex items-center bg-white gap-2 h-8 pr-2"
               whileHover={{ scale: 1.05 }}
@@ -465,18 +452,6 @@ export function Navbar({ title, type }: NavbarProps) {
                   <p className="font-medium w-fit">{t('freeMode')}</p>
                 </>
               )}
-
-{/* <>
-                  <Image
-                    src="/bkt_logo.png"
-                    width={124}
-                    height={68}
-                    alt="bkt_logo"
-                    className="h-full w-14"
-                    quality={100}
-                  />
-                  <p className="font-medium w-fit">Mặc định</p>
-                </> */}
             </motion.div>
           </div>
         </motion.div>

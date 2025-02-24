@@ -63,8 +63,6 @@ export function CollapseMenuButton({
     setIsCollapsed((prev) => !prev);
   };
 
-  console.log("123", submenus)
-
   return isOpen ? (
     <Collapsible
       open={isCollapsed}

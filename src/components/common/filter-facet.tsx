@@ -3,8 +3,8 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 
 function FilterFacet() {
   return (
-    <div className="flex gap-4 md:gap-6 lg:gap-10 flex-wrap w-1/2 ">
-        <div className="w-full md:w-1/2 lg:w-1/4">
+    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-1/2">
+      <div className="w-full sm:w-1/3">
         <Select>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Lớp học" />
@@ -19,7 +19,8 @@ function FilterFacet() {
           </SelectContent>
         </Select>
       </div>
-      <div className="w-full md:w-1/2 lg:w-1/4">
+
+      <div className="w-full sm:w-1/3">
         <Select>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Unit" />
@@ -35,7 +36,8 @@ function FilterFacet() {
           </SelectContent>
         </Select>
       </div>
-      <div className="w-full md:w-1/2 lg:w-1/4">
+
+      <div className="w-full sm:w-1/3">
         <Select>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Tuần học" />
@@ -51,7 +53,6 @@ function FilterFacet() {
           </SelectContent>
         </Select>
       </div>
-    
     </div>
   )
 }

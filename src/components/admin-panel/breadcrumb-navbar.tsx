@@ -68,8 +68,6 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
   
   }
 
-  console.log("123", title);
-
   return (
     <motion.header
       className="z-10 w-full"

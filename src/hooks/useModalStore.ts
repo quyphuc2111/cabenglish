@@ -10,12 +10,13 @@ export type ModalType =
   | "changeTeachingModeModal"
   | "completeLesson";
 
-interface ModalData {
+export interface ModalData {
   onConfirm?: () => void;
   mode?: "defaultMode" | "freeMode";
 }
 
-interface ModalStore {
+
+export interface ModalStore {
   type: ModalType | null;
   data: ModalData | null;
   isOpen: boolean;

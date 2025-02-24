@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 // import { GeistSans } from "geist/font/sans";
 import { Inter } from "next/font/google";
@@ -8,14 +9,13 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import initTranslations from "@/locales/i18n";
 import { TranslationProvider } from "@/components/context/TranslationContext";
 import { ModalProvider } from "@/providers/modal-provider";
+import QueryProvider from "@/providers/query-provider";
 import { ToastContainer } from "react-toastify";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const inter = Inter({ subsets: ["latin"] });
 
 import 'react-toastify/dist/ReactToastify.css';
 import "../app/globals.css";
-import QueryProvider from "@/providers/query-provider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(

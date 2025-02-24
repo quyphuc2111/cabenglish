@@ -599,8 +599,6 @@ function UnitPage() {
     selectedSection: null as number | null
   });
 
-  console.log(lessonParams);
-
   const handleLessonClick = () => {
     if (!lessonParams) {
       setAnimationState({
