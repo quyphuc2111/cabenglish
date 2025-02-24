@@ -13,28 +13,14 @@ import { LogoSection } from "./navbar/logo-section";
 import { LanguageSwitcher } from "./navbar/language-switcher";
 import { useNavbarLogic } from "@/hooks/useNavbarLogic";
 import { useModal } from "@/hooks/useModalStore";
-import { useUserTheme, useUserMode } from "@/store/useUserStore";
+import { useUserTheme, useUserStore, useUserMode } from "@/store/useUserStore";
 import useLocalStorage from "@/hooks/use-local-storage";
-import { useTranslation } from "@/hooks/useTranslation";
-import i18next from "i18next";
 // import { useTeachingModeStore } from "@/store/useTeachingModeStore";
 
-interface NavbarProps {
+interface BreadcrumbNavbarProps {
   title: string;
   type?: string;
 }
-
-interface CourseNameMap {
-  [key: string]: string;
-}
-
-const courseName: CourseNameMap = {
-  "tieng-anh-lop-1": "Tiếng anh lớp 1",
-  "tieng-anh-lop-2": "Tiếng anh lớp 2",
-  "tieng-anh-lop-3": "Tiếng anh lớp 3",
-  "tieng-anh-lop-4": "Tiếng anh lớp 4",
-  "tieng-anh-lop-5": "Tiếng anh lớp 5"
-};
 
 const foregroundThemeClasses = {
   'theme-gold': 'bg-theme-gold-foreground',
@@ -43,70 +29,37 @@ const foregroundThemeClasses = {
   'theme-red': 'bg-theme-red-foreground'
 };
 
-const themeSecondaryClasses = {
-  'theme-gold': 'bg-theme-gold-secondary',
-  'theme-blue': 'bg-theme-blue-secondary',
-  'theme-pink': 'bg-theme-pink-secondary',
-  'theme-red': 'bg-theme-red-secondary'
-};
-
-export function Navbar({ title, type }: NavbarProps) {
+export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
   // backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0
-  // const [lastSlug, setLastSlug] = useState<string | any>("");
+  const [lastSlug, setLastSlug] = useState<string | any>("");
   const [isChecked, setIsChecked] = useState(false);
 
-  const { t } = useTranslation('', 'common')
-
- const currentTheme = useUserTheme();
+  const currentTheme = useUserTheme();
   const { onOpen } = useModal();
   const router = useRouter();
   const currentTeachingMode = useUserMode();
 
-  // Thêm useEffect để kiểm tra query parameter hiện tại
   useEffect(() => {
-    // Lấy ngôn ngữ hiện tại từ URL
-    const searchParams = new URLSearchParams(window.location.search);
-    const currentLang = searchParams.get('lang');
-    
-    // Cập nhật trạng thái switch
-    setIsChecked(currentLang === 'en');
-    
-    // Đồng bộ ngôn ngữ với i18next
-    if (currentLang) {
-      i18next.changeLanguage(currentLang);
-    }
+    const url = window.location.href;
+    const parts = url.split("/");
+    const slug = parts.pop() || parts.pop();
+
+    setLastSlug(slug);
   }, []);
+
 
   const handleBack = () => {
     router.push("/main/khoa-hoc");
   };
 
-  const handleLanguageChange = () => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const currentLang = searchParams.get('lang');
-    
-    // Toggle ngôn ngữ
-    const newLang = currentLang === 'en' ? 'vi' : 'en';
-    
-    // Cập nhật URL với query parameter mới
-    const currentPath = window.location.pathname;
-    const newUrl = `${currentPath}?lang=${newLang}`;
-    
-    // Thay đổi ngôn ngữ trong i18next
-    i18next.changeLanguage(newLang);
-    
-    // Hard reload trang để áp dụng ngôn ngữ mới
-    // window.location.href = newUrl;
-    router.push(newUrl)
-    router.refresh()
-    
-    setIsChecked(!isChecked);
+  const handleClick = () => {
+    setIsChecked((prev) => !prev);
   };
 
-  // Thay thế handleClick và handleContainerClick cũ
   const handleContainerClick = (e: React.MouseEvent) => {
+    // Chỉ xử lý click khi không click vào Switch
     if (!(e.target as HTMLElement).closest('.switch-component')) {
-      handleLanguageChange();
+      handleClick();
     }
   };
 
@@ -115,7 +68,7 @@ export function Navbar({ title, type }: NavbarProps) {
   
   }
 
-  // console.log(teachingMode);
+  console.log("123", title);
 
   return (
     <motion.header
@@ -139,11 +92,53 @@ export function Navbar({ title, type }: NavbarProps) {
             <Image src="/navbar/lixi.png" width={40} height={40} alt="lesson" />
           </motion.div>
 
-          <div className="w-3/4 bg-white absolute top-1/2 -translate-y-1/2 left-10  rounded-xl p-4 px-12">
+          <div className="w-3/4 bg-white absolute top-1/2 -translate-y-1/2 left-10  rounded-xl p-2 px-12">
             <div className="w-fit relative">
-              <LogoSection />
+              {/* <LogoSection /> */}
+             <div className="flex gap-5">
+             <div className="flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group">
+                <div className="relative w-10- h-10 flex-shrink-0">
+                  <Image 
+                    src="/book_multi.png" 
+                    width={40} 
+                    height={40} 
+                    alt="book_multi"
+                    className="object-contain group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <p className="text-[#555] text-xl font-bold group-hover:text-[#4079CE] transition-colors duration-300">
+                    Lớp học
+                  </p>
+                  <div className="h-0.5 w-0 bg-[#4079CE] group-hover:w-full transition-all duration-300"/>
+                </div>
+              </div>
+              {
+                title != "Lớp học" && (
+                    <div className="flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group">
+                    <div className="relative w-10- h-10 flex-shrink-0">
+                      <Image 
+                        src="/book_multi.png" 
+                        width={40} 
+                        height={40} 
+                        alt="book_multi"
+                        className="object-contain group-hover:scale-110 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <p className="text-[#555] text-xl font-bold group-hover:text-[#4079CE] transition-colors duration-300">
+                        {title}
+                      </p>
+                      <div className="h-0.5 w-0 bg-[#4079CE] group-hover:w-full transition-all duration-300"/>
+                    </div>
+                  </div>
+                )
+              }
+
+             
+             </div>
               <motion.div
-                className="absolute -top-3 -left-8 -rotate-12"
+                className="absolute top-1 -left-8 -rotate-12"
                 // variants={rotatingVariants}
                 initial="initial"
                 animate="animate"
@@ -156,14 +151,14 @@ export function Navbar({ title, type }: NavbarProps) {
                 />
               </motion.div>
 
-              <div className="absolute -top-3 -right-12 rotate-12">
+              {/* <div className="absolute -top-3 -right-12 rotate-12">
                 <Image
                   src="/navbar/banhchung.png"
                   width={40}
                   height={30}
                   alt="lesson"
                 />
-              </div>
+              </div> */}
 
               <div className="absolute right-0 rotate-12">
                 <Image
@@ -342,14 +337,14 @@ export function Navbar({ title, type }: NavbarProps) {
             />
           </motion.div>
 
-          <div className="absolute right-[10%] top-[25%] ">
+          {/* <div className="absolute right-[10%] top-[25%] ">
             <Image
               src="/navbar/hoa_do.png"
               width={25}
               height={25}
               alt="lesson"
             />
-          </div>
+          </div> */}
 
           <div className="absolute right-[6%] top-0 ">
             <Image
@@ -414,7 +409,7 @@ export function Navbar({ title, type }: NavbarProps) {
               id="change_language"
               className="switch-component"
               checked={isChecked}
-              onCheckedChange={handleLanguageChange}
+              onCheckedChange={handleClick}
             />
           </motion.div>
 
@@ -431,7 +426,7 @@ export function Navbar({ title, type }: NavbarProps) {
                 height={35}
                 alt="color_icon"
               />
-              <p className="font-bold text-center w-full">{t('changeTheme')}</p>
+              <p className="font-bold text-center w-full">Chủ đề</p>
             </motion.div>
 
             <motion.div
@@ -450,7 +445,7 @@ export function Navbar({ title, type }: NavbarProps) {
                     className="h-full w-14"
                     quality={100}
                   />
-                  <p className="font-medium w-fit">{t('defaultMode')}</p>
+                  <p className="font-medium w-fit">Mặc định</p>
                 </>
               ) : (
                 <>
@@ -462,7 +457,7 @@ export function Navbar({ title, type }: NavbarProps) {
                     className="h-full w-10 pl-3"
                     quality={100}
                   />
-                  <p className="font-medium w-fit">{t('freeMode')}</p>
+                  <p className="font-medium w-fit">Tự do</p>
                 </>
               )}
 

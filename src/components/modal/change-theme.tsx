@@ -3,7 +3,7 @@
 import React from "react";
 import { Dialog, DialogContent, DialogTitle, DialogHeader } from "../ui/dialog";
 import { useModal } from "@/hooks/useModalStore";
-import { useThemeStore } from "@/store/useThemeStore";
+import { useUserTheme, useUserStore } from "@/store/useUserStore";
 import Image from "next/image";
 import StarIcon from "../icon/star";
 import { Button } from "../ui/button";
@@ -27,13 +27,16 @@ type ThemeType = "theme-gold" | "theme-blue" | "theme-pink" | "theme-red";
 
 function ChangeTheme() {
   const { isOpen, onClose, type } = useModal();
-  const { currentTheme, setTheme } = useThemeStore();
+  const currentTheme = useUserTheme();
+  const { updateUser } = useUserStore();
   const [selectedTheme, setSelectedTheme] = React.useState<ThemeType>(
     currentTheme as ThemeType
   );
 
   const handleChangeTheme = () => {
-    setTheme(selectedTheme);
+    updateUser({
+      theme: selectedTheme
+    });
     onClose();
   };
 

@@ -12,6 +12,7 @@ import {  toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useTeachingModeStore } from "@/store/useTeachingModeStore";
+import { useUserMode, useUserStore } from "@/store/useUserStore";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -187,7 +188,8 @@ function TeachingMode() {
   
 
     const {onOpen} = useModal();
-    const {currentTeachingMode, setTeachingMode} = useTeachingModeStore();
+    const { updateUser } = useUserStore();
+    const currentTeachingMode =  useUserMode();
 
     useEffect(() => {
       setModeActive(currentTeachingMode as 'defaultMode' | 'freeMode');
@@ -196,7 +198,9 @@ function TeachingMode() {
     const handleConfirmModeChange = (newMode: 'defaultMode' | 'freeMode') => {
       setModeActive(newMode);
       // localStorage.setItem('teachingMode', newMode);
-      setTeachingMode(newMode);
+      updateUser({
+        mode: newMode
+      });
 
       toast.success(`Đã chuyển sang ${newMode === 'defaultMode' ? 'Chế độ mặc định' : 'Chế độ tự do'}!`, {
         position: "top-right",

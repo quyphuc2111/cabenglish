@@ -345,3 +345,21 @@
   transform: translateY(20px) scale(1.05);
   opacity: 0.3;
 }
+
+
+.translate-x-full {
+  transform: translateX(100%);
+}
+
+.translate-x-0 {
+  transform: translateX(0);
+}
+
+.scrollarea-hide-scrollbar > div {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.scrollarea-hide-scrollbar > div::-webkit-scrollbar {
+  display: none !important;
+}

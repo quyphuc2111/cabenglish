@@ -1,6 +1,6 @@
 "use client"
 
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { usePagination } from '@/hooks/usePagination';
 import {
   Pagination,
@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { ScrollArea } from '../ui/scroll-area';
 
 interface PaginatedContentProps<T> {
   items: T[];
@@ -26,6 +27,7 @@ interface PaginatedContentProps<T> {
   renderItem: (item: T) => React.ReactNode;
   className?: string;
   rowPerPage?: number;
+  itemInPage?: number[];
 }
 
 export function PaginatedContent<T>({
@@ -33,8 +35,11 @@ export function PaginatedContent<T>({
   itemsPerPage,
   renderItem,
   className,
-  rowPerPage = 4
+  rowPerPage = 4,
+  itemInPage = []
 }: PaginatedContentProps<T>) {
+  const [selectedItemPerPage, setSelectedItemPerPage] = useState(itemsPerPage);
+
   const {
     currentPage,
     totalPages,
@@ -45,7 +50,7 @@ export function PaginatedContent<T>({
     endIndex
   } = usePagination({
     totalItems: items.length,
-    itemsPerPage
+    itemsPerPage: selectedItemPerPage
   });
 
   const currentItems = items.slice(startIndex, endIndex);
@@ -97,12 +102,37 @@ export function PaginatedContent<T>({
 
   return (
     <div className={className}>
+      
+      <ScrollArea className="h-[55vh] pr-10">
       <div className={`grid ${getGridColumns()} gap-8 my-8`}>
         {currentItems.map((item, index) => (
           <Fragment key={index}>{renderItem(item)}</Fragment>
         ))}
       </div>
-
+      </ScrollArea>
+    
+     <div className="grid grid-cols-3 gap-4 mt-5">
+     <div className="flex mb-4">
+      {
+        itemInPage.length > 0 ? (
+          <Select value={selectedItemPerPage.toString()} onValueChange={(value) => setSelectedItemPerPage(Number(value))}>
+          <SelectTrigger className="w-[100px]">
+            <SelectValue placeholder="Số lượng" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {itemInPage.map((number) => (
+                <SelectItem key={number} value={number.toString()}>
+                  {number}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        ) : (<></>) 
+      }
+       
+      </div>
       <Pagination>
         <PaginationContent>
           <PaginationItem>
@@ -114,6 +144,7 @@ export function PaginatedContent<T>({
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+     </div>
     </div>
   );
 } 
