@@ -13,9 +13,9 @@ import { LogoSection } from "./navbar/logo-section";
 import { LanguageSwitcher } from "./navbar/language-switcher";
 import { useNavbarLogic } from "@/hooks/useNavbarLogic";
 import { useModal } from "@/hooks/useModalStore";
-import { useThemeStore } from "@/store/useThemeStore";
+import { useUserTheme, useUserStore, useUserMode } from "@/store/useUserStore";
 import useLocalStorage from "@/hooks/use-local-storage";
-import { useTeachingModeStore } from "@/store/useTeachingModeStore";
+// import { useTeachingModeStore } from "@/store/useTeachingModeStore";
 
 interface BreadcrumbNavbarProps {
   title: string;
@@ -34,10 +34,10 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
   const [lastSlug, setLastSlug] = useState<string | any>("");
   const [isChecked, setIsChecked] = useState(false);
 
- const { currentTheme } = useThemeStore();
+  const currentTheme = useUserTheme();
   const { onOpen } = useModal();
   const router = useRouter();
-  const {currentTeachingMode} = useTeachingModeStore();
+  const currentTeachingMode = useUserMode();
 
   useEffect(() => {
     const url = window.location.href;

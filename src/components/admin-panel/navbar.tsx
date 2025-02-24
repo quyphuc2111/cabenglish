@@ -13,9 +13,11 @@ import { LogoSection } from "./navbar/logo-section";
 import { LanguageSwitcher } from "./navbar/language-switcher";
 import { useNavbarLogic } from "@/hooks/useNavbarLogic";
 import { useModal } from "@/hooks/useModalStore";
-import { useThemeStore } from "@/store/useThemeStore";
+import { useUserTheme, useUserMode } from "@/store/useUserStore";
 import useLocalStorage from "@/hooks/use-local-storage";
-import { useTeachingModeStore } from "@/store/useTeachingModeStore";
+import { useTranslation } from "@/hooks/useTranslation";
+import i18next from "i18next";
+// import { useTeachingModeStore } from "@/store/useTeachingModeStore";
 
 interface NavbarProps {
   title: string;
@@ -50,35 +52,61 @@ const themeSecondaryClasses = {
 
 export function Navbar({ title, type }: NavbarProps) {
   // backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0
-  const [lastSlug, setLastSlug] = useState<string | any>("");
+  // const [lastSlug, setLastSlug] = useState<string | any>("");
   const [isChecked, setIsChecked] = useState(false);
 
- const { currentTheme } = useThemeStore();
+  const { t } = useTranslation('', 'common')
+
+ const currentTheme = useUserTheme();
   const { onOpen } = useModal();
   const router = useRouter();
-  const {currentTeachingMode} = useTeachingModeStore();
+  const currentTeachingMode = useUserMode();
 
+  // Thêm useEffect để kiểm tra query parameter hiện tại
   useEffect(() => {
-    const url = window.location.href;
-    const parts = url.split("/");
-    const slug = parts.pop() || parts.pop();
-
-    setLastSlug(slug);
+    // Lấy ngôn ngữ hiện tại từ URL
+    const searchParams = new URLSearchParams(window.location.search);
+    const currentLang = searchParams.get('lang');
+    
+    // Cập nhật trạng thái switch
+    setIsChecked(currentLang === 'en');
+    
+    // Đồng bộ ngôn ngữ với i18next
+    if (currentLang) {
+      i18next.changeLanguage(currentLang);
+    }
   }, []);
-
 
   const handleBack = () => {
     router.push("/main/khoa-hoc");
   };
 
-  const handleClick = () => {
-    setIsChecked((prev) => !prev);
+  const handleLanguageChange = () => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const currentLang = searchParams.get('lang');
+    
+    // Toggle ngôn ngữ
+    const newLang = currentLang === 'en' ? 'vi' : 'en';
+    
+    // Cập nhật URL với query parameter mới
+    const currentPath = window.location.pathname;
+    const newUrl = `${currentPath}?lang=${newLang}`;
+    
+    // Thay đổi ngôn ngữ trong i18next
+    i18next.changeLanguage(newLang);
+    
+    // Hard reload trang để áp dụng ngôn ngữ mới
+    // window.location.href = newUrl;
+    router.push(newUrl)
+    router.refresh()
+    
+    setIsChecked(!isChecked);
   };
 
+  // Thay thế handleClick và handleContainerClick cũ
   const handleContainerClick = (e: React.MouseEvent) => {
-    // Chỉ xử lý click khi không click vào Switch
     if (!(e.target as HTMLElement).closest('.switch-component')) {
-      handleClick();
+      handleLanguageChange();
     }
   };
 
@@ -113,17 +141,6 @@ export function Navbar({ title, type }: NavbarProps) {
 
           <div className="w-3/4 bg-white absolute top-1/2 -translate-y-1/2 left-10  rounded-xl p-4 px-12">
             <div className="w-fit relative">
-              {/* <div>
-                <span className="text-[#726e6e] text-[21px] font-extrabold tracking-[4.20px]">
-                  SMART KID
-                </span>
-                <span className="text-[#726e6e] text-[21px] font-black tracking-[4.20px]">
-                  {" "}
-                </span>
-                <span className="text-[#c35690] text-[21px] font-black tracking-[4.20px]">
-                  2025
-                </span>
-              </div> */}
               <LogoSection />
               <motion.div
                 className="absolute -top-3 -left-8 -rotate-12"
@@ -397,7 +414,7 @@ export function Navbar({ title, type }: NavbarProps) {
               id="change_language"
               className="switch-component"
               checked={isChecked}
-              onCheckedChange={handleClick}
+              onCheckedChange={handleLanguageChange}
             />
           </motion.div>
 
@@ -414,7 +431,7 @@ export function Navbar({ title, type }: NavbarProps) {
                 height={35}
                 alt="color_icon"
               />
-              <p className="font-bold text-center w-full">Chủ đề</p>
+              <p className="font-bold text-center w-full">{t('changeTheme')}</p>
             </motion.div>
 
             <motion.div
@@ -433,7 +450,7 @@ export function Navbar({ title, type }: NavbarProps) {
                     className="h-full w-14"
                     quality={100}
                   />
-                  <p className="font-medium w-fit">Mặc định</p>
+                  <p className="font-medium w-fit">{t('defaultMode')}</p>
                 </>
               ) : (
                 <>
@@ -445,7 +462,7 @@ export function Navbar({ title, type }: NavbarProps) {
                     className="h-full w-10 pl-3"
                     quality={100}
                   />
-                  <p className="font-medium w-fit">Tự do</p>
+                  <p className="font-medium w-fit">{t('freeMode')}</p>
                 </>
               )}
 

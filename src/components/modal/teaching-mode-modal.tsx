@@ -81,7 +81,7 @@ const ModeDescription = ({ items, className }: { items: string[], className?: st
 );
 
 const ModeHeader = ({ icon, title }: { icon: string; title: string }) => (
-  <div className="flex items-center gap-2 border-b-2 max-w-[250px] w-[50px] pb-2 mb-5">
+  <div className="flex items-center gap-2 border-b-2 max-w-[250px] pb-2 mb-5">
     <Image src={icon} alt={title} width={40} height={40} />
     <h2 className="text-xl">{title}</h2>
   </div>

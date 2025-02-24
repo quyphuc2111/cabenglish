@@ -9,11 +9,13 @@ import initTranslations from "@/locales/i18n";
 import { TranslationProvider } from "@/components/context/TranslationContext";
 import { ModalProvider } from "@/providers/modal-provider";
 import { ToastContainer } from "react-toastify";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const inter = Inter({ subsets: ["latin"] });
 
 import 'react-toastify/dist/ReactToastify.css';
 import "../app/globals.css";
+import QueryProvider from "@/providers/query-provider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -59,20 +61,22 @@ export default async function RootLayout({
     <html lang={lang} suppressHydrationWarning>
       {/* className={GeistSans.className} */}
       <body className={`${inter.className} font-poppins`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <TranslationProvider translations={translations}>
-            {children}
-          </TranslationProvider>
-        </ThemeProvider>
-        <ModalProvider />
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          closeOnClick
-          pauseOnHover
-          theme="light"
-        />
+      <QueryProvider>   
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <TranslationProvider translations={translations}>
+              {children}
+            </TranslationProvider>
+          </ThemeProvider>
+          <ModalProvider />
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            closeOnClick
+            pauseOnHover
+            theme="light"
+          />
+        </QueryProvider>
       </body>
     </html>
   );

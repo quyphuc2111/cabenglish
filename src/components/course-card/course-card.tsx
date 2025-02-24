@@ -173,7 +173,7 @@ function CourseCard({
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: delay + 0.5 }}
-          className={`border-4 border-[#3EC474] ${horizontal ? 'w-1/3' : 'w-1/2'} rounded-tr-lg p-1 flex justify-around items-center`}
+          className={`border-4 ${courseStatus == "not_started" ? "border-[#333333]/20" : "border-[#3EC474]"}  ${horizontal ? 'w-1/3' : 'w-2/3'} rounded-tr-lg p-1 flex justify-around items-center`}
         >
           <motion.div 
             variants={progressVariants}
@@ -201,7 +201,7 @@ function CourseCard({
            }
           </motion.div>
         {
-          courseProgress === 100 && (
+          courseProgress === 100 && courseStatus !== "not_started" && (
             <motion.div
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
-import { getMenuList } from "@/lib/menu-list";
+import { useMenuList } from "@/lib/menu-list";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CollapseMenuButton } from "@/components/admin-panel/collapse-menu-button";
@@ -17,7 +17,8 @@ import {
   TooltipProvider
 } from "@/components/ui/tooltip";
 import Image from "next/image";
-import { useTeachingModeStore } from "@/store/useTeachingModeStore";
+// import { useTeachingModeStore } from "@/store/useTeachingModeStore";
+import { useUserMode, useUserStore } from "@/store/useUserStore";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -25,10 +26,10 @@ interface MenuProps {
 }
 
 export function Menu({ isOpen, disabled }: MenuProps) {
-  const {currentTeachingMode} = useTeachingModeStore();
+  const currentTeachingMode = useUserMode();
 
   const pathname = usePathname();
-  const menuList = getMenuList(pathname, currentTeachingMode);
+  const menuList = useMenuList(pathname, currentTeachingMode);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -77,7 +78,8 @@ export function Menu({ isOpen, disabled }: MenuProps) {
       initial="hidden"
       animate="visible"
     >
-      <motion.ul className="flex flex-col items-start space-y-1 px-2">
+      <ScrollArea className="h-[60vh] w-full">
+        <motion.ul className="flex flex-col items-start space-y-1 px-2">
         {menuList.map(({ groupLabel, menus }, index) => (
           <motion.li 
             variants={itemVariants}
@@ -212,6 +214,7 @@ export function Menu({ isOpen, disabled }: MenuProps) {
           </motion.li>
         ))}
       </motion.ul>
+      </ScrollArea>
     </motion.nav>
   );
 }

@@ -50,7 +50,13 @@ export function Sidebar() {
         <div className="flex justify-between">
           <Image src="/bkt_logo.png" width={70} height={50} alt="bkt-logo" />
 
-          <Badge variant="secondary">Giáo viên</Badge>
+{
+  sidebar?.isOpen ? (
+    <Badge variant="secondary">Giáo viên</Badge>
+  ) : (
+   <></>
+  )
+}
         </div>
         <AvatarUser sidebar={sidebar} />
         <div className="w-full border-t-2 border-white mt-8 relative h-[30px]">

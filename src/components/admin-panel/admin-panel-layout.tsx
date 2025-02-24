@@ -7,7 +7,7 @@ import { Sidebar } from "@/components/admin-panel/sidebar";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import Image from "next/image";
 import { ModalProvider } from "@/providers/modal-provider";
-import { useThemeStore } from "@/store/useThemeStore";
+import { useUserTheme } from "@/store/useUserStore";
 import { ToastContainer } from 'react-toastify';
 
 export default function AdminPanelLayout({
@@ -15,7 +15,7 @@ export default function AdminPanelLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { currentTheme } = useThemeStore();
+  const  currentTheme  = useUserTheme();
   const sidebar = useStore(useSidebarToggle, (state) => state);
 
   const themeClasses = {

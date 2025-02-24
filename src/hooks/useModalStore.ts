@@ -1,6 +1,14 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-export type ModalType = "userInfo" | "teachingMode" | "coinHistory" | "changeTheme" | "resetUnit" | "resetSchoolYear" | "changeTeachingModeModal";
+export type ModalType =
+  | "userInfo"
+  | "teachingMode"
+  | "coinHistory"
+  | "changeTheme"
+  | "resetUnit"
+  | "resetSchoolYear"
+  | "changeTeachingModeModal"
+  | "completeLesson";
 
 interface ModalData {
   onConfirm?: () => void;
