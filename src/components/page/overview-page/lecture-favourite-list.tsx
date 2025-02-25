@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTranslation } from "@/hooks/useTranslation";
 import FilterFacet from "@/components/common/filter-facet";
 import { CourseCarousel } from "@/components/carousel/course-carousel";
+// import Video from "next-video";
 
 interface LectureFavouriteListProps {
   courseData: any[];
@@ -27,6 +28,7 @@ export function LectureFavouriteList({
   return (
     <div className="px-4 md:px-0">
       <div className="flex items-center gap-2">
+
         <Image 
           src="/book.gif" 
           alt="book" 
@@ -34,6 +36,9 @@ export function LectureFavouriteList({
           height={40}
           className="w-8 h-8 md:w-10 md:h-10" 
         />
+     {/* <video width="40" height="40" className="w-8 h-8 md:w-10 md:h-10" autoPlay loop muted playsInline>
+  <source src="/book.mp4" type="video/webm"  />
+</video> */}
         <p className="text-lg md:text-xl text-[#555555] font-medium">
           {t("listOfLecture")}
         </p>
