@@ -6,9 +6,20 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "2111:3000"
+      - "2111:3000" 
     environment:
       NODE_ENV: production
     volumes:
       - .:/app
     restart: unless-stopped
+
+  cypress:
+    image: cypress/included:latest
+    depends_on:
+      - nextjs-app
+    environment:
+      - CYPRESS_BASE_URL=http://nextjs-app:2111
+    volumes:
+      - .:/e2e
+    working_dir: /e2e
+    entrypoint: cypress run
