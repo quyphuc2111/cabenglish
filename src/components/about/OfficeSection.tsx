@@ -73,7 +73,7 @@ function OfficeSection() {
             src={BKT_Image}
             alt={"BKT Logo"}
             className="border border-gray-50"
-            layout="fill"
+            fill
             objectFit="cover"
           />
         </div>

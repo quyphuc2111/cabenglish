@@ -57,7 +57,7 @@ function LessonItem({
             <div className="w-8 h-8 relative ml-[65px] lg:ml-0">
               <Image
                 src="/lock.png"
-                layout="fill"
+                fill
                 objectFit="cover"
                 alt="lock"
               />

@@ -1,3 +1,4 @@
+import { NotificationType } from "@/types/notification";
 import { create } from "zustand";
 
 export type ModalType =
@@ -8,11 +9,13 @@ export type ModalType =
   | "resetUnit"
   | "resetSchoolYear"
   | "changeTeachingModeModal"
-  | "completeLesson";
+  | "completeLesson"
+  | "notification";
 
 export interface ModalData {
   onConfirm?: () => void;
   mode?: "defaultMode" | "freeMode";
+  notificationList?: NotificationType[];
 }
 
 

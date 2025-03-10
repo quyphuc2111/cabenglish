@@ -61,7 +61,7 @@ function SectionItem({ sectionData, onClick, params, selectedSection }: SectionI
                     <div className="w-8 h-8 relative  lg:ml-0">
                     <Image
                       src="/lock.png"
-                      layout="fill"
+                      fill
                       objectFit="cover"
                       alt="lock"
                     />

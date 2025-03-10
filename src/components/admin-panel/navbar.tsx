@@ -17,6 +17,9 @@ import { useUserTheme, useUserMode } from "@/store/useUserStore";
 import useLocalStorage from "@/hooks/use-local-storage";
 import { useTranslation } from "@/hooks/useTranslation";
 import i18next from "i18next";
+import OptimizeImage from "../common/optimize-image";
+import { NotificationList } from "../notification";
+import NotificationButton from "../notification-button";
 // import { useTeachingModeStore } from "@/store/useTeachingModeStore";
 
 interface NavbarProps {
@@ -37,27 +40,28 @@ const courseName: CourseNameMap = {
 };
 
 const foregroundThemeClasses = {
-  'theme-gold': 'bg-theme-gold-foreground',
-  'theme-blue': 'bg-theme-blue-foreground',
-  'theme-pink': 'bg-theme-pink-foreground',
-  'theme-red': 'bg-theme-red-foreground'
+  "theme-gold": "bg-theme-gold-foreground",
+  "theme-blue": "bg-theme-blue-foreground",
+  "theme-pink": "bg-theme-pink-foreground",
+  "theme-red": "bg-theme-red-foreground"
 };
 
 const themeSecondaryClasses = {
-  'theme-gold': 'bg-theme-gold-secondary',
-  'theme-blue': 'bg-theme-blue-secondary',
-  'theme-pink': 'bg-theme-pink-secondary',
-  'theme-red': 'bg-theme-red-secondary'
+  "theme-gold": "bg-theme-gold-secondary",
+  "theme-blue": "bg-theme-blue-secondary",
+  "theme-pink": "bg-theme-pink-secondary",
+  "theme-red": "bg-theme-red-secondary"
 };
 
 export function Navbar({ title, type }: NavbarProps) {
   // backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0
   // const [lastSlug, setLastSlug] = useState<string | any>("");
   const [isChecked, setIsChecked] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
-  const { t } = useTranslation('', 'common')
+  const { t } = useTranslation("", "common");
 
- const currentTheme = useUserTheme();
+  const currentTheme = useUserTheme();
   const { onOpen } = useModal();
   const router = useRouter();
   const currentTeachingMode = useUserMode();
@@ -66,11 +70,11 @@ export function Navbar({ title, type }: NavbarProps) {
   useEffect(() => {
     // Lấy ngôn ngữ hiện tại từ URL
     const searchParams = new URLSearchParams(window.location.search);
-    const currentLang = searchParams.get('lang');
-    
+    const currentLang = searchParams.get("lang");
+
     // Cập nhật trạng thái switch
-    setIsChecked(currentLang === 'en');
-    
+    setIsChecked(currentLang === "en");
+
     // Đồng bộ ngôn ngữ với i18next
     if (currentLang) {
       i18next.changeLanguage(currentLang);
@@ -83,49 +87,49 @@ export function Navbar({ title, type }: NavbarProps) {
 
   const handleLanguageChange = () => {
     const searchParams = new URLSearchParams(window.location.search);
-    const currentLang = searchParams.get('lang');
-    
+    const currentLang = searchParams.get("lang");
+
     // Toggle ngôn ngữ
-    const newLang = currentLang === 'en' ? 'vi' : 'en';
-    
+    const newLang = currentLang === "en" ? "vi" : "en";
+
     // Cập nhật URL với query parameter mới
     const currentPath = window.location.pathname;
     const newUrl = `${currentPath}?lang=${newLang}`;
-    
+
     // Thay đổi ngôn ngữ trong i18next
     i18next.changeLanguage(newLang);
-    
+
     // Hard reload trang để áp dụng ngôn ngữ mới
     // window.location.href = newUrl;
-    router.push(newUrl)
-    router.refresh()
-    
+    router.push(newUrl);
+    router.refresh();
+
     setIsChecked(!isChecked);
   };
 
   // Thay thế handleClick và handleContainerClick cũ
   const handleContainerClick = (e: React.MouseEvent) => {
-    if (!(e.target as HTMLElement).closest('.switch-component')) {
+    if (!(e.target as HTMLElement).closest(".switch-component")) {
       handleLanguageChange();
     }
   };
 
   const handleChangeTheme = () => {
-    onOpen("changeTheme")
-  
-  }
+    onOpen("changeTheme");
+  };
 
   return (
     <motion.header
-      className="z-10 w-full"
+      className="z-10 w-full max-w-[1920px] mx-auto "
       variants={navbarAnimations.container}
       initial="hidden"
       animate="visible"
     >
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 lg:gap-10">
         <SheetMenu />
         <motion.div
-          className={`w-full md:w-3/4 max-h-24 h-24 ${foregroundThemeClasses[currentTheme]} rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
+          className={`w-full md:w-3/4 max-h-24 h-20 sm:h-24 ${foregroundThemeClasses[currentTheme]} 
+            rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
           variants={navbarAnimations.item}
         >
           <motion.div
@@ -134,16 +138,25 @@ export function Navbar({ title, type }: NavbarProps) {
             initial="initial"
             animate="animate"
           >
-            <Image
+            {/* <Image
               src="/navbar/lixi.png"
               width={30}
               height={30}
               alt="lixi"
               className="w-[30px] h-[30px] md:w-[40px] md:h-[40px]"
+            /> */}
+            <OptimizeImage
+              src="/assets/image/navbar/lixi.webp"
+              width={40}
+              height={40}
+              alt="lixi"
+              priority
             />
           </motion.div>
 
-          <div className="w-full md:w-3/4 bg-white absolute top-1/2 -translate-y-1/2 left-0 md:left-10 rounded-xl p-2 md:p-4 px-4 md:px-12">
+          <div className="w-full md:w-3/4 bg-white absolute top-1/2 -translate-y-1/2 
+              left-0 md:left-10 rounded-xl p-2 sm:p-3 md:p-4 
+              px-3 sm:px-6 md:px-8 lg:px-12">
             <div className="w-fit relative">
               <LogoSection />
               {/* Phần decorative elements */}
@@ -152,29 +165,26 @@ export function Navbar({ title, type }: NavbarProps) {
                 initial="initial"
                 animate="animate"
               >
-                <Image
-                  src="/navbar/hoa.gif"
-                  width={30}
-                  height={30}
-                  alt="hoa"
-                />
+                <Image src="/navbar/hoa.gif" width={30} height={30} alt="hoa" />
               </motion.div>
 
               <div className="absolute -top-3 -right-12 rotate-12 hidden md:block">
-                <Image
-                  src="/navbar/banhchung.png"
+                <OptimizeImage
+                  src="/assets/image/navbar/banhchung.webp"
                   width={40}
-                  height={30}
+                  height={40}
                   alt="banhchung"
+                  priority
                 />
               </div>
 
               <div className="absolute right-0 rotate-12 hidden md:block">
-                <Image
-                  src="/navbar/kilan.png"
+                <OptimizeImage
+                  src="/assets/image/navbar/kilan.webp"
                   width={50}
                   height={50}
                   alt="kilan"
+                  priority
                 />
               </div>
             </div>
@@ -208,21 +218,24 @@ export function Navbar({ title, type }: NavbarProps) {
               />
             </div>
             <div className="absolute bottom-0 right-[13%] hidden md:block">
-              <Image
-                src="/navbar/langbac.png"
+              <OptimizeImage
+                src="/assets/image/navbar/langbac.webp"
                 width={40}
-                height={30}
+                height={40}
                 alt="langbac"
+                priority
               />
             </div>
 
             <div className="absolute top-0 right-0 bottom-0 rounded-r-xl overflow-hidden hidden md:block">
-              <Image
-                src="/navbar/bkt_jsc_texture.png"
-                width={75}
-                height={60}
-                alt="lesson"
-                className="h-full object-cover"
+              <OptimizeImage
+                src="/assets/image/navbar/bkt_jsc_texture.webp"
+                width={80}
+                height={68}
+                alt="bkt_jsc_texture"
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
+                priority
               />
             </div>
 
@@ -231,70 +244,79 @@ export function Navbar({ title, type }: NavbarProps) {
               initial="initial"
               animate="animate"
             >
-              <Image
-                src="/navbar/ca-left.png"
+              <OptimizeImage
+                src="/assets/image/navbar/ca-left.webp"
                 width={40}
                 height={40}
                 alt="ca-left"
+                priority
               />
             </motion.div>
 
             <div className="absolute right-[37%] -bottom-4 hidden md:block">
-              <Image
-                src="/navbar/ca-right.png"
+              <OptimizeImage
+                src="/assets/image/navbar/ca-right.webp"
                 width={40}
                 height={40}
                 alt="ca-right"
+                priority
               />
             </div>
 
             <div className="absolute right-[25%] -bottom-6 hidden md:block">
-              <Image
-                src="/navbar/banhtet.png"
-                width={50}
-                height={60}
+              <OptimizeImage
+                src="/assets/image/navbar/banhtet.webp"
+                width={40}
+                height={40}
                 alt="banhtet"
+                priority
               />
             </div>
 
-            <motion.div
-              className="absolute -right-12 top-0 -rotate-6 hidden md:block"
-            >
-              <Image
-                src="/navbar/hoadao.png"
+            <motion.div className="absolute -right-12 top-0 -rotate-6 hidden md:block">
+              <OptimizeImage
+                src="/assets/image/navbar/hoadao.webp"
                 width={50}
                 height={60}
                 alt="hoadao"
+                priority
               />
             </motion.div>
           </div>
 
-          <motion.div
-            className="absolute right-[11%] -bottom-2 hidden md:block"
-          >
-            <Image
+          <motion.div className="absolute right-[11%] -bottom-2 hidden md:block">
+            {/* <Image
               src="/navbar/nguoi1.png"
               width={40}
               height={40}
               alt="nguoi1"
+            /> */}
+            <OptimizeImage
+              src="/assets/image/navbar/nguoi1.webp"
+              width={40}
+              height={40}
+              alt="nguoi1"
+              priority
             />
           </motion.div>
 
           <div className="absolute right-[6%] -bottom-2 hidden md:block ">
-            <Image
-              src="/navbar/nguoi2.png"
+            <OptimizeImage
+              src="/assets/image/navbar/nguoi2.webp"
               width={40}
               height={40}
               alt="nguoi2"
+              priority
             />
           </div>
 
           <div className="absolute right-[1%] -bottom-2 hidden md:block ">
-            <Image
-              src="/navbar/nguoi3.png"
+            <OptimizeImage
+              src="/assets/image/navbar/nguoi3.webp"
               width={40}
               height={40}
               alt="nguoi3"
+              priority
             />
           </div>
 
@@ -304,11 +326,12 @@ export function Navbar({ title, type }: NavbarProps) {
             initial="initial"
             animate="animate"
           >
-            <Image
-              src="/navbar/phaohoa1.png"
+            <OptimizeImage
+              src="/assets/image/navbar/phaohoa1.webp"
               width={35}
               height={35}
               alt="phaohoa1"
+              priority
             />
           </motion.div>
 
@@ -318,142 +341,172 @@ export function Navbar({ title, type }: NavbarProps) {
             animate="animate"
             className="absolute right-[2%] -top-4 hidden md:block "
           >
-            <Image
-              src="/navbar/phaohoa1.png"
+            <OptimizeImage
+              src="/assets/image/navbar/phaohoa1.webp"
               width={35}
               height={35}
               alt="phaohoa1"
+              priority
             />
           </motion.div>
 
           <div className="absolute right-[10%] top-[25%] hidden md:block ">
-            <Image
-              src="/navbar/hoa_do.png"
+            <OptimizeImage
+              src="/assets/image/navbar/hoa_do.webp"
               width={25}
               height={25}
               alt="hoa_do"
+              priority
             />
           </div>
 
           <div className="absolute right-[6%] top-0 hidden md:block">
-            <Image
-              src="/navbar/hoa_do.png"
+            <OptimizeImage
+              src="/assets/image/navbar/hoa_do.webp"
               width={25}
               height={25}
               alt="hoa_do"
+              priority
             />
           </div>
 
           <div className="absolute right-[2%] top-[20%] hidden md:block">
-            <Image
-              src="/navbar/phaohoa2.png"
+            <OptimizeImage
+              src="/assets/image/navbar/phaohoa2.webp"
               width={40}
               height={40}
               alt="phaohoa2"
+              priority
             />
           </div>
 
           <div className="absolute -right-6 top-0 -rotate-12 hidden md:block">
-            <Image
-              src="/navbar/phaono.png"
+            <OptimizeImage
+              src="/assets/image/navbar/phaono.webp"
               width={40}
               height={40}
               alt="phaono"
+              priority
             />
           </div>
         </motion.div>
 
-        <motion.div className="flex flex-row flex-wrap md:flex-nowrap gap-3 md:gap-5 items-center md:items-start" variants={navbarAnimations.item}>
-          {/* Thay đổi ngôn ngữ */}
+        <motion.div
+          className="grid grid-cols-2 gap-2 sm:gap-3 
+            w-full md:w-auto items-center"
+          variants={navbarAnimations.item}
+        >
+          {/* Language Switcher */}
           <motion.div
-            className="border-[#61685B] border rounded-md flex items-center bg-white px-2 gap-2 h-10 md:h-12 w-auto"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="relative flex items-center w-full"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleContainerClick}
           >
-            {isChecked ? (
-              <div className="w-12 h-12">
-                <Image
-                  src="/navbar/american_flag.png"
-                  width={512}
-                  height={512}
-                  alt="american_flag"
-                  quality={100}
-                  className="object-contain"
-                />
-              </div>
-            ) : (
-              <div className="w-12 h-12">
-                <Image
-                  src="/navbar/vietnam_flag.png"
-                  width={512}
-                  height={512}
-                  alt="vietnam_flag"
-                  quality={100}
-                  className="object-contain"
-                />
-              </div>
-            )}
-
-            <Switch
-              id="change_language"
-              className="switch-component"
-              checked={isChecked}
-              onCheckedChange={handleLanguageChange}
-            />
+            <div className="flex items-center justify-between w-full
+              bg-white px-3 sm:px-4 md:px-5 
+              h-10 sm:h-12 md:h-14 xl:h-12
+              shadow-sm hover:shadow-md transition-all duration-200 
+              border border-gray-200 rounded-lg"
+            >
+              <OptimizeImage
+                src={isChecked ? "/assets/image/navbar/american_flag.webp" : "/assets/image/navbar/vietnam_flag.webp"}
+                width={28}
+                height={28}
+                alt={isChecked ? "american_flag" : "vietnam_flag"}
+                className="rounded-sm w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 
+                  object-contain flex-shrink-0"
+                priority
+              />
+              <Switch
+                id="change_language"
+                className="data-[state=checked]:bg-blue-600 scale-75 sm:scale-90 md:scale-100"
+                checked={isChecked}
+                onCheckedChange={handleLanguageChange}
+              />
+            </div>
           </motion.div>
 
-          <div className="flex flex-col gap-3">
-            {/* Thay đổi chủ đề */}
-            <motion.div
-              className="border-[#61685B] border rounded-md flex items-center bg-white px-2 gap-2 h-12 w-full"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleChangeTheme}
-            >
-              <Image
-                src="/navbar/color.png"
-                width={35}
-                height={35}
-                alt="color_icon"
-              />
-              <p className="font-bold text-center w-full">{t('changeTheme')}</p>
-            </motion.div>
+          {/* Notification Button */}
+          {/* <NotificationButton 
+            showNotifications={showNotifications} 
+            setShowNotifications={setShowNotifications} 
+            userId={"1"} 
+            className="w-full h-10 sm:h-12 md:h-14 xl:h-12"
+          /> */}
 
-            {/* Chọn chế độ giảng dạy */}
-            <motion.div
-              className="border-[#61685B] border rounded-md flex items-center bg-white gap-2 h-8 pr-2"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => router.push("/che-do-giang-day")}
-            >
-              {currentTeachingMode === "defaultMode" ? (
-                <>
-                  <Image
-                    src="/bkt_logo.png"
-                    width={124}
-                    height={68}
-                    alt="bkt_logo"
-                    className="h-full w-14"
-                    quality={100}
-                  />
-                  <p className="font-medium w-fit">{t('defaultMode')}</p>
-                </>
-              ) : (
-                <>
-                  <Image
-                    src="/modal/freemode.png"
-                    width={40}
-                    height={40}
-                    alt="bkt_logo"
-                    className="h-full w-10 pl-3"
-                    quality={100}
-                  />
-                  <p className="font-medium w-fit">{t('freeMode')}</p>
-                </>
-              )}
-            </motion.div>
-          </div>
+          {/* Theme Switcher */}
+          <motion.div
+            className="border border-gray-200 rounded-lg flex items-center justify-between
+              bg-white w-full h-10 sm:h-12 md:h-14 xl:h-12
+              px-3 sm:px-4 md:px-5 
+              shadow-sm hover:shadow-md transition-all duration-200"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleChangeTheme}
+          >
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap">
+              <OptimizeImage
+                src="/assets/image/navbar/color.webp"
+                width={24}
+                height={24}
+                alt="color_icon"
+                className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 
+                  object-contain flex-shrink-0"
+                priority
+              />
+              <p className="font-medium text-gray-700 text-sm 
+                whitespace-nowrap overflow-hidden text-ellipsis">
+                {t("changeTheme")}
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Teaching Mode Selector */}
+          <motion.div
+            className="border border-gray-200 rounded-lg flex items-center justify-between
+              bg-white w-full h-10 sm:h-12 md:h-14 xl:h-12
+              px-3 sm:px-4 md:px-5
+              shadow-sm hover:shadow-md transition-all duration-200"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push("/che-do-giang-day")}
+          >
+            {currentTeachingMode === "defaultMode" ? (
+              <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap">
+                <OptimizeImage
+                  src="/assets/image/modal/bkt_logo.webp"
+                  width={32}
+                  height={24}
+                  alt="bkt_logo"
+                  className="object-contain w-full h-full sm:w-8 sm:h-6 md:w-10 md:h-8
+                    flex-shrink-0"
+                  quality={100}
+                  priority
+                />
+                <p className="font-medium text-gray-700 text-sm
+                  whitespace-nowrap overflow-hidden text-ellipsis">
+                  {t("defaultMode")}
+                </p>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap">
+                <OptimizeImage
+                  src="/assets/image/modal/freemode.webp"
+                  width={28}
+                  height={24}
+                  alt="freemode"
+                  className="object-contain w-6 h-5 sm:w-7 sm:h-6 md:w-9 md:h-8
+                    flex-shrink-0"
+                  priority
+                />
+                <p className="font-medium text-gray-700 text-sm
+                  whitespace-nowrap overflow-hidden text-ellipsis">
+                  {t("freeMode")}
+                </p>
+              </div>
+            )}
+          </motion.div>
         </motion.div>
       </div>
     </motion.header>

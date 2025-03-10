@@ -15,6 +15,10 @@ import { useNavbarLogic } from "@/hooks/useNavbarLogic";
 import { useModal } from "@/hooks/useModalStore";
 import { useUserTheme, useUserStore, useUserMode } from "@/store/useUserStore";
 import useLocalStorage from "@/hooks/use-local-storage";
+import OptimizeImage from "../common/optimize-image";
+import NotificationButton from "../notification-button";
+import i18next from "i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 // import { useTeachingModeStore } from "@/store/useTeachingModeStore";
 
 interface BreadcrumbNavbarProps {
@@ -33,11 +37,14 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
   // backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0
   const [lastSlug, setLastSlug] = useState<string | any>("");
   const [isChecked, setIsChecked] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const currentTheme = useUserTheme();
   const { onOpen } = useModal();
   const router = useRouter();
   const currentTeachingMode = useUserMode();
+
+  const { t } = useTranslation("", "common");
 
   useEffect(() => {
     const url = window.location.href;
@@ -49,7 +56,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
 
 
   const handleBack = () => {
-    router.push("/main/khoa-hoc");
+    router.push("/lop-hoc");
   };
 
   const handleClick = () => {
@@ -68,6 +75,28 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
   
   }
 
+  const handleLanguageChange = () => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const currentLang = searchParams.get("lang");
+
+    // Toggle ngôn ngữ
+    const newLang = currentLang === "en" ? "vi" : "en";
+
+    // Cập nhật URL với query parameter mới
+    const currentPath = window.location.pathname;
+    const newUrl = `${currentPath}?lang=${newLang}`;
+
+    // Thay đổi ngôn ngữ trong i18next
+    i18next.changeLanguage(newLang);
+
+    // Hard reload trang để áp dụng ngôn ngữ mới
+    // window.location.href = newUrl;
+    router.push(newUrl);
+    router.refresh();
+
+    setIsChecked(!isChecked);
+  };
+
   return (
     <motion.header
       className="z-10 w-full"
@@ -78,7 +107,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
       <div className="flex items-center justify-between">
         <SheetMenu />
         <motion.div
-          className={`w-3/4 max-h-24 h-24 ${foregroundThemeClasses[currentTheme]} rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
+          className={`w-4/6 3xl:w-2/3 max-h-24 h-24 ${foregroundThemeClasses[currentTheme]} rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
           variants={navbarAnimations.item}
         >
           <motion.div
@@ -94,7 +123,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
             <div className="w-fit relative">
               {/* <LogoSection /> */}
              <div className="flex gap-5">
-             <div className="flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group">
+             <div onClick={handleBack} className=" cursor-pointer flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group">
                 <div className="relative w-10- h-10 flex-shrink-0">
                   <Image 
                     src="/book_multi.png" 
@@ -113,7 +142,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
               </div>
               {
                 title != "Lớp học" && (
-                    <div className="flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group">
+                    <div className="cursor-pointer flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group">
                     <div className="relative w-10- h-10 flex-shrink-0">
                       <Image 
                         src="/book_multi.png" 
@@ -158,7 +187,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                 />
               </div> */}
 
-              <div className="absolute right-0 rotate-12">
+              <div className="absolute right-1/2 rotate-12">
                 <Image
                   src="/navbar/kilan.png"
                   width={50}
@@ -169,7 +198,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
             </div>
 
             <motion.div
-              className="absolute top-0 right-[42%]"
+              className="absolute top-0 right-[42%] hidden 3xl:block"
               // variants={bellVariants}
               initial="initial"
               animate="animate"
@@ -181,7 +210,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                 alt="lesson"
               />
             </motion.div>
-            <div className="absolute top-0 right-[32%] ">
+            <div className="absolute top-0 right-[32%] hidden 3xl:block">
               <Image
                 src="/navbar/chuong_rung.gif"
                 width={33}
@@ -226,11 +255,11 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                 src="/navbar/ca-left.png"
                 width={40}
                 height={40}
-                alt="lesson"
+                alt="ca-left"
               />
             </motion.div>
 
-            <div className="absolute right-[37%] -bottom-4">
+            <div className="absolute right-[37%] -bottom-4 hidden 3xl:block">
               <Image
                 src="/navbar/ca-right.png"
                 width={40}
@@ -372,106 +401,99 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
           </div>
         </motion.div>
 
-        <motion.div className=" flex gap-5" variants={navbarAnimations.item}>
-          <motion.div
-            className="border-[#61685B] border rounded-md flex items-center bg-white px-2 gap-2 h-12"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+        <motion.div
+          className="grid grid-cols-2 gap-1 md:gap-3 items-center md:items-start "
+          variants={navbarAnimations.item}
+        >
+
+           {/* Language Switcher */}
+           <motion.div
+            className="relative border border-gray-200 rounded-lg flex items-center bg-white px-3 h-12 
+                         shadow-sm hover:shadow-md transition-all duration-200"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleContainerClick}
           >
-            {isChecked ? (
-              <div className="w-12 h-12">
-                <Image
-                  src="/navbar/american_flag.png"
-                  width={512}
-                  height={512}
-                  alt="american_flag"
-                  quality={100}
-                  className="object-contain"
-                />
-              </div>
-            ) : (
-              <div className="w-12 h-12">
-                <Image
-                  src="/navbar/vietnam_flag.png"
-                  width={512}
-                  height={512}
-                  alt="vietnam_flag"
-                  quality={100}
-                  className="object-contain"
-                />
-              </div>
-            )}
-
-            <Switch
-              id="change_language"
-              className="switch-component"
-              checked={isChecked}
-              onCheckedChange={handleClick}
-            />
+            <div className="flex items-center gap-3">
+              <OptimizeImage
+                src={
+                  isChecked
+                    ? "/assets/image/navbar/american_flag.webp"
+                    : "/assets/image/navbar/vietnam_flag.webp"
+                }
+                width={32}
+                height={32}
+                alt={isChecked ? "american_flag" : "vietnam_flag"}
+                className="rounded-sm"
+                priority
+              />
+              <Switch
+                id="change_language"
+                className="data-[state=checked]:bg-blue-600"
+                checked={isChecked}
+                onCheckedChange={handleLanguageChange}
+              />
+            </div>
           </motion.div>
 
-          <div className="flex flex-col gap-3">
-            <motion.div
-              className="border-[#61685B] border rounded-md flex items-center bg-white px-2 gap-2 h-12 w-full"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleChangeTheme}
-            >
-              <Image
-                src="/navbar/color.png"
-                width={35}
-                height={35}
-                alt="color_icon"
-              />
-              <p className="font-bold text-center w-full">Chủ đề</p>
-            </motion.div>
+          {/* Notification Button */}
+          {/* <NotificationButton showNotifications={showNotifications} setShowNotifications={setShowNotifications} userId={"1"} /> */}
 
-            <motion.div
-              className="border-[#61685B] border rounded-md flex items-center bg-white gap-2 h-8 pr-2"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => router.push("/che-do-giang-day")}
-            >
-              {currentTeachingMode === "defaultMode" ? (
-                <>
-                  <Image
-                    src="/bkt_logo.png"
-                    width={124}
-                    height={68}
-                    alt="bkt_logo"
-                    className="h-full w-14"
-                    quality={100}
-                  />
-                  <p className="font-medium w-fit">Mặc định</p>
-                </>
-              ) : (
-                <>
-                  <Image
-                    src="/modal/freemode.png"
-                    width={40}
-                    height={40}
-                    alt="bkt_logo"
-                    className="h-full w-10 pl-3"
-                    quality={100}
-                  />
-                  <p className="font-medium w-fit">Tự do</p>
-                </>
-              )}
 
-{/* <>
-                  <Image
-                    src="/bkt_logo.png"
-                    width={124}
-                    height={68}
-                    alt="bkt_logo"
-                    className="h-full w-14"
-                    quality={100}
-                  />
-                  <p className="font-medium w-fit">Mặc định</p>
-                </> */}
-            </motion.div>
-          </div>
+         
+          {/* Theme Switcher */}
+          <motion.div
+            className="border border-gray-200 rounded-lg flex items-center bg-white px-3 py-2 gap-3
+                         shadow-sm hover:shadow-md transition-all duration-200"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleChangeTheme}
+          >
+            <OptimizeImage
+              src="/assets/image/navbar/color.webp"
+              width={28}
+              height={28}
+              alt="color_icon"
+              priority
+            />
+            <p className="font-medium text-gray-700">{t("changeTheme")}</p>
+          </motion.div>
+
+          {/* Teaching Mode Selector */}
+          <motion.div
+            className="border border-gray-200 rounded-lg flex items-center bg-white px-3 py-2 gap-3
+                         shadow-sm hover:shadow-md transition-all duration-200"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push("/che-do-giang-day")}
+          >
+            {currentTeachingMode === "defaultMode" ? (
+              <>
+                <OptimizeImage
+                  src="/assets/image/modal/bkt_logo.webp"
+                  width={40}
+                  height={28}
+                  alt="bkt_logo"
+                  className="object-contain"
+                  quality={100}
+                  priority
+                />
+                <p className="font-medium text-gray-700">{t("defaultMode")}</p>
+              </>
+            ) : (
+              <>
+                <OptimizeImage
+                  src="/assets/image/modal/freemode.webp"
+                  width={32}
+                  height={28}
+                  alt="freemode"
+                  className="object-contain"
+                  priority
+                />
+                <p className="font-medium text-gray-700">{t("freeMode")}</p>
+              </>
+            )}
+          </motion.div>
         </motion.div>
       </div>
     </motion.header>

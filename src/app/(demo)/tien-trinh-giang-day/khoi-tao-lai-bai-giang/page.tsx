@@ -258,7 +258,7 @@ function KhoiTaoLaiBaiGiangPage() {
 
               <div className="bg-[#FEFAFA] py-5 px-2 border border-black rounded-lg h-[50vh] flex flex-col gap-5 lg:gap-8">
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-10 px-2 sm:px-10">
-                  <FilterFacet />
+                  {/* <FilterFacet /> */}
                   <Button 
                     className={`bg-[#D1F3B1] hover:bg-[#D1F3B1]/80 text-black w-full sm:w-auto ${selectedCourses.length === courseData.length ? "bg-red-500 text-white hover:bg-red-500/80" : ""}`}
                     onClick={handleSelectAll}

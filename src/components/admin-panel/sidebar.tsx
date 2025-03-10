@@ -1,20 +1,23 @@
-import Link from "next/link";
-import { PanelsTopLeft } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
-import { Button } from "@/components/ui/button";
 import { Menu } from "@/components/admin-panel/menu";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import { SidebarToggle } from "@/components/admin-panel/sidebar-toggle";
 import AvatarUser from "./avatar-user";
 import Image from "next/image";
 import { Badge } from "../ui/badge";
+import OptimizeImage from "../common/optimize-image";
+import { motion } from "framer-motion";
+import { useModal } from "@/hooks/useModalStore";
+import { NotificationType } from "@/types/notification";
 
-export function Sidebar() {
+export function Sidebar({notificationList}  : {notificationList: NotificationType[]}) {
   const sidebar = useStore(useSidebarToggle, (state) => state);
+  const { onOpen } = useModal();
 
   if (!sidebar) return null;
+
+  console.log(notificationList)
 
   return (
     <aside
@@ -25,54 +28,34 @@ export function Sidebar() {
     >
       <SidebarToggle isOpen={sidebar?.isOpen} setIsOpen={sidebar?.setIsOpen} />
       <div className="relative h-full flex flex-col px-1 py-4">
-        {/* <Button
-          className={cn(
-            "transition-transform ease-in-out duration-300 mb-1",
-            sidebar?.isOpen === false ? "translate-x-1" : "translate-x-0"
-          )}
-          variant="link"
-          asChild
-        >
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <PanelsTopLeft className="w-6 h-6 mr-1" />
-            <h1
-              className={cn(
-                "font-bold text-lg whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300",
-                sidebar?.isOpen === false
-                  ? "-translate-x-96 opacity-0 hidden"
-                  : "translate-x-0 opacity-100"
-              )}
-            >
-              BKT Kids
-            </h1>
-          </Link>
-        </Button> */}
         <div className="flex justify-between">
-          <Image src="/bkt_logo.png" width={70} height={50} alt="bkt-logo" />
-
-{
-  sidebar?.isOpen ? (
-    <Badge variant="secondary">Giáo viên</Badge>
-  ) : (
-   <></>
-  )
-}
+          <Image
+            src="/bkt_logo.png"
+            width={70}
+            height={50}
+            alt="bkt-logo"
+            priority
+            quality={75}
+          />
+          {sidebar?.isOpen && <Badge variant="secondary">Giáo viên</Badge>}
         </div>
         <AvatarUser sidebar={sidebar} />
         <div className="w-full border-t-2 border-white mt-8 relative h-[30px]">
-          <Image 
-            src="/menu-icon/ring.png" 
-            width={30} 
-            height={30} 
+          <Image
+            src="/menu-icon/ring.png"
+            width={30}
+            height={30}
             alt="ring"
-            className="absolute left-[0%] " 
+            loading="lazy"
+            quality={60}
+            className="absolute left-[0%]"
           />
-          <Image 
-            src="/menu-icon/ring.png" 
-            width={30} 
-            height={30} 
+          <Image
+            src="/menu-icon/ring.png"
+            width={30}
+            height={30}
             alt="ring"
-            className="absolute left-[22%] " 
+            className="absolute left-[22%] "
           />
           <Image
             src="/menu-icon/unicorn.png"
@@ -81,22 +64,69 @@ export function Sidebar() {
             alt="unicorn"
             className="absolute left-1/2 -translate-x-1/2 -top-4"
           />
-          <Image 
-            src="/menu-icon/ring.png" 
-            width={30} 
-            height={30} 
+          <Image
+            src="/menu-icon/ring.png"
+            width={30}
+            height={30}
             alt="ring"
-            className="absolute right-[22%] " 
+            className="absolute right-[22%] "
           />
-          <Image 
-            src="/menu-icon/ring.png" 
-            width={30} 
-            height={30} 
+          <Image
+            src="/menu-icon/ring.png"
+            width={30}
+            height={30}
             alt="ring"
-            className="absolute right-0" 
+            className="absolute right-0"
           />
         </div>
         <Menu isOpen={sidebar?.isOpen} />
+        <div className="relative h-full w-full">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{
+              scale: 1,
+              opacity: 1,
+              y: [0, -8, 0]
+            }}
+            transition={{
+              duration: 1.5,
+              y: {
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }
+            }}
+            className="absolute bottom-4 left-[13%] flex items-start gap-3"
+            onClick={() => onOpen("notification", {
+              notificationList: notificationList
+            })}
+          >
+            <OptimizeImage
+              src="/assets/image/bkt_mascot.webp"
+              width={90}
+              height={128}
+              alt="BKT Mascot"
+              className="flex-shrink-0 object-contain"
+              priority={true}
+            />
+
+            <div className="relative">
+              <OptimizeImage
+                src="/assets/image/notification.webp"
+                width={60}
+                height={60}
+                alt="Notification Icon"
+                className="flex-shrink-0 object-contain"
+              />
+              <Badge
+                variant="destructive"
+                className="absolute top-0 right-1 rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium"
+              >
+                {notificationList.filter((item) => item.isRead === false).length}
+              </Badge>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </aside>
   );

@@ -66,13 +66,10 @@ export function ContentLayout({ title, type, children }: ContentLayoutProps) {
       ...userData
     });
   }, []);
-
-  // console.log(user);
-
   
   return (
     <>
-      <div className="2xl:px-10 mt-5 ">
+      <div className="2xl:px-8 mt-5 ">
         <Navbar title={title} type={type} />
       </div>
       <ScrollArea className="h-5/6 2xl:px-[40px] mt-7 ">

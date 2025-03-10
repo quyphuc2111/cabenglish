@@ -22,9 +22,20 @@ export function TeachingProgress({ courseData }: TeachingProgressProps) {
           {t('teachingProgress')}
         </p>
       </div>
-      <div className="bg-white px-4 lg:px-7 py-5 my-2 flex flex-col lg:flex-row">
-        <ProgressStats onOpen={onOpen} t={t} />
+      <div className="bg-white px-4 lg:px-7 py-5 my-2 flex flex-col lg:flex-row relative">
+        <ProgressStats onOpen={onOpen} t={t} courseData={courseData} />
         <CurrentAndNextLecture courseData={courseData} t={t} />
+
+        {/* <div className="absolute left-0 bottom-0">
+        <Image
+          src="/kilan_course.png"
+          alt="kilan_course"
+          width={60}
+          height={60}
+          priority
+          className="transform scale-x-[-1]"
+        />
+      </div> */}
       </div>
     </div>
   );

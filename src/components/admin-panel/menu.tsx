@@ -78,7 +78,7 @@ export function Menu({ isOpen, disabled }: MenuProps) {
       initial="hidden"
       animate="visible"
     >
-      <ScrollArea className="h-[60vh] w-full">
+      <ScrollArea className="h-[50vh] w-full pr-2">
         <motion.ul className="flex flex-col items-start space-y-1 px-2">
         {menuList.map(({ groupLabel, menus }, index) => (
           <motion.li 
@@ -125,7 +125,7 @@ export function Menu({ isOpen, disabled }: MenuProps) {
                         <Button
                           variant={active ? "secondary" : "ghost"}
                           className={cn(
-                            "w-full justify-start h-20 mb-1",
+                            "w-full justify-start h-16 mb-1",
                             disabled && "opacity-50 cursor-not-allowed"
                           )}
                           disabled={disabled}
@@ -142,10 +142,17 @@ export function Menu({ isOpen, disabled }: MenuProps) {
                               >
                                 <Image
                                   src={iconSrc}
-                                  width={50}
-                                  height={50}
+                                  width={40}
+                                  height={40}
                                   alt="icon"
                                   className="max-w-fit"
+                                  loading="lazy"
+                                  quality={75}
+                                  onLoad={(event) => {
+                                    if (event.currentTarget instanceof HTMLImageElement) {
+                                      event.currentTarget.style.animation = 'none';
+                                    }
+                                  }}
                                 />
                               </motion.div>
                               <motion.p

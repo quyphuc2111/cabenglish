@@ -153,7 +153,7 @@ function BaiGiangHoanThanhPage() {
             }}
             wrapperClassName="border-[#3EC474]"
           />
-          <FilterFacet />
+          {/* <FilterFacet /> */}
         </div>
 
         <PaginatedContent

@@ -12,6 +12,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import LessonCard from '../lesson/lesson-card';
 
 interface CourseCarouselProps {
   courseData: any[];
@@ -40,17 +41,25 @@ export function CourseCarousel({ courseData, className }: CourseCarouselProps) {
           el: '.swiper-pagination',
           dynamicBullets: isMobile ? true : false,
         }}
+        // slideActiveClass=""
+        // centeredSlidesBounds={true}
         onSlideChange={(swiper) => {
           setIsBeginning(swiper.isBeginning);
           setIsEnd(swiper.isEnd);
         }}
         className="course-swiper"
       >
-        {courseData.map((course, index) => (
-          <SwiperSlide key={index}>
-            <CourseCard {...course} />
-          </SwiperSlide>
-        ))}
+        {courseData.map((course, index) => {
+          const customCourse = {
+            ...course,
+            classRoomName: course.className,
+          }
+          return (
+            <SwiperSlide key={index}>
+              <LessonCard {...customCourse} />
+            </SwiperSlide>
+          );
+        })}
         
         <div className="swiper-pagination mt-8" />
       </Swiper>
@@ -61,7 +70,7 @@ export function CourseCarousel({ courseData, className }: CourseCarouselProps) {
             variant="outline"
             size="xl"
             className={cn(
-              "absolute left-20 top-1/2 -translate-y-1/2 -translate-x-4 rounded-full bg-white opacity-0 transition-all group-hover:opacity-100 group-hover:-translate-x-12 disabled:opacity-0",
+              "absolute left-7 top-1/2 -translate-y-1/2 -translate-x-4 rounded-full bg-white opacity-0 transition-all group-hover:opacity-100 group-hover:-translate-x-12 disabled:opacity-0",
               isBeginning && "hidden"
             )}
             onClick={() => swiper?.slidePrev()}
@@ -74,7 +83,7 @@ export function CourseCarousel({ courseData, className }: CourseCarouselProps) {
             variant="outline"
             size="xl" 
             className={cn(
-              "absolute right-20 top-1/2 -translate-y-1/2 translate-x-4 rounded-full bg-white opacity-0 transition-all group-hover:opacity-100 group-hover:translate-x-12 disabled:opacity-0",
+              "absolute right-7 top-1/2 -translate-y-1/2 translate-x-4 rounded-full bg-white opacity-0 transition-all group-hover:opacity-100 group-hover:translate-x-12 disabled:opacity-0",
               isEnd && "hidden"
             )}
             onClick={() => swiper?.slideNext()}

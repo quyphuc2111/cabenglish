@@ -1,5 +1,10 @@
 import { withNextVideo } from "next-video/process";
-import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+import withBundleAnalyzer from '@next/bundle-analyzer';
+
+const bundleAnalyzer = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -11,7 +16,7 @@ const nextConfig = {
     minimumCacheTTL: 60,
   },
   experimental: {
-    optimizeCss: true // Enable CSS optimization
+    optimizeCss: false // Enable CSS optimization
   },
   typescript: {
     ignoreBuildErrors: true,
@@ -19,24 +24,24 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  webpack: (config, { dev, isServer }) => {
-    if (!dev && !isServer) {
-      config.optimization.minimizer.push(
-        new CssMinimizerPlugin({
-          minimizerOptions: {
-            preset: ['default', {
-              discardComments: { removeAll: true },
-              cssDeclarationSorter: true,
-              reduceIdents: true, // Enable class name hashing
-              normalizeWhitespace: true,
-              minifySelectors: true,
-            }],
-          },
-        })
-      );
-    }
-    return config;
-  }
+  // webpack: (config, { dev, isServer }) => {
+  //   if (!dev && !isServer) {
+  //     config.optimization.minimizer.push(
+  //       new CssMinimizerPlugin({
+  //         minimizerOptions: {
+  //           preset: ['default', {
+  //             discardComments: { removeAll: true },
+  //             cssDeclarationSorter: true,
+  //             reduceIdents: true, // Enable class name hashing
+  //             normalizeWhitespace: true,
+  //             minifySelectors: true,
+  //           }],
+  //         },
+  //       })
+  //     );
+  //   }
+  //   return config;
+  // }
 };
 
 export default withNextVideo(nextConfig);

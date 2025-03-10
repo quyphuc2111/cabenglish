@@ -44,7 +44,7 @@ function PlatformSection() {
                         src={item.image}
                         alt={item.title}
                         className="border border-gray-50"
-                        layout="fill"
+                        fill
                         objectFit="cover"
                       />
                     </div>

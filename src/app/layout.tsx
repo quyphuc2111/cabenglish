@@ -1,9 +1,7 @@
-
 import type { Metadata } from "next";
 // import { GeistSans } from "geist/font/sans";
 import { Inter } from "next/font/google";
 // import {Popin} from "geist/font/"
-
 
 import { ThemeProvider } from "@/providers/theme-provider";
 import initTranslations from "@/locales/i18n";
@@ -14,8 +12,9 @@ import { ToastContainer } from "react-toastify";
 
 const inter = Inter({ subsets: ["latin"] });
 
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import "../app/globals.css";
+import Providers from "@/providers/providers";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -28,22 +27,22 @@ export const metadata: Metadata = {
   title: "Lớp học BKT",
   description:
     "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness.",
-  alternates: {
-    canonical: "/"
-  },
-  openGraph: {
-    url: "/",
-    title: "Lớp học BKT",
-    description:
-      "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness.",
-    type: "website"
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Lớp học BKT",
-    description:
-      "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness."
-  }
+  // alternates: {
+  //   canonical: "/"
+  // },
+  // openGraph: {
+  //   url: "/",
+  //   title: "Lớp học BKT",
+  //   description:
+  //     "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness.",
+  //   type: "website"
+  // },
+  // twitter: {
+  //   card: "summary_large_image",
+  //   title: "Lớp học BKT",
+  //   description:
+  //     "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness."
+  // }
 };
 
 export default async function RootLayout({
@@ -58,25 +57,30 @@ export default async function RootLayout({
   const translations = resources?.[lang]?.common || {};
 
   return (
-    <html lang={lang} suppressHydrationWarning>
-      {/* className={GeistSans.className} */}
+    // <html lang={lang} suppressHydrationWarning>
+    //   {/* className={GeistSans.className} */}
+    //   <body className={`${inter.className} font-poppins`}>
+    //   <QueryProvider>
+    //       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    //         <TranslationProvider translations={translations}>
+    //           {children}
+    //         </TranslationProvider>
+    //       </ThemeProvider>
+    //       <ModalProvider />
+    //       <ToastContainer
+    //         position="top-right"
+    //         autoClose={3000}
+    //         hideProgressBar={false}
+    //         closeOnClick
+    //         pauseOnHover
+    //         theme="light"
+    //       />
+    //     </QueryProvider>
+    //   </body>
+    // </html>
+    <html lang="vi" suppressHydrationWarning>
       <body className={`${inter.className} font-poppins`}>
-      <QueryProvider>   
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <TranslationProvider translations={translations}>
-              {children}
-            </TranslationProvider>
-          </ThemeProvider>
-          <ModalProvider />
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            closeOnClick
-            pauseOnHover
-            theme="light"
-          />
-        </QueryProvider>
+        <Providers translations={translations}>{children}</Providers>
       </body>
     </html>
   );

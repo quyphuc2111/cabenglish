@@ -1,6 +1,8 @@
 "use client";
 
+import { getAllClassroomDataByUserId } from "@/actions/classroomAction";
 import { useTranslation } from "@/hooks/useTranslation";
+import { ClassroomType } from "@/types/classroom";
 import {
   Tag,
   Users,
@@ -10,6 +12,7 @@ import {
   LayoutGrid,
   LucideIcon
 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 type Submenu = {
   href: string;
@@ -22,7 +25,7 @@ type Menu = {
   href: string;
   label: string;
   active: boolean;
-  icon?: LucideIcon
+  icon?: LucideIcon;
   iconSrc: string;
   submenus: Submenu[];
   disabled?: boolean;
@@ -33,11 +36,25 @@ type Group = {
   menus: Menu[];
 };
 
-export function useMenuList(pathname: string, currentTeachingMode: string): Group[] {
-  
+export function useMenuList(
+  pathname: string,
+  currentTeachingMode: string
+): Group[] {
   // console.log("first", currentTeachingMode)
 
-  const { t } = useTranslation('', 'common')
+  const { t } = useTranslation("", "common");
+  const [classrooms, setClassrooms] = useState<ClassroomType[]>([]);
+  useEffect(() => {
+    const fetchClassrooms = async () => {
+      // TODO: Thay thế userId thực tế từ context hoặc props
+      const userId = "user2";
+      const response = await getAllClassroomDataByUserId({ userId });
+      if (response.data) {
+        setClassrooms(response.data);
+      }
+    };
+    fetchClassrooms();
+  }, []);
 
   return [
     {
@@ -45,7 +62,7 @@ export function useMenuList(pathname: string, currentTeachingMode: string): Grou
       menus: [
         {
           href: "/tong-quan",
-          label: t('overview'),
+          label: t("overview"),
           active: pathname.includes("/tong-quan"),
           icon: LayoutGrid,
           iconSrc: "/menu-icon/general_icon.png",
@@ -56,39 +73,27 @@ export function useMenuList(pathname: string, currentTeachingMode: string): Grou
     {
       groupLabel: "",
       menus: [
-
         {
           href: "/lop-hoc",
-          label: t('classes'),
+          label: t("classes"),
           active: pathname.includes("/lop-hoc"),
           icon: Tag,
           iconSrc: "/menu-icon/lophoc_icon.png",
-          submenus: [
-            {
-              href: "/lop-hoc/lop-nha-tre",
-              label: t('kindergartenClass'),
-              active: pathname === "/lop-hoc/lop-nha-tre"
-            },
-            {
-              href: "/lop-hoc/lop-3-4-tuoi",
-              label: t('threeToFourYearOld'),
-              active: pathname === "/lop-hoc/lop-3-4-tuoi"
-            },
-            {
-              href: "/lop-hoc/lop-4-5-tuoi",
-              label: t('fourToFiveYearOld'),
-              active: pathname === "/lop-hoc/lop-4-5-tuoi"
-            },
-            {
-              href: "/lop-hoc/lop-5-6-tuoi",
-              label: t('fiveToSixYearOld'),
-              active: pathname === "/lop-hoc/lop-5-6-tuoi"
-            },
-          ]
-        },
+          submenus: classrooms.map((classroom) => ({
+            href: `/lop-hoc/${classroom.classname}`,
+            label: classroom.classname,
+            active:
+              decodeURIComponent(pathname) === `/lop-hoc/${classroom.classname}`
+          }))
+        }
+      ]
+    },
+    {
+      groupLabel: "",
+      menus: [
         {
           href: "/tien-trinh-giang-day",
-          label: t('teachingProgress'),
+          label: t("teachingProgress"),
           active: pathname.includes("/tien-trinh-giang-day"),
           icon: SquarePen,
           iconSrc: "/menu-icon/teaching_progress.png",
@@ -100,25 +105,26 @@ export function useMenuList(pathname: string, currentTeachingMode: string): Grou
             // },
             {
               href: "/tien-trinh-giang-day/bai-giang-hoan-thanh",
-              label: t('lectureCompleted'),
+              label: t("lectureCompleted"),
               active: pathname === "/tien-trinh-giang-day/bai-giang-hoan-thanh"
             },
             {
               href: "/tien-trinh-giang-day/bai-giang-dang-day",
-              label: t('lectureBeingTaught'),
+              label: t("lectureBeingTaught"),
               active: pathname === "/tien-trinh-giang-day/bai-giang-dang-day"
             },
             {
               href: "/tien-trinh-giang-day/bai-giang-chua-day",
-              label: t('lecturePending'),
+              label: t("lecturePending"),
               active: pathname === "/tien-trinh-giang-day/bai-giang-chua-day"
             },
             {
               href: "/tien-trinh-giang-day/khoi-tao-lai-bai-giang",
-              label: t('recreateTheLecture'),
-              active: pathname === "/tien-trinh-giang-day/khoi-tao-lai-bai-giang",
+              label: t("recreateTheLecture"),
+              active:
+                pathname === "/tien-trinh-giang-day/khoi-tao-lai-bai-giang",
               // disabled: true,
-              disabled: currentTeachingMode === 'defaultMode',
+              disabled: currentTeachingMode === "defaultMode"
             }
             // {
             //   href: "/main/khoa-hoc/tieng-anh-lop-5",
@@ -126,59 +132,163 @@ export function useMenuList(pathname: string, currentTeachingMode: string): Grou
             //   active: pathname === "/main/khoa-hoc/tieng-anh-lop-5"
             // }
           ]
-        },
-      
-        // {
-        //   href: "/gift-shop",
-        //   label: "Quà tặng",
-        //   active: pathname.includes("/gift-shop"),
-        //   icon: Tag,
-        //   submenus: []
-        // },
+        }
+      ]
+    },
+    {
+      groupLabel: "",
+      menus: [
         {
           href: "/che-do-giang-day",
-          label: t('setTeachingMode'),
+          label: t("setTeachingMode"),
           active: pathname.includes("/che-do-giang-day"),
           icon: Tag,
           iconSrc: "/menu-icon/setting_mode.png",
           submenus: []
-        },
+        }
+        // {
+        //   href: "/tai-lieu-tham-khao",
+        //   label: t('referenceMaterial'),
+        //   active: pathname.includes("/tai-lieu-tham-khao"),
+        //   icon: Tag,
+        //   iconSrc: "/menu-icon/tailieuthamkhao.png",
+        //   submenus: []
+        // },
+        // {
+        //   href: "/doi-ngu-chuyen-gia",
+        //   label: t('expertTeam'),
+        //   active: pathname.includes("/doi-ngu-chuyen-gia"),
+        //   icon: Tag,
+        //   iconSrc: "/menu-icon/doinguchuyengia.png",
+        //   submenus: []
+        // }
+      ]
+    },
+    {
+      groupLabel: "",
+      menus: [
         {
           href: "/tai-lieu-tham-khao",
-          label: t('referenceMaterial'),
+          label: t("referenceMaterial"),
           active: pathname.includes("/tai-lieu-tham-khao"),
           icon: Tag,
           iconSrc: "/menu-icon/tailieuthamkhao.png",
           submenus: []
-        },
+        }
+        // {
+        //   href: "/doi-ngu-chuyen-gia",
+        //   label: t('expertTeam'),
+        //   active: pathname.includes("/doi-ngu-chuyen-gia"),
+        //   icon: Tag,
+        //   iconSrc: "/menu-icon/doinguchuyengia.png",
+        //   submenus: []
+        // }
+      ]
+    },
+    {
+      groupLabel: "",
+      menus: [
         {
           href: "/doi-ngu-chuyen-gia",
-          label: t('expertTeam'),
+          label: t("expertTeam"),
           active: pathname.includes("/doi-ngu-chuyen-gia"),
           icon: Tag,
           iconSrc: "/menu-icon/doinguchuyengia.png",
           submenus: []
         }
       ]
+    }
+  ];
+}
+
+export function useAdminMenuList(pathname: string): Group[] {
+  return [
+    {
+      groupLabel: "",
+      menus: [
+        {
+          href: "/admin/dashboard",
+          label: "Bảng điều khiển",
+          active: pathname.includes("/admin/dashboard"),
+          icon: LayoutGrid,
+          iconSrc: "/menu-icon/dashboard_icon.png",
+          submenus: []
+        }
+      ]
     },
-    // {
-    //   groupLabel: "",
-    //   menus: [
-    //     {
-    //       href: "/users",
-    //       label: "Users",
-    //       active: pathname.includes("/users"),
-    //       icon: Users,
-    //       submenus: []
-    //     },
-    //     {
-    //       href: "/account",
-    //       label: "Account",
-    //       active: pathname.includes("/account"),
-    //       icon: Settings,
-    //       submenus: []
-    //     }
-    //   ]
-    // }
+    {
+      groupLabel: "",
+      menus: [
+        {
+          href: "/admin/categories",
+          label: "Quản lý danh mục",
+          active: pathname.includes("/admin/categories"),
+          icon: Tag,
+          iconSrc: "/menu-icon/category_icon.png",
+          submenus: [
+            {
+              href: "/admin/categories/classrooms",
+              label: "Quản lý lớp học",
+              active: pathname === "/admin/categories/classrooms"
+            },
+            {
+              href: "/admin/categories/school-weeks",
+              label: "Quản lý tuần học",
+              active: pathname === "/admin/categories/school-weeks"
+            },
+            {
+              href: "/admin/categories/notification-types",
+              label: "Quản lý loại thông báo",
+              active: pathname === "/admin/categories/notification-types"
+            }
+          ]
+        },
+        {
+          href: "/admin/units",
+          label: "Quản lý Unit",
+          active: pathname.includes("/admin/units"),
+          icon: Bookmark,
+          iconSrc: "/menu-icon/unit_icon.png",
+          submenus: []
+        },
+        {
+          href: "/admin/lessons",
+          label: "Quản lý bài học",
+          active: pathname.includes("/admin/lessons"),
+          icon: SquarePen,
+          iconSrc: "/menu-icon/lesson_icon.png",
+          submenus: []
+        },
+        {
+          href: "/admin/sections",
+          label: "Quản lý Section",
+          active: pathname.includes("/admin/sections"),
+          icon: LayoutGrid,
+          iconSrc: "/menu-icon/section_icon.png",
+          submenus: []
+        },
+        {
+          href: "/admin/section-contents",
+          label: "Quản lý nội dung Section",
+          active: pathname.includes("/admin/section-contents"),
+          icon: LayoutGrid,
+          iconSrc: "/menu-icon/content_icon.png",
+          submenus: []
+        }
+      ]
+    },
+    {
+      groupLabel: "",
+      menus: [
+        {
+          href: "/admin/notifications",
+          label: "Quản lý thông báo hệ thống",
+          active: pathname.includes("/admin/notifications"),
+          icon: LayoutGrid,
+          iconSrc: "/menu-icon/notification_icon.png",
+          submenus: []
+        }
+      ]
+    }
   ];
 }

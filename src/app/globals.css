@@ -81,6 +81,22 @@
   @apply bg-[#ff9213] shadow-course-inset py-6 text-lg font-semibold;
 }
 
+@layer components {
+  .notification-badge {
+    @apply absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white 
+           rounded-full text-xs flex items-center justify-center;
+  }
+
+  .nav-item {
+    @apply border border-gray-200 rounded-lg flex items-center bg-white px-3 py-2 gap-3
+           shadow-sm hover:shadow-md transition-all duration-200;
+  }
+
+  .nav-text {
+    @apply font-medium text-gray-700;
+  }
+}
+
 .avatar-container {
   box-shadow: 0 0 0 12px #ffffff1a, 0 0 0 20px #ffffff1a;
   border-radius: 100%;
@@ -210,12 +226,6 @@
   line-height: normal;
 }
 
-/* Các class bạn muốn giữ lại */
-@layer utilities {
-  .my-custom-class {
-    /* ... */
-  }
-}
 
 .swiper {
   width: 100%;
@@ -387,14 +397,15 @@
   max-width: 1200px;
   height: 350px;
   margin: 0 auto;
-  padding: 50px 0;
+  /* padding: 50px 0; */
 }
 
 .course-swiper .swiper-slide {
   width: 300px;
-  height: 300px;
+  height: 295px;
   position: relative;
   transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transform: scale(1) !important;
 }
 
 .course-swiper .swiper-slide-active {

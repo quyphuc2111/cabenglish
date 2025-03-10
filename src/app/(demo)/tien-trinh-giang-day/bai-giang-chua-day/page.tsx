@@ -139,7 +139,7 @@ function BaiGiangChuaDayPage() {
       </p>
       <div className="bg-white px-5 py-2 relative rounded-xl max-h-screen h-[75vh] ">
         <div className="flex gap-20 absolute top-0 right-[12%]">
-          <Image src="/rank.gif" alt="rank" width={40} height={40} />
+          <Image  src="/rank.gif" alt="rank" width={40} height={40} />
           <Image src="/rank.gif" alt="rank" width={40} height={40} />
         </div>
         <div className="flex items-center gap-8">

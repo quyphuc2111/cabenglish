@@ -9,6 +9,7 @@ import Image from "next/image";
 import { ModalProvider } from "@/providers/modal-provider";
 import { useUserTheme } from "@/store/useUserStore";
 import { ToastContainer } from 'react-toastify';
+import { AdminSidebar } from "./admin-sidebar";
 
 export default function AdminPanelLayout({
   children
@@ -36,34 +37,19 @@ export default function AdminPanelLayout({
 
   return (
     <div className={themeClasses[currentTheme]}>
-       {/* <Image 
-    src="/menu_icon/pattern.png"
-    alt="Background pattern"
-    layout="fill"
-    objectFit="cover"
-    className="opacity-50 z-50"
-  /> */}
-      <Sidebar />
+      <AdminSidebar />
       {/* p-3 xl:p-[40px] 2xl:p-[60px] */}
       <main
         className={cn(
           `min-h-screen transition-[margin-left] ease-in-out duration-300 
            flex-1 h-screen ${themeSecondaryClasses[currentTheme]} lg:rounded-l-[48px] 
-           overflow-y-hidden`,
+           overflow-y-hidden `,
           sidebar?.isOpen === false ? "lg:ml-[100px]" : "lg:ml-72"
         )}
       >
         {children}
       </main>
-      {/* <footer
-        className={cn(
-          "transition-[margin-left] ease-in-out duration-300",
-          sidebar?.isOpen === false ? "lg:ml-[90px]" : "lg:ml-72"
-        )}
-      >
-        <Footer />
-      </footer> */}
-       <ModalProvider />
+       {/* <ModalProvider /> */}
        <ToastContainer />
     </div>
   );

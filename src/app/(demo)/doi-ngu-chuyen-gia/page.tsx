@@ -89,7 +89,7 @@ const DoiNguChuyenGiaPage = () => {
               height: 40,
               alt: "expert_icon"
             }}
-            wrapperClassName="border-[#63a079]/50 w-full sm:w-[15vw]"
+            wrapperClassName="border-[#63a079]/50 w-full sm:w-[15vw] md:w-[20vw]"
           />
          
         </div>
