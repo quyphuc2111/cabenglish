@@ -11,9 +11,15 @@ async function LessonTeachingPage() {
     redirect("/signin");
   }
 
-  const lessonService = await LessonService.lessonTeachingData(session.user.userId);
+  const lessonService = await LessonService.lessonTeachingData(
+    session.user.userId
+  );
+
   return (
-   <LessonTeachingClient teachingLessons={lessonService.teachingLessons} upcomingLessons={lessonService.upcomingLessons} />
+    <LessonTeachingClient
+      teachingLessons={lessonService.teachingLessons}
+      upcomingLessons={lessonService.upcomingLessons}
+    />
   );
 }
 

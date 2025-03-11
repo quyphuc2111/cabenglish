@@ -1,7 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
-import { useUserStore } from "@/store/useUserStore";
 
 declare module "next-auth/jwt" {
   interface JWT {
@@ -55,7 +54,6 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (response.data) {
-            console.log("response.data", response.data)
             return {
               id: response.data.user?.id,
               name: response.data.user?.name,

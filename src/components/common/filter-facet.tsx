@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "../ui/select";
+import { Loading } from "@/components/common/loading";
 
 interface Classroom {
   id: string;
@@ -36,6 +37,7 @@ interface FilterValues {
   classId: string;
   unitId: string;
   userId: string;
+  weekId: string;
 }
 
 interface FilterFacetProps {
@@ -54,7 +56,8 @@ function FilterFacet({
   const [filters, setFilters] = useState<FilterValues>({
     classId: '',
     unitId: '',
-    userId: 'user2'
+    userId: 'user2',
+    weekId: ''
   });
 
   const updateFilters = async (newFilters: Partial<FilterValues>) => {
@@ -73,23 +76,45 @@ function FilterFacet({
 
   const handleClassChange = (value: string) => {
     if (value === 'reset') {
-      updateFilters({ classId: '', unitId: '' });
+      updateFilters({ 
+        classId: '', 
+        unitId: '', 
+        weekId: ''
+      });
       return;
     }
-    updateFilters({ classId: value, unitId: '' });
+    updateFilters({ 
+      classId: value, 
+      unitId: '', 
+      weekId: ''
+    });
   };
 
   const handleUnitChange = (value: string) => {
     if (value === 'reset') {
-      updateFilters({ unitId: '' });
+      updateFilters({ 
+        unitId: '', 
+        weekId: ''
+      });
       return;
     }
-    updateFilters({ unitId: value });
+    updateFilters({ 
+      unitId: value,
+      weekId: ''
+    });
+  };
+
+  const handleWeekChange = (value: string) => {
+    if (value === 'reset') {
+      updateFilters({ weekId: '' });
+      return;
+    }
+    updateFilters({ weekId: value });
   };
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-1/2">
-      {isPending && <div className="absolute right-0 top-0">Đang tải...</div>}
+      {isPending && <Loading />}
       
       <div className="w-full sm:w-1/3">
         <Select onValueChange={handleClassChange} value={filters.classId}>
@@ -144,12 +169,21 @@ function FilterFacet({
       </div>
 
       <div className="w-full sm:w-1/3">
-        <Select disabled={!filters.unitId}>
+        <Select 
+          onValueChange={handleWeekChange}
+          value={filters.weekId}
+          disabled={!filters.unitId}
+        >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Tuần học" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
+              {filters.weekId && (
+                <SelectItem value="reset" className="text-red-500 hover:text-red-700">
+                  ↺ Reset tuần học
+                </SelectItem>
+              )}
               {filterData.schoolWeeks?.map((week) => (
                 week.swId ? (
                   <SelectItem key={week.swId} value={week.swId}>
