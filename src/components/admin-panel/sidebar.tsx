@@ -17,8 +17,6 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
 
   if (!sidebar) return null;
 
-  console.log(notificationList)
-
   return (
     <aside
       className={cn(

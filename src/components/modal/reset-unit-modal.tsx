@@ -6,6 +6,10 @@ import { useModal } from "@/hooks/useModalStore";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../ui/button";
+import { resetLessonProgress } from "@/actions/resetLessonAction";
+import { useSession } from "next-auth/react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 // Thêm các animation variants
 const modalVariants = {
@@ -58,7 +62,62 @@ const buttonVariants = {
 };
 
 function ResetUnitModal() {
-  const { isOpen, onClose, type } = useModal();
+  const { isOpen, onClose, type, data } = useModal();
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleReset = async () => {
+    console.log("123", data)
+    try {
+      if (!session?.user?.userId || !data?.lessonIds) return;
+      
+      setIsLoading(true);
+      const result = await resetLessonProgress(session.user.userId, data.lessonIds);
+
+      console.log("result", result)
+      
+      if (result.success) {
+        toast.success("Đã khởi tạo lại tiến trình thành công!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        router.refresh();
+        onClose();
+      } else {
+        toast.error(result.error || "Có lỗi xảy ra!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Có lỗi xảy ra khi khởi tạo lại tiến trình!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -128,12 +187,22 @@ function ResetUnitModal() {
                 <p className="text-2xl font-medium">Bạn có muốn khởi động lại quá trình học không?</p>
                 <div className="flex gap-20">
                   <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                    <Button className="bg-blue-500 hover:bg-blue-500/80 text-md text-white" size={"lg"}>
-                      Đồng ý
+                    <Button 
+                      className="bg-blue-500 hover:bg-blue-500/80 text-md text-white" 
+                      size={"lg"}
+                      onClick={handleReset}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Đang xử lý..." : "Đồng ý"}
                     </Button>
                   </motion.div>
                   <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                    <Button className="bg-red-500 hover:bg-red-500/80 text-md text-white" size="lg">
+                    <Button 
+                      className="bg-red-500 hover:bg-red-500/80 text-md text-white" 
+                      size="lg"
+                      onClick={onClose}
+                      disabled={isLoading}
+                    >
                       Không
                     </Button>
                   </motion.div>

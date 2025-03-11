@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { cn, formatProgress } from "@/lib/utils";
+import { toast } from 'react-toastify';
 
 interface LessonCardProps {
   classId: number | string;
@@ -114,7 +115,19 @@ function LessonCard({
   const router = useRouter();
 
   const handleChooseCourse = useCallback(() => {
-    if (!isLocked && onClick) {
+    if (isLocked) {
+      toast.warning("Hãy hoàn thành bài học trước!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return;
+    }
+    
+    if (onClick) {
       onClick();
     }
   }, [isLocked, onClick]);

@@ -5,14 +5,7 @@ import Image from "next/image";
 import { useTranslation } from "@/hooks/useTranslation";
 import FilterFacet from "@/components/common/filter-facet";
 import { CourseCarousel } from "@/components/carousel/course-carousel";
-import LessonCard from "@/components/lesson/lesson-card";
 import OptimizeImage from "@/components/common/optimize-image";
-import dynamic from "next/dynamic";
-
-// const FilterSection = dynamic(() => import("./filter-section"), {
-//   ssr: true,
-//   loading: () => <div>Loading...</div>
-// });
 
 interface LectureFavouriteListProps {
   courseData: any[];

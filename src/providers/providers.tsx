@@ -31,9 +31,9 @@ function Providers({
             </TranslationProvider>
           </ThemeProvider>
         </SocketProvider>
+        <ModalProvider />
+        <ToastContainerClient />
       </SessionProvider>
-      <ModalProvider />
-      <ToastContainerClient />
     </Fragment>
   );
 }

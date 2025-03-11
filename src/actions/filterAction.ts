@@ -6,7 +6,7 @@ import { serverFetch } from "@/lib/api";
 interface FilterParams {
   classId?: string;
   unitId?: string;
-  userId: string;
+  userId?: string;
 }
 
 interface ApiResponse<T> {

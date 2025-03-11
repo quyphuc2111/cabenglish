@@ -5,12 +5,14 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useModal } from "@/hooks/useModalStore";
 import { ProgressStats } from "./progress-stats";
 import CurrentAndNextLecture from "./current-and-next-lecture";
+import { ClassroomType } from "@/types/classroom";
 
 interface TeachingProgressProps {
   courseData: any[];
+  classroomData: ClassroomType[];
 }
 
-export function TeachingProgress({ courseData }: TeachingProgressProps) {
+export function TeachingProgress({ courseData, classroomData }: TeachingProgressProps) {
   const { t } = useTranslation('', 'common');
   const { onOpen } = useModal();
 
@@ -23,19 +25,8 @@ export function TeachingProgress({ courseData }: TeachingProgressProps) {
         </p>
       </div>
       <div className="bg-white px-4 lg:px-7 py-5 my-2 flex flex-col lg:flex-row relative">
-        <ProgressStats onOpen={onOpen} t={t} courseData={courseData} />
+        <ProgressStats onOpen={onOpen} t={t} courseData={courseData} classroomData={classroomData} />
         <CurrentAndNextLecture courseData={courseData} t={t} />
-
-        {/* <div className="absolute left-0 bottom-0">
-        <Image
-          src="/kilan_course.png"
-          alt="kilan_course"
-          width={60}
-          height={60}
-          priority
-          className="transform scale-x-[-1]"
-        />
-      </div> */}
       </div>
     </div>
   );

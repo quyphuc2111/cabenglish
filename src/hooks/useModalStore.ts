@@ -16,6 +16,7 @@ export interface ModalData {
   onConfirm?: () => void;
   mode?: "defaultMode" | "freeMode";
   notificationList?: NotificationType[];
+  lessonIds?: number[];
 }
 
 
