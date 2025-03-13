@@ -217,7 +217,7 @@ export function PaginationButton({
             onChange={handlePageInputChange}
             onKeyDown={handlePageInputKeyDown}
             placeholder="Nhập trang..."
-            className="w-[100px] h-9 text-center"
+            className="w-[130px] h-9 text-center"
             type="text"
             maxLength={String(totalPages).length}
           />

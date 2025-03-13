@@ -1,26 +1,56 @@
 "use client";
-import SearchInput from "@/components/admin/search-input";
-import { Button } from "@/components/ui/button";
+
 import React from "react";
+import { ClassroomCombobox } from "@/components/admin/combobox/classroom-combobox";
+import { useClassroomColumns } from "@/components/admin/table/classroom-table/columns";
+import { GenericTable } from "@/components/admin/table/common/generic-table";
+import { Button } from "@/components/ui/button";
+import { useSchoolWeek } from "@/hooks/use-schoolweek";
+import { useModal } from "@/hooks/useModalStore";
+import { useSchoolWeekColumns } from "@/components/admin/table/school-weeks/columns";
 
-function SchoolWeeksContainerClient() {
-  const schoolWeekData = Array.from({length: 20}, (_, i) => ({
-    value: `school-week-${i}`,
-    label: `Tuần học ${i}`
-  }))
+function SchoolWeekContainerClient() {
+  const { data, isLoading } = useSchoolWeek();
+  const columns = useSchoolWeekColumns();
+  const { onOpen } = useModal();
 
+  const handleCreateSchoolWeek = () => {
+    onOpen("createUpdateSchoolWeek", { formType: "create" });
+  };
+
+  const filterClassrooms = (classroom: any, searchQuery: string) => {
+    return classroom.class_id === Number(searchQuery);
+  };
+
+  const actionButtons = (
+    <>
+      <Button variant="outline">Xuất dữ liệu</Button>
+      <Button variant="outline">Nhập dữ liệu</Button>
+      <Button
+        className="bg-blue-500 hover:bg-blue-600 text-white"
+        onClick={handleCreateSchoolWeek}
+      >
+        Tạo mới tuần học
+      </Button>
+    </>
+  );
+
+  const searchComponent = (
+    <ClassroomCombobox onSelect={() => {}} placeholder="Tìm kiếm lớp học..." />
+  );
   return (
-    <div className="bg-white rounded-lg p-10">
-        <div className="flex justify-between items-center">
-        <SearchInput data={schoolWeekData} placeholder="Tìm kiếm tuần học" />
-        <div className="flex gap-5">
-            <Button variant="outline">Xuất dữ liệu</Button>
-            <Button variant="outline">Nhập dữ liệu</Button>
-            <Button className="bg-blue-500 hover:bg-blue-600 text-white">Tạo tuần học mới</Button>
-        </div>
-        </div>
+    <div className="bg-white rounded-lg p-10 h-full">
+      {/* <ClassroomsTable /> */}
+      <GenericTable
+        data={data?.data ?? []}
+        columns={columns}
+        isLoading={isLoading}
+        searchComponent={searchComponent}
+        actionButtons={actionButtons}
+        filterFunction={filterClassrooms}
+      />
     </div>
   );
 }
 
-export default SchoolWeeksContainerClient;
+export default SchoolWeekContainerClient;

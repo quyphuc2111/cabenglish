@@ -1,45 +1,53 @@
 "use client";
-import SearchInput from "@/components/admin/search-input";
-import {
-  Classroom,
-  columns
-} from "@/components/admin/table/classroom-table/columns";
-import { DataTable } from "@/components/admin/table/common/data-table";
-import { ClassroomsTable } from "@/components/admin/table/classroom-table/classrooms-table";
-import { Button } from "@/components/ui/button";
-import { useModal } from "@/hooks/useModalStore";
+
 import React from "react";
+import { ClassroomCombobox } from "@/components/admin/combobox/classroom-combobox";
+import { useClassroomColumns } from "@/components/admin/table/classroom-table/columns";
+import { GenericTable } from "@/components/admin/table/common/generic-table";
+import { Button } from "@/components/ui/button";
+import { useClassrooms } from "@/hooks/use-classrooms";
+import { useModal } from "@/hooks/useModalStore";
 
 function ClassroomContainerClient() {
-   const classroomData = Array.from({ length: 20 }, (_, i) => ({
-    value: `classroom-${i}`,
-    label: `Lớp học ${i}`
-  }));
-
+  const { data, isLoading } = useClassrooms();
+  const columns = useClassroomColumns();
   const { onOpen } = useModal();
 
   const handleCreateClassroom = () => {
-    onOpen("createUpdateClassroom", {
-      formType: "create"
-    });
+    onOpen("createUpdateClassroom", { formType: "create" });
   };
 
+  const filterClassrooms = (classroom: any, searchQuery: string) => {
+    return classroom.class_id === Number(searchQuery);
+  };
+
+  const actionButtons = (
+    <>
+      <Button variant="outline">Xuất dữ liệu</Button>
+      <Button variant="outline">Nhập dữ liệu</Button>
+      <Button
+        className="bg-blue-500 hover:bg-blue-600 text-white"
+        onClick={handleCreateClassroom}
+      >
+        Tạo mới lớp học
+      </Button>
+    </>
+  );
+
+  const searchComponent = (
+    <ClassroomCombobox onSelect={() => {}} placeholder="Tìm kiếm lớp học..." />
+  );
   return (
     <div className="bg-white rounded-lg p-10 h-full">
-      <div className="flex justify-between items-center">
-        <SearchInput data={classroomData} placeholder="Tìm kiếm lớp học" />
-        <div className="flex gap-5">
-          <Button variant="outline">Xuất dữ liệu</Button>
-          <Button variant="outline">Nhập dữ liệu</Button>
-          <Button className="bg-blue-500 hover:bg-blue-600 text-white" onClick={handleCreateClassroom}>
-            Tạo mới lớp học
-          </Button>
-        </div>
-      </div>
-
-      <div className="mt-10">
-        <ClassroomsTable />
-      </div>
+      {/* <ClassroomsTable /> */}
+      <GenericTable
+        data={data?.data ?? []}
+        columns={columns}
+        isLoading={isLoading}
+        searchComponent={searchComponent}
+        actionButtons={actionButtons}
+        filterFunction={filterClassrooms}
+      />
     </div>
   );
 }

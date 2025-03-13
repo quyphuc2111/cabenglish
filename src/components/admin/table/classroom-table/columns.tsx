@@ -115,9 +115,10 @@ export function useClassroomColumns() {
     },
     {
       id: "actions",
-      cell: ActionCell
+      cell: ActionCell,
+      header: "Hành động"
     }
-  ], []); // Empty dependency array vì columns không phụ thuộc vào props/state nào
+  ], []);
 
   return columns;
 }

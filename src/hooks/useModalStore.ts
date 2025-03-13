@@ -12,7 +12,9 @@ export type ModalType =
   | "completeLesson"
   | "notification"
   | "createUpdateClassroom"
-  | "deleteClassroom";
+  | "deleteClassroom"
+  | "createUpdateSchoolWeek"
+  | "deleteSchoolWeek";
 
 export interface ModalData {
   onConfirm?: () => void;
@@ -26,6 +28,11 @@ export interface ModalData {
     imageurl: string;
     description: string;
     class_id: string;
+  };
+  schoolWeek?: {
+    id: number;
+    value: number;
+    swId: number;
   };
 }
 
