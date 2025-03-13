@@ -8,6 +8,7 @@ import { ModalProvider } from "./modal-provider";
 import { ThemeProvider } from "./theme-provider";
 import { SocketProvider } from "./socket-provider";
 import { SessionProvider } from "next-auth/react";
+import { QueryProvider } from "./query-provider";
 
 const ToastContainerClient = dynamic(
   () => import("react-toastify").then((mod) => mod.ToastContainer),
@@ -24,6 +25,7 @@ function Providers({
   return (
     <Fragment>
       <SessionProvider>
+        <QueryProvider>
         <SocketProvider>
           <ThemeProvider>
             <TranslationProvider translations={translations}>
@@ -33,6 +35,7 @@ function Providers({
         </SocketProvider>
         <ModalProvider />
         <ToastContainerClient />
+        </QueryProvider>
       </SessionProvider>
     </Fragment>
   );

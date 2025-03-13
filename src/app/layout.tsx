@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import initTranslations from "@/locales/i18n";
 import { TranslationProvider } from "@/components/context/TranslationContext";
 import { ModalProvider } from "@/providers/modal-provider";
-import QueryProvider from "@/providers/query-provider";
+import { QueryProvider } from "@/providers/query-provider";
 import { ToastContainer } from "react-toastify";
 
 const inter = Inter({ subsets: ["latin"] });

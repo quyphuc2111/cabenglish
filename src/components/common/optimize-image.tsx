@@ -66,6 +66,12 @@ interface ImageProps {
 
   /** Style CSS inline cho container */
   style?: React.CSSProperties;
+
+  /**
+   * Cho phép tải hình ảnh không tối ưu
+   * @default false
+   */
+  unoptimized?: boolean;
 }
 
 /**

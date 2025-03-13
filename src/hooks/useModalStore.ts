@@ -10,13 +10,23 @@ export type ModalType =
   | "resetSchoolYear"
   | "changeTeachingModeModal"
   | "completeLesson"
-  | "notification";
+  | "notification"
+  | "createUpdateClassroom"
+  | "deleteClassroom";
 
 export interface ModalData {
   onConfirm?: () => void;
   mode?: "defaultMode" | "freeMode";
   notificationList?: NotificationType[];
   lessonIds?: number[];
+  formType?: "create" | "update";
+  classroom?: {
+    id: string;
+    classname: string;
+    imageurl: string;
+    description: string;
+    class_id: string;
+  };
 }
 
 

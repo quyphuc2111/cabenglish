@@ -76,9 +76,9 @@ export async function serverFetch(
   try {
     const response = await axios({
       url: `${API_URL}${endpoint}`,
-      httpsAgent: new https.Agent({
-        rejectUnauthorized: false
-      }),
+      // httpsAgent: new https.Agent({
+      //   rejectUnauthorized: false
+      // }),
       ...options,
       headers, // ghi đè headers sau cùng
     });
@@ -95,3 +95,5 @@ export async function serverFetch(
     throw error;
   }
 } 
+
+

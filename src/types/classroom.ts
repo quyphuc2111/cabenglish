@@ -7,3 +7,13 @@ export interface ClassroomType {
     progress: number;
     order: number;
 }
+
+export interface ClassroomFormValues {
+  classname: string;
+  description: string;
+  imageurl: string;
+  numliked: number;
+  progress: number;
+  order: number;
+  class_id: string;
+}

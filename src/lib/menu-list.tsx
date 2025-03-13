@@ -211,7 +211,7 @@ export function useAdminMenuList(pathname: string): Group[] {
           label: "Bảng điều khiển",
           active: pathname.includes("/admin/dashboard"),
           icon: LayoutGrid,
-          iconSrc: "/menu-icon/dashboard_icon.png",
+          iconSrc: "/assets/image/admin/sidebar_1.webp",
           submenus: []
         }
       ]
@@ -224,7 +224,7 @@ export function useAdminMenuList(pathname: string): Group[] {
           label: "Quản lý danh mục",
           active: pathname.includes("/admin/categories"),
           icon: Tag,
-          iconSrc: "/menu-icon/category_icon.png",
+          iconSrc: "/assets/image/admin/sidebar_2.webp",
           submenus: [
             {
               href: "/admin/categories/classrooms",
@@ -248,7 +248,7 @@ export function useAdminMenuList(pathname: string): Group[] {
           label: "Quản lý Unit",
           active: pathname.includes("/admin/units"),
           icon: Bookmark,
-          iconSrc: "/menu-icon/unit_icon.png",
+          iconSrc: "/assets/image/admin/sidebar_3.webp",
           submenus: []
         },
         {
@@ -256,7 +256,7 @@ export function useAdminMenuList(pathname: string): Group[] {
           label: "Quản lý bài học",
           active: pathname.includes("/admin/lessons"),
           icon: SquarePen,
-          iconSrc: "/menu-icon/lesson_icon.png",
+          iconSrc: "/assets/image/admin/sidebar_4.webp",
           submenus: []
         },
         {
@@ -264,7 +264,7 @@ export function useAdminMenuList(pathname: string): Group[] {
           label: "Quản lý Section",
           active: pathname.includes("/admin/sections"),
           icon: LayoutGrid,
-          iconSrc: "/menu-icon/section_icon.png",
+          iconSrc: "/assets/image/admin/sidebar_5.webp",
           submenus: []
         },
         {
@@ -272,7 +272,7 @@ export function useAdminMenuList(pathname: string): Group[] {
           label: "Quản lý nội dung Section",
           active: pathname.includes("/admin/section-contents"),
           icon: LayoutGrid,
-          iconSrc: "/menu-icon/content_icon.png",
+          iconSrc: "/assets/image/admin/sidebar_6.webp",
           submenus: []
         }
       ]
@@ -285,7 +285,7 @@ export function useAdminMenuList(pathname: string): Group[] {
           label: "Quản lý thông báo hệ thống",
           active: pathname.includes("/admin/notifications"),
           icon: LayoutGrid,
-          iconSrc: "/menu-icon/notification_icon.png",
+          iconSrc: "/assets/image/admin/sidebar_7.webp",
           submenus: []
         }
       ]

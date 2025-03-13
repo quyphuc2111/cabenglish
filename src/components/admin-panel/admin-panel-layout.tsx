@@ -8,29 +8,31 @@ import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import Image from "next/image";
 import { ModalProvider } from "@/providers/modal-provider";
 import { useUserTheme } from "@/store/useUserStore";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer } from "react-toastify";
 import { AdminSidebar } from "./admin-sidebar";
+import AdminModalProvider from "@/providers/admin-modal-provider";
+import Navbar from "../admin/navbar";
 
 export default function AdminPanelLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  const  currentTheme  = useUserTheme();
+  const currentTheme = useUserTheme();
   const sidebar = useStore(useSidebarToggle, (state) => state);
 
   const themeClasses = {
-    'theme-gold': 'bg-theme-gold-primary',
-    'theme-blue': 'bg-theme-blue-primary',
-    'theme-pink': 'bg-theme-pink-primary',
-    'theme-red': 'bg-theme-red-primary'
+    "theme-gold": "bg-theme-gold-primary",
+    "theme-blue": "bg-theme-blue-primary",
+    "theme-pink": "bg-theme-pink-primary",
+    "theme-red": "bg-theme-red-primary"
   };
 
   const themeSecondaryClasses = {
-    'theme-gold': 'bg-theme-gold-secondary',
-    'theme-blue': 'bg-theme-blue-secondary',
-    'theme-pink': 'bg-theme-pink-secondary',
-    'theme-red': 'bg-theme-red-secondary'
+    "theme-gold": "bg-theme-gold-secondary",
+    "theme-blue": "bg-theme-blue-secondary",
+    "theme-pink": "bg-theme-pink-secondary",
+    "theme-red": "bg-theme-red-secondary"
   };
 
   if (!sidebar) return null;
@@ -42,15 +44,16 @@ export default function AdminPanelLayout({
       <main
         className={cn(
           `min-h-screen transition-[margin-left] ease-in-out duration-300 
-           flex-1 h-screen ${themeSecondaryClasses[currentTheme]} lg:rounded-l-[48px] 
+           flex-1 h-full ${themeSecondaryClasses[currentTheme]} lg:rounded-l-[48px] 
            overflow-y-hidden `,
           sidebar?.isOpen === false ? "lg:ml-[100px]" : "lg:ml-72"
         )}
       >
         {children}
       </main>
-       {/* <ModalProvider /> */}
-       <ToastContainer />
+      {/* <ModalProvider /> */}
+      <AdminModalProvider />
+      <ToastContainer />
     </div>
   );
 }

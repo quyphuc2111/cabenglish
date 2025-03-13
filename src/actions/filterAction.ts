@@ -14,63 +14,47 @@ interface ApiResponse<T> {
   error?: string;
 }
 
+// Thêm interface cho dữ liệu đã được transform
+interface TransformedFilterData {
+  classrooms: {
+    class_id: string;
+    classname: string;
+  }[];
+  units: {
+    unitId: string;
+    unitName: string;
+  }[];
+  schoolWeeks: {
+    swId: string;
+    value: number;
+  }[];
+}
+
 export async function fetchFilterData({ classId, unitId, userId }: FilterParams) {
   try {
-    // Sử dụng Promise.all để fetch song song các request
     const [classroomsResponse, unitsResponse, schoolWeeksResponse] = await Promise.all([
-      // Luôn fetch classrooms vì cần cho dropdown đầu tiên
-      serverFetch(`/api/Classroom/user/${userId}`).then(data => ({
-        data,
-        error: null
-      })).catch(error => ({
-        data: [],
-        error: `Lỗi lấy danh sách lớp học: ${error.message}`
-      })),
-
-      // Chỉ fetch units khi có classId
-      classId ? serverFetch(`/api/Unit/class/${classId}/${userId}`).then(data => ({
-        data,
-        error: null
-      })).catch(error => ({
-        data: [],
-        error: `Lỗi lấy danh sách unit: ${error.message}`
-      })) : { data: [], error: null },
-
-      // Chỉ fetch schoolWeeks khi có unitId
-      unitId ? serverFetch(`/api/Schoolweek/unit/${unitId}`).then(data => ({
-        data,
-        error: null
-      })).catch(error => ({
-        data: [],
-        error: `Lỗi lấy danh sách tuần học: ${error.message}`
-      })) : { data: [], error: null }
+      serverFetch(`/api/Classroom/user/${userId}`),
+      classId ? serverFetch(`/api/Unit/class/${classId}/${userId}`) : Promise.resolve([]),
+      unitId ? serverFetch(`/api/Schoolweek/unit/${unitId}`) : Promise.resolve([])
     ]);
 
-    // Tập hợp các lỗi nếu có
-    const errors = [
-      classroomsResponse.error,
-      unitsResponse.error,
-      schoolWeeksResponse.error
-    ].filter(Boolean);
-
-    // Log lỗi nếu có
-    if (errors.length > 0) {
-      console.error("Các lỗi khi fetch dữ liệu:", errors);
-    }
-
-    // Validate và transform dữ liệu
-    return {
-      classrooms: Array.isArray(classroomsResponse.data) 
-        ? classroomsResponse.data 
-        : [],
-      units: Array.isArray(unitsResponse.data) 
-        ? unitsResponse.data 
-        : [],
-      schoolWeeks: Array.isArray(schoolWeeksResponse.data) 
-        ? schoolWeeksResponse.data 
-        : [],
-      errors: errors.length > 0 ? errors : undefined
+    // Transform data trước khi trả về
+    const transformedData: TransformedFilterData = {
+      classrooms: classroomsResponse.map((classroom: any) => ({
+        class_id: classroom.class_id,
+        classname: classroom.classname
+      })),
+      units: unitsResponse.map((unit: any) => ({
+        unitId: unit.unitId,
+        unitName: unit.unitName
+      })),
+      schoolWeeks: schoolWeeksResponse.map((week: any) => ({
+        swId: week.swId,
+        value: week.value
+      }))
     };
+
+    return transformedData;
 
   } catch (error) {
     console.error("Lỗi không mong muốn:", error);
