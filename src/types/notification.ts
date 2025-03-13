@@ -27,3 +27,7 @@ export interface NotificationListResponse {
 }
 
 
+export interface NotiType {
+    ntId: number;
+    value: number
+}

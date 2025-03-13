@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useSchoolWeek } from "@/hooks/use-schoolweek";
 import { useModal } from "@/hooks/useModalStore";
 import { useSchoolWeekColumns } from "@/components/admin/table/school-weeks/columns";
+import { SchoolWeekCombobox } from "@/components/admin/combobox/schoolweek-combobox";
 
 function SchoolWeekContainerClient() {
   const { data, isLoading } = useSchoolWeek();
@@ -18,8 +19,13 @@ function SchoolWeekContainerClient() {
     onOpen("createUpdateSchoolWeek", { formType: "create" });
   };
 
-  const filterClassrooms = (classroom: any, searchQuery: string) => {
-    return classroom.class_id === Number(searchQuery);
+  const filterSchoolWeeks = (schoolWeek: any, searchQuery: string) => {
+    console.log("123", schoolWeek);
+    return schoolWeek.swId === Number(searchQuery);
+  };
+
+  const handleSelectSchoolWeek = (value: string) => {
+    console.log("123213", value);
   };
 
   const actionButtons = (
@@ -36,18 +42,17 @@ function SchoolWeekContainerClient() {
   );
 
   const searchComponent = (
-    <ClassroomCombobox onSelect={() => {}} placeholder="Tìm kiếm lớp học..." />
+    <SchoolWeekCombobox onSelect={handleSelectSchoolWeek} placeholder="Tìm kiếm tuần học..." />
   );
   return (
     <div className="bg-white rounded-lg p-10 h-full">
-      {/* <ClassroomsTable /> */}
       <GenericTable
         data={data?.data ?? []}
         columns={columns}
         isLoading={isLoading}
         searchComponent={searchComponent}
         actionButtons={actionButtons}
-        filterFunction={filterClassrooms}
+        filterFunction={filterSchoolWeeks}
       />
     </div>
   );

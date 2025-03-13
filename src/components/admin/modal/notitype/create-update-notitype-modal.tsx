@@ -23,8 +23,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import { BadgePlus, Pencil } from "lucide-react";
-import { useCreateSchoolWeek, useGetSingleSchoolWeek, useUpdateSchoolWeek } from "@/hooks/use-schoolweek";
-import { schoolWeekFormSchema, SchoolWeekFormValues } from "@/lib/validations/schoolweek";
+import { useCreateNotiType, useGetSingleNotiType, useUpdateNotiType } from "@/hooks/use-notitype";
+import { notiTypeFormSchema, NotiTypeFormValues } from "@/lib/validations/notitype";
 
 // Tách animation configs ra riêng
 const ANIMATIONS = {
@@ -50,22 +50,22 @@ const ANIMATIONS = {
   }
 };
 
-function CreateUpdateSchoolWeekModal() {
+function CreateUpdateNotiTypeModal() {
   const { isOpen, onClose, type, data } = useModal();
   const formType = data?.formType;
-  const swId = formType === "update" ? data?.schoolWeek?.id : null;
+  const ntId = formType === "update" ? data?.notiType?.id : null;
 
-  const { data: schoolWeekData, isLoading } = useGetSingleSchoolWeek(swId as number);
-  const { mutate: createSchoolWeek, isPending: isCreating } = useCreateSchoolWeek();
-  const { mutate: updateSchoolWeek, isPending: isUpdating } = useUpdateSchoolWeek();
+  const { data: notiTypeData, isLoading } = useGetSingleNotiType(ntId as number);
+  const { mutate: createNotiType, isPending: isCreating } = useCreateNotiType();
+  const { mutate: updateNotiType, isPending: isUpdating } = useUpdateNotiType();
 
   const isPending = isCreating || isUpdating || isLoading;
 
-  const form = useForm<SchoolWeekFormValues>({
-    resolver: zodResolver(schoolWeekFormSchema),
+  const form = useForm<NotiTypeFormValues>({
+    resolver: zodResolver(notiTypeFormSchema),
     defaultValues: {
-      value: 0,
-      swId: 0
+      value: "",
+      ntId: 0
     },
     mode: "onChange"
   });
@@ -78,47 +78,46 @@ function CreateUpdateSchoolWeekModal() {
 
   // Cập nhật form khi có dữ liệu
   React.useEffect(() => {
-    if (formType === "update" && schoolWeekData) {
-      const data = Array.isArray(schoolWeekData) ? schoolWeekData[0] : schoolWeekData;
+    if (formType === "update" && notiTypeData) {
       form.reset({
-        value: data.value,
-        swId: data.swId
+        value: notiTypeData.value,  
+        ntId: notiTypeData.ntId
       });
     }
-  }, [schoolWeekData, formType, form]);
+  }, [notiTypeData, formType, form]);
 
   // Kiểm tra xem form có giá trị hợp lệ không
   const isFormValid = React.useMemo(() => {
     const value = form.watch("value");
-    return value > 0;
+    return value !== "";
   }, [form.watch("value") ]);
 
   // Xử lý submit form
-  const onSubmit = React.useCallback(async (values: SchoolWeekFormValues) => {
+  const onSubmit = React.useCallback(async (values: NotiTypeFormValues) => {
     try {
       const mutationFn = formType === "create" 
-        ? () => createSchoolWeek(values)
-        : () => updateSchoolWeek({ 
-            swId: swId as number,
-            data: { value: values.value, swId: values.swId }
+        ? () => createNotiType(values)
+        : () => updateNotiType({ 
+            ntId: ntId as number,
+            data: { value: values.value, ntId: values.ntId }
           });
 
       await mutationFn();
       
-      toast.success(`${formType === "create" ? "Tạo" : "Cập nhật"} tuần học thành công!`);
+      toast.success(`${formType === "create" ? "Tạo" : "Cập nhật"} loại thông báo thành công!`);
       handleClose();
     } catch (error) {
       console.error(`${formType} error:`, error);
       toast.error(
         error instanceof Error 
           ? `Lỗi: ${error.message}`
-          : `Đã có lỗi xảy ra khi ${formType === "create" ? "tạo" : "cập nhật"} tuần học!`
+          : `Đã có lỗi xảy ra khi ${formType === "create" ? "tạo" : "cập nhật"} loại thông báo!`
       );
     }
-  }, [formType, swId, createSchoolWeek, updateSchoolWeek, handleClose]);
+  }, [formType, ntId, createNotiType, updateNotiType, handleClose]);
 
   // Không render nếu không phải modal schoolweek
-  if (!isOpen || type !== "createUpdateSchoolWeek") return null;
+  if (!isOpen || type !== "createUpdateNotiType") return null;
 
   return (
     <AnimatePresence>
@@ -136,7 +135,7 @@ function CreateUpdateSchoolWeekModal() {
                   <Pencil className="w-7 h-7" />
                 )}
                 <p className="text-2xl font-medium">
-                  {formType === "create" ? "Thêm mới tuần học" : "Cập nhật tuần học"}
+                  {formType === "create" ? "Thêm mới loại thông báo" : "Cập nhật loại thông báo"}
                 </p>
               </motion.div>
             </DialogTitle>
@@ -158,20 +157,18 @@ function CreateUpdateSchoolWeekModal() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-lg font-medium">
-                            Nhập tuần học
+                            Nhập loại thông báo
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
                               onChange={(e) => {
-                                const value = parseInt(e.target.value);
-                                field.onChange(isNaN(value) ? 0 : value);
+                                const value = e.target.value;
+                                field.onChange(value);
                               }}
                               disabled={isPending}
-                              placeholder="Nhập tuần học..."
+                              placeholder="Nhập loại thông báo..."
                               className="text-base p-6"
-                              type="number"
-                              min={1}
                             />
                           </FormControl>
                           <FormMessage className="text-base" />
@@ -199,7 +196,7 @@ function CreateUpdateSchoolWeekModal() {
                 >
                   {isPending 
                     ? `Đang ${formType === "create" ? "tạo" : "cập nhật"}...` 
-                    : `${formType === "create" ? "Tạo" : "Cập nhật"} tuần học`
+                    : `${formType === "create" ? "Tạo" : "Cập nhật"} loại thông báo`
                   }
                 </Button>
               </motion.div>
@@ -211,4 +208,4 @@ function CreateUpdateSchoolWeekModal() {
   );
 }
 
-export default CreateUpdateSchoolWeekModal;
+export default CreateUpdateNotiTypeModal;
