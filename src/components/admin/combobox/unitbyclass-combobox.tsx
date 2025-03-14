@@ -17,28 +17,46 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useClassrooms } from "@/hooks/use-classrooms"
+import { useUnitByClassId } from "@/hooks/use-units"
 import { Skeleton } from "@/components/ui/skeleton"
 
-interface ClassroomComboboxProps {
+interface UnitByClassComboboxProps {
   onSelect: (value: string) => void;
   placeholder?: string;
+  classId: string;
   defaultValue?: string;
 }
 
-export function ClassroomCombobox({ 
+export function UnitByClassCombobox({ 
   onSelect, 
-  placeholder = "Tìm kiếm lớp học...",
+  placeholder = "Chọn unit...", 
+  classId,
   defaultValue 
-}: ClassroomComboboxProps) {
+}: UnitByClassComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(defaultValue || "")
 
-  const { data, isLoading } = useClassrooms();
+  // Reset value khi classId thay đổi
+  React.useEffect(() => {
+    setValue("")
+    onSelect("")
+  }, [classId, onSelect])
 
-  // Kiểm tra và đảm bảo data.data là một mảng
-  const classrooms = React.useMemo(() => {
-    return Array.isArray(data?.data) ? data.data : [];
+  const { data, isLoading, error } = useUnitByClassId(classId);
+
+  // Xử lý và validate dữ liệu
+  const units = React.useMemo(() => {
+    if (!data?.data || !Array.isArray(data.data)) {
+      return [];
+    }
+    
+    // Sắp xếp theo order nếu có
+    return [...data.data].sort((a, b) => {
+      if (typeof a.order === 'number' && typeof b.order === 'number') {
+        return a.order - b.order;
+      }
+      return 0;
+    });
   }, [data?.data]);
 
   const handleSelect = React.useCallback((currentValue: string) => {
@@ -55,11 +73,27 @@ export function ClassroomCombobox({
     setOpen(false);
   }, [onSelect]);
 
-  if(isLoading) return <Skeleton className="w-[300px] h-10" />;
+  // Hiển thị loading state
+  if (isLoading) {
+    return (
+      <Skeleton className="w-[300px] h-10" />
+    );
+  }
 
-  const selectedClassroom = classrooms.find(
-    (classroom) => classroom.class_id === Number(value)
-  );
+  // Hiển thị error state
+  if (error) {
+    return (
+      <Button
+        variant="outline"
+        className="w-[300px] justify-between text-red-500"
+        disabled
+      >
+        Lỗi tải dữ liệu
+      </Button>
+    );
+  }
+
+  const selectedUnit = units.find((unit) => unit.unitId === Number(value));
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -69,9 +103,10 @@ export function ClassroomCombobox({
           role="combobox"
           aria-expanded={open}
           className="w-[300px] justify-between"
+          disabled={units.length === 0}
         >
           <span className="truncate">
-            {selectedClassroom ? selectedClassroom.classname : placeholder}
+            {selectedUnit ? selectedUnit.unitName : placeholder}
           </span>
           <div className="flex items-center gap-2">
             {value && (
@@ -93,23 +128,31 @@ export function ClassroomCombobox({
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
         <Command>
-          <CommandInput placeholder={placeholder} className="h-9" />
+          <CommandInput 
+            placeholder="Tìm kiếm unit..." 
+            className="h-9"
+          />
           <CommandList>
-            <CommandEmpty>Không tìm thấy lớp học.</CommandEmpty>
+            <CommandEmpty>Không tìm thấy unit nào.</CommandEmpty>
             <CommandGroup>
-              {classrooms.map((classroom) => (
+              {units.map((unit) => (
                 <CommandItem
-                  key={classroom.class_id}
-                  value={classroom.class_id.toString()}
+                  key={unit.unitId}
+                  value={unit.unitId.toString()}
                   onSelect={handleSelect}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === classroom.class_id.toString() ? "opacity-100" : "opacity-0"
+                      value === unit.unitId.toString() ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {classroom.classname}
+                  <span className="truncate">{unit.unitName}</span>
+                  {unit.order && (
+                    <span className="ml-2 text-sm text-muted-foreground">
+                      (Thứ tự: {unit.order})
+                    </span>
+                  )}
                 </CommandItem>
               ))}
             </CommandGroup>

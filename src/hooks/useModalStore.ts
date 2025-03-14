@@ -16,7 +16,8 @@ export type ModalType =
   | "createUpdateSchoolWeek"
   | "deleteSchoolWeek"
   | "createUpdateNotiType"
-  | "deleteNotiType";
+  | "deleteNotiType"
+  | "createUpdateUnits";
 
 export interface ModalData {
   onConfirm?: () => void;
@@ -24,6 +25,7 @@ export interface ModalData {
   notificationList?: NotificationType[];
   lessonIds?: number[];
   formType?: "create" | "update";
+  classroomId?: string;
   classroom?: {
     id: string;
     classname: string;
@@ -40,6 +42,12 @@ export interface ModalData {
     id: number;
     value: string;
     ntId: number;
+  };
+  unit?: {
+    unitId: number;
+    unitName: string;
+    order: number;
+    progress: number;
   };
 }
 

@@ -30,6 +30,7 @@ interface DataTableProps<TData, TValue> {
   onPageSizeChange: (pageSize: number) => void;
   isLoading?: boolean;
   totalItems: number;
+  meta?: any;
 }
 
 // Tạo một wrapper component cho animation
@@ -74,7 +75,8 @@ export function DataTable<TData, TValue>({
   onPageChange,
   onPageSizeChange,
   isLoading,
-  totalItems
+  totalItems,
+  meta
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -85,8 +87,10 @@ export function DataTable<TData, TValue>({
         pageIndex: currentPage - 1,
         pageSize: pageSize,
       }
-    }
+    },
+    meta
   });
+  
 
   return (
     <div>

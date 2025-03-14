@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { DataTable } from "@/components/admin/table/common/data-table";
+import { useReactTable } from "@tanstack/react-table";
 
 interface TableState {
   searchQuery: string;
@@ -17,6 +18,7 @@ interface GenericTableProps<T> {
   actionButtons?: React.ReactNode;
   onSearch?: (value: string) => void;
   filterFunction?: (item: T, searchQuery: string) => boolean;
+  meta?: any;
 }
 
 export function GenericTable<T>({
@@ -27,6 +29,7 @@ export function GenericTable<T>({
   actionButtons,
   onSearch,
   filterFunction,
+  meta
 }: GenericTableProps<T>) {
   const [tableState, setTableState] = useState<TableState>({
     searchQuery: "",
@@ -68,6 +71,22 @@ export function GenericTable<T>({
     setTableState(prev => ({ ...prev, pageSize: newPageSize, page: 1 }));
   }, []);
 
+  // const table = useReactTable({
+  //   data,
+  //   columns,
+  //   state: {
+  //     sorting: [],
+  //     columnVisibility: {},
+  //     rowSelection: {},
+  //     pagination: {
+  //       pageIndex: tableState.page - 1,
+  //       pageSize: tableState.pageSize
+  //     },
+  //     globalFilter: tableState.searchQuery
+  //   },
+  //   meta,
+  // });
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between">
@@ -92,6 +111,7 @@ export function GenericTable<T>({
         onPageSizeChange={handlePageSizeChange}
         isLoading={isLoading}
         totalItems={totalItems}
+        meta={meta}
       />
     </div>
   );
