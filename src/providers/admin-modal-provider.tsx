@@ -8,6 +8,7 @@ import DeleteSchoolWeekModal from '@/components/admin/modal/school-week/delete-s
 import CreateUpdateNotiTypeModal from '@/components/admin/modal/notitype/create-update-notitype-modal';
 import DeleteNotiTypeModal from '@/components/admin/modal/notitype/delete-notitype-modal';
 import CreateUpdateUnitsModal from '@/components/admin/modal/units/create-update-units-modal';
+import CreateUpdateLessonModal from '@/components/admin/modal/lessons/create-update-lesson-modal';
 function AdminModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -28,6 +29,7 @@ function AdminModalProvider() {
       <CreateUpdateNotiTypeModal />
       <DeleteNotiTypeModal />
       <CreateUpdateUnitsModal />
+      <CreateUpdateLessonModal />
     </>
   )
 }

@@ -12,3 +12,14 @@ export interface LessonType {
     numLiked: number;
     isLocked: boolean;
 }
+
+export interface LessonAdminType {
+   schoolweek: number;
+   lessonId: number;
+   lessonName: string;
+   imageUrl: string;
+   numLiked: number;
+   order: number;
+   isActive: boolean;
+}
+

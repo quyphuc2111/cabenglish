@@ -72,6 +72,12 @@ interface ImageProps {
    * @default false
    */
   unoptimized?: boolean;
+
+  /**
+   * Hàm xử lý lỗi khi tải hình ảnh
+   * @default undefined
+   */
+  onError?: (error: ErrorEvent) => void;
 }
 
 /**

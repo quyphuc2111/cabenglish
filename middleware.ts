@@ -44,31 +44,26 @@ const handleAuth = (req: Request, token: any) => {
   const isAdmin = token?.role === ROLES.ADMIN;
   const isTeacher = token?.role === ROLES.TEACHER;
 
-  // Các rules chuyển hướng
-  const redirectRules = [
-    // Admin trying to access non-admin routes
-    {
-      condition: isAdmin && !isAdminRoute(path),
-      redirect: ROUTES.ADMIN_DASHBOARD
-    },
-    // Non-admin trying to access admin routes
-    {
-      condition: !isAdmin && isAdminRoute(path),
-      redirect: ROUTES.OVERVIEW
-    },
-    // Teacher trying to access non-teacher routes
-    {
-      condition: isTeacher && !isTeacherRoute(path),
-      redirect: ROUTES.OVERVIEW
-    }
-  ];
-
-  // Tìm rule phù hợp và chuyển hướng
-  const redirectRule = redirectRules.find(rule => rule.condition);
-  if (redirectRule) {
-    return NextResponse.redirect(new URL(redirectRule.redirect, req.url));
+  // Nếu là admin và đang ở route admin, cho phép truy cập
+  if (isAdmin && isAdminRoute(path)) {
+    // Cho phép truy cập tất cả các route admin
+    return null;
   }
 
+  // Nếu không phải admin cố truy cập route admin
+  if (!isAdmin && isAdminRoute(path)) {
+    return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
+  }
+
+  // Nếu là teacher cố truy cập route không được phép
+  if (isTeacher && 
+      !isTeacherRoute(path) && 
+      !path.startsWith(ROUTES.COURSES) && 
+      !path.startsWith(ROUTES.PROFILE)) {
+    return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
+  }
+
+  // Cho phép truy cập trong các trường hợp còn lại
   return null;
 };
 
@@ -76,6 +71,12 @@ export default withAuth(
   function middleware(req) {
     try {
       const token = req.nextauth.token;
+      const path = new URL(req.url).pathname;
+
+      // Bỏ qua middleware cho các API routes
+      if (path.startsWith('/api/')) {
+        return null;
+      }
 
       // Xử lý ngôn ngữ
       const localeUrl = handleLocale(req);
@@ -88,7 +89,6 @@ export default withAuth(
       return NextResponse.rewrite(localeUrl);
     } catch (error) {
       console.error('Middleware error:', error);
-      // Trong trường hợp lỗi, chuyển hướng về trang chủ
       return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
     }
   },
@@ -99,15 +99,14 @@ export default withAuth(
   }
 );
 
-// Cấu hình matcher cho middleware
+// Cập nhật matcher để loại trừ các routes không cần thiết
 export const config = {
   matcher: [
-    // Auth routes
     '/tong-quan/:path*',
     '/khoa-hoc/:path*',
     '/profile/:path*',
     '/admin/:path*',
-    // Exclude files and API routes
-    '/((?!api|static|.*\\..*|_next).*)'
+    '/((?!api|_next|static|.*\\..*).*)'
   ]
 }; 
+

@@ -17,3 +17,9 @@ export const formatProgress = (progress: number) => {
   return Number.isInteger(percent) ? percent.toString() : percent.toFixed(2);
 };
 
+export const formatSelect = (arrayData: any[], keyLabel: string, keyValue: string) => {
+  return arrayData.map((item) => ({
+    label: item[keyLabel],
+    value: item[keyValue]
+  }));
+};
