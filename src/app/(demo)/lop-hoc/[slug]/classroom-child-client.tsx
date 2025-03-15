@@ -308,6 +308,7 @@ function ClassroomChildClient({slug, lessonData, fetchSectionData}: {slug: strin
                 ...lessonItem,
                 classRoomName: lessonItem.className
             }
+            console.log("lessonItemData", lessonItemData)
             return (
                 <LessonCard {...lessonItemData} onClick={() => handleLessonClick(lessonItem.lessonId)} />
             )

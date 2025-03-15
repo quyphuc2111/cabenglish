@@ -15,7 +15,7 @@ async function TeachingMode() {
 
   const initialTeachingMode = session.user.mode;
 
-  // const updateUser = await updateUserInfo({
+  // const updateUserLocal = await updateUserInfo({
   //   userId: session.user.userId,
   //   userInfo: {
   //     mode: initialTeachingMode,

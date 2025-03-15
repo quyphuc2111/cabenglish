@@ -17,185 +17,6 @@ interface ProgressStatsProps {
   classroomData: ClassroomType[];
 }
 
-const progressStatsData = {
-  initial: [
-    {
-      age: "3 - 4 tuổi",
-      value: 20,
-      lesson: [
-        {
-          title: "Unit 1",
-          progress: 100
-        },
-        {
-          title: "Unit 2",
-          progress: 40
-        },
-        {
-          title: "Unit 3",
-          progress: 24
-        },
-        {
-          title: "Unit 4",
-          progress: 100
-        },
-        {
-          title: "Unit 5",
-          progress: 60
-        },
-        {
-          title: "Unit 6",
-          progress: 30
-        },
-        {
-          title: "Unit 7",
-          progress: 100
-        },
-        {
-          title: "Unit 8",
-          progress: 66
-        },
-        {
-          title: "Unit 1",
-          progress: 100
-        },
-        {
-          title: "Unit 2",
-          progress: 40
-        },
-        {
-          title: "Unit 3",
-          progress: 24
-        },
-        {
-          title: "Unit 4",
-          progress: 100
-        },
-        {
-          title: "Unit 5",
-          progress: 60
-        },
-        {
-          title: "Unit 6",
-          progress: 30
-        },
-        {
-          title: "Unit 7",
-          progress: 100
-        },
-        {
-          title: "Unit 8",
-          progress: 66
-        },
-        {
-          title: "Unit 1",
-          progress: 100
-        },
-        {
-          title: "Unit 2",
-          progress: 40
-        },
-        {
-          title: "Unit 3",
-          progress: 24
-        },
-        {
-          title: "Unit 4",
-          progress: 100
-        },
-        {
-          title: "Unit 5",
-          progress: 60
-        },
-        {
-          title: "Unit 6",
-          progress: 30
-        },
-        {
-          title: "Unit 7",
-          progress: 100
-        },
-        {
-          title: "Unit 8",
-          progress: 66
-        },
-        {
-          title: "Unit 1",
-          progress: 100
-        },
-        {
-          title: "Unit 2",
-          progress: 40
-        },
-        {
-          title: "Unit 3",
-          progress: 24
-        },
-        {
-          title: "Unit 4",
-          progress: 100
-        },
-        {
-          title: "Unit 5",
-          progress: 60
-        },
-        {
-          title: "Unit 6",
-          progress: 30
-        },
-        {
-          title: "Unit 7",
-          progress: 100
-        },
-        {
-          title: "Unit 8",
-          progress: 66
-        },
-      ]
-    },
-    {
-      age: "4 - 5 tuổi", 
-      value: 50,
-      lesson: [
-        {
-          title: "Unit 1",
-          progress: 70
-        },
-      ]
-    }
-  ],
-  expanded: [
-    {
-      age: "5 - 6 tuổi",
-      value: 22,
-      lesson: [
-        {
-          title: "Unit 1",
-          progress: 26
-        },
-        {
-          title: "Unit 2",
-          progress: 70
-        },
-      ]
-    },
-    {
-      age: "Nhà trẻ",
-      value: 40,
-      lesson: [
-        {
-          title: "Unit 1",
-          progress: 10
-        },
-        {
-          title: "Unit 2",
-          progress: 42
-        },
-      ]
-    }
-  ]
-};
-
 export function ProgressStats({ onOpen, t, courseData, classroomData }: ProgressStatsProps) {
   const [showChart, setShowChart] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
@@ -231,7 +52,7 @@ export function ProgressStats({ onOpen, t, courseData, classroomData }: Progress
 
   const renderProgressItem = (item: ClassroomType) => (
     <motion.div
-      key={item.classname}
+      key={`${item.classname}-${item.class_id}-${currentPage}`}
       initial={{ opacity: 0, x: currentPage > previousPage ? 100 : -100 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: currentPage > previousPage ? -100 : 100 }}
@@ -352,10 +173,20 @@ export function ProgressStats({ onOpen, t, courseData, classroomData }: Progress
         </motion.button>
       </div>
 
-      <div className="relative h-[280px]">
-        <AnimatePresence mode="wait">
-          <div className="absolute w-full">
-            {currentPageData.map(renderProgressItem)}
+      <div className="relative h-[280px] overflow-hidden">
+        <AnimatePresence mode="wait" initial={false}>
+          <div className="absolute w-full" key={currentPage}>
+            {currentPageData.slice(0, ITEMS_PER_PAGE).map((item, index) => (
+              <motion.div
+                key={`${item.classname}-${item.class_id}-${index}`}
+                initial={{ opacity: 0, x: currentPage > previousPage ? 100 : -100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: currentPage > previousPage ? -100 : 100 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                {renderProgressItem(item)}
+              </motion.div>
+            ))}
           </div>
         </AnimatePresence>
       </div>

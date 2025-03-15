@@ -34,6 +34,7 @@ export function useClassroomColumns() {
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
+          className="rounded-sm"
         />
       ),
       cell: ({ row }) => (
@@ -41,48 +42,73 @@ export function useClassroomColumns() {
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
+          className="rounded-sm"
         />
       ),
       enableSorting: false,
       enableHiding: false
     },
     {
-      header: "#",
+      header: () => (
+        <div className="font-semibold text-gray-900 px-4">#</div>
+      ),
       accessorKey: "index",
       cell: ({ row, table }) => {
         const pageSize = table.getState().pagination.pageSize;
         const pageIndex = table.getState().pagination.pageIndex;
-
-        // Tính index: (số trang hiện tại * số items mỗi trang) + index trong trang hiện tại + 1
         const index = pageIndex * pageSize + row.index + 1;
 
-        return <div>{index}</div>;
+        return (
+          <div className="font-medium text-gray-500 w-12 text-center">
+            {String(index).padStart(2, '0')}
+          </div>
+        );
       }
     },
     {
       accessorKey: "classname",
-      header: "Tên lớp học"
+      header: () => (
+        <div className="font-semibold text-gray-900 px-4">Tên lớp học</div>
+      ),
+      cell: ({ row }) => {
+        const classname = row.original.classname;
+        return (
+          <div className="group px-4 py-3 hover:bg-gray-50 rounded-md transition-all duration-200">
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 rounded-full bg-indigo-500 group-hover:animate-pulse" />
+              <div className="font-medium text-gray-900">
+                {classname}
+              </div>
+            </div>
+          </div>
+        );
+      }
     },
     {
       accessorKey: "imageurl",
-      header: "Hình ảnh",
+      header: () => (
+        <div className="font-semibold text-gray-900 px-4">Hình ảnh</div>
+      ),
       cell: ({ row }) => {
         const imageUrl = row.original.imageurl;
         return (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <p className="line-clamp-1 max-w-[400px] cursor-pointer">{imageUrl}</p>
+                <div className="flex items-center space-x-2 px-4 cursor-pointer">
+                  <p className="text-sm text-gray-600 line-clamp-1 max-w-[200px]">
+                    {imageUrl}
+                  </p>
+                </div>
               </TooltipTrigger>
-              <TooltipContent className="max-w-[800px] whitespace-pre-wrap">
-                <div className="cursor-pointer">
+              <TooltipContent side="right" className="p-0 border-0">
+                <div className="overflow-hidden rounded-lg border border-gray-200">
                   <OptimizeImage
                     src={imageUrl}
-                    width={200}
+                    width={300}
                     height={200}
-                    alt="Hình ảnh lớp học"
-                    placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,..."
+                    alt="Preview"
+                    className="w-full h-auto"
                     unoptimized={true}
                   />
                 </div>
@@ -94,19 +120,25 @@ export function useClassroomColumns() {
     },
     {
       accessorKey: "description",
-      header: "Mô tả",
+      header: () => (
+        <div className="font-semibold text-gray-900 px-4">Mô tả</div>
+      ),
       cell: ({ row }) => {
         const description = row.original.description;
         return (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="line-clamp-2 max-w-[500px] cursor-pointer">
-                  {description}
+                <div className="px-4 py-2">
+                  <div className="line-clamp-2 text-sm text-gray-600 max-w-[300px] cursor-pointer hover:text-gray-900 transition-colors">
+                    {description}
+                  </div>
                 </div>
               </TooltipTrigger>
-              <TooltipContent className="max-w-[500px] whitespace-pre-wrap">
-                {description}
+              <TooltipContent className="max-w-[400px] p-4 bg-white shadow-lg rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                  {description}
+                </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -116,7 +148,20 @@ export function useClassroomColumns() {
     {
       id: "actions",
       cell: ActionCell,
-      header: "Hành động"
+      header: () => (
+        <div className="font-semibold text-gray-900 px-4">
+          Hành động
+        </div>
+      ),
+      meta: {
+        position: "sticky",
+        style: {
+          right: 0,
+          backgroundColor: "white",
+          zIndex: 10,
+          boxShadow: "-4px 0 6px rgba(0,0,0,0.05)"
+        }
+      }
     }
   ], []);
 

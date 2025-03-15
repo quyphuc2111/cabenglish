@@ -144,7 +144,7 @@ function NotificationModal() {
                 }}
               >
                 <div className="flex items-center justify-between">
-                  <p className="font-medium line-clamp-1">{notification.title}</p>
+                  <p className="font-medium line-clamp-1 max-w-[500px]">{notification.title}</p>
                   {!notification.isRead && (
                     <div className="w-2 h-2 rounded-full bg-blue-600" />
                   )}
@@ -198,7 +198,7 @@ function NotificationModal() {
                           alt="Notification Icon"
                           className="flex-shrink-0 object-contain"
                         />
-                        <h2 className="text-xl font-bold uppercase line-clamp-1">
+                        <h2 className="text-xl font-bold uppercase line-clamp-3 max-w-[650px]">
                           {selectedNotification.title}
                         </h2>
                       </div>
