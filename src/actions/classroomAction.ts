@@ -133,28 +133,31 @@ export async function getSingleClassroomAdminData({classroomId}: {classroomId: n
 }
 
 export async function createClassroomsAdminData({classData}: {classData: ClassroomType[]}): Promise<ClassroomResponse> {
-  
+  console.log("classData123", classData)
   try {
-    const data = await serverFetch(`/api/Classroom`, {
+    const response = await serverFetch(`/api/Classroom`, {
       method: "POST",
       data: classData
     });
-    
-    if (!Array.isArray(data)) {
-      throw new Error("Dữ liệu không đúng định dạng");
+
+    console.log("response123", response)
+
+    if (response.error) {
+      return Promise.reject(new Error(response.error));
     }
+    
+    // if (!Array.isArray(response.data)) {
+    //   return Promise.reject(new Error("Dữ liệu không đúng định dạng"));
+    // }
 
     return {
-      data,
-      error: undefined
+      data: response.data,
+      success: true,
     };
 
   } catch (error) {
-    console.error('Lỗi khi lấy dữ liệu bài học:', error);
-    return {
-      data: [],
-      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
-    };
+    console.error('Lỗi khi tạo lớp học:', error);
+    return Promise.reject(error);
   }
 }
 

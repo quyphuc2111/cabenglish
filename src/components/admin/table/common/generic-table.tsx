@@ -71,22 +71,6 @@ export function GenericTable<T>({
     setTableState(prev => ({ ...prev, pageSize: newPageSize, page: 1 }));
   }, []);
 
-  // const table = useReactTable({
-  //   data,
-  //   columns,
-  //   state: {
-  //     sorting: [],
-  //     columnVisibility: {},
-  //     rowSelection: {},
-  //     pagination: {
-  //       pageIndex: tableState.page - 1,
-  //       pageSize: tableState.pageSize
-  //     },
-  //     globalFilter: tableState.searchQuery
-  //   },
-  //   meta,
-  // });
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between">

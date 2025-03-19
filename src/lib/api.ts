@@ -65,7 +65,6 @@ export async function serverFetch(
 ) {
   const session = await getServerSession(authOptions);
   
-  // Tách headers riêng để tránh conflict
   const headers = {
     "Content-Type": "application/json",
     "Accept": "application/json",
@@ -76,22 +75,19 @@ export async function serverFetch(
   try {
     const response = await axios({
       url: `${API_URL}${endpoint}`,
-      // httpsAgent: new https.Agent({
-      //   rejectUnauthorized: false
-      // }),
       ...options,
-      headers, // ghi đè headers sau cùng
+      headers,
     });
 
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      // Xử lý lỗi cụ thể từ Axios
-      throw new Error(
-        `API Error: ${error.response?.status} - ${error.response?.data?.message || error.message}`
-      );
+      // Trả về error message từ API một cách trực tiếp
+      const errorMessage = error.response?.data?.message || 
+                         error.response?.data || 
+                         error.message;
+      throw new Error(errorMessage);
     }
-    // Xử lý các lỗi khác
     throw error;
   }
 } 

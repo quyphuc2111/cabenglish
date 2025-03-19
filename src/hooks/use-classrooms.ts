@@ -50,11 +50,20 @@ export function useCreateClassroom() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: ClassroomFormValues) => createClassroom(data),
+    mutationFn: async (data: ClassroomFormValues) => {
+      const response = await createClassroom(data);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      return response;
+    },
     onSuccess: () => {
-      // Invalidate và refetch
       queryClient.invalidateQueries({ queryKey: ["classrooms"] });
     },
+    onError: (error: Error) => {
+      console.error("Create error:", error);
+      // toast.error(error.message || "Có lỗi xảy ra khi tạo lớp học");
+    }
   });
 }
 

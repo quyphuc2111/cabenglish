@@ -13,6 +13,8 @@ export type ModalType =
   | "notification"
   | "createUpdateClassroom"
   | "deleteClassroom"
+  | "importClassroom"
+  | "exportClassroom"
   | "createUpdateSchoolWeek"
   | "deleteSchoolWeek"
   | "createUpdateNotiType"

@@ -1,14 +1,16 @@
-"use client"
-import React, { useEffect, useState } from 'react'
+"use client";
+import React, { useEffect, useState } from "react";
 
-import CreateUpdateClassroomModal from '@/components/admin/modal/classroom/create-update-classroom-modal';
-import DeleteClassroomModal from '@/components/admin/modal/classroom/delete-classroom-modal';
-import CreateUpdateSchoolWeekModal from '@/components/admin/modal/school-week/create-update-schoolweek-modal';
-import DeleteSchoolWeekModal from '@/components/admin/modal/school-week/delete-schoolweek-modal';
-import CreateUpdateNotiTypeModal from '@/components/admin/modal/notitype/create-update-notitype-modal';
-import DeleteNotiTypeModal from '@/components/admin/modal/notitype/delete-notitype-modal';
-import CreateUpdateUnitsModal from '@/components/admin/modal/units/create-update-units-modal';
-import CreateUpdateLessonModal from '@/components/admin/modal/lessons/create-update-lesson-modal';
+import CreateUpdateClassroomModal from "@/components/admin/modal/classroom/create-update-classroom-modal";
+import DeleteClassroomModal from "@/components/admin/modal/classroom/delete-classroom-modal";
+import CreateUpdateSchoolWeekModal from "@/components/admin/modal/school-week/create-update-schoolweek-modal";
+import DeleteSchoolWeekModal from "@/components/admin/modal/school-week/delete-schoolweek-modal";
+import CreateUpdateNotiTypeModal from "@/components/admin/modal/notitype/create-update-notitype-modal";
+import DeleteNotiTypeModal from "@/components/admin/modal/notitype/delete-notitype-modal";
+import CreateUpdateUnitsModal from "@/components/admin/modal/units/create-update-units-modal";
+import CreateUpdateLessonModal from "@/components/admin/modal/lessons/create-update-lesson-modal";
+import ImportClassroomModal from "@/components/admin/modal/classroom/import-classroom-modal";
+import ExportClassroomModal from "@/components/admin/modal/classroom/export-classroom-modal";
 function AdminModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -30,8 +32,10 @@ function AdminModalProvider() {
       <DeleteNotiTypeModal />
       <CreateUpdateUnitsModal />
       <CreateUpdateLessonModal />
+      <ImportClassroomModal />
+      <ExportClassroomModal />
     </>
-  )
+  );
 }
 
 export default AdminModalProvider;
