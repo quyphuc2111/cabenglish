@@ -79,6 +79,7 @@ export async function createLessonAdminDataByClassIdUnitId({
   classId: number;
   unitId: number;
 }): Promise<LessonAdminResponse> {
+  console.log('lessonData', lessonData);
 
   try {
     const lesson = {
@@ -106,6 +107,23 @@ export async function createLessonAdminDataByClassIdUnitId({
       data: [],
       error:
         error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
+    };
+  }
+}
+
+export async function getSingleLessonAdminData({lessonId}: {lessonId: number}): Promise<LessonAdminType> {
+  try {
+    const data = await serverFetch(`/api/Lesson/${lessonId}`);
+    
+    return {
+      data,
+      error: undefined
+    };
+  } catch (error) {
+    console.error('Lỗi khi lấy dữ liệu bài học:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
     };
   }
 }

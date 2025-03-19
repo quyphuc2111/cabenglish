@@ -23,16 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import { BadgePlus, Pencil } from "lucide-react";
-import {
-  useCreateNotiType,
-  useGetSingleNotiType,
-  useUpdateNotiType
-} from "@/hooks/use-notitype";
-import {
-  notiTypeFormSchema,
-  NotiTypeFormValues
-} from "@/lib/validations/notitype";
-import { unitsFormSchema, UnitsFormValues } from "@/lib/validations/units";
+import { useGetSingleNotiType } from "@/hooks/use-notitype";
 import {
   useCreateUnitByClassId,
   useUpdateUnitByClassId
@@ -44,6 +35,16 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { ImageUploader } from "@/components/ui/image-upload";
 import { useSchoolWeek } from "@/hooks/use-schoolweek";
+import { formatSelect } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { LessonAdminType } from "@/types/lesson";
+import { useCreateLessonByClassIdUnitId, useGetSingleLesson } from "@/hooks/use-lessons";
 
 // Thêm animation configs mới
 const ANIMATIONS = {
@@ -79,38 +80,44 @@ const ANIMATIONS = {
 function CreateUpdateLessonModal() {
   const { isOpen, onClose, type, data } = useModal();
   const formType = data?.formType;
-  const classId = formType === "update" ? data?.classroomId : null;
+  const lessonId = formType === "update" ? data?.lessonId : null;
+  const schoolweek = formType === "update" ? data?.schoolweek : null;
   const unitId = data?.unitId;
 
   const classroomId = React.useMemo(() => {
     if (!data?.classroomId) {
-      console.error("Missing classroomId:", data);
+      // console.error("Missing classroomId:", data);
       return null;
     }
     const id = Number(data.classroomId);
     return isNaN(id) ? null : id;
   }, [data?.classroomId]);
 
-  const { data: schoolWeekData, isLoading: isLoadingSchoolWeek } = useSchoolWeek();
+  const { data: schoolWeekData, isLoading: isLoadingSchoolWeek } =
+    useSchoolWeek();
 
-  const { data: unitData, isLoading } = useGetSingleNotiType(classId);
-  const { mutate: createUnits, isPending: isCreating } =
-    useCreateUnitByClassId(classroomId);
+  const selectSchoolWeek = formatSelect(schoolWeekData?.data, "swId", "value");
+
+  const { data: lessonData, isLoading } = useGetSingleLesson(lessonId?.toString());
+
   const { mutate: updateUnits, isPending: isUpdating } =
-    useUpdateUnitByClassId(classId);
+    useUpdateUnitByClassId(lessonId);
+
+  const { mutate: createLesson, isPending: isCreating } =
+    useCreateLessonByClassIdUnitId();
 
   const isPending = isCreating || isUpdating || isLoading;
 
   const form = useForm<LessonsFormValues>({
     resolver: zodResolver(lessonsFormSchema),
     defaultValues: {
-      schoolweek: 0,
-      lessonId: 0,
+      schoolweek: formType === "update" ? Number(lessonData?.schoolweek) : 0,
+      lessonId: formType === "update" ? Number(lessonData?.lessonId) : 0,
       lessonName: "",
       imageUrl: "",
       numLiked: 0,
       order: 0,
-      isActive: true // Mặc định là active
+      isActive: true
     },
     mode: "onChange"
   });
@@ -120,6 +127,30 @@ function CreateUpdateLessonModal() {
     form.reset();
     onClose();
   }, [form, onClose]);
+
+    // Cập nhật form khi có dữ liệu
+    React.useEffect(() => {
+      if (formType === "update" && lessonData) {
+        // Đảm bảo chuyển đổi schoolweek thành number
+        // const schoolweekValue = Number(lessonData.schoolweek);
+        
+        form.reset({
+          lessonName: lessonData.lessonName,
+          order: lessonData.order,
+          schoolweek: schoolweek, 
+          imageUrl: lessonData.imageUrl,
+          numLiked: lessonData.numLiked,
+          isActive: lessonData.isActive,
+          lessonId: lessonData.lessonId 
+        }, {
+          keepDefaultValues: false, 
+        });
+
+        // Trigger validation sau khi reset
+        form.trigger();
+      }
+    }, [lessonData, formType, form, schoolweek]);
+  
 
   // Kiểm tra form hợp lệ
   const isFormValid = React.useMemo(() => {
@@ -143,21 +174,33 @@ function CreateUpdateLessonModal() {
 
   // Xử lý submit form
   const onSubmit = React.useCallback(
-    async (values: UnitsFormValues) => {
+    async (values: LessonAdminType) => {
       if (!classroomId) {
         toast.error("Không tìm thấy thông tin lớp học!");
         return;
       }
 
+      if (!unitId) {
+        toast.error("Không tìm thấy thông tin unit!");
+        return;
+      }
+
       try {
         if (formType === "create") {
-          createUnits(values, {
+          const formattedValues = {
+            lessonData: [values],
+            unitId: unitId,
+            classId: classroomId
+          };
+          createLesson(formattedValues, {
             onSuccess: (response) => {
               if (response?.success) {
-                toast.success("Tạo unit thành công!");
+                toast.success("Tạo bài học thành công!");
                 handleClose();
               } else {
-                toast.error(response?.error || "Có lỗi xảy ra khi tạo unit!");
+                toast.error(
+                  response?.error || "Có lỗi xảy ra khi tạo bài học!"
+                );
               }
             },
             onError: (error) => {
@@ -202,7 +245,7 @@ function CreateUpdateLessonModal() {
         );
       }
     },
-    [formType, createUnits, updateUnits, handleClose, classroomId]
+    [formType, createLesson, updateUnits, handleClose, classroomId]
   );
 
   // Không render nếu không phải modal schoolweek
@@ -303,18 +346,41 @@ function CreateUpdateLessonModal() {
                           Tuần học
                         </FormLabel>
                         <FormControl>
-                          <Input
-                            {...field}
-                            onChange={(e) => {
-                              const value = parseInt(e.target.value);
-                              field.onChange(isNaN(value) ? 0 : value);
-                            }}
-                            type="number"
-                            min={1}
+                          <Select
                             disabled={isPending}
-                            placeholder="Nhập tuần học..."
-                            className="text-base p-6 border-2 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-emerald-400 transition-colors duration-200"
-                          />
+                            onValueChange={(value) => {
+                              const numValue = Number(value);
+                              field.onChange(numValue);
+                              form.setValue("schoolweek", numValue, { 
+                                shouldValidate: true,
+                                shouldDirty: true 
+                              });
+                            }}
+                            value={field.value?.toString() || ""}
+                            defaultValue={field.value?.toString() || ""}
+                          >
+                            <SelectTrigger
+                              className="text-base p-6 border-2 
+                                  focus:border-emerald-400 focus:ring-0 focus:ring-offset-0 
+                                  focus-visible:ring-0 focus-visible:ring-offset-0 
+                                  focus-visible:border-emerald-400
+                                  hover:border-emerald-400
+                                  transition-colors duration-200"
+                            >
+                              <SelectValue placeholder="Chọn tuần học" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white overflow-y-auto max-h-[300px]">
+                              {selectSchoolWeek?.map((item) => (
+                                <SelectItem
+                                  key={item.value}
+                                  value={item.value.toString()}
+                                  className="cursor-pointer"
+                                >
+                                  Tuần {item.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </FormControl>
                         <FormMessage className="text-base" />
                       </FormItem>

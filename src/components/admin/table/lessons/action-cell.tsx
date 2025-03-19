@@ -27,7 +27,7 @@ interface ActionCellProps {
 
 export const ActionCell = memo(function ActionCell({ row, table }: ActionCellProps) {
   const { onOpen } = useModal();
-  const unit = row.original;
+  const lesson = row.original;
   const selectedClassId = table.options.meta?.selectedClassId;
 
   const handleEdit = useCallback(() => {
@@ -36,20 +36,22 @@ export const ActionCell = memo(function ActionCell({ row, table }: ActionCellPro
       return;
     }
 
-    onOpen("createUpdateUnits", {
+    onOpen("createUpdateLessons", {
       formType: "update",
-      classroomId: selectedClassId
+      classroomId: selectedClassId,
+      lessonId: lesson.lessonId,
+      schoolweek: lesson.schoolweek
     });
-  }, [selectedClassId, onOpen]);
+  }, [selectedClassId, onOpen, lesson.lessonId]);
 
   const handleDelete = useCallback(() => {
     onOpen("deleteNotiType", {
-      unit: {
-        unitId: unit.unitId,
-        value: unit.unitName
+      lesson: {
+        lessonId: lesson.lessonId,
+        value: lesson.lessonName
       } as any
     });
-  }, [unit.unitId, onOpen]);
+  }, [lesson.lessonId, onOpen]);
 
   return (
     <div className="flex gap-2 ">

@@ -14,7 +14,7 @@ export interface LessonType {
 }
 
 export interface LessonAdminType {
-   schoolweek: number;
+   schoolweek?: number;
    lessonId: number;
    lessonName: string;
    imageUrl: string;

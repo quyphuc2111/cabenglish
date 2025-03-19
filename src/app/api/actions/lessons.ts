@@ -19,9 +19,9 @@ export async function getAllLessonsByClassIdUnitId(classId: string, unitId: stri
   }
 }
 
-export async function createLesson({classId, unitId, lessonData}) {
+export async function createLesson(values: LessonAdminType) {
     try {
-      const result = await createLessonAdminDataByClassIdUnitId({classId, unitId, lessonData});
+      const result = await createLessonAdminDataByClassIdUnitId(values);
   
       return { success: true, data: result.data };
     } catch (error) {

@@ -9,8 +9,6 @@ export async function createSchoolWeek(values: SchoolWeekFormValues) {
       schoolWeekData: [values]
     });
 
-    console.log(result);
-
     return { success: true, data: result.data };
   } catch (error) {
     return {

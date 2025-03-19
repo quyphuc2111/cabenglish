@@ -50,7 +50,7 @@ function LessonsContainerClient() {
     onOpen("createUpdateLessons", {
       formType: "create",
       classroomId: selectedClassId,
-      unitId: selectedUnitId
+      unitId: Number(selectedUnitId)
     });
   }, [selectedClassId, onOpen, selectedUnitId]);
 

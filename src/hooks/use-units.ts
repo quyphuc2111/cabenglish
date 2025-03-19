@@ -30,9 +30,10 @@ export function useUnitByClassId(classId: number | string) {
 export function useCreateUnitByClassId(classId: number | null) {
   const queryClient = useQueryClient();
 
-  if (!classId) {
-    console.error('Missing or invalid classId:', classId);
-  }
+  // if (!classId) {
+  //   console.error('Missing or invalid classId:', classId);
+  //   return null;
+  // }
 
   return useMutation({
     mutationFn: (data: UnitsFormValues) => {
@@ -55,7 +56,7 @@ export function useCreateUnitByClassId(classId: number | null) {
         queryKey: ["units-by-class-id", String(classId)],
         exact: true
       });
-    },
+    }
   });
 }
 

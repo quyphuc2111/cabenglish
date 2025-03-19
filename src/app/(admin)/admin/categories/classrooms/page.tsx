@@ -10,7 +10,7 @@ const breadcrumbItems = [
     link: "/admin/categories"
   },
   {
-    title: "Quản lý lớp học",
+    title: "Quản lý lớp học", 
     link: "/admin/categories/classrooms"
   }
 ];

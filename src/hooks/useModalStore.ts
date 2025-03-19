@@ -51,6 +51,8 @@ export interface ModalData {
     order: number;
     progress: number;
   };
+  unitId?: number;
+  lessonId?: number;
 }
 
 
