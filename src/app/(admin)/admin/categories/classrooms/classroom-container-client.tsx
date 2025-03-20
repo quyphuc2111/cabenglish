@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import * as Sentry from "@sentry/nextjs";
 import { ClassroomCombobox } from "@/components/admin/combobox/classroom-combobox";
 import { useClassroomColumns } from "@/components/admin/table/classroom-table/columns";
 import { GenericTable } from "@/components/admin/table/common/generic-table";
@@ -12,20 +13,59 @@ import { Download, Upload } from "lucide-react";
 function ClassroomContainerClient() {
   const [selectedClassId, setSelectedClassId] = React.useState<string | null>(null);
 
-  const { data, isLoading } = useClassrooms();
+  const { data, isLoading, error } = useClassrooms();
   const columns = useClassroomColumns();
   const { onOpen } = useModal();
   
+  // Theo dõi lỗi từ data fetching
+  React.useEffect(() => {
+    if (error) {
+      Sentry.captureException(error, {
+        tags: {
+          component: 'ClassroomContainerClient',
+          operation: 'data_fetching'
+        }
+      });
+    }
+  }, [error]);
+
   const handleCreateClassroom = () => {
-    onOpen("createUpdateClassroom", { formType: "create" });
+    try {
+      onOpen("createUpdateClassroom", { formType: "create" });
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: {
+          component: 'ClassroomContainerClient',
+          operation: 'create_classroom'
+        }
+      });
+    }
   };
 
   const handleImportClassroom = () => {
-    onOpen("importClassroom");
+    try {
+      onOpen("importClassroom");
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: {
+          component: 'ClassroomContainerClient',
+          operation: 'import_classroom'
+        }
+      });
+    }
   };
 
   const handleExportClassroom = () => {
-    onOpen("exportClassroom");
+    try {
+      onOpen("exportClassroom");
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: {
+          component: 'ClassroomContainerClient',
+          operation: 'export_classroom'
+        }
+      });
+    }
   };
 
   const filteredData = React.useMemo(() => {
@@ -45,7 +85,19 @@ function ClassroomContainerClient() {
   // };
 
   const handleSelectClassroom = (value: string) => {
-    setSelectedClassId(value);
+    try {
+      setSelectedClassId(value);
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: {
+          component: 'ClassroomContainerClient',
+          operation: 'select_classroom'
+        },
+        extra: {
+          selectedValue: value
+        }
+      });
+    }
   };
 
   const filterClassrooms = React.useCallback((classroom: any, searchQuery: string) => {
