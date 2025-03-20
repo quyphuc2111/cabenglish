@@ -133,14 +133,14 @@ export async function getSingleClassroomAdminData({classroomId}: {classroomId: n
 }
 
 export async function createClassroomsAdminData({classData}: {classData: ClassroomType[]}): Promise<ClassroomResponse> {
-  console.log("classData123", classData)
+  // console.log("classData123", classData)
   try {
     const response = await serverFetch(`/api/Classroom`, {
       method: "POST",
       data: classData
     });
 
-    console.log("response123", response)
+    // console.log("response123", response)
 
     if (response.error) {
       return Promise.reject(new Error(response.error));

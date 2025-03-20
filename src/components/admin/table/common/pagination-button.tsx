@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { 
+  ChevronLeft, 
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight
+} from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -132,6 +137,18 @@ export function PaginationButton({
                 variant="outline"
                 size="icon"
                 className="h-9 w-9"
+                onClick={() => onPageChange(1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </Button>
+            </PaginationItem>
+
+            <PaginationItem>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9 w-9"
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
               >
@@ -204,6 +221,18 @@ export function PaginationButton({
                 disabled={currentPage === totalPages || totalPages === 0}
               >
                 <ChevronRight className="h-4 w-4" />
+              </Button>
+            </PaginationItem>
+
+            <PaginationItem>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9 w-9"
+                onClick={() => onPageChange(totalPages)}
+                disabled={currentPage === totalPages || totalPages === 0}
+              >
+                <ChevronsRight className="h-4 w-4" />
               </Button>
             </PaginationItem>
           </PaginationContent>

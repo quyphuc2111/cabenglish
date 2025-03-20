@@ -3,9 +3,10 @@
 import {
   ColumnDef,
   flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getPaginationRowModel,
+  Header,
+  HeaderGroup,
+  Row,
+  Cell
 } from "@tanstack/react-table";
 
 import {
@@ -17,8 +18,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PaginationButton } from "./pagination-button";
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -31,6 +32,7 @@ interface DataTableProps<TData, TValue> {
   isLoading?: boolean;
   totalItems: number;
   meta?: any;
+  table: any;
 }
 
 // Tạo một wrapper component cho animation
@@ -66,6 +68,26 @@ const tableRowAnimation = {
   }
 };
 
+// Tạo component TableRowSkeleton
+const TableRowSkeleton = ({ columns }: { columns: number }) => (
+  <TableRow>
+    {Array(columns).fill(0).map((_, index) => (
+      <TableCell key={index}>
+        <Skeleton className="h-8 w-full" />
+      </TableCell>
+    ))}
+  </TableRow>
+);
+
+// Tạo component LoadingRows
+const LoadingRows = ({ columns, pageSize }: { columns: number, pageSize: number }) => (
+  <>
+    {Array(pageSize).fill(0).map((_, index) => (
+      <TableRowSkeleton key={index} columns={columns} />
+    ))}
+  </>
+);
+
 export function DataTable<TData, TValue>({
   columns,
   data,
@@ -76,74 +98,51 @@ export function DataTable<TData, TValue>({
   onPageSizeChange,
   isLoading,
   totalItems,
-  meta
+  table
 }: DataTableProps<TData, TValue>) {
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    state: {
-      pagination: {
-        pageIndex: currentPage - 1,
-        pageSize: pageSize,
-      }
-    },
-    meta
-  });
-  
-
   return (
     <div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map((headerGroup: HeaderGroup<TData>) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header: Header<TData, unknown>) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder ? null : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <AnimatePresence mode="wait">
             <AnimatedTableContent
-              key={data.length}
+              key={isLoading ? 'loading' : data.length}
               initial="initial"
               animate="animate"
               exit="exit"
               variants={tableContentAnimation}
             >
               {isLoading ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    Đang tải...
-                  </TableCell>
-                </TableRow>
+                <LoadingRows 
+                  columns={columns.length} 
+                  pageSize={pageSize}
+                />
               ) : data.length ? (
-                table.getRowModel().rows.map((row) => (
+                table.getRowModel().rows.map((row: Row<TData>) => (
                   <motion.tr
                     key={row.id}
                     variants={tableRowAnimation}
-                    className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                    className={`border-b transition-colors hover:bg-muted/50 ${
+                      row.getIsSelected() ? "bg-muted" : ""
+                    }`}
                   >
-                    {row.getVisibleCells().map((cell) => (
+                    {row.getVisibleCells().map((cell: Cell<TData, unknown>) => (
                       <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </motion.tr>

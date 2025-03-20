@@ -21,7 +21,7 @@ export function AdminContentLayout({ breadcrumb, children }: AdminContentLayoutP
           )
         }
       </div>
-      <ScrollArea className="h-5/6 2xl:px-8 mt-7 ">
+      <ScrollArea className="h-5/6 2xl:px-8 mt-5 ">
         <div className="lg:pt-2 lg:pb-12">{children}</div>
       </ScrollArea>
     </>

@@ -41,6 +41,26 @@ export function ClassroomCombobox({
     return Array.isArray(data?.data) ? data.data : [];
   }, [data?.data]);
 
+  // Thêm hàm để nhóm các lớp học
+  const groupedClassrooms = React.useMemo(() => {
+    const groups = classrooms.reduce((acc, classroom) => {
+      const name = classroom.classname;
+      if (!acc[name]) {
+        acc[name] = {
+          classname: name,
+          count: 1,
+          items: [classroom]
+        };
+      } else {
+        acc[name].count++;
+        acc[name].items.push(classroom);
+      }
+      return acc;
+    }, {} as Record<string, { classname: string; count: number; items: typeof classrooms }>) ;
+
+    return Object.values(groups);
+  }, [classrooms]);
+
   const handleSelect = React.useCallback((currentValue: string) => {
     const newValue = currentValue === value ? "" : currentValue;
     setValue(newValue);
@@ -64,32 +84,29 @@ export function ClassroomCombobox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-[300px] justify-between"
-        >
-          <span className="truncate">
-            {selectedClassroom ? selectedClassroom.classname : placeholder}
-          </span>
-          <div className="flex items-center gap-2">
-            {value && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-4 w-4 p-0 hover:bg-transparent"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleReset();
-                }}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            )}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-[300px] justify-between"
+          >
+            <span className="truncate">
+              {selectedClassroom ? selectedClassroom.classname : placeholder}
+            </span>
             <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-          </div>
-        </Button>
+          </Button>
+          {value && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={handleReset}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
         <Command>
@@ -97,19 +114,37 @@ export function ClassroomCombobox({
           <CommandList>
             <CommandEmpty>Không tìm thấy lớp học.</CommandEmpty>
             <CommandGroup>
-              {classrooms.map((classroom) => (
+              {groupedClassrooms.map((group) => (
                 <CommandItem
-                  key={classroom.class_id}
-                  value={classroom.class_id.toString()}
-                  onSelect={handleSelect}
+                  key={group.classname}
+                  value={group.classname}
+                  onSelect={(value) => {
+                    // Nếu chỉ có 1 lớp trong nhóm, chọn luôn
+                    if (group.items.length === 1) {
+                      handleSelect(group.items[0].class_id.toString());
+                    } else {
+                      // Nếu có nhiều lớp, mở rộng để hiển thị chi tiết
+                      // TODO: Thêm logic để xử lý trường hợp nhiều lớp
+                      handleSelect(group.items[0].class_id.toString());
+                    }
+                  }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === classroom.class_id.toString() ? "opacity-100" : "opacity-0"
+                      group.items.some(item => item.class_id.toString() === value) 
+                        ? "opacity-100" 
+                        : "opacity-0"
                     )}
                   />
-                  {classroom.classname}
+                  <div className="flex items-center justify-between w-full">
+                    <span>{group.classname}</span>
+                    {group.count > 1 && (
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        ({group.count})
+                      </span>
+                    )}
+                  </div>
                 </CommandItem>
               ))}
             </CommandGroup>

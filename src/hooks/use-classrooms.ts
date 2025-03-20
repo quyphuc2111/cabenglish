@@ -122,10 +122,17 @@ export const useDeleteClassroom = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (classroomId: string) => deleteClassroomAdminData({classroomId: parseInt(classroomId)}),
+    mutationFn: async (classroomId: string) => {
+      const response = await deleteClassroomAdminData({classroomId: parseInt(classroomId)});
+      // Kiểm tra và throw error nếu có
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      return response;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["classrooms"] });
-    },
+    }
   });
 };
 

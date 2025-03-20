@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDropzone } from "react-dropzone";
@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { ImagePlus, Link as LinkIcon } from "lucide-react";
-import { toast } from 'react-toastify';
 import {
   Tabs,
   TabsContent,
@@ -23,6 +22,8 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
+import { uploadFiles } from "@/app/api/actions/uploadFiles";
+import { showToast } from "@/utils/toast-config";
 
 interface ImageUploaderProps {
   value?: string;
@@ -79,6 +80,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   const [preview, setPreview] = React.useState<string | null>(value || null);
   const [imageUrl, setImageUrl] = React.useState<string>(value || "");
   const [activeTab, setActiveTab] = React.useState<string>("upload");
+  const [isUploading, setIsUploading] = useState(false);
 
   React.useEffect(() => {
     if (value) {
@@ -107,25 +109,58 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   });
 
   const onDrop = React.useCallback(
-    (acceptedFiles: File[]) => {
-      const reader = new FileReader();
+    async (acceptedFiles: File[]) => {
+      if (!acceptedFiles[0]) return;
+
+      setIsUploading(true);
       try {
-        reader.onload = () => {
-          const result = reader.result as string;
-          setPreview(result);
-          if (onChange) {
-            onChange(result);
-          }
-        };
-        reader.readAsDataURL(acceptedFiles[0]);
+        const formData = new FormData();
+        formData.append('file', acceptedFiles[0]);
+
+        const result = await uploadFiles(formData);
+
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+
+        // Log response để kiểm tra cấu trúc
+        console.log('Upload response:', result.data);
+
+        // Điều chỉnh theo cấu trúc response thực tế
+        const fileUrl = result.data?.[0]?.file_url || '';
+
+        // Kiểm tra URL hợp lệ
+        if (!fileUrl || typeof fileUrl !== 'string') {
+          throw new Error('URL không hợp lệ từ response');
+        }
+
+        // Kiểm tra URL có thể truy cập được
+        const checkImage = new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(true);
+          img.onerror = () => reject(new Error('Không thể tải ảnh từ URL'));
+          img.src = fileUrl;
+        });
+
+        await checkImage;
+
+        // Nếu mọi thứ OK, cập nhật state
+        setPreview(fileUrl);
+        if (onChange) {
+          onChange(fileUrl);
+        }
         form.setValue("image", acceptedFiles[0]);
         form.clearErrors("image");
         
-        toast.success('Tải ảnh lên thành công! 🎉');
-      } catch (error) {
+        showToast.success('Tải ảnh lên thành công! 🎉');
+
+      } catch (error: any) {
+        console.error('Upload error:', error);
         setPreview(null);
         form.resetField("image");
-        toast.error('Có lỗi xảy ra khi tải ảnh! 😢');
+        showToast.error(error.message || 'Có lỗi xảy ra khi tải ảnh! 😢');
+      } finally {
+        setIsUploading(false);
       }
     },
     [form, onChange],
@@ -142,7 +177,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const handleUrlSubmit = () => {
     if (!imageUrl) {
-      toast.error('Vui lòng nhập URL hình ảnh!');
+      showToast.error('Vui lòng nhập URL hình ảnh!');
       return;
     }
 
@@ -153,10 +188,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       if (onChange) {
         onChange(imageUrl);
       }
-      toast.success('Thêm ảnh từ URL thành công! 🎉');
+      showToast.success('Thêm ảnh từ URL thành công! 🎉');
     };
     img.onerror = () => {
-      toast.error('URL hình ảnh không hợp lệ! 😢');
+      showToast.error('URL hình ảnh không hợp lệ! 😢');
     };
     img.src = imageUrl;
   };
@@ -183,54 +218,69 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
         <TabsContent value="upload">
           <Form {...form}>
-            <form className="space-y-4">
+            <div className="space-y-4">
               <FormField
                 control={form.control}
                 name="image"
                 render={() => (
                   <FormItem className="mx-auto w-full">
                     <FormControl>
-                      <motion.div
-                        {...getRootProps()}
-                        variants={dropzoneAnimation}
-                        whileHover={{ scale: 1.01 }}
-                        whileDrag="dragOver"
-                        className={`mx-auto flex cursor-pointer flex-col items-center justify-center gap-y-2 rounded-lg border border-dashed border-gray-300 p-8 transition-colors
-                          ${disabled ? 'cursor-not-allowed opacity-50' : ''}
-                        `}
-                      >
-                        <AnimatePresence mode="wait">
-                          {preview ? (
-                            <motion.img
-                              key="preview"
-                              initial="hidden"
-                              animate="visible"
-                              exit="exit"
-                              variants={scaleIn}
-                              src={preview}
-                              alt="Ảnh đã tải lên"
-                              className="max-h-[200px] rounded-lg object-cover"
-                            />
-                          ) : (
-                            <motion.div
-                              key="placeholder"
-                              initial="hidden"
-                              animate="visible"
-                              exit="exit"
-                              variants={fadeIn}
-                            >
-                              <ImagePlus className="h-20 w-20 text-gray-400" />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                        <Input {...getInputProps()} type="file" />
-                        <motion.p 
-                          variants={fadeIn}
-                          className="text-sm text-gray-500"
+                      <div {...getRootProps()}>
+                        <motion.div
+                          variants={dropzoneAnimation}
+                          whileHover={{ scale: 1.01 }}
+                          whileDrag="dragOver"
+                          className={`mx-auto flex cursor-pointer flex-col items-center justify-center gap-y-2 rounded-lg border border-dashed border-gray-300 p-8 transition-colors
+                            ${disabled || isUploading ? 'cursor-not-allowed opacity-50' : ''}
+                          `}
                         >
-                          {isDragActive ? "Thả ảnh vào đây!" : "Nhấp vào đây hoặc kéo thả ảnh để tải lên"}
-                        </motion.p>
-                      </motion.div>
+                          <AnimatePresence mode="wait">
+                            {isUploading ? (
+                              <motion.div
+                                key="loading"
+                                initial="hidden"
+                                animate="visible"
+                                exit="exit"
+                                variants={fadeIn}
+                                className="flex flex-col items-center"
+                              >
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                                <p className="mt-2 text-sm text-gray-500">Đang tải lên...</p>
+                              </motion.div>
+                            ) : preview ? (
+                              <motion.img
+                                key="preview"
+                                initial="hidden"
+                                animate="visible"
+                                exit="exit"
+                                variants={scaleIn}
+                                src={preview}
+                                alt="Ảnh đã tải lên"
+                                className="max-h-[200px] rounded-lg object-cover"
+                              />
+                            ) : (
+                              <motion.div
+                                key="placeholder"
+                                initial="hidden"
+                                animate="visible"
+                                exit="exit"
+                                variants={fadeIn}
+                              >
+                                <ImagePlus className="h-20 w-20 text-gray-400" />
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                          <Input {...getInputProps()} type="file" />
+                          {!isUploading && (
+                            <motion.p 
+                              variants={fadeIn}
+                              className="text-sm text-gray-500"
+                            >
+                              {isDragActive ? "Thả ảnh vào đây!" : "Nhấp vào đây hoặc kéo thả ảnh để tải lên"}
+                            </motion.p>
+                          )}
+                        </motion.div>
+                      </div>
                     </FormControl>
                     <AnimatePresence>
                       {fileRejections.length !== 0 && (
@@ -251,7 +301,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                   </FormItem>
                 )}
               />
-            </form>
+            </div>
           </Form>
         </TabsContent>
 

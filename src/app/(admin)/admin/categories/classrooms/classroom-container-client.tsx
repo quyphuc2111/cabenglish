@@ -7,139 +7,135 @@ import { useClassroomColumns } from "@/components/admin/table/classroom-table/co
 import { GenericTable } from "@/components/admin/table/common/generic-table";
 import { Button } from "@/components/ui/button";
 import { useClassrooms } from "@/hooks/use-classrooms";
-import { useModal } from "@/hooks/useModalStore";
-import { Download, Upload } from "lucide-react";
+import { ModalData, ModalType, useModal } from "@/hooks/useModalStore";
+import { Download, Plus, Upload } from "lucide-react";
+
+// Tách riêng các hàm xử lý lỗi
+const handleError = (error: any, component: string, operation: string, extra?: object) => {
+  Sentry.captureException(error, {
+    tags: { component, operation },
+    extra
+  });
+};
+
+interface ActionButtonsProps {
+  rowSelection: Record<string, boolean>;
+  onDelete: () => void;
+  onExport: () => void;
+  onImport: () => void;
+  onCreate: () => void;
+}
+
+// Tách riêng component ActionButtons 
+const ActionButtons = ({ rowSelection, onDelete, onExport, onImport, onCreate }: ActionButtonsProps) => (
+  <>
+    {Object.keys(rowSelection).length > 0 && (
+      <Button variant="destructive" onClick={onDelete}>
+        Xóa ({Object.keys(rowSelection).length})
+      </Button>
+    )}
+    <Button variant="outline" onClick={onExport}>
+      <Download className="w-4 h-4 mr-2" />
+      Xuất dữ liệu
+    </Button>
+    <Button variant="outline" onClick={onImport}>
+      <Upload className="w-4 h-4 mr-2" />
+      Nhập dữ liệu
+    </Button>
+    <Button
+      className="bg-blue-500 hover:bg-blue-600 text-white"
+      onClick={onCreate}
+    >
+      <Plus className="w-4 h-4 mr-2" />
+      Tạo mới lớp học
+    </Button>
+  </>
+);
 
 function ClassroomContainerClient() {
   const [selectedClassId, setSelectedClassId] = React.useState<string | null>(null);
+  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
 
   const { data, isLoading, error } = useClassrooms();
   const columns = useClassroomColumns();
   const { onOpen } = useModal();
-  
-  // Theo dõi lỗi từ data fetching
+
+  // Xử lý lỗi data fetching
   React.useEffect(() => {
     if (error) {
-      Sentry.captureException(error, {
-        tags: {
-          component: 'ClassroomContainerClient',
-          operation: 'data_fetching'
-        }
-      });
+      handleError(error, 'ClassroomContainerClient', 'data_fetching');
     }
   }, [error]);
 
-  const handleCreateClassroom = () => {
-    try {
-      onOpen("createUpdateClassroom", { formType: "create" });
-    } catch (error) {
-      Sentry.captureException(error, {
-        tags: {
-          component: 'ClassroomContainerClient',
-          operation: 'create_classroom'
-        }
-      });
-    }
-  };
-
-  const handleImportClassroom = () => {
-    try {
-      onOpen("importClassroom");
-    } catch (error) {
-      Sentry.captureException(error, {
-        tags: {
-          component: 'ClassroomContainerClient',
-          operation: 'import_classroom'
-        }
-      });
-    }
-  };
-
-  const handleExportClassroom = () => {
-    try {
-      onOpen("exportClassroom");
-    } catch (error) {
-      Sentry.captureException(error, {
-        tags: {
-          component: 'ClassroomContainerClient',
-          operation: 'export_classroom'
-        }
-      });
-    }
-  };
-
+  // Tách logic lọc dữ liệu
   const filteredData = React.useMemo(() => {
     if (!data?.data) return [];
     
     let filtered = [...data.data];
-    
-    if (selectedClassId) {
-      filtered = filtered.filter((classroom) => classroom.class_id === Number(selectedClassId));
-    }
+    if (!selectedClassId) return filtered;
 
-    return filtered;
+    const selectedClassroom = filtered.find(
+      classroom => classroom.class_id === Number(selectedClassId)
+    );
+    
+    return selectedClassroom 
+      ? filtered.filter(classroom => classroom.classname === selectedClassroom.classname)
+      : filtered;
   }, [data?.data, selectedClassId]);
 
-  // const filterClassrooms = (classroom: any, searchQuery: string) => {
-  //   return classroom.class_id === Number(searchQuery);
-  // };
-
-  const handleSelectClassroom = (value: string) => {
+  // Các hàm xử lý sự kiện
+  const handleModalOpen = (modalType: ModalType, options: ModalData = {}) => {
     try {
-      setSelectedClassId(value);
+      onOpen(modalType, options);
     } catch (error) {
-      Sentry.captureException(error, {
-        tags: {
-          component: 'ClassroomContainerClient',
-          operation: 'select_classroom'
-        },
-        extra: {
-          selectedValue: value
-        }
-      });
+      handleError(error, 'ClassroomContainerClient', `open_${modalType}`);
     }
+  };
+
+  const handleDeleteClassroom = () => {
+    const selectedIds = Object.keys(rowSelection);
+    
+    handleModalOpen("deleteClassroom", {
+      classroomIds: selectedIds,
+      onSuccess: () => setRowSelection({})
+    });
   };
 
   const filterClassrooms = React.useCallback((classroom: any, searchQuery: string) => {
     if (!searchQuery) return true;
-    
     const searchTerm = searchQuery.toLowerCase().trim();
     return (
-      classroom.class_id.toString().toLowerCase().includes(searchTerm)
+      classroom.classname.toLowerCase().includes(searchTerm) ||
+      classroom.class_id.toString().includes(searchTerm)
     );
   }, []);
 
-  const actionButtons = (
-    <>
-      <Button variant="outline" onClick={handleExportClassroom}>
-        <Download className="w-4 h-4 mr-2" />
-        Xuất dữ liệu
-      </Button>
-      <Button variant="outline" onClick={handleImportClassroom}>
-        <Upload className="w-4 h-4 mr-2" />
-        Nhập dữ liệu
-      </Button>
-      <Button
-        className="bg-blue-500 hover:bg-blue-600 text-white"
-        onClick={handleCreateClassroom}
-      >
-        Tạo mới lớp học
-      </Button>
-    </>
-  );
-
-  const searchComponent = (
-    <ClassroomCombobox onSelect={handleSelectClassroom} placeholder="Tìm kiếm lớp học..." />
-  );
   return (
     <div className="bg-white rounded-lg p-10 h-full">
       <GenericTable
         data={filteredData}
         columns={columns}
         isLoading={isLoading}
-        searchComponent={searchComponent}
-        actionButtons={actionButtons}
+        searchComponent={
+          <ClassroomCombobox 
+            onSelect={setSelectedClassId} 
+            placeholder="Tìm kiếm lớp học..." 
+          />
+        }
+        actionButtons={
+          <ActionButtons
+            rowSelection={rowSelection}
+            onDelete={handleDeleteClassroom}
+            onExport={() => handleModalOpen("exportClassroom")}
+            onImport={() => handleModalOpen("importClassroom")}
+            onCreate={() => handleModalOpen("createUpdateClassroom", { formType: "create" })}
+          />
+        }
         filterFunction={filterClassrooms}
+        enableRowSelection={true}
+        getRowId={(row) => row.class_id.toString()}
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
       />
     </div>
   );

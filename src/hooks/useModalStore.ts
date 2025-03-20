@@ -30,6 +30,7 @@ export interface ModalData {
   lessonIds?: number[];
   formType?: "create" | "update";
   classroomId?: string;
+  classroomIds?: string[];
   classroom?: {
     id: string;
     classname: string;
@@ -55,6 +56,7 @@ export interface ModalData {
   };
   unitId?: number;
   lessonId?: number;
+  onSuccess?: () => void;
 }
 
 

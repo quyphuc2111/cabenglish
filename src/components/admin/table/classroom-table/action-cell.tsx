@@ -30,12 +30,13 @@ export const ActionCell = memo(function ActionCell({ row }: ActionCellProps) {
 
   const handleDelete = useCallback(() => {
     onOpen("deleteClassroom", {
+      classroomIds: [classroom.class_id.toString()],
       classroom: {
-        id: classroom.class_id,
+        // id: classroom.class_id,
         classname: classroom.classname
       } as any
     });
-  }, [classroom.class_id, onOpen]);
+  }, [classroom.class_id, onOpen, classroom.classname]);
 
   return (
     <div className="flex gap-2">

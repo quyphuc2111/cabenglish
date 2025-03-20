@@ -13,6 +13,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useDeleteClassroom } from "@/hooks/use-classrooms";
 import { toast } from "react-toastify";
+import { showToast } from "@/utils/toast-config";
+import { useUnitByClassId } from "@/hooks/use-units";
 
 // Thêm các animation variants
 const modalVariants = {
@@ -71,29 +73,81 @@ interface DeleteClassroomModalProps {
 
 function DeleteClassroomModal() {
   const { isOpen, onClose, type, data } = useModal();
+  const [errorClassId, setErrorClassId] = React.useState<string | null>(null);
+  
+  // Thêm hook để lấy units khi có lỗi
+  const { data: relatedUnits } = useUnitByClassId(errorClassId || '');
+
+  console.log("relatedUnits", relatedUnits)
 
   const { mutate: deleteClassroom, isPending } = useDeleteClassroom();
 
   const handleConfirm = React.useCallback(() => {
-    if (!data?.classroom?.id) return;
+    if (!data?.classroomIds?.length) return;
+    setErrorClassId(null); // Reset error state
 
-    deleteClassroom(data.classroom.id, {
-      onSuccess: () => {
-        toast.success("Xóa lớp học thành công!");
-        onClose();
-      },
-      onError: (error) => {
-        toast.error("Có lỗi xảy ra khi xóa lớp học!");
-        console.error(error);
-      }
+    Promise.all(
+      data.classroomIds.map(id => 
+        deleteClassroom((id), {
+          onError: (error) => {
+            // Kiểm tra nếu là lỗi liên quan đến units
+            if (error.message?.includes("unit(s) are currently associated")) {
+              setErrorClassId(id); // Lưu ID của classroom có lỗi
+              showToast.error("Không thể xóa lớp học vì có các bài học liên quan!");
+            } else {
+              showToast.error(error.message || "Có lỗi xảy ra khi xóa lớp học");
+            }
+          }, 
+          onSuccess: () => {
+            showToast.success("Xóa lớp học thành công!");
+            if (data.onSuccess) {
+              data.onSuccess();
+            }
+            onClose();
+          }
+        })
+      )
+    ).catch((error) => {
+      showToast.error("Có lỗi xảy ra khi xóa lớp học!");
+      console.error(error);
     });
-  }, [data?.classroom?.id, deleteClassroom, onClose]);
+  }, [data, deleteClassroom, onClose]);
+
+  const handleCloseModal = () => {
+    onClose();
+    setErrorClassId(null);
+  }
+
+  // Hiển thị danh sách units nếu có
+  const renderRelatedUnits = () => {
+    if (!relatedUnits?.data?.length) return null;
+
+    return (
+      <motion.div 
+        className="mt-4 p-4 bg-red-50 rounded-lg"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <p className="font-medium text-red-600 mb-2">Các bài học liên quan:</p>
+        <ul className="list-disc pl-5">
+          {relatedUnits.data.map((unit: any) => (
+            <li key={unit.unitId} className="text-red-500">
+              {unit.unitName }
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-sm text-red-600">
+          Vui lòng xóa các bài học trên trước khi xóa lớp học này!
+        </p>
+      </motion.div>
+    );
+  };
 
   if (!isOpen || type !== "deleteClassroom") return null;
 
   return (
     <AnimatePresence>
-      <Dialog open={true} onOpenChange={onClose}>
+      <Dialog open={true} onOpenChange={handleCloseModal}>
         <motion.div
           variants={modalVariants}
           initial="hidden"
@@ -162,7 +216,7 @@ function DeleteClassroomModal() {
               </motion.div>
               <div className="text-center space-y-2">
                 <p className="text-2xl font-medium">
-                  Bạn có muốn xóa lớp học này không?
+                  Bạn có muốn xóa {data?.classroomIds?.length} lớp học này không?
                 </p>
                 {data?.classroom?.classname && (
                   <p className="text-lg text-gray-600">
@@ -170,6 +224,7 @@ function DeleteClassroomModal() {
                   </p>
                 )}
               </div>
+              {renderRelatedUnits()}
               <div className="flex gap-20">
                 <motion.div
                   variants={buttonVariants}
@@ -193,7 +248,7 @@ function DeleteClassroomModal() {
                   <Button
                     className="bg-red-500 hover:bg-red-500/80 text-md text-white"
                     size="lg"
-                    onClick={onClose}
+                    onClick={handleCloseModal}
                     disabled={isPending}
                   >
                     Hủy

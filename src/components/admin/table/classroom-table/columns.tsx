@@ -93,15 +93,24 @@ export function useClassroomColumns() {
         const imageUrl = row.original.imageurl;
         return (
           <TooltipProvider>
-            <Tooltip>
+            <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
-                <div className="flex items-center space-x-2 px-4 cursor-pointer">
-                  <p className="text-sm text-gray-600 line-clamp-1 max-w-[200px]">
+                <div className="flex items-center space-x-2 px-4">
+                  <a 
+                    href={imageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer" 
+                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline line-clamp-1 max-w-[450px] w-full"
+                  >
                     {imageUrl}
-                  </p>
+                  </a>
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right" className="p-0 border-0">
+              <TooltipContent 
+                side="top" 
+                align="start"
+                className="p-0 border-0 -translate-y-2"
+              >
                 <div className="overflow-hidden rounded-lg border border-gray-200">
                   <OptimizeImage
                     src={imageUrl}
