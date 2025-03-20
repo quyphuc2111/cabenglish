@@ -8,11 +8,11 @@ import * as Sentry from "@sentry/nextjs";
 const breadcrumbItems = [
   {
     title: "Quản lý danh mục",
-    link: "/admin/categories"
+    link: ""
   },
   {
     title: "Quản lý lớp học", 
-    link: "/admin/categories/classrooms"
+    link: ""
   }
 ];
 async function AdminClassroomPage() {

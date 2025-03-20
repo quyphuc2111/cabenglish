@@ -34,23 +34,23 @@ function Navbar({ breadcrumb }: NavbarProps) {
               </BreadcrumbItem>
               
               {breadcrumb.map((item, index) => (
-                <React.Fragment key={item.link}>
+                <React.Fragment key={item.link || index}>
                   <BreadcrumbSeparator>
                     <ChevronRight className="h-5 w-5" />
                   </BreadcrumbSeparator>
                   
                   <BreadcrumbItem>
-                    {index === breadcrumb.length - 1 ? (
-                      <BreadcrumbPage className="font-medium text-primary text-base">
-                        {item.title}
-                      </BreadcrumbPage>
-                    ) : (
+                    {item.link ? (
                       <BreadcrumbLink 
                         href={item.link}
                         className="text-muted-foreground hover:text-primary transition-colors text-base"
                       >
                         {item.title}
                       </BreadcrumbLink>
+                    ) : (
+                      <BreadcrumbPage className="font-medium text-primary text-base">
+                        {item.title}
+                      </BreadcrumbPage>
                     )}
                   </BreadcrumbItem>
                 </React.Fragment>
