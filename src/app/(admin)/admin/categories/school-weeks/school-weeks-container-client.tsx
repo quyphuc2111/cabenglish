@@ -55,7 +55,6 @@ const ActionButtons = ({ rowSelection, onDelete, onExport, onImport, onCreate }:
 
 function SchoolWeekContainerClient() {
   const [selectedWeekId, setSelectedWeekId] = React.useState<string | null>(null);
-  const [selectedClassId, setSelectedClassId] = React.useState<string | null>(null);
   const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
   
   const { data, isLoading, error } = useSchoolWeek();
@@ -102,15 +101,12 @@ function SchoolWeekContainerClient() {
   const filterSchoolWeeks = React.useCallback((schoolWeek: any, searchQuery: string) => {
     if (!searchQuery) return true;
     const searchTerm = searchQuery.toLowerCase().trim();
+    console.log("searchTermsearchTerm", searchTerm);
     return (
-      schoolWeek.swId.toString().includes(searchTerm) ||
-      schoolWeek.name.toLowerCase().includes(searchTerm)
+      // schoolWeek.swId.toString().includes(searchTerm) ||
+      schoolWeek.value.toLowerCase().includes(searchTerm)
     );
   }, []);
-
-  const handleSelectSchoolWeek = (value: string) => {
-    console.log("123213", value);
-  };
 
   return (
     <div className="bg-white rounded-lg p-10 h-full">
@@ -133,7 +129,7 @@ function SchoolWeekContainerClient() {
             onCreate={() => handleModalOpen("createUpdateSchoolWeek", { formType: "create" })}
           />
         }
-        filterFunction={filterSchoolWeeks}
+        // filterFunction={filterSchoolWeeks}
         enableRowSelection={true}
         getRowId={(row) => row.swId.toString()}
         rowSelection={rowSelection}

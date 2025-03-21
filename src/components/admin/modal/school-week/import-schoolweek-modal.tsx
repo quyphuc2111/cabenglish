@@ -204,7 +204,7 @@ function ImportSchoolWeekModal() {
           duplicateWeeks.push(item.value);
         }
       }
-      setDuplicateWeeks(duplicateWeeks);
+    //   setDuplicateWeeks(duplicateWeeks);
 
       if (duplicateWeeks.length > 0) {
         showToast.error(
@@ -290,7 +290,7 @@ function ImportSchoolWeekModal() {
   };
 
   const handleDownloadTemplate = () => {
-    const templateUrl = "/template/schoolweek-template.xlsx";
+    const templateUrl = "/template_file/schoolweek-template.xlsx";
     const a = document.createElement("a");
     a.href = templateUrl;
     a.download = "schoolweek-template.xlsx";

@@ -71,7 +71,7 @@ function ExportSchoolWeekModal() {
 
         // Điều chỉnh độ rộng cột
         const colWidths = [
-          { wch: 30 }, // Tuần học
+          { wch: 20 }, // Tuần học
         ];
         ws['!cols'] = colWidths;
 

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
+import { deburr, trim, toLower } from 'lodash'
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -28,12 +29,33 @@ interface SchoolWeekComboboxProps {
 export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần học..." }: SchoolWeekComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
+  const [searchQuery, setSearchQuery] = React.useState("")
 
   const { data, isLoading } = useSchoolWeek();
 
   const schoolWeeks = React.useMemo(() => {
     return Array.isArray(data?.data) ? data.data : [];
   }, [data?.data]);
+
+  const filteredWeeks = React.useMemo(() => {
+    if (!searchQuery) return schoolWeeks;
+    
+    const normalizeText = (text: string) => {
+      return deburr(toLower(text));
+    };
+    
+    const normalizedQuery = trim(
+      normalizeText(searchQuery).replace(/(tuan|tuan)\s*/g, '')
+    );
+    
+    return schoolWeeks.filter((week) => {
+      const weekValue = week.value.toString();
+      const weekLabel = normalizeText(`tuan ${weekValue}`);
+      
+      return weekValue.includes(normalizedQuery) || 
+             weekLabel.includes(normalizedQuery);
+    });
+  }, [schoolWeeks, searchQuery]);
 
   const handleSelect = (currentValue: string) => {
     setValue(currentValue === value ? "" : currentValue);
@@ -65,15 +87,19 @@ export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
-        <Command>
-          <CommandInput placeholder={placeholder} className="h-9" />
+        <Command shouldFilter={false}>
+          <CommandInput 
+            placeholder={placeholder} 
+            className="h-9"
+            onValueChange={setSearchQuery}
+          />
           <CommandList>
             <CommandEmpty>Không tìm thấy tuần học.</CommandEmpty>
             <CommandGroup>
-              {schoolWeeks.map((schoolweek) => (
+              {filteredWeeks.map((schoolweek) => (
                 <CommandItem
                   key={schoolweek.swId}
-                  value={schoolweek.swId.toString()}
+                  value={`Tuần ${schoolweek.value}`}
                   onSelect={handleSelect}
                 >
                   <Check
