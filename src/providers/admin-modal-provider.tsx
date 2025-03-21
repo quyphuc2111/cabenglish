@@ -11,6 +11,8 @@ import CreateUpdateUnitsModal from "@/components/admin/modal/units/create-update
 import CreateUpdateLessonModal from "@/components/admin/modal/lessons/create-update-lesson-modal";
 import ImportClassroomModal from "@/components/admin/modal/classroom/import-classroom-modal";
 import ExportClassroomModal from "@/components/admin/modal/classroom/export-classroom-modal";
+import ImportSchoolWeekModal from "@/components/admin/modal/school-week/import-schoolweek-modal";
+import ExportSchoolWeekModal from "@/components/admin/modal/school-week/export-schoolweek-modal";
 function AdminModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -34,7 +36,10 @@ function AdminModalProvider() {
       <CreateUpdateLessonModal />
       <ImportClassroomModal />
       <ExportClassroomModal />
+      <ImportSchoolWeekModal />
+      <ExportSchoolWeekModal />
     </>
+
   );
 }
 

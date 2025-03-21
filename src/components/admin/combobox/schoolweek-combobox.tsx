@@ -31,7 +31,6 @@ export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần
 
   const { data, isLoading } = useSchoolWeek();
 
-    // Kiểm tra và đảm bảo data.data là một mảng
   const schoolWeeks = React.useMemo(() => {
     return Array.isArray(data?.data) ? data.data : [];
   }, [data?.data]);
@@ -42,20 +41,26 @@ export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần
     onSelect(currentValue === value ? "" : currentValue);
   }
 
+  const getDisplayText = React.useCallback((selectedValue: string) => {
+    const selectedWeek = schoolWeeks.find(
+      (schoolweek) => schoolweek.swId.toString() === selectedValue
+    );
+    if (!selectedWeek) return "";
+    return `Tuần ${selectedWeek.value}`;
+  }, [schoolWeeks]);
+
   if(isLoading) return null;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-      <Button
+        <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
           className="w-[300px] justify-between"
         >
-          {value
-            ? schoolWeeks.find((schoolweek) => schoolweek.swId == Number(value))?.swId
-            : placeholder}
+          {value ? getDisplayText(value) : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -63,19 +68,23 @@ export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần
         <Command>
           <CommandInput placeholder={placeholder} className="h-9" />
           <CommandList>
-            <CommandEmpty>Không tìm thấy lớp học.</CommandEmpty>
+            <CommandEmpty>Không tìm thấy tuần học.</CommandEmpty>
             <CommandGroup>
-              {
-                schoolWeeks.map((schoolweek) => (
-                  <CommandItem
-                    key={schoolweek.swId}
-                    value={schoolweek.swId.toString()}
-                    onSelect={handleSelect}
-                  >
-                    Tuần {schoolweek.value}
-                  </CommandItem>
-                ))
-              }
+              {schoolWeeks.map((schoolweek) => (
+                <CommandItem
+                  key={schoolweek.swId}
+                  value={schoolweek.swId.toString()}
+                  onSelect={handleSelect}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === schoolweek.swId.toString() ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  Tuần {schoolweek.value}
+                </CommandItem>
+              ))}
             </CommandGroup>
           </CommandList>
         </Command>

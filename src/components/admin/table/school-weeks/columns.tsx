@@ -126,7 +126,7 @@ export function useSchoolWeekColumns() {
         id: "actions",
         cell: ActionCell,
         header: () => (
-          <div className="font-semibold text-gray-900 px-4">
+          <div className="font-semibold text-gray-900">
             Hành động
           </div>
         ),

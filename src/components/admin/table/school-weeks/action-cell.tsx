@@ -30,6 +30,7 @@ export const ActionCell = memo(function ActionCell({ row }: ActionCellProps) {
 
   const handleDelete = useCallback(() => {
     onOpen("deleteSchoolWeek", {
+      schoolWeekIds: [schoolWeek.swId.toString()],
       schoolWeek: {
         swId: schoolWeek.swId,
         value: schoolWeek.value

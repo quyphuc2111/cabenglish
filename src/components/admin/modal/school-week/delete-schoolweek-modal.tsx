@@ -11,8 +11,10 @@ import { useModal } from "@/hooks/useModalStore";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { toast } from "react-toastify";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+
 import { useDeleteSchoolWeek } from "@/hooks/use-schoolweek";
+import { showToast } from "@/utils/toast-config";
 
 // Thêm các animation variants
 const modalVariants = {
@@ -75,19 +77,26 @@ function DeleteSchoolWeekModal() {
   const { mutate: deleteSchoolWeek, isPending } = useDeleteSchoolWeek();
 
   const handleConfirm = React.useCallback(() => {
-    if (!data?.schoolWeek?.swId) return;
+    if (!data?.schoolWeekIds?.length) return;
 
-    deleteSchoolWeek(data.schoolWeek.swId, {
-      onSuccess: () => {
-        toast.success("Xóa tuần học thành công!");
-        onClose();
-      },
-      onError: (error) => {
-        toast.error("Có lỗi xảy ra khi xóa tuần học!");
-        console.error(error);
-      }
-    });
-  }, [data?.schoolWeek?.swId, deleteSchoolWeek, onClose]);
+    Promise.all(
+      data.schoolWeekIds.map(id =>
+        deleteSchoolWeek(id, {
+          onError: (error) => {
+            showToast.error("Có lỗi xảy ra khi xóa tuần học!");
+            console.error(error);
+          },
+          onSuccess: () => {
+            showToast.success("Xóa tuần học thành công!");
+            if (data.onSuccess) {
+              data.onSuccess();
+            }
+            onClose();
+          }
+        })
+      )
+    )
+  }, [data, deleteSchoolWeek, onClose]);
 
   if (!isOpen || type !== "deleteSchoolWeek") return null;
 
@@ -160,16 +169,26 @@ function DeleteSchoolWeekModal() {
                   height={90}
                 />
               </motion.div>
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-2 flex flex-col justify-center items-center">
                 <p className="text-2xl font-medium">
-                  Bạn có muốn xóa tuần học này không?
+                  Bạn có muốn xóa {data?.schoolWeekIds?.length} tuần học này không?
                 </p>
-                {data?.schoolWeek?.value && (
-                  <p className="text-lg text-gray-600">
-                   <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">Tuần {data.schoolWeek.value}</span>
-                  </p>
-               
-                )}
+               <div>
+               <ScrollArea className="w-[500px] ">
+                <div className="flex gap-2 pb-4">
+                  {data?.schoolWeeks?.map((week: any) => (
+                    <p key={week.swId} className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0">
+                      <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">
+                        Tuần {week.value}
+                      </span>
+                    </p>
+                  ))}
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
+               </div>
+                <div className="flex flex-wrap gap-2">
+                </div>
               </div>
               <div className="flex gap-20">
                 <motion.div

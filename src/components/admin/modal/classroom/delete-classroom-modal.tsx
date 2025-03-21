@@ -72,13 +72,12 @@ interface DeleteClassroomModalProps {
 }
 
 function DeleteClassroomModal() {
-  const { isOpen, onClose, type, data } = useModal();
   const [errorClassId, setErrorClassId] = React.useState<string | null>(null);
+
+  const { isOpen, onClose, type, data } = useModal();
   
   // Thêm hook để lấy units khi có lỗi
   const { data: relatedUnits } = useUnitByClassId(errorClassId || '');
-
-  console.log("relatedUnits", relatedUnits)
 
   const { mutate: deleteClassroom, isPending } = useDeleteClassroom();
 

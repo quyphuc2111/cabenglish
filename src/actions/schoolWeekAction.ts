@@ -7,6 +7,7 @@ interface SchoolWeekResponse {
   data: SchoolWeekType[];
   error?: string;
   success?: boolean;
+  message?: string;
 }
 
 //Admin
@@ -60,25 +61,32 @@ export async function createSchoolWeekAdminData({
   schoolWeekData: SchoolWeekType[];
 }): Promise<SchoolWeekResponse> {
   try {
-    const data = await serverFetch(`/api/Schoolweek`, {
+    const response = await serverFetch(`/api/Schoolweek`, {
       method: "POST",
       data: schoolWeekData
     });
 
-    if (!Array.isArray(data)) {
-      throw new Error("Dữ liệu không đúng định dạng");
+    console.log("response123", response);
+
+    if (!response || response.error) {
+      return {
+        data: [],
+        success: false,
+        error: response?.error || "Có lỗi xảy ra khi tạo tuần học 120" 
+      };
     }
 
     return {
-      data,
+      data: response.data,
+      success: true,
       error: undefined
     };
   } catch (error) {
     console.error("Lỗi khi tạo tuần học:", error);
     return {
       data: [],
-      error:
-        error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
+      success: false,
+      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi tạo tuần học 12221"
     };
   }
 }
@@ -123,7 +131,7 @@ export async function updateSchoolWeekAdminData({
 export async function deleteSchoolWeekAdminData({
   swId
 }: {
-  swId: number;
+  swId: string;
 }): Promise<SchoolWeekResponse> {
   try {
     const data = await serverFetch(`/api/Schoolweek/${swId}`, {

@@ -73,22 +73,37 @@ export async function serverFetch(
   };
 
   try {
-    const response = await axios({
+    const axiosConfig: AxiosRequestConfig = {
       url: `${API_URL}${endpoint}`,
-      ...options,
       headers,
-    });
+      timeout: 10000,
+      validateStatus: (status) => status < 500,
+      ...options,
+    };
+
+    const response = await axios(axiosConfig);
+
+    if (response.status >= 400) {
+      throw new Error(
+        response.data?.message || 
+        JSON.stringify(response.data) || 
+        `Request failed with status ${response.status}`
+      );
+    }
 
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      // Trả về error message từ API một cách trực tiếp
-      const errorMessage = error.response?.data?.message || 
-                         error.response?.data || 
-                         error.message;
-      throw new Error(errorMessage);
+      const errorMessage = 
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.response?.data ||
+        error.message ||
+        'Unknown API error';
+        
+      throw new Error(`API Error: ${errorMessage}`);
     }
-    throw error;
+    throw new Error(`Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 } 
 

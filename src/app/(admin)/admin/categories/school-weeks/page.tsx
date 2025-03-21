@@ -7,11 +7,11 @@ import { getAllSchoolWeekAdminData } from '@/actions/schoolWeekAction';
 const breadcrumbItems = [
   {
     title: "Quản lý danh mục",
-    link: "/admin/categories"
+    link: ""
   },
   {
     title: "Quản lý tuần học",
-    link: "/admin/categories/school-weeks"
+    link: ""
   }
 ];
 async function AdminSchoolWeeksPage() {

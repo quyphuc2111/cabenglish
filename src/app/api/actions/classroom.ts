@@ -8,7 +8,7 @@ export async function createClassroom(values: ClassroomFormValues) {
     const result = await createClassroomsAdminData({
       classData: values.length >= 0 ? values : [values]
     });
-    console.log("result", result);
+   
 
     return { success: result.success, data: result.data };
   } catch (error) {

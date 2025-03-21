@@ -13,7 +13,7 @@ export async function createNotiType(values: NotiTypeFormValues) {
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi tạo tuần học"
+      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi tạo loại thông báo"
     };
   }
 } 

@@ -17,6 +17,8 @@ export type ModalType =
   | "exportClassroom"
   | "createUpdateSchoolWeek"
   | "deleteSchoolWeek"
+  | "importSchoolWeek"
+  | "exportSchoolWeek"
   | "createUpdateNotiType"
   | "deleteNotiType"
   | "createUpdateUnits"
@@ -31,6 +33,11 @@ export interface ModalData {
   formType?: "create" | "update";
   classroomId?: string;
   classroomIds?: string[];
+  schoolWeekIds?: string[];
+  schoolWeeks?: {
+    value: number;
+    swId: number;
+  }[];
   classroom?: {
     id: string;
     classname: string;

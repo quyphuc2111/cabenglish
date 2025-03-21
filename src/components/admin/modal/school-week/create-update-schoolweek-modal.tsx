@@ -23,8 +23,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import { BadgePlus, Pencil } from "lucide-react";
-import { useCreateSchoolWeek, useGetSingleSchoolWeek, useUpdateSchoolWeek } from "@/hooks/use-schoolweek";
+import { useCheckSchoolWeekExists, useCreateSchoolWeek, useGetSingleSchoolWeek, useSchoolWeek, useUpdateSchoolWeek } from "@/hooks/use-schoolweek";
 import { schoolWeekFormSchema, SchoolWeekFormValues } from "@/lib/validations/schoolweek";
+import { showToast } from "@/utils/toast-config";
 
 // Tách animation configs ra riêng
 const ANIMATIONS = {
@@ -38,15 +39,7 @@ const ANIMATIONS = {
   },
   title: {
     initial: { x: -50, opacity: 0 },
-    animate: { 
-      x: 0, 
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 10
-      }
-    }
+    animate: { x: 0, opacity: 1, transition: { type: "spring", stiffness: 100, damping: 10 } }
   }
 };
 
@@ -55,86 +48,75 @@ function CreateUpdateSchoolWeekModal() {
   const formType = data?.formType;
   const swId = formType === "update" ? data?.schoolWeek?.id : null;
 
-  const { data: schoolWeekData, isLoading } = useGetSingleSchoolWeek(swId as number);
-  const { mutate: createSchoolWeek, isPending: isCreating } = useCreateSchoolWeek();
-  const { mutate: updateSchoolWeek, isPending: isUpdating } = useUpdateSchoolWeek();
-
-  const isPending = isCreating || isUpdating || isLoading;
-
   const form = useForm<SchoolWeekFormValues>({
     resolver: zodResolver(schoolWeekFormSchema),
-    defaultValues: {
-      value: 0,
-      swId: 0
-    },
+    defaultValues: { value: 0, swId: 0 },
     mode: "onChange"
   });
 
-  // Reset form và đóng modal
+  const { data: schoolWeekData, isLoading } = useGetSingleSchoolWeek(swId?.toString() || "");
+  const { mutate: createSchoolWeek, isPending: isCreating } = useCreateSchoolWeek();
+  const { mutate: updateSchoolWeek, isPending: isUpdating } = useUpdateSchoolWeek();
+  const { data: schoolWeekExists } = useCheckSchoolWeekExists(form.watch("value"));
+
+  const isPending = isCreating || isUpdating || isLoading;
+
+  
+
   const handleClose = React.useCallback(() => {
     form.reset();
     onClose();
   }, [form, onClose]);
 
-  // Cập nhật form khi có dữ liệu
   React.useEffect(() => {
     if (formType === "update" && schoolWeekData) {
       const data = Array.isArray(schoolWeekData) ? schoolWeekData[0] : schoolWeekData;
-      form.reset({
-        value: data.value,
-        swId: data.swId
-      });
+      form.reset(data);
     }
   }, [schoolWeekData, formType, form]);
 
-  // Kiểm tra xem form có giá trị hợp lệ không
-  const isFormValid = React.useMemo(() => {
-    const value = form.watch("value");
-    return value > 0;
-  }, [form.watch("value") ]);
+  const isFormValid = form.watch("value") > 0;
 
-  // Xử lý submit form
-  const onSubmit = React.useCallback(async (values: SchoolWeekFormValues) => {
+  const handleSubmit = React.useCallback(async (values: SchoolWeekFormValues) => {
     try {
-      const mutationFn = formType === "create" 
-        ? () => createSchoolWeek(values)
+      const action = formType === "create" 
+        ? () => schoolWeekExists 
+          ? showToast.error("Tuần học đã tồn tại") 
+          : createSchoolWeek(values, {
+              onSuccess: () => {
+                showToast.success("Tạo tuần học thành công");
+                handleClose();
+              },
+              onError: (error: Error) => {
+                showToast.error(error.message || "Có lỗi xảy ra khi tạo tuần học 123");
+              }
+            })
         : () => updateSchoolWeek({ 
             swId: swId as number,
-            data: { value: values.value, swId: values.swId }
+            data: values
+          }, {
+            onSuccess: () => {
+              showToast.success("Cập nhật tuần học thành công");
+              handleClose();
+            }
           });
 
-      await mutationFn();
-      
-      toast.success(`${formType === "create" ? "Tạo" : "Cập nhật"} tuần học thành công!`);
-      handleClose();
+      await action();
     } catch (error) {
-      console.error(`${formType} error:`, error);
-      toast.error(
-        error instanceof Error 
-          ? `Lỗi: ${error.message}`
-          : `Đã có lỗi xảy ra khi ${formType === "create" ? "tạo" : "cập nhật"} tuần học!`
-      );
+      toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra!");
     }
-  }, [formType, swId, createSchoolWeek, updateSchoolWeek, handleClose]);
+  }, [formType, swId, createSchoolWeek, updateSchoolWeek, handleClose, schoolWeekExists]);
 
-  // Không render nếu không phải modal schoolweek
   if (!isOpen || type !== "createUpdateSchoolWeek") return null;
 
   return (
     <AnimatePresence>
       <Dialog open={true} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-[1100px] !rounded-3xl overflow-hidden">
+        <DialogContent className="sm:max-w-[700px] !rounded-3xl overflow-hidden">
           <DialogHeader>
             <DialogTitle>
-              <motion.div
-                className="flex items-center gap-5 w-full"
-                {...ANIMATIONS.title}
-              >
-                {formType === "create" ? (
-                  <BadgePlus className="w-7 h-7" />
-                ) : (
-                  <Pencil className="w-7 h-7" />
-                )}
+              <motion.div className="flex items-center gap-5 w-full" {...ANIMATIONS.title}>
+                {formType === "create" ? <BadgePlus className="w-7 h-7" /> : <Pencil className="w-7 h-7" />}
                 <p className="text-2xl font-medium">
                   {formType === "create" ? "Thêm mới tuần học" : "Cập nhật tuần học"}
                 </p>
@@ -143,64 +125,43 @@ function CreateUpdateSchoolWeekModal() {
           </DialogHeader>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="grid grid-cols-2 gap-8">
-                <div className="space-y-8">
-                  <motion.div
-                    variants={ANIMATIONS.form}
-                    initial="hidden"
-                    animate="visible"
-                    custom={1}
-                  >
-                    <FormField
-                      control={form.control}
-                      name="value"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-lg font-medium">
-                            Nhập tuần học
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              onChange={(e) => {
-                                const value = parseInt(e.target.value);
-                                field.onChange(isNaN(value) ? 0 : value);
-                              }}
-                              disabled={isPending}
-                              placeholder="Nhập tuần học..."
-                              className="text-base p-6"
-                              type="number"
-                              min={1}
-                            />
-                          </FormControl>
-                          <FormMessage className="text-base" />
-                        </FormItem>
-                      )}
-                    />
-                  </motion.div>
-                </div>
-              </div>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+              <motion.div variants={ANIMATIONS.form} initial="hidden" animate="visible" custom={1}>
+                <FormField
+                  control={form.control}
+                  name="value"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-medium">Nhập tuần học</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          min={1}
+                          disabled={isPending}
+                          placeholder="Nhập tuần học..."
+                          className="text-base p-6"
+                          onChange={e => field.onChange(Math.max(0, parseInt(e.target.value) || 0))}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-base" />
+                    </FormItem>
+                  )}
+                />
+              </motion.div>
 
               <motion.div className="flex justify-end gap-4 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleClose}
-                  disabled={isPending}
-                >
+                <Button type="button" variant="outline" onClick={handleClose} disabled={isPending}>
                   Hủy
                 </Button>
-                
                 <Button
                   type="submit"
-                  disabled={isPending || (formType === "create" ? !isFormValid : !form.formState.isValid)}
-                  className="bg-blue-500"
+                  disabled={isPending || !isFormValid}
+                  className="bg-blue-500 hover:bg-blue-600"
                 >
                   {isPending 
                     ? `Đang ${formType === "create" ? "tạo" : "cập nhật"}...` 
-                    : `${formType === "create" ? "Tạo" : "Cập nhật"} tuần học`
-                  }
+                    : `${formType === "create" ? "Tạo" : "Cập nhật"} tuần học`}
                 </Button>
               </motion.div>
             </form>

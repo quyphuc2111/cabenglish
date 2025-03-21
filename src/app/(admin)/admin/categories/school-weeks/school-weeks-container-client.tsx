@@ -1,58 +1,143 @@
 "use client";
 
 import React from "react";
+import * as Sentry from "@sentry/nextjs";
 import { ClassroomCombobox } from "@/components/admin/combobox/classroom-combobox";
 import { useClassroomColumns } from "@/components/admin/table/classroom-table/columns";
 import { GenericTable } from "@/components/admin/table/common/generic-table";
 import { Button } from "@/components/ui/button";
 import { useSchoolWeek } from "@/hooks/use-schoolweek";
-import { useModal } from "@/hooks/useModalStore";
+import { ModalData, ModalType, useModal } from "@/hooks/useModalStore";
 import { useSchoolWeekColumns } from "@/components/admin/table/school-weeks/columns";
 import { SchoolWeekCombobox } from "@/components/admin/combobox/schoolweek-combobox";
+import { Download, Plus, Upload } from "lucide-react";
+
+// Xử lý lỗi
+const handleError = (error: any, component: string, operation: string, extra?: object) => {
+  Sentry.captureException(error, {
+    tags: { component, operation },
+    extra
+  });
+};
+
+interface ActionButtonsProps {
+  rowSelection: Record<string, boolean>;
+  onDelete: () => void;
+  onExport: () => void;
+  onImport: () => void;
+  onCreate: () => void;
+}
+
+const ActionButtons = ({ rowSelection, onDelete, onExport, onImport, onCreate }: ActionButtonsProps) => (
+  <>
+    {Object.keys(rowSelection).length > 0 && (
+      <Button variant="destructive" onClick={onDelete}>
+        Xóa ({Object.keys(rowSelection).length})
+      </Button>
+    )}
+    <Button variant="outline" onClick={onExport}>
+      <Download className="w-4 h-4 mr-2" />
+      Xuất dữ liệu
+    </Button>
+    <Button variant="outline" onClick={onImport}>
+      <Upload className="w-4 h-4 mr-2" />
+      Nhập dữ liệu
+    </Button>
+    <Button
+      className="bg-blue-500 hover:bg-blue-600 text-white"
+      onClick={onCreate}
+    >
+      <Plus className="w-4 h-4 mr-2" />
+      Tạo mới tuần học
+    </Button>
+  </>
+);
 
 function SchoolWeekContainerClient() {
-  const { data, isLoading } = useSchoolWeek();
+  const [selectedWeekId, setSelectedWeekId] = React.useState<string | null>(null);
+  const [selectedClassId, setSelectedClassId] = React.useState<string | null>(null);
+  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
+  
+  const { data, isLoading, error } = useSchoolWeek();
   const columns = useSchoolWeekColumns();
   const { onOpen } = useModal();
 
-  const handleCreateSchoolWeek = () => {
-    onOpen("createUpdateSchoolWeek", { formType: "create" });
+  // Xử lý lỗi data fetching
+  React.useEffect(() => {
+    if (error) {
+      handleError(error, 'SchoolWeekContainerClient', 'data_fetching');
+    }
+  }, [error]);
+
+  const handleModalOpen = (modalType: ModalType, options: ModalData = {}) => {
+    try {
+      onOpen(modalType, options);
+    } catch (error) {
+      handleError(error, 'SchoolWeekContainerClient', `open_${modalType}`);
+    }
   };
 
-  const filterSchoolWeeks = (schoolWeek: any, searchQuery: string) => {
-    console.log("123", schoolWeek);
-    return schoolWeek.swId === Number(searchQuery);
+  const handleDeleteSchoolWeek = () => {
+    const selectedIds = Object.keys(rowSelection);
+    const selectedWeeks = data?.data.filter(week => 
+      selectedIds.includes(week.swId.toString())
+    );
+    
+    handleModalOpen("deleteSchoolWeek", {
+      schoolWeekIds: selectedIds,
+      schoolWeeks: selectedWeeks,
+      onSuccess: () => setRowSelection({})
+    });
   };
+
+  const filteredData = React.useMemo(() => {
+    if (!data?.data) return [];
+    
+    let filtered = [...data.data];
+    if (!selectedWeekId) return filtered;
+
+    return filtered.filter(week => week.swId === Number(selectedWeekId));
+  }, [data?.data, selectedWeekId]);
+
+  const filterSchoolWeeks = React.useCallback((schoolWeek: any, searchQuery: string) => {
+    if (!searchQuery) return true;
+    const searchTerm = searchQuery.toLowerCase().trim();
+    return (
+      schoolWeek.swId.toString().includes(searchTerm) ||
+      schoolWeek.name.toLowerCase().includes(searchTerm)
+    );
+  }, []);
 
   const handleSelectSchoolWeek = (value: string) => {
     console.log("123213", value);
   };
 
-  const actionButtons = (
-    <>
-      <Button variant="outline">Xuất dữ liệu</Button>
-      <Button variant="outline">Nhập dữ liệu</Button>
-      <Button
-        className="bg-blue-500 hover:bg-blue-600 text-white"
-        onClick={handleCreateSchoolWeek}
-      >
-        Tạo mới tuần học
-      </Button>
-    </>
-  );
-
-  const searchComponent = (
-    <SchoolWeekCombobox onSelect={handleSelectSchoolWeek} placeholder="Tìm kiếm tuần học..." />
-  );
   return (
     <div className="bg-white rounded-lg p-10 h-full">
       <GenericTable
-        data={data?.data ?? []}
+        data={filteredData}
         columns={columns}
         isLoading={isLoading}
-        searchComponent={searchComponent}
-        actionButtons={actionButtons}
+        searchComponent={
+          <SchoolWeekCombobox 
+            onSelect={setSelectedWeekId} 
+            placeholder="Tìm kiếm tuần học..." 
+          />
+        }
+        actionButtons={
+          <ActionButtons
+            rowSelection={rowSelection}
+            onDelete={handleDeleteSchoolWeek}
+            onExport={() => handleModalOpen("exportSchoolWeek")}
+            onImport={() => handleModalOpen("importSchoolWeek")}
+            onCreate={() => handleModalOpen("createUpdateSchoolWeek", { formType: "create" })}
+          />
+        }
         filterFunction={filterSchoolWeeks}
+        enableRowSelection={true}
+        getRowId={(row) => row.swId.toString()}
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
       />
     </div>
   );
