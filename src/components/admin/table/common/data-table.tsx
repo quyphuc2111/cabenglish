@@ -101,14 +101,14 @@ export function DataTable<TData, TValue>({
   table
 }: DataTableProps<TData, TValue>) {
   return (
-    <div>
-      <div className="rounded-md border">
+    <div className="w-full overflow-auto">
+      <div className="rounded-md border min-w-[640px]">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup: HeaderGroup<TData>) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header: Header<TData, unknown>) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="whitespace-nowrap">
                     {header.isPlaceholder ? null : flexRender(
                       header.column.columnDef.header,
                       header.getContext()
@@ -141,7 +141,7 @@ export function DataTable<TData, TValue>({
                     }`}
                   >
                     {row.getVisibleCells().map((cell: Cell<TData, unknown>) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} className="whitespace-nowrap">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}

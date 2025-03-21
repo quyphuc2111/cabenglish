@@ -52,7 +52,7 @@ export async function getAllLessonDataByUserId({
 //Admin
 export async function getAllLessonAdminDataByClassIdUnitId(classId: string, unitId: string) {
   try {
-    const data = await serverFetch(`/api/Lesson/class/${classId}/unit/${unitId}/withschoolweek`);
+    const data = await serverFetch(`/api/Lesson/class/${classId}/unit/${unitId}/withschoolweekID`);
     if (!Array.isArray(data)) {
       throw new Error("Dữ liệu không đúng định dạng");
     }

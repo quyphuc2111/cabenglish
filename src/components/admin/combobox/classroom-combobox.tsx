@@ -1,38 +1,40 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Check, ChevronsUpDown, X } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import * as React from "react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-  CommandList,
-} from "@/components/ui/command"
+  CommandList
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { useClassrooms } from "@/hooks/use-classrooms"
-import { Skeleton } from "@/components/ui/skeleton"
+  PopoverTrigger
+} from "@/components/ui/popover";
+import { useClassrooms } from "@/hooks/use-classrooms";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ClassroomComboboxProps {
   onSelect: (value: string) => void;
   placeholder?: string;
   defaultValue?: string;
+  buttonClassName?: string;
 }
 
-export function ClassroomCombobox({ 
-  onSelect, 
+export function ClassroomCombobox({
+  onSelect,
   placeholder = "Tìm kiếm lớp học...",
-  defaultValue 
+  defaultValue,
+  buttonClassName
 }: ClassroomComboboxProps) {
-  const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState(defaultValue || "")
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState(defaultValue || "");
 
   const { data, isLoading } = useClassrooms();
 
@@ -56,17 +58,20 @@ export function ClassroomCombobox({
         acc[name].items.push(classroom);
       }
       return acc;
-    }, {} as Record<string, { classname: string; count: number; items: typeof classrooms }>) ;
+    }, {} as Record<string, { classname: string; count: number; items: typeof classrooms }>);
 
     return Object.values(groups);
   }, [classrooms]);
 
-  const handleSelect = React.useCallback((currentValue: string) => {
-    const newValue = currentValue === value ? "" : currentValue;
-    setValue(newValue);
-    setOpen(false);
-    onSelect(newValue);
-  }, [value, onSelect]);
+  const handleSelect = React.useCallback(
+    (currentValue: string) => {
+      const newValue = currentValue === value ? "" : currentValue;
+      setValue(newValue);
+      setOpen(false);
+      onSelect(newValue);
+    },
+    [value, onSelect]
+  );
 
   // Reset giá trị
   const handleReset = React.useCallback(() => {
@@ -75,7 +80,7 @@ export function ClassroomCombobox({
     setOpen(false);
   }, [onSelect]);
 
-  if(isLoading) return <Skeleton className="w-[300px] h-10" />;
+  if (isLoading) return <Skeleton className="w-[300px] h-10" />;
 
   const selectedClassroom = classrooms.find(
     (classroom) => classroom.class_id === Number(value)
@@ -89,23 +94,26 @@ export function ClassroomCombobox({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-[300px] justify-between"
+            className={cn("w-[300px] justify-between relative", buttonClassName)}
           >
             <span className="truncate">
               {selectedClassroom ? selectedClassroom.classname : placeholder}
             </span>
-            <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+
+            {value ? (
+              <div 
+                className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors duration-200 cursor-pointer group" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReset();
+                }}
+              >
+                <X className="h-4 w-4 text-muted-foreground group-hover:text-red-500 transition-colors duration-200" />
+              </div>
+            ) : (
+              <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+            )}
           </Button>
-          {value && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              onClick={handleReset}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
         </div>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
@@ -132,8 +140,10 @@ export function ClassroomCombobox({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      group.items.some(item => item.class_id.toString() === value) 
-                        ? "opacity-100" 
+                      group.items.some(
+                        (item) => item.class_id.toString() === value
+                      )
+                        ? "opacity-100"
                         : "opacity-0"
                     )}
                   />
@@ -152,5 +162,5 @@ export function ClassroomCombobox({
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

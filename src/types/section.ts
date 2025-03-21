@@ -17,3 +17,11 @@ export interface SectionContentType {
     isLocked: boolean;
     order: number;
 }
+
+export interface SectionAdminType {
+    sectionId: number;
+    iconUrl: string;
+    sectionName: string;
+    estimateTime: string;
+    progress: number;
+}

@@ -7,11 +7,11 @@ import { getAllNotiTypeAdminData } from '@/actions/notificationAction';
 const breadcrumbItems = [
   {
     title: "Quản lý danh mục",
-    link: "/admin/categories"
+    link: ""
   },
   {
     title: "Quản lý loại thông báo",
-    link: "/admin/categories/notification-types"
+    link: ""
   }
 ];
 

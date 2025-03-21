@@ -98,15 +98,15 @@ function SchoolWeekContainerClient() {
     return filtered.filter(week => week.swId === Number(selectedWeekId));
   }, [data?.data, selectedWeekId]);
 
-  const filterSchoolWeeks = React.useCallback((schoolWeek: any, searchQuery: string) => {
-    if (!searchQuery) return true;
-    const searchTerm = searchQuery.toLowerCase().trim();
-    console.log("searchTermsearchTerm", searchTerm);
-    return (
-      // schoolWeek.swId.toString().includes(searchTerm) ||
-      schoolWeek.value.toLowerCase().includes(searchTerm)
-    );
-  }, []);
+  // const filterSchoolWeeks = React.useCallback((schoolWeek: any, searchQuery: string) => {
+  //   if (!searchQuery) return true;
+  //   const searchTerm = searchQuery.toLowerCase().trim();
+  //   console.log("searchTermsearchTerm", searchTerm);
+  //   return (
+  //     // schoolWeek.swId.toString().includes(searchTerm) ||
+  //     schoolWeek.value.toLowerCase().includes(searchTerm)
+  //   );
+  // }, []);
 
   return (
     <div className="bg-white rounded-lg p-10 h-full">

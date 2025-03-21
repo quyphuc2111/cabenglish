@@ -107,8 +107,7 @@ export function useUnitsColumns() {
             <div className="flex items-center gap-3 w-[200px]">
               <Progress 
                 value={Number(progress)} 
-                className="h-2"
-                indicatorClassName={`${
+                className={`h-2 ${
                   Number(progress) < 30 
                     ? "bg-red-500" 
                     : Number(progress) < 70 

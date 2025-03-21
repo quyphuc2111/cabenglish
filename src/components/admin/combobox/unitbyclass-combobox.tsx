@@ -25,13 +25,15 @@ interface UnitByClassComboboxProps {
   placeholder?: string;
   classId: string;
   defaultValue?: string;
+  buttonClassName?: string;
 }
 
 export function UnitByClassCombobox({ 
   onSelect, 
   placeholder = "Chọn unit...", 
   classId,
-  defaultValue 
+  defaultValue,
+  buttonClassName
 }: UnitByClassComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(defaultValue || "")
@@ -102,7 +104,7 @@ export function UnitByClassCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[300px] justify-between"
+          className={cn("w-[300px] justify-between", buttonClassName)}
           disabled={units.length === 0}
         >
           <span className="truncate">
