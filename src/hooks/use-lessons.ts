@@ -1,7 +1,23 @@
 import { createLesson, getAllLessonsByClassIdUnitId } from "@/app/api/actions/lessons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LessonAdminType } from "@/types/lesson";
-import { getSingleLessonAdminData } from "@/actions/lessonAction";
+import { deleteLessonAdminData, getSingleLessonAdminData, updateLessonAdminDataByClassIdUnitId } from "@/actions/lessonAction";
+
+interface LessonResponse {
+  success: boolean;
+  data?: any;
+  error?: string;
+}
+
+interface LessonParams {
+  lessonIds: string[];
+  classId: number;
+  unitId: number;
+}
+
+
+
+
 
 export function useLessonsByClassIdUnitId(classId: string, unitId: string) {
     return useQuery({
@@ -71,35 +87,94 @@ export function useCreateLessonByClassIdUnitId() {
   });
 }
 
-export const useGetSingleLesson = (lessonId: string | null) => {
+export const useGetSingleLesson = (lessonId: number, classId: number, unitId: number) => {
   return useQuery({
-    queryKey: ["lesson", lessonId],
+    queryKey: ["lesson", lessonId, classId, unitId],
     queryFn: async () => {
-      if (!lessonId) return null;
+      if (!lessonId || !classId || !unitId) return null;
+      
       const response = await getSingleLessonAdminData({ 
-        lessonId: parseInt(lessonId) 
+        lessonId: lessonId,
+        classId: classId,
+        unitId: unitId
       });
       if (response.error) {
         throw new Error(response.error);
       }
       return response.data;
     },
-    enabled: !!lessonId,
+    enabled: !!lessonId && !!classId && !!unitId
+  });
+};
+
+export const useUpdateLessonByClassIdUnitId = (lessonId: number, classId: number, unitId: number) => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (data: LessonAdminType) => updateLessonAdminDataByClassIdUnitId({
+      lessonId: lessonId,
+      classId: classId,
+      unitId: unitId,
+      lessonData: data
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lesson", lessonId, classId, unitId] });
+      queryClient.invalidateQueries({ queryKey: ["lessons-by-class-id-unit-id", classId, unitId] });
+    }
   });
 };
   
-  // export function useUpdateUnitByClassId(classId: number) {
-  //   const queryClient = useQueryClient();
-  
-  //   return useMutation({
-  //     mutationFn: (data: UnitsFormValues) => updateUnitByClassId({
-  //       unitData: data,
-  //       classId: classId
-  //     }),
-  //     onSuccess: () => {
-  //       // Invalidate và refetch
-  //       queryClient.invalidateQueries({ queryKey: ["units-by-class-id"] });
-  //     },
-  //   });
-  // }
-  
+
+export function useDeleteLesson() {
+  const queryClient = useQueryClient();
+
+  return useMutation<LessonResponse, Error, LessonParams>({
+    mutationFn: async (params: LessonParams) => {
+      console.log("params",params);
+      
+      if (!params.lessonIds?.length) {
+        throw new Error("Không tìm thấy thông tin lessonIds");
+      }
+
+      if (!params.classId) {
+        throw new Error("Không tìm thấy thông tin classId");
+      }
+
+      if (!params.unitId) {
+        throw new Error("Không tìm thấy thông tin unitId");
+      }
+      
+      const response = await deleteLessonAdminData({ 
+        lessonIds: params.lessonIds, 
+        classId: params.classId, 
+        unitId: params.unitId 
+      });
+
+      console.log("response",response);
+
+      if (!response.success) {
+        throw new Error(response.error || "Có lỗi xảy ra khi xóa bài học");
+      }
+
+      return response;
+    },
+    onSuccess: (_, variables) => {
+      // Invalidate các queries liên quan
+      const queryKeys = [
+        ["lessons-by-class-id-unit-id", String(variables.classId), String(variables.unitId)],
+        ["lessons-by-class-id", String(variables.classId)],
+        ["lessons"]
+      ];
+
+      queryKeys.forEach(queryKey => {
+        queryClient.invalidateQueries({
+          queryKey,
+          exact: false
+        });
+      });
+    },
+    onError: (error: Error) => {
+      console.error("Delete lesson error:", error.message);
+    }
+  });
+}

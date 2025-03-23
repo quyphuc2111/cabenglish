@@ -1,3 +1,4 @@
+import { deleteUnitsByClassId } from "@/actions/unitsAction";
 import { createUnitByClassId, getAllUnitsByClassId } from "@/app/api/actions/units";
 import { UnitsFormValues } from "@/lib/validations/units";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -71,6 +72,18 @@ export function useUpdateUnitByClassId(classId: number) {
     onSuccess: () => {
       // Invalidate và refetch
       queryClient.invalidateQueries({ queryKey: ["units-by-class-id"] });
+    },
+  });
+}
+
+export function useDeleteUnits(classId: number) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (unitIds: number[]) => deleteUnitsByClassId(classId, unitIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["units-by-class-id"] });
+      queryClient.invalidateQueries({ queryKey: ["units-by-class-id", String(classId)] });
     },
   });
 }

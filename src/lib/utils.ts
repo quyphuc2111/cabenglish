@@ -12,9 +12,29 @@ export const formatSlug = (slug: string) => {
 };
 
 // Hàm chuyển đổi tiến trình thành phần trăm
-export const formatProgress = (progress: number) => {
-  const percent = progress * 100;
-  return Number.isInteger(percent) ? percent.toString() : percent.toFixed(2);
+export const formatProgress = (progress: number | string | null | undefined): string => {
+  // Chuyển đổi input thành số
+  const numberProgress = Number(progress);
+  
+  // Kiểm tra các trường hợp không hợp lệ
+  if (
+    typeof numberProgress !== 'number' || 
+    isNaN(numberProgress) ||
+    !isFinite(numberProgress)
+  ) {
+    return '0';
+  }
+
+  // Giới hạn giá trị trong khoảng 0-1
+  const normalizedProgress = Math.max(0, Math.min(1, numberProgress));
+  
+  // Chuyển đổi thành phần trăm
+  const percent = normalizedProgress * 100;
+  
+  // Làm tròn số và chuyển thành chuỗi
+  return Number.isInteger(percent) ? 
+    percent.toString() : 
+    Number(percent.toFixed(2)).toString(); // Loại bỏ số 0 thừa ở cuối
 };
 
 export const formatSelect = (arrayData: any[], keyLabel: string, keyValue: string) => {

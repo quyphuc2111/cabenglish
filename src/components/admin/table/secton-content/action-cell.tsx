@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, memo } from "react";
-import { type Units } from "./columns";
+// import { type SectionType } from "./columns";
 import { useModal } from "@/hooks/useModalStore";
 import OptimizeImage from "@/components/common/optimize-image";
 import {
@@ -10,49 +10,41 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
-import { toast } from "react-toastify";
+import { SectionContentAdminType, SectionType } from "@/types/section";
+import { useLessonStore } from '@/store/use-lesson-store';
 
 interface ActionCellProps {
   row: {
-    original: Units;
-  };
-  table: {
-    options: {
-      meta?: {
-        selectedClassId?: string;
-      };
-    };
+    original: SectionContentAdminType;
   };
 }
 
-export const ActionCell = memo(function ActionCell({ row, table }: ActionCellProps) {
+export const ActionCell = memo(function ActionCell({ row }: ActionCellProps) {
   const { onOpen } = useModal();
-  const unit = row.original;
-  const selectedClassId = table.options.meta?.selectedClassId;
+  const sectionContent = row.original;
+  const { activeLesson } = useLessonStore();
 
   const handleEdit = useCallback(() => {
-    if (!selectedClassId) {
-      toast.error("Không tìm thấy thông tin lớp học!");
-      return;
-    }
-
-    onOpen("createUpdateUnits", {
+    onOpen("createUpdateSectionContent", {
       formType: "update",
-      classroomId: selectedClassId
+      sectionContent: sectionContent,
+      sectionIds: [Number(activeLesson.sectionId)]
     });
-  }, [selectedClassId, onOpen]);
+  }, [sectionContent, activeLesson.sectionId, onOpen]);
 
   const handleDelete = useCallback(() => {
-    onOpen("deleteUnits", {
-      unitIds: [unit.unitId],
-      onSuccess: () => {
-        toast.success("Xóa unit thành công!");
-      }
+    onOpen("deleteSectionContent", {
+      sectionContentIds: [sectionContent.sc_id.toString()],
+      sectionContents: sectionContent
+    //   schoolWeek: {
+    //     swId: schoolWeek.swId,
+    //     value: schoolWeek.value
+    //   } as any
     });
-  }, [unit.unitId, onOpen]);
+  }, [sectionContent, onOpen]);
 
   return (
-    <div className="flex gap-2 ">
+    <div className="flex gap-2">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>

@@ -25,7 +25,9 @@ export type ModalType =
   | "createUpdateLessons"
   | "deleteLessons"
   | "createUpdateSection"
-  | "deleteSection";
+  | "deleteSection"
+  | "createUpdateSectionContent"
+  | "deleteSectionContent";
 
 export interface ModalData {
   onConfirm?: () => void;

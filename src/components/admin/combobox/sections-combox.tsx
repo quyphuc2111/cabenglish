@@ -1,77 +1,106 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
-import { deburr, trim, toLower } from 'lodash'
-
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import * as React from "react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-  CommandList,
-} from "@/components/ui/command"
+  CommandList
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { useSchoolWeek } from "@/hooks/use-schoolweek"
+  PopoverTrigger
+} from "@/components/ui/popover";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetSectionByLessonId } from "@/hooks/use-sections";
 
 interface SectionsComboboxProps {
   onSelect: (value: string) => void;
   placeholder?: string;
+  lessonId: string;
+  defaultValue?: string;
+  buttonClassName?: string;
 }
 
-export function SectionsCombobox({ onSelect, placeholder = "Tìm kiếm phần..." }: SectionsComboboxProps) {
-  const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
-  const [searchQuery, setSearchQuery] = React.useState("")
+export function SectionsCombobox({
+  onSelect,
+  placeholder = "Chọn section...",
+  lessonId,
+  defaultValue,
+  buttonClassName,
+}: SectionsComboboxProps) {
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState(defaultValue || "");
 
-  const { data, isLoading } = useSchoolWeek();
+  // Reset value khi lessonId thay đổi
+  React.useEffect(() => {
+    setValue("");
+    onSelect("");
+  }, [lessonId, onSelect]);
 
-  const schoolWeeks = React.useMemo(() => {
-    return Array.isArray(data?.data) ? data.data : [];
-  }, [data?.data]);
+  const { data: sectionData, isLoading: sectionLoading, error: sectionError } = useGetSectionByLessonId(Number(lessonId));
 
-  const filteredWeeks = React.useMemo(() => {
-    if (!searchQuery) return schoolWeeks;
-    
-    const normalizeText = (text: string) => {
-      return deburr(toLower(text));
-    };
-    
-    const normalizedQuery = trim(
-      normalizeText(searchQuery).replace(/(tuan|tuan)\s*/g, '')
-    );
-    
-    return schoolWeeks.filter((week) => {
-      const weekValue = week.value.toString();
-      const weekLabel = normalizeText(`tuan ${weekValue}`);
-      
-      return weekValue.includes(normalizedQuery) || 
-             weekLabel.includes(normalizedQuery);
-    });
-  }, [schoolWeeks, searchQuery]);
+  console.log("sectionData", sectionData);
+  // Xử lý và validate dữ liệu
+  const sections = React.useMemo(() => {
+    if (!sectionData || !Array.isArray(sectionData)) {
+      return [];
+    }
 
-  const handleSelect = (currentValue: string) => {
-    setValue(currentValue === value ? "" : currentValue);
+    // Sắp xếp theo order nếu có
+    // return [...data.data].sort((a, b) => {
+    //   if (typeof a.order === "number" && typeof b.order === "number") {
+    //     return a.order - b.order;
+    //   }
+    //   return 0;
+    // });
+    return [...sectionData]
+  }, [sectionData]);
+
+  const handleSelect = React.useCallback(
+    (currentValue: string) => {
+      const newValue = currentValue === value ? "" : currentValue;
+      setValue(newValue);
+      setOpen(false);
+      onSelect(newValue);
+    },
+    [value, onSelect]
+  );
+
+  // Reset giá trị
+  const handleReset = React.useCallback(() => {
+    setValue("");
+    onSelect("");
     setOpen(false);
-    onSelect(currentValue === value ? "" : currentValue);
+  }, [onSelect]);
+
+  // Hiển thị loading state
+  if (sectionLoading) {
+    return <Skeleton className="w-[300px] h-10" />;
   }
 
-  const getDisplayText = React.useCallback((selectedValue: string) => {
-    const selectedWeek = schoolWeeks.find(
-      (schoolweek) => schoolweek.swId.toString() === selectedValue
+  // Hiển thị error state
+  if (sectionError) {
+    return (
+      <Button
+        variant="outline"
+        className="w-[300px] justify-between text-red-500"
+        disabled
+      >
+        Lỗi tải dữ liệu
+      </Button>
     );
-    if (!selectedWeek) return "";
-    return `Tuần ${selectedWeek.value}`;
-  }, [schoolWeeks]);
+  }
 
-  if(isLoading) return null;
+  const selectedSection = sections.find(
+    (section) => section.sectionId === Number(value)
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -80,35 +109,62 @@ export function SectionsCombobox({ onSelect, placeholder = "Tìm kiếm phần..
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[300px] justify-between"
+          className={cn(
+            "w-[300px] justify-between",
+            buttonClassName,
+            sections.length === 0 ? "opacity-50 cursor-not-allowed" : ""
+          )}
+          disabled={sections.length === 0}
+          title={
+            sections.length === 0 ? "Không có section cho bài học này" : undefined
+          }
         >
-          {value ? getDisplayText(value) : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <span className="truncate">
+            {sections.length === 0
+              ? "Không có section cho bài học này"
+              : selectedSection
+              ? selectedSection.sectionName
+              : placeholder}
+          </span>
+          <div className="flex items-center gap-2">
+            {value && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-4 w-4 p-0 hover:bg-transparent"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReset();
+                }}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+            <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+          </div>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
-        <Command shouldFilter={false}>
-          <CommandInput 
-            placeholder={placeholder} 
-            className="h-9"
-            onValueChange={setSearchQuery}
-          />
+        <Command>
+          <CommandInput placeholder="Tìm kiếm bài học..." className="h-9" />
           <CommandList>
-            <CommandEmpty>Không tìm thấy tuần học.</CommandEmpty>
+            <CommandEmpty>Không tìm thấy unit nào.</CommandEmpty>
             <CommandGroup>
-              {filteredWeeks.map((schoolweek) => (
+              {sections.map((section) => (
                 <CommandItem
-                  key={schoolweek.swId}
-                  value={`Tuần ${schoolweek.value}`}
+                  key={section.sectionId}
+                  value={section.sectionId.toString()}
                   onSelect={handleSelect}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === schoolweek.swId.toString() ? "opacity-100" : "opacity-0"
+                      value === section.sectionId.toString()
+                        ? "opacity-100"
+                        : "opacity-0"
                     )}
                   />
-                  Tuần {schoolweek.value}
+                  <span className="truncate">{section.sectionName}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -116,5 +172,5 @@ export function SectionsCombobox({ onSelect, placeholder = "Tìm kiếm phần..
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

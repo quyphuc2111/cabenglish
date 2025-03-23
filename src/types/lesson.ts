@@ -7,14 +7,14 @@ export interface LessonType {
     className: string;
     unitName: string;
     imageUrl: string;
-    schoolWeek: number;
+    schoolWeekID: number;
     progress: number;
     numLiked: number;
     isLocked: boolean;
 }
 
 export interface LessonAdminType {
-   schoolweek?: number;
+    schoolWeekID?: number;
    lessonId: number;
    lessonName: string;
    imageUrl: string;

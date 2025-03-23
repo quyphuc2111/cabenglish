@@ -40,16 +40,17 @@ export const ActionCell = memo(function ActionCell({ row, table }: ActionCellPro
       formType: "update",
       classroomId: selectedClassId,
       lessonId: lesson.lessonId,
-      schoolweek: lesson.schoolweek
+      // schoolweek: lesson.schoolweek
     });
   }, [selectedClassId, onOpen, lesson.lessonId]);
 
   const handleDelete = useCallback(() => {
-    onOpen("deleteNotiType", {
-      lesson: {
-        lessonId: lesson.lessonId,
-        value: lesson.lessonName
-      } as any
+    onOpen("deleteLesson", {
+      lessonIds: [lesson.lessonId.toString()],
+      // lesson: {
+      //   lessonId: lesson.lessonId,
+      //   value: lesson.lessonName
+      // } as any
     });
   }, [lesson.lessonId, onOpen]);
 

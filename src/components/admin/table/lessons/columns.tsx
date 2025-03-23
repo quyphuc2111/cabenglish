@@ -82,12 +82,12 @@ export function useLessonsColumns() {
         }
       },
       {
-        accessorKey: "schoolweek",
+        accessorKey: "schoolWeekID",
         header: () => (
           <div className="font-semibold text-gray-900 px-2 lg:px-4">Tuần học</div>
         ),
         cell: ({ row }) => {
-          const schoolweek = row.original.schoolweek;
+          const schoolweek = row.original.schoolWeekID;
           return (
             <div className="px-2 lg:px-4">
               <Badge 

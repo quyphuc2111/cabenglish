@@ -44,9 +44,15 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { LessonAdminType } from "@/types/lesson";
-import { useCreateLessonByClassIdUnitId, useGetSingleLesson } from "@/hooks/use-lessons";
+import {
+  useCreateLessonByClassIdUnitId,
+  useGetSingleLesson,
+  useUpdateLessonByClassIdUnitId
+} from "@/hooks/use-lessons";
+import { useLessonStore } from "@/store/use-lesson-store";
+import { showToast } from "@/utils/toast-config";
 
-// Thêm animation configs mới
+// Cập nhật ANIMATIONS config
 const ANIMATIONS = {
   form: {
     hidden: { opacity: 0, y: 20 },
@@ -56,20 +62,33 @@ const ANIMATIONS = {
       transition: { delay: custom * 0.1, duration: 0.5, ease: "easeOut" }
     })
   },
+  modal: {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.3, ease: "easeOut" }
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.95,
+      transition: { duration: 0.2, ease: "easeIn" }
+    }
+  },
   title: {
-    initial: { x: -50, opacity: 0 },
+    initial: { x: -30, opacity: 0 },
     animate: {
       x: 0,
       opacity: 1,
       transition: {
         type: "spring",
-        stiffness: 100,
-        damping: 10
+        stiffness: 120,
+        damping: 12
       }
     }
   },
   button: {
-    tap: { scale: 0.98 },
+    tap: { scale: 0.97 },
     hover: {
       scale: 1.02,
       transition: { duration: 0.2 }
@@ -81,8 +100,15 @@ function CreateUpdateLessonModal() {
   const { isOpen, onClose, type, data } = useModal();
   const formType = data?.formType;
   const lessonId = formType === "update" ? data?.lessonId : null;
-  const schoolweek = formType === "update" ? data?.schoolweek : null;
-  const unitId = data?.unitId;
+  // const schoolweek = formType === "update" ? data?.schoolweek : null;
+  // const unitId = data?.unitId;
+
+  const {
+    selectedClassId,
+    selectedUnitId,
+    setSelectedClassId,
+    setSelectedUnitId
+  } = useLessonStore();
 
   const classroomId = React.useMemo(() => {
     if (!data?.classroomId) {
@@ -98,21 +124,28 @@ function CreateUpdateLessonModal() {
 
   const selectSchoolWeek = formatSelect(schoolWeekData?.data, "swId", "value");
 
-  const { data: lessonData, isLoading } = useGetSingleLesson(lessonId?.toString());
+  const { data: lessonData, isLoading } = useGetSingleLesson(
+    lessonId,
+    selectedClassId,
+    selectedUnitId
+  );
 
-  const { mutate: updateUnits, isPending: isUpdating } =
-    useUpdateUnitByClassId(lessonId);
+  // const { mutate:, isPending: isUpdating } =
+  //   useUpdateUnitByClassId(lessonId);
 
   const { mutate: createLesson, isPending: isCreating } =
     useCreateLessonByClassIdUnitId();
 
-  const isPending = isCreating || isUpdating || isLoading;
+  const { mutate: updateLesson, isPending: isUpdatingLesson } =
+    useUpdateLessonByClassIdUnitId(lessonId, selectedClassId, selectedUnitId);
+
+  const isPending = isCreating || isUpdatingLesson || isLoading;
 
   const form = useForm<LessonsFormValues>({
     resolver: zodResolver(lessonsFormSchema),
     defaultValues: {
-      schoolweek: formType === "update" ? Number(lessonData?.schoolweek) : 0,
-      lessonId: formType === "update" ? Number(lessonData?.lessonId) : 0,
+      schoolWeekID: 0,
+      lessonId: 0,
       lessonName: "",
       imageUrl: "",
       numLiked: 0,
@@ -125,63 +158,74 @@ function CreateUpdateLessonModal() {
   // Reset form và đóng modal
   const handleClose = React.useCallback(() => {
     form.reset();
+    // setSelectedClassId(null);
+    // setSelectedUnitId(null);
     onClose();
   }, [form, onClose]);
 
-    // Cập nhật form khi có dữ liệu
-    React.useEffect(() => {
-      if (formType === "update" && lessonData) {
-        // Đảm bảo chuyển đổi schoolweek thành number
-        // const schoolweekValue = Number(lessonData.schoolweek);
-        
-        form.reset({
-          lessonName: lessonData.lessonName,
-          order: lessonData.order,
-          schoolweek: schoolweek, 
-          imageUrl: lessonData.imageUrl,
-          numLiked: lessonData.numLiked,
-          isActive: lessonData.isActive,
-          lessonId: lessonData.lessonId 
-        }, {
-          keepDefaultValues: false, 
-        });
+  // Thêm useEffect để reset form khi modal đóng
+  React.useEffect(() => {
+    if (!isOpen) {
+      form.reset({
+        schoolWeekID: 0,
+        lessonId: 0,
+        lessonName: "",
+        imageUrl: "",
+        numLiked: 0,
+        order: 0,
+        isActive: true
+      });
+    }
+  }, [isOpen, form]);
 
-        // Trigger validation sau khi reset
-        form.trigger();
-      }
-    }, [lessonData, formType, form, schoolweek]);
-  
+  // Cập nhật form khi có dữ liệu
+  React.useEffect(() => {
+    if (formType === "update" && lessonData) {
+      // Đảm bảo chuyển đổi schoolweek thành number
+      const schoolweekValue = Number(lessonData.schoolWeekID);
+
+      // Đặt giá trị form
+      form.reset({
+        lessonName: lessonData.lessonName || "",
+        order: lessonData.order || 0,
+        schoolWeekID: schoolweekValue || 0,
+        imageUrl: lessonData.imageUrl || "",
+        numLiked: lessonData.numLiked || 0,
+        isActive: lessonData.isActive ?? true,
+        lessonId: lessonData.lessonId || 0
+      });
+
+      form.trigger();
+    }
+  }, [lessonData, formType, form]);
 
   // Kiểm tra form hợp lệ
   const isFormValid = React.useMemo(() => {
     const lessonName = form.watch("lessonName");
-    const schoolweek = form.watch("schoolweek");
+    const schoolweek = form.watch("schoolWeekID");
     const order = form.watch("order");
     return (
-      lessonName !== "" &&
-      schoolweek > 0 &&
-      order > 0 &&
-      classroomId !== null &&
-      unitId !== null
+      lessonName !== "" && schoolweek > 0 && order > 0 && classroomId !== null
+      // &&
+      // unitId !== null
     );
   }, [
     form.watch("lessonName"),
-    form.watch("schoolweek"),
+    form.watch("schoolWeekID"),
     form.watch("order"),
-    classroomId,
-    unitId
+    classroomId
   ]);
 
   // Xử lý submit form
   const onSubmit = React.useCallback(
     async (values: LessonAdminType) => {
-      if (!classroomId) {
-        toast.error("Không tìm thấy thông tin lớp học!");
+      if (!selectedClassId) {
+        showToast.error("Không tìm thấy thông tin lớp học!");
         return;
       }
 
-      if (!unitId) {
-        toast.error("Không tìm thấy thông tin unit!");
+      if (!selectedUnitId) {
+        showToast.error("Không tìm thấy thông tin unit!");
         return;
       }
 
@@ -189,23 +233,23 @@ function CreateUpdateLessonModal() {
         if (formType === "create") {
           const formattedValues = {
             lessonData: [values],
-            unitId: unitId,
-            classId: classroomId
+            unitId: selectedUnitId,
+            classId: selectedClassId
           };
           createLesson(formattedValues, {
             onSuccess: (response) => {
               if (response?.success) {
-                toast.success("Tạo bài học thành công!");
+                showToast.success("Tạo bài học thành công!");
                 handleClose();
               } else {
-                toast.error(
+                showToast.error(
                   response?.error || "Có lỗi xảy ra khi tạo bài học!"
                 );
               }
             },
             onError: (error) => {
               console.error("Create unit error:", error);
-              toast.error(
+              showToast.error(
                 error instanceof Error
                   ? `Lỗi: ${error.message}`
                   : "Đã có lỗi xảy ra khi tạo unit!"
@@ -213,30 +257,24 @@ function CreateUpdateLessonModal() {
             }
           });
         } else {
-          updateUnits(values, {
+          updateLesson(values, {
             onSuccess: (response) => {
-              if (response?.success) {
-                toast.success("Cập nhật unit thành công!");
-                handleClose();
-              } else {
-                toast.error(
-                  response?.error || "Có lỗi xảy ra khi cập nhật unit!"
-                );
-              }
+              showToast.success("Cập nhật bài học thành công!");
+              handleClose();
             },
             onError: (error) => {
               console.error("Update unit error:", error);
-              toast.error(
+              showToast.error(
                 error instanceof Error
                   ? `Lỗi: ${error.message}`
-                  : "Đã có lỗi xảy ra khi cập nhật unit!"
+                  : "Đã có lỗi xảy ra khi cập nhật bài học!"
               );
             }
           });
         }
       } catch (error) {
         console.error("Operation error:", error);
-        toast.error(
+        showToast.error(
           error instanceof Error
             ? `Lỗi: ${error.message}`
             : `Đã có lỗi xảy ra khi ${
@@ -245,7 +283,7 @@ function CreateUpdateLessonModal() {
         );
       }
     },
-    [formType, createLesson, updateUnits, handleClose, classroomId]
+    [formType, createLesson, updateLesson, handleClose, classroomId]
   );
 
   // Không render nếu không phải modal schoolweek
@@ -269,272 +307,294 @@ function CreateUpdateLessonModal() {
   }
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       <Dialog
         open={isOpen && type === "createUpdateLessons"}
         onOpenChange={handleClose}
       >
-        <DialogContent className="sm:max-w-[1100px] !rounded-3xl overflow-hidden bg-gradient-to-b from-white to-gray-50">
-          <DialogHeader className="border-b pb-4">
-            <DialogTitle>
-              <motion.div
-                className="flex items-center gap-5 w-full"
-                {...ANIMATIONS.title}
+        <DialogContent className="sm:max-w-[900px] !rounded-2xl overflow-hidden bg-gradient-to-br from-white via-white to-blue-50/30 p-0 max-h-[90vh]">
+          <motion.div
+            variants={ANIMATIONS.modal}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="p-6 overflow-y-auto custom-scrollbar"
+          >
+            <DialogHeader className="border-b pb-4 mb-4 space-y-2">
+              <DialogTitle>
+                <motion.div
+                  className="flex items-center gap-4"
+                  {...ANIMATIONS.title}
+                >
+                  {formType === "create" ? (
+                    <BadgePlus className="w-8 h-8 text-blue-500 animate-pulse" />
+                  ) : (
+                    <Pencil className="w-8 h-8 text-amber-500 animate-pulse" />
+                  )}
+                  <h2 className="text-2xl font-semibold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">
+                    {formType === "create"
+                      ? "Thêm mới bài học"
+                      : "Cập nhật bài học"}
+                  </h2>
+                </motion.div>
+              </DialogTitle>
+              <p className="text-muted-foreground text-sm px-12">
+                {formType === "create"
+                  ? "Vui lòng điền đầy đủ thông tin để tạo bài học mới"
+                  : "Chỉnh sửa thông tin bài học theo mong muốn của bạn"}
+              </p>
+            </DialogHeader>
+
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
               >
-                {formType === "create" ? (
-                  <BadgePlus className="w-7 h-7 text-blue-500" />
-                ) : (
-                  <Pencil className="w-7 h-7 text-amber-500" />
-                )}
-                <p className="text-2xl font-medium bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-                  {formType === "create"
-                    ? "Thêm mới bài học"
-                    : "Cập nhật bài học"}
-                </p>
-              </motion.div>
-            </DialogTitle>
-          </DialogHeader>
-
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="grid grid-cols-1 gap-8">
-                <motion.div
-                  variants={ANIMATIONS.form}
-                  initial="hidden"
-                  animate="visible"
-                  custom={1}
-                  className="hover:shadow-lg transition-shadow duration-300 rounded-lg p-4"
-                >
-                  <FormField
-                    control={form.control}
-                    name="lessonName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-lg font-medium text-blue-600">
-                          Tên bài học
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            disabled={isPending}
-                            placeholder="Nhập tên bài học..."
-                            className="text-base p-6 border-2 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-blue-400 transition-colors duration-200"
-                          />
-                        </FormControl>
-                        <FormMessage className="text-base" />
-                      </FormItem>
-                    )}
-                  />
-                </motion.div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-8">
-                {/* Tuần học */}
-                <motion.div
-                  variants={ANIMATIONS.form}
-                  initial="hidden"
-                  animate="visible"
-                  custom={2}
-                  className="hover:shadow-lg transition-shadow duration-300 rounded-lg p-4"
-                >
-                  <FormField
-                    control={form.control}
-                    name="schoolweek"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-lg font-medium text-emerald-600">
-                          Tuần học
-                        </FormLabel>
-                        <FormControl>
-                          <Select
-                            disabled={isPending}
-                            onValueChange={(value) => {
-                              const numValue = Number(value);
-                              field.onChange(numValue);
-                              form.setValue("schoolweek", numValue, { 
-                                shouldValidate: true,
-                                shouldDirty: true 
-                              });
-                            }}
-                            value={field.value?.toString() || ""}
-                            defaultValue={field.value?.toString() || ""}
-                          >
-                            <SelectTrigger
-                              className="text-base p-6 border-2 
-                                  focus:border-emerald-400 focus:ring-0 focus:ring-offset-0 
-                                  focus-visible:ring-0 focus-visible:ring-offset-0 
-                                  focus-visible:border-emerald-400
-                                  hover:border-emerald-400
-                                  transition-colors duration-200"
-                            >
-                              <SelectValue placeholder="Chọn tuần học" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white overflow-y-auto max-h-[300px]">
-                              {selectSchoolWeek?.map((item) => (
-                                <SelectItem
-                                  key={item.value}
-                                  value={item.value.toString()}
-                                  className="cursor-pointer"
-                                >
-                                  Tuần {item.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage className="text-base" />
-                      </FormItem>
-                    )}
-                  />
-                </motion.div>
-
-                {/* Thứ tự */}
-                <motion.div
-                  variants={ANIMATIONS.form}
-                  initial="hidden"
-                  animate="visible"
-                  custom={3}
-                  className="hover:shadow-lg transition-shadow duration-300 rounded-lg p-4"
-                >
-                  <FormField
-                    control={form.control}
-                    name="order"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-lg font-medium text-purple-600">
-                          Thứ tự
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            onChange={(e) => {
-                              const value = parseInt(e.target.value);
-                              field.onChange(isNaN(value) ? 0 : value);
-                            }}
-                            type="number"
-                            min={1}
-                            disabled={isPending}
-                            placeholder="Nhập thứ tự..."
-                            className="text-base p-6 border-2 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-purple-400 transition-colors duration-200"
-                          />
-                        </FormControl>
-                        <FormMessage className="text-base" />
-                      </FormItem>
-                    )}
-                  />
-                </motion.div>
-
-                {/* Trạng thái */}
-                <motion.div
-                  variants={ANIMATIONS.form}
-                  initial="hidden"
-                  animate="visible"
-                  custom={4}
-                  className="hover:shadow-lg transition-shadow duration-300 rounded-lg p-4"
-                >
-                  <FormField
-                    control={form.control}
-                    name="isActive"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-lg font-medium text-orange-600">
-                          Trạng thái
-                        </FormLabel>
-                        <FormControl>
-                          <div className="h-[50px] flex items-center justify-between rounded-lg border-2 px-4 bg-white focus-within:border-orange-400 hover:border-orange-400 transition-colors duration-200 focus-visible:ring-0 focus-visible:ring-offset-0">
-                            <span
-                              className={`text-sm font-medium ${
-                                field.value ? "text-green-600" : "text-red-600"
-                              }`}
-                            >
-                              {field.value
-                                ? "Đang hoạt động"
-                                : "Không hoạt động"}
-                            </span>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
+                <div className="grid grid-cols-2 gap-4">
+                  <motion.div
+                    variants={ANIMATIONS.form}
+                    initial="hidden"
+                    animate="visible"
+                    custom={1}
+                    className="col-span-2 lg:col-span-1 space-y-1"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="lessonName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-medium text-blue-700">
+                            Tên bài học
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
                               disabled={isPending}
-                              className={`${
-                                field.value ? "bg-green-500" : "bg-gray-200"
-                              } transition-colors duration-200`}
+                              placeholder="Nhập tên bài học..."
+                              className="h-11 text-base border-2 focus-visible:ring-1 focus-visible:ring-blue-400 focus:border-blue-400"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </motion.div>
+                  <motion.div
+                    variants={ANIMATIONS.form}
+                    initial="hidden"
+                    animate="visible"
+                    custom={2}
+                    className="col-span-2 lg:col-span-1 space-y-1"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="schoolWeekID"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-medium text-emerald-700">
+                            Tuần học
+                          </FormLabel>
+                          <FormControl>
+                            <Select
+                              disabled={isPending}
+                              onValueChange={(value) => {
+                                const numValue = Number(value);
+                                field.onChange(numValue);
+                                form.setValue("schoolWeekID", numValue, {
+                                  shouldValidate: true,
+                                  shouldDirty: true
+                                });
+                              }}
+                              value={field.value?.toString()}
+                              defaultValue={field.value?.toString()}
+                            >
+                              <SelectTrigger className="h-11 text-base border-2 focus-visible:ring-1 focus-visible:ring-emerald-400 focus:border-emerald-400">
+                                <SelectValue placeholder="Chọn tuần học">
+                                  {field.value
+                                    ? `Tuần ${field.value}`
+                                    : "Chọn tuần học"}
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent className="bg-white overflow-y-auto max-h-[300px]">
+                                {selectSchoolWeek?.map((item) => (
+                                  <SelectItem
+                                    key={item.value}
+                                    value={item.value.toString()}
+                                    className="cursor-pointer"
+                                  >
+                                    Tuần {item.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </motion.div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <motion.div
+                    variants={ANIMATIONS.form}
+                    initial="hidden"
+                    animate="visible"
+                    custom={3}
+                    className="col-span-2 lg:col-span-1 space-y-1"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="order"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-medium text-purple-700">
+                            Thứ tự
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value);
+                                field.onChange(isNaN(value) ? 0 : value);
+                              }}
+                              type="number"
+                              min={1}
+                              disabled={isPending}
+                              placeholder="Nhập thứ tự..."
+                              className="h-11 text-base border-2 focus-visible:ring-1 focus-visible:ring-purple-400 focus:border-purple-400"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </motion.div>
+
+                  <motion.div
+                    variants={ANIMATIONS.form}
+                    initial="hidden"
+                    animate="visible"
+                    custom={4}
+                    className="col-span-2 lg:col-span-1 space-y-1"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="isActive"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-medium text-orange-700">
+                            Trạng thái
+                          </FormLabel>
+                          <FormControl>
+                            <div className="h-[50px] flex items-center justify-between rounded-lg border-2 px-4 bg-white focus-within:border-orange-400 hover:border-orange-400 transition-colors duration-200 focus-visible:ring-0 focus-visible:ring-offset-0">
+                              <span
+                                className={`text-sm font-medium ${
+                                  field.value
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }`}
+                              >
+                                {field.value
+                                  ? "Đang hoạt động"
+                                  : "Không hoạt động"}
+                              </span>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                disabled={isPending}
+                                className={`${
+                                  field.value ? "bg-green-500" : "bg-gray-200"
+                                } transition-colors duration-200`}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </motion.div>
+                </div>
+
+                <motion.div
+                  variants={ANIMATIONS.form}
+                  initial="hidden"
+                  animate="visible"
+                  custom={5}
+                  className="col-span-2 space-y-1"
+                >
+                  <FormField
+                    control={form.control}
+                    name="imageUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-medium text-indigo-700">
+                          Hình ảnh bài học
+                        </FormLabel>
+                        <FormControl>
+                          <div className="max-h-[200px] overflow-y-auto">
+                            <ImageUploader
+                              value={field.value}
+                              disabled={isPending}
+                              onChange={field.onChange}
                             />
                           </div>
                         </FormControl>
-                        <FormMessage className="text-base" />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 </motion.div>
-              </div>
 
-              {/* Image Uploader */}
-              <motion.div
-                variants={ANIMATIONS.form}
-                initial="hidden"
-                animate="visible"
-                custom={5}
-                className="w-full hover:shadow-lg transition-shadow duration-300 rounded-lg p-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-lg font-medium text-indigo-600">
-                        Hình ảnh bài học
-                      </FormLabel>
-                      <FormControl>
-                        <ImageUploader
-                          value={field.value}
-                          disabled={isPending}
-                          onChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormMessage className="text-base" />
-                    </FormItem>
-                  )}
-                />
-              </motion.div>
-
-              {/* Buttons */}
-              <motion.div className="flex justify-end gap-4 pt-4 border-t">
-                <motion.div
-                  whileHover={ANIMATIONS.button.hover}
-                  whileTap={ANIMATIONS.button.tap}
-                >
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleClose}
-                    disabled={isPending}
-                    className="border-2 hover:border-gray-400 transition-colors duration-200"
+                <motion.div className="flex justify-end gap-3 pt-4 border-t mt-4">
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    Hủy
-                  </Button>
-                </motion.div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleClose}
+                      disabled={isPending}
+                      className="border-2 hover:bg-gray-50 transition-all duration-200 min-w-[120px]"
+                    >
+                      Hủy
+                    </Button>
+                  </motion.div>
 
-                <motion.div
-                  whileHover={ANIMATIONS.button.hover}
-                  whileTap={ANIMATIONS.button.tap}
-                >
-                  <Button
-                    type="submit"
-                    disabled={isPending || !isFormValid}
-                    className={`${
-                      isPending
-                        ? "bg-gray-400"
-                        : "bg-gradient-to-r from-blue-600 to-blue-400"
-                    } text-white shadow-lg hover:shadow-blue-200 transition-shadow duration-200`}
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    {isPending
-                      ? `Đang ${formType === "create" ? "tạo" : "cập nhật"}...`
-                      : `${formType === "create" ? "Tạo" : "Cập nhật"} bài học`}
-                  </Button>
+                    <Button
+                      type="submit"
+                      disabled={isPending || !isFormValid}
+                      className={`
+                        min-w-[120px]
+                        ${
+                          isPending
+                            ? "bg-gray-400"
+                            : "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+                        } 
+                        text-white font-medium
+                        shadow-lg hover:shadow-blue-200/50
+                        transition-all duration-300
+                      `}
+                    >
+                      {isPending ? (
+                        <div className="flex items-center gap-2">
+                          <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Đang xử lý...</span>
+                        </div>
+                      ) : (
+                        `${formType === "create" ? "Tạo" : "Cập nhật"} bài học`
+                      )}
+                    </Button>
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-            </form>
-          </Form>
+              </form>
+            </Form>
+          </motion.div>
         </DialogContent>
       </Dialog>
     </AnimatePresence>

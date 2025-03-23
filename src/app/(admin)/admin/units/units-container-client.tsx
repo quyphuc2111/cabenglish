@@ -9,10 +9,57 @@ import { useUnitsColumns } from "@/components/admin/table/units/columns";
 import { useUnitByClassId } from "@/hooks/use-units";
 import { toast } from "react-toastify";
 import { UnitByClassCombobox } from "@/components/admin/combobox/unitbyclass-combobox";
+import { Plus, Download, Upload } from "lucide-react";
+
+// Thêm interface cho ActionButtons
+interface ActionButtonsProps {
+  onDelete?: () => void;
+  onExport: () => void;
+  onImport: () => void;
+  onCreate: () => void;
+  isEnabled: boolean;
+  rowSelection: Record<string, boolean>;
+}
+
+const ActionButtons = ({ rowSelection, onDelete, onExport, onImport, onCreate, isEnabled }: ActionButtonsProps) => (
+  <>
+    {!isEnabled ? (
+      <div className="flex items-center text-gray-500 italic">
+        Vui lòng chọn lớp học để xem các tùy chọn
+      </div>
+    ) : (
+      <div className="flex flex-col gap-4 items-end flex-wrap justify-end">
+        <Button
+          className="bg-blue-500 hover:bg-blue-600 text-white"
+          onClick={onCreate}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Tạo unit mới
+        </Button>
+        <div className="flex flex-row gap-4">
+          {Object.keys(rowSelection).length > 0 && onDelete && (
+            <Button variant="destructive" onClick={onDelete}>
+              Xóa ({Object.keys(rowSelection).length})
+            </Button>
+          )}
+          <Button variant="outline" onClick={onExport}>
+            <Download className="w-4 h-4 mr-2" />
+            Xuất dữ liệu
+          </Button>
+          <Button variant="outline" onClick={onImport}>
+            <Upload className="w-4 h-4 mr-2" />
+            Nhập dữ liệu
+          </Button>
+        </div>
+      </div>
+    )}
+  </>
+);
 
 function UnitsContainerClient() {
   const [selectedClassId, setSelectedClassId] = React.useState<string>("");
   const [selectedUnitId, setSelectedUnitId] = React.useState<string>("");
+  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
   const { data, isLoading } = useUnitByClassId(selectedClassId);
   const columns = useUnitsColumns();
   const { onOpen } = useModal();
@@ -82,26 +129,18 @@ function UnitsContainerClient() {
     );
   }, []);
 
-  const actionButtons = (
-    <>
-      {selectedClassId ? (
-        <div className="flex flex-row gap-4">
-          <Button variant="outline">Xuất dữ liệu</Button>
-          <Button variant="outline">Nhập dữ liệu</Button>
-          <Button
-            className="bg-blue-500 hover:bg-blue-600 text-white"
-            onClick={handleCreateNotitype}
-          >
-            Tạo unit mới
-          </Button>
-        </div>
-      ) : (
-        <div className="flex items-center text-gray-500 italic">
-          Vui lòng chọn lớp học để xem các tùy chọn
-        </div>
-      )}
-    </>
-  );
+  const handleDeleteUnits = React.useCallback(() => {
+    const selectedIds = Object.keys(rowSelection);
+    const selectedUnits = data?.data?.filter(unit => 
+      selectedIds.includes(unit.unitId.toString())
+    );
+    
+    onOpen("deleteUnit", {
+      unitIds: selectedIds,
+      units: selectedUnits,
+      onSuccess: () => setRowSelection({})
+    });
+  }, [rowSelection, data?.data, onOpen]);
 
   const searchComponent = (
     <div className="flex flex-row gap-4 items-center">
@@ -126,8 +165,21 @@ function UnitsContainerClient() {
         columns={columns}
         isLoading={isLoading}
         searchComponent={searchComponent}
-        actionButtons={actionButtons}
+        actionButtons={
+          <ActionButtons
+            rowSelection={rowSelection}
+            onDelete={handleDeleteUnits}
+            onExport={() => onOpen("exportUnits")}
+            onImport={() => onOpen("importUnits")}
+            onCreate={handleCreateNotitype}
+            isEnabled={!!selectedClassId}
+          />
+        }
         filterFunction={filterUnits}
+        enableRowSelection={true}
+        getRowId={(row) => row.unitId.toString()}
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
         meta={{ selectedClassId }}
       />
     </div>

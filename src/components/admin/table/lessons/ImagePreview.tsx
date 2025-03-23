@@ -1,6 +1,11 @@
 import React, { useCallback, memo } from "react";
 import OptimizeImage from "@/components/common/optimize-image";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 
 interface ImagePreviewProps {
   imageUrl: string;
@@ -20,7 +25,7 @@ const FALLBACK_IMAGE = "/assets/image/no_image.png";
 
 const PreviewImage = memo(({ src }: { src: string }) => {
   const imageSource = isValidUrl(src) ? src : FALLBACK_IMAGE;
-  
+
   return (
     <OptimizeImage
       src={imageSource}
@@ -40,7 +45,7 @@ const PreviewImage = memo(({ src }: { src: string }) => {
   );
 });
 
-PreviewImage.displayName = 'PreviewImage';
+PreviewImage.displayName = "PreviewImage";
 
 const FullImage = memo(({ src }: { src: string }) => {
   const imageSource = isValidUrl(src) ? src : FALLBACK_IMAGE;
@@ -64,7 +69,7 @@ const FullImage = memo(({ src }: { src: string }) => {
   );
 });
 
-FullImage.displayName = 'FullImage';
+FullImage.displayName = "FullImage";
 
 const ImagePreview: React.FC<ImagePreviewProps> = memo(({ imageUrl }) => {
   if (!imageUrl || !isValidUrl(imageUrl)) {
@@ -81,9 +86,17 @@ const ImagePreview: React.FC<ImagePreviewProps> = memo(({ imageUrl }) => {
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="relative group">
-              <p className="line-clamp-1 max-w-[250px] 3xl:max-w-[350px] cursor-pointer text-blue-600 hover:text-blue-800 transition-colors">
-                {imageUrl}
-              </p>
+              <a 
+                href={imageUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className=""
+              >
+                <p className="line-clamp-1 max-w-[250px] 3xl:max-w-[350px] cursor-pointer text-blue-600 hover:text-blue-800 hover:underline transition-colors">
+                  {imageUrl}
+                </p>
+              </a>
+
               <div className="absolute hidden group-hover:block top-0 left-full ml-2 p-1 bg-white rounded-lg shadow-lg z-50">
                 <PreviewImage src={imageUrl} />
               </div>
@@ -98,6 +111,6 @@ const ImagePreview: React.FC<ImagePreviewProps> = memo(({ imageUrl }) => {
   );
 });
 
-ImagePreview.displayName = 'ImagePreview';
+ImagePreview.displayName = "ImagePreview";
 
 export default ImagePreview;
