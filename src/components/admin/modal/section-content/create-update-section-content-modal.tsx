@@ -180,187 +180,189 @@ function CreateUpdateSectionContentModal() {
     <AnimatePresence>
       {isOpen && type === "createUpdateSectionContent" && (
         <Dialog open={true} onOpenChange={handleClose}>
-          <DialogContent className="sm:max-w-[95vw] md:max-w-[80vw] lg:max-w-[900px] h-[90vh] overflow-y-auto !rounded-2xl bg-white dark:bg-gray-800 shadow-xl p-4 md:p-6">
-            <DialogHeader className="border-b pb-4 mb-4 sticky top-0 bg-white dark:bg-gray-800 z-10">
-              <DialogTitle>
-                <motion.div
-                  className="flex items-center gap-3"
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {formType === "create" ? (
-                    <BadgePlus className="w-6 h-6 text-blue-500" />
-                  ) : (
-                    <Pencil className="w-6 h-6 text-blue-500" />
-                  )}
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {formType === "create" ? "Thêm mới section content" : "Cập nhật section content"}
-                  </p>
-                </motion.div>
-              </DialogTitle>
-            </DialogHeader>
+          <DialogContent className="max-w-[95vw] md:max-w-[80vw] lg:max-w-[900px] max-h-[90vh] overflow-hidden !rounded-xl bg-white dark:bg-gray-800">
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <DialogHeader className="border-b pb-4 px-6 pt-6 sticky top-0 bg-white dark:bg-gray-800 z-10">
+                <DialogTitle>
+                  <motion.div
+                    className="flex items-center gap-3"
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {formType === "create" ? (
+                      <BadgePlus className="w-6 h-6 text-blue-500" />
+                    ) : (
+                      <Pencil className="w-6 h-6 text-blue-500" />
+                    )}
+                    <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                      {formType === "create" ? "Thêm mới section content" : "Cập nhật section content"}
+                    </p>
+                  </motion.div>
+                </DialogTitle>
+              </DialogHeader>
 
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6 pb-20">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                  <div className="space-y-4">
-                    <motion.div variants={formAnimation} initial="hidden" animate="visible" custom={1}>
-                      <FormField
-                        control={form.control}
-                        name="title"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                              Tiêu đề
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                disabled={isPending}
-                                placeholder="Nhập tiêu đề..."
-                                className="w-full px-3 py-2 text-sm rounded-lg"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </motion.div>
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto px-6 py-4">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Left Column */}
+                      <div className="space-y-6">
+                        <motion.div variants={formAnimation} initial="hidden" animate="visible" custom={1}>
+                          <FormField
+                            control={form.control}
+                            name="title"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                                  Tiêu đề
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    disabled={isPending}
+                                    placeholder="Nhập tiêu đề..."
+                                    className="w-full px-3 py-2 text-sm rounded-lg border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </motion.div>
 
-                    <motion.div variants={formAnimation} initial="hidden" animate="visible" custom={2}>
-                      <FormField
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">Mô tả</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                {...field}
-                                disabled={isPending}
-                                placeholder="Nhập mô tả..."
-                                className="resize-none min-h-[250px] md:min-h-[300px] text-sm p-3"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </motion.div>
-                  </div>
+                        <motion.div variants={formAnimation} initial="hidden" animate="visible" custom={2}>
+                          <FormField
+                            control={form.control}
+                            name="description"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium">Mô tả</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    {...field}
+                                    disabled={isPending}
+                                    placeholder="Nhập mô tả..."
+                                    className="resize-none min-h-[200px] text-sm p-3 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </motion.div>
+                      </div>
 
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 gap-4">
-                      <motion.div variants={formAnimation} initial="hidden" animate="visible" custom={3}>
-                        <FormField
-                          control={form.control}
-                          name="iframe_url"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-medium">Iframe URL</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  disabled={isPending}
-                                  placeholder="Nhập iframe URL..."
-                                  className="resize-none text-sm p-3"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </motion.div>
+                      {/* Right Column */}
+                      <div className="space-y-6">
+                        <motion.div variants={formAnimation} initial="hidden" animate="visible" custom={3}>
+                          <FormField
+                            control={form.control}
+                            name="iframe_url"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium">Iframe URL</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    disabled={isPending}
+                                    placeholder="Nhập iframe URL..."
+                                    className="text-sm p-3 rounded-lg border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </motion.div>
 
-                      <motion.div variants={formAnimation} initial="hidden" animate="visible" custom={3}>
-                        <FormField
-                          control={form.control}
-                          name="order"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-medium">Thứ tự</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  type="number"
-                                  min={1}
-                                  disabled={isPending}
-                                  placeholder="Nhập thứ tự..."
-                                  className="text-sm"
-                                  onChange={(e) => {
-                                    const value = parseInt(e.target.value);
-                                    field.onChange(isNaN(value) ? 0 : value);
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </motion.div>
+                        <motion.div variants={formAnimation} initial="hidden" animate="visible" custom={4}>
+                          <FormField
+                            control={form.control}
+                            name="order"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium">Thứ tự</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    type="number"
+                                    min={1}
+                                    disabled={isPending}
+                                    placeholder="Nhập thứ tự..."
+                                    className="text-sm rounded-lg border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                                    onChange={(e) => {
+                                      const value = parseInt(e.target.value);
+                                      field.onChange(isNaN(value) ? 0 : value);
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </motion.div>
+
+                        <motion.div variants={formAnimation} initial="hidden" animate="visible" custom={5}>
+                          <FormField
+                            control={form.control}
+                            name="icon_url"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium">Icon</FormLabel>
+                                <FormControl>
+                                  <div className="mt-2 h-[180px]">
+                                    <ImageUploader
+                                      value={field.value}
+                                      disabled={isPending}
+                                      onChange={field.onChange}
+                                    />
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </motion.div>
+                      </div>
                     </div>
+                  </form>
+                </Form>
+              </div>
 
-                    <motion.div variants={formAnimation} initial="hidden" animate="visible" custom={4}>
-                      <FormField
-                        control={form.control}
-                        name="icon_url"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">Icon</FormLabel>
-                            <FormControl>
-                              <div className="mt-2 h-[200px] md:h-[250px]">
-                                <ImageUploader
-                                  value={field.value}
-                                  disabled={isPending}
-                                  onChange={field.onChange}
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </motion.div>
-                  </div>
+              {/* Footer */}
+              <div className="border-t px-6 py-4 bg-gray-50 dark:bg-gray-800">
+                <div className="flex justify-end gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleClose}
+                    disabled={isPending}
+                    className="px-4 py-2 text-sm hover:bg-gray-100"
+                  >
+                    Hủy
+                  </Button>
+                  
+                  <Button
+                    type="submit"
+                    disabled={isPending}
+                    className="px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white"
+                    onClick={form.handleSubmit(onSubmit)}
+                  >
+                    {isPending ? (
+                      <span className="flex items-center gap-2">
+                        <span className="animate-spin">⏳</span>
+                        {formType === "create" ? "Đang tạo..." : "Đang cập nhật..."}
+                      </span>
+                    ) : (
+                      formType === "create" ? "Tạo section content" : "Cập nhật section content"
+                    )}
+                  </Button>
                 </div>
-
-                <motion.div 
-                  className="fixed bottom-0 left-0 right-0 px-4 md:px-6 py-4 border-t bg-white dark:bg-gray-800 shadow-lg z-50"
-                  style={{
-                    width: "inherit",
-                    maxWidth: "inherit"
-                  }}
-                >
-                  <div className="flex justify-end gap-3">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleClose}
-                      disabled={isPending}
-                      className="px-4 py-2 text-sm"
-                    >
-                      Hủy
-                    </Button>
-                    
-                    <Button
-                      type="submit"
-                      disabled={isPending}
-                      className="px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white"
-                    >
-                      {isPending ? (
-                        <span className="flex items-center gap-2">
-                          <span className="animate-spin">⏳</span>
-                          {formType === "create" ? "Đang tạo..." : "Đang cập nhật..."}
-                        </span>
-                      ) : (
-                        formType === "create" ? "Tạo section content" : "Cập nhật section content"
-                      )}
-                    </Button>
-                  </div>
-                </motion.div>
-              </form>
-            </Form>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       )}

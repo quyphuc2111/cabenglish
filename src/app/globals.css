@@ -454,3 +454,32 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
+
+
+/* tiptap */
+
+.ProseMirror {
+    min-height: 200px;
+    padding: 1rem;
+    outline: none;
+}
+
+.ProseMirror img {
+    max-width: 100%;
+    height: auto;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+    padding-left: 2rem;
+}
+
+.ProseMirror h1 {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.ProseMirror h2 {
+    font-size: 1.25em;
+    font-weight: bold;
+}

@@ -3,6 +3,7 @@ import { AdminContentLayout } from '@/components/admin-panel/admin-content-layou
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
 import { getAllSchoolWeekAdminData } from '@/actions/schoolWeekAction';
 import SectionContentContainerClient from './section-content-container-client';
+import NotiContainerClient from './noti-container-client';
 
 const breadcrumbItems = [
   {
@@ -26,7 +27,7 @@ async function AdminNotificationsPage() {
     <div className='flex flex-col gap-4'>
     <p className='text-2xl font-bold'>Danh sách thông báo</p>
        <HydrationBoundary state={dehydrate(queryClient)}>
-         {/* <SectionContentContainerClient /> */}
+         <NotiContainerClient />
        </HydrationBoundary>
     </div>
    </AdminContentLayout>

@@ -281,9 +281,9 @@ export function useAdminMenuList(pathname: string): Group[] {
       groupLabel: "",
       menus: [
         {
-          href: "/admin/notifications",
+          href: "/admin/noti",
           label: "Quản lý thông báo hệ thống",
-          active: pathname.includes("/admin/notifications"),
+          active: pathname.includes("/admin/noti"),
           icon: LayoutGrid,
           iconSrc: "/assets/image/admin/sidebar_7.webp",
           submenus: []

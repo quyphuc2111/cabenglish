@@ -21,6 +21,7 @@ import DeleteLessonModal from "@/components/admin/modal/lessons/delete-lesson-mo
 import DeleteUnitsModal from "@/components/admin/modal/units/delete-units-modal";
 import CreateUpdateSectionContentModal from "@/components/admin/modal/section-content/create-update-section-content-modal";
 import DeleteSectionContentModal from "@/components/admin/modal/section-content/delete-section-content-modal";
+import CreateUpdateNotiModal from "@/components/admin/modal/noti/create-update-noti-modal";
 function AdminModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -68,6 +69,9 @@ function AdminModalProvider() {
       {/* section content */}
       <CreateUpdateSectionContentModal />
       <DeleteSectionContentModal />
+
+      {/* noti */}
+      <CreateUpdateNotiModal />
 
     </>
 

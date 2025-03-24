@@ -31,3 +31,15 @@ export interface NotiType {
     ntId: number;
     value: number
 }
+
+export interface NotiAdminType {
+    notificationId: number;
+    ntId: number;
+    title: string;
+    description: string;
+    contentHtml: string;
+    createdAt: string;
+    lastSentTime: string;
+    notiTypeValue: string;
+}
+

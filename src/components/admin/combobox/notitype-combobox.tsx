@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -17,15 +17,18 @@ import {
   PopoverTrigger
 } from "@/components/ui/popover";
 import { useNotiType } from "@/hooks/use-notitype";
+import { cn } from "@/lib/utils";
 
 interface NotiTypeComboboxProps {
   onSelect: (value: string) => void;
   placeholder?: string;
+  buttonClassName?: string;
 }
 
 export function NotiTypeCombobox({
   onSelect,
-  placeholder = "Tìm kiếm loại thông báo..."
+  placeholder = "Tìm kiếm loại thông báo...",
+  buttonClassName
 }: NotiTypeComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
@@ -52,10 +55,10 @@ export function NotiTypeCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[300px] justify-between"
+          className={cn("w-[300px] justify-between", buttonClassName)}
         >
           {value
-            ? notiTypes.find((notitype) => notitype.ntId == Number(value))?.ntId
+            ? notiTypes.find((notitype) => notitype.ntId == Number(value))?.value
             : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -72,6 +75,12 @@ export function NotiTypeCombobox({
                   value={notitype.ntId.toString()}
                   onSelect={handleSelect}
                 >
+                  <Check 
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === notitype.ntId.toString() ? "opacity-100" : "opacity-0"
+                    )}
+                  />
                   {notitype.value}
                 </CommandItem>
               ))}
