@@ -45,3 +45,38 @@ export const formatSelect = (arrayData: any[], keyLabel: string, keyValue: strin
     value: item[keyValue]
   }));
 };
+
+/**
+ * Kiểm tra và xác thực URL hình ảnh
+ * @param imageUrl - URL hình ảnh cần kiểm tra
+ * @param fallbackImage - URL hình ảnh mặc định khi URL không hợp lệ
+ * @returns URL hình ảnh hợp lệ hoặc URL mặc định
+ */
+export const validateImageUrl = (
+  imageUrl: string | null | undefined,
+  fallbackImage: string = "/assets/image/no_image.png"
+): string => {
+  if (!imageUrl) {
+    return fallbackImage;
+  }
+
+  // Kiểm tra nếu là URL tương đối (bắt đầu bằng /)
+  if (imageUrl.startsWith('/')) {
+    return imageUrl;
+  }
+
+  try {
+    const url = new URL(imageUrl);
+    const validProtocols = ['http:', 'https:'];
+    const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    
+    const hasValidProtocol = validProtocols.includes(url.protocol);
+    const hasValidExtension = validExtensions.some(ext => 
+      url.pathname.toLowerCase().endsWith(ext)
+    );
+
+    return hasValidProtocol && hasValidExtension ? imageUrl : fallbackImage;
+  } catch {
+    return fallbackImage;
+  }
+};

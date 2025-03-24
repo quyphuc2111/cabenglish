@@ -100,7 +100,7 @@ function CreateUpdateSectionModal() {
             sectionData: [values],
             lessonId: data?.lessonIds
         };
-        console.log("formattedValues", formattedValues);
+
         await createSection(formattedValues, {
           onSuccess: () => {
             showToast.success("Tạo section thành công!");

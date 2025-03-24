@@ -3,13 +3,11 @@
 import React from "react";
 import { Dialog, DialogContent, DialogTitle, DialogHeader } from "../ui/dialog";
 import { useModal } from "@/hooks/useModalStore";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../ui/button";
 import OptimizeImage from "../common/optimize-image";
-import { Badge } from "../ui/badge";
 import { ScrollArea } from "../ui/scroll-area";
-import { NotificationMessage, NotificationType } from "@/types/notification";
+import { NotificationType } from "@/types/notification";
 import { useSocket } from "@/hooks/useSocket";
 
 // Thêm các animation variants
@@ -69,7 +67,7 @@ function NotificationModal() {
   }, [data?.notificationList]);
 
   React.useEffect(() => {
-    console.log("socketNotifi123213213cations", socketNotifications);
+
     if (socketNotifications.length > 0) {
       const latestNotification =
         socketNotifications[socketNotifications.length - 1];

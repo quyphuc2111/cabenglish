@@ -104,10 +104,13 @@ function CreateUpdateLessonModal() {
   // const unitId = data?.unitId;
 
   const {
-    selectedClassId,
-    selectedUnitId,
-    setSelectedClassId,
-    setSelectedUnitId
+    // selectedClassId,
+    // selectedUnitId,
+    // setSelectedClassId,
+    // setSelectedUnitId
+    activeLesson,
+    activateClass,
+    activateUnit
   } = useLessonStore();
 
   const classroomId = React.useMemo(() => {
@@ -126,8 +129,8 @@ function CreateUpdateLessonModal() {
 
   const { data: lessonData, isLoading } = useGetSingleLesson(
     lessonId,
-    selectedClassId,
-    selectedUnitId
+    activeLesson.classId,
+    activeLesson.unitId
   );
 
   // const { mutate:, isPending: isUpdating } =
@@ -137,7 +140,7 @@ function CreateUpdateLessonModal() {
     useCreateLessonByClassIdUnitId();
 
   const { mutate: updateLesson, isPending: isUpdatingLesson } =
-    useUpdateLessonByClassIdUnitId(lessonId, selectedClassId, selectedUnitId);
+    useUpdateLessonByClassIdUnitId(lessonId, activeLesson.classId, activeLesson.unitId);
 
   const isPending = isCreating || isUpdatingLesson || isLoading;
 
@@ -219,12 +222,12 @@ function CreateUpdateLessonModal() {
   // Xử lý submit form
   const onSubmit = React.useCallback(
     async (values: LessonAdminType) => {
-      if (!selectedClassId) {
+      if (!activeLesson.classId) {
         showToast.error("Không tìm thấy thông tin lớp học!");
         return;
       }
 
-      if (!selectedUnitId) {
+      if (!activeLesson.unitId) {
         showToast.error("Không tìm thấy thông tin unit!");
         return;
       }
@@ -233,8 +236,8 @@ function CreateUpdateLessonModal() {
         if (formType === "create") {
           const formattedValues = {
             lessonData: [values],
-            unitId: selectedUnitId,
-            classId: selectedClassId
+            unitId: activeLesson.unitId,
+            classId: activeLesson.classId
           };
           createLesson(formattedValues, {
             onSuccess: (response) => {
@@ -283,7 +286,7 @@ function CreateUpdateLessonModal() {
         );
       }
     },
-    [formType, createLesson, updateLesson, handleClose, classroomId]
+    [formType, createLesson, updateLesson, handleClose, activeLesson.classId, activeLesson.unitId]
   );
 
   // Không render nếu không phải modal schoolweek

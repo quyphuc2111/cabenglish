@@ -22,50 +22,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
-import { BadgePlus, Pencil, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Image as ImageIcon, Bold, Italic, Heading1, Heading2, Underline as UnderlineIcon, Hash, Strikethrough, Subscript as SubscriptIcon, Superscript as SuperscriptIcon, Quote, Table as TableIcon, Code as CodeIcon, Minus } from "lucide-react";
 import {
-  useCheckSchoolWeekExists,
-  useCreateSchoolWeek,
-  useGetSingleSchoolWeek,
-  useSchoolWeek,
-  useUpdateSchoolWeek
-} from "@/hooks/use-schoolweek";
-import {
-  schoolWeekFormSchema,
-  SchoolWeekFormValues
-} from "@/lib/validations/schoolweek";
+  BadgePlus,
+  Pencil
+} from "lucide-react";
 import { showToast } from "@/utils/toast-config";
 import { notiFormSchema, NotiFormValues } from "@/lib/validations/noti";
 import { Textarea } from "@/components/ui/textarea";
-import dynamic from "next/dynamic";
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Heading from '@tiptap/extension-heading';
-import Link from '@tiptap/extension-link';
-import TextAlign from '@tiptap/extension-text-align';
-import Image from '@tiptap/extension-image';
-import Color from '@tiptap/extension-color';
-import TextStyle from '@tiptap/extension-text-style';
-import { useCreateNoti, useGetSingleNoti, useUpdateNoti } from "@/hooks/useNoti";
+import {
+  useCreateNoti,
+  useUpdateNoti
+} from "@/hooks/useNoti";
 import { useNotiStore } from "@/store/useNoti";
-import BulletList from '@tiptap/extension-bullet-list';
-import OrderedList from '@tiptap/extension-ordered-list';
-import ListItem from '@tiptap/extension-list-item';
-import Underline from '@tiptap/extension-underline';
-import Strike from '@tiptap/extension-strike'
-import Subscript from '@tiptap/extension-subscript'
-import Superscript from '@tiptap/extension-superscript'
-import FontFamily from '@tiptap/extension-font-family'
-import FontSize from '@tiptap/extension-font-size'
-import Highlight from '@tiptap/extension-highlight'
-import Table from '@tiptap/extension-table'
-import TableRow from '@tiptap/extension-table-row'
-import TableCell from '@tiptap/extension-table-cell'
-import TableHeader from '@tiptap/extension-table-header'
-import Code from '@tiptap/extension-code'
-import CodeBlock from '@tiptap/extension-code-block'
-import Blockquote from '@tiptap/extension-blockquote'
-import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import { TipTapEditor } from "@/components/ui/tiptap-editor";
 
 // Tách animation configs ra riêng
@@ -91,7 +59,7 @@ const ANIMATIONS = {
 function CreateUpdateNotiModal() {
   const { isOpen, onClose, type, data } = useModal();
   const formType = data?.formType;
-  const notiId = formType === "update" ? data?.noti.notificationId : null;
+  const notiId = formType === "update" ? data?.noti?.notificationId : null;
 
   const form = useForm<NotiFormValues>({
     resolver: zodResolver(notiFormSchema),
@@ -102,12 +70,12 @@ function CreateUpdateNotiModal() {
       contentHtml: formType === "update" ? data?.noti?.contentHtml : "",
       description: formType === "update" ? data?.noti?.description : "",
       createdAt: new Date().toISOString(),
-      lastSentTime: new Date().toISOString(),
+      lastSentTime: new Date().toISOString()
     },
     mode: "onChange"
   });
 
-  const {selectedNotiType} = useNotiStore();
+  const { selectedNotiType } = useNotiStore();
 
   const { mutate: createNoti, isPending: isCreating } = useCreateNoti();
   const { mutate: updateNoti, isPending: isUpdating } = useUpdateNoti();
@@ -118,7 +86,7 @@ function CreateUpdateNotiModal() {
     if (formType === "update" && data?.noti) {
       form.reset({
         notificationId: data.noti.notificationId,
-        title: data.noti.title,  
+        title: data.noti.title,
         description: data.noti.description,
         contentHtml: data.noti.contentHtml,
         ntId: data.noti.ntId,
@@ -145,18 +113,23 @@ function CreateUpdateNotiModal() {
     async (values: NotiFormValues) => {
       try {
         if (formType === "create") {
-          createNoti({
-            ...values,
-            ntId: selectedNotiType
-          }, {
-            onSuccess: () => {
-              showToast.success("Tạo thông báo thành công");
-              handleClose();
+          createNoti(
+            {
+              ...values,
+              ntId: selectedNotiType
             },
-            onError: (error: Error) => {
-              showToast.error(error.message || "Có lỗi xảy ra khi tạo thông báo");
+            {
+              onSuccess: () => {
+                showToast.success("Tạo thông báo thành công");
+                handleClose();
+              },
+              onError: (error: Error) => {
+                showToast.error(
+                  error.message || "Có lỗi xảy ra khi tạo thông báo"
+                );
+              }
             }
-          });
+          );
         } else if (formType === "update" && notiId) {
           updateNoti(
             {
@@ -173,7 +146,9 @@ function CreateUpdateNotiModal() {
                 handleClose();
               },
               onError: (error: Error) => {
-                showToast.error(error.message || "Có lỗi xảy ra khi cập nhật thông báo");
+                showToast.error(
+                  error.message || "Có lỗi xảy ra khi cập nhật thông báo"
+                );
               }
             }
           );
@@ -182,7 +157,15 @@ function CreateUpdateNotiModal() {
         toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra!");
       }
     },
-    [formType, notiId, createNoti, updateNoti, handleClose, selectedNotiType, data]
+    [
+      formType,
+      notiId,
+      createNoti,
+      updateNoti,
+      handleClose,
+      selectedNotiType,
+      data
+    ]
   );
 
   if (!isOpen || type !== "createUpdateNoti") return null;
@@ -290,9 +273,9 @@ function CreateUpdateNotiModal() {
                         Nội dung
                       </FormLabel>
                       <FormControl>
-                      <TipTapEditor 
-                          content={field.value} 
-                          onChange={(html) => field.onChange(html)} 
+                        <TipTapEditor
+                          content={field.value}
+                          onChange={(html) => field.onChange(html)}
                         />
                       </FormControl>
                       <FormMessage />

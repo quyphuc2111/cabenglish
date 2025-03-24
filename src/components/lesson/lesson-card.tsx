@@ -4,7 +4,7 @@ import React, { Fragment, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { cn, formatProgress } from "@/lib/utils";
+import { cn, formatProgress, validateImageUrl } from "@/lib/utils";
 import { toast } from 'react-toastify';
 
 interface LessonCardProps {
@@ -165,16 +165,17 @@ function LessonCard({
 
         <motion.div
           variants={ANIMATIONS.imageVariants}
-          className="relative w-full aspect-[16/9]"
+          className="relative w-full aspect-[16/9] border border-gray-200 rounded-xl"
         >
           <Image
-            src={`/modal/course1.png`}
+            src={validateImageUrl(imageUrl)}
             alt={unitName}
             fill
             className={cn(
               "rounded-xl object-cover",
               isLocked && "opacity-50"
             )}
+            unoptimized
           />
 
           {isLocked  && (

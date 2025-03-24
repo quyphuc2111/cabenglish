@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import { TranslationProvider } from "@/components/context/TranslationContext";
 import { ModalProvider } from "./modal-provider";
 import { ThemeProvider } from "./theme-provider";
-import { SocketProvider } from "./socket-provider";
+// import { SocketProvider } from "./socket-provider";
 import { SessionProvider } from "next-auth/react";
 import { QueryProvider } from "./query-provider";
 
@@ -26,13 +26,13 @@ function Providers({
     <Fragment>
       <SessionProvider>
         <QueryProvider>
-        <SocketProvider>
+        {/* <SocketProvider> */}
           <ThemeProvider>
             <TranslationProvider translations={translations}>
               {children}
             </TranslationProvider>
           </ThemeProvider>
-        </SocketProvider>
+        {/* </SocketProvider> */}
         <ModalProvider />
         <ToastContainerClient />
         </QueryProvider>

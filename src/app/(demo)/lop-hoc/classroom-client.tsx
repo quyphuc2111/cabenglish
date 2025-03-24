@@ -20,7 +20,6 @@ function ClassroomClient({
   const [likedClassrooms, setLikedClassrooms] = useState<Record<number, boolean>>({});
 
   const handleClassroomClick = (name: string) => {
-    console.log("name", name);
     router.push(`/lop-hoc/${name}`);
   };
 

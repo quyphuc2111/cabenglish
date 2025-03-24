@@ -18,8 +18,6 @@ import useLocalStorage from "@/hooks/use-local-storage";
 import { useTranslation } from "@/hooks/useTranslation";
 import i18next from "i18next";
 import OptimizeImage from "../common/optimize-image";
-import { NotificationList } from "../notification";
-import NotificationButton from "../notification-button";
 // import { useTeachingModeStore } from "@/store/useTeachingModeStore";
 
 interface NavbarProps {

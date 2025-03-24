@@ -1,3 +1,5 @@
+"use server";
+
 import { serverFetch } from "@/lib/api";
 import { Units } from "@/types/unit";
 
@@ -66,10 +68,12 @@ export async function createUnitAdminDataByClassId({
 }
 
 export async function deleteUnitsByClassId(classId: number, unitIds: number[]) {
+  console.log("classId", classId);
+  console.log("unitIds", unitIds);
   try {
     const response = await serverFetch(`/api/Unit/class/${classId}`, {
       method: "DELETE",
-      data: { unitIds }
+      data: unitIds
     });
 
     return response;

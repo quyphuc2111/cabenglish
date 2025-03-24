@@ -8,7 +8,8 @@ const ROUTES = {
   ADMIN_DASHBOARD: '/admin/dashboard',
   OVERVIEW: '/tong-quan',
   PROFILE: '/profile',
-  COURSES: '/khoa-hoc'
+  COURSES: '/khoa-hoc',
+  LOGIN: '/signin'
 } as const;
 
 const ROLES = {
@@ -46,7 +47,6 @@ const handleAuth = (req: Request, token: any) => {
 
   // Nếu là admin và đang ở route admin, cho phép truy cập
   if (isAdmin && isAdminRoute(path)) {
-    // Cho phép truy cập tất cả các route admin
     return null;
   }
 
@@ -55,15 +55,7 @@ const handleAuth = (req: Request, token: any) => {
     return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
   }
 
-  // Nếu là teacher cố truy cập route không được phép
-  if (isTeacher && 
-      !isTeacherRoute(path) && 
-      !path.startsWith(ROUTES.COURSES) && 
-      !path.startsWith(ROUTES.PROFILE)) {
-    return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
-  }
-
-  // Cho phép truy cập trong các trường hợp còn lại
+  // Cho phép giáo viên truy cập tất cả các route khác
   return null;
 };
 
@@ -71,6 +63,12 @@ export default withAuth(
   function middleware(req) {
     try {
       const token = req.nextauth.token;
+      
+      // Kiểm tra nếu không có token (chưa đăng nhập), chuyển hướng về trang login
+      if (!token) {
+        return NextResponse.redirect(new URL(ROUTES.LOGIN, req.url));
+      }
+
       const path = new URL(req.url).pathname;
 
       // Bỏ qua middleware cho các API routes
@@ -85,27 +83,30 @@ export default withAuth(
       const authRedirect = handleAuth(req, token);
       if (authRedirect) return authRedirect;
 
-      // Nếu không có chuyển hướng, rewrite với URL đã xử lý ngôn ngữ
       return NextResponse.rewrite(localeUrl);
     } catch (error) {
       console.error('Middleware error:', error);
-      return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
+      return NextResponse.redirect(new URL(ROUTES.LOGIN, req.url));
     }
   },
   {
     callbacks: {
       authorized: ({ token }) => !!token,
     },
+    pages: {
+      signIn: '/signin',
+    },
   }
 );
 
-// Cập nhật matcher để loại trừ các routes không cần thiết
+// Cập nhật matcher để bao gồm cả route auth
 export const config = {
   matcher: [
     '/tong-quan/:path*',
     '/khoa-hoc/:path*',
     '/profile/:path*',
     '/admin/:path*',
+    '/auth/:path*',
     '/((?!api|_next|static|.*\\..*).*)'
   ]
 }; 

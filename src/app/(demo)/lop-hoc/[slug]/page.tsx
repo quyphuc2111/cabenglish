@@ -5,77 +5,54 @@ import { redirect } from "next/navigation";
 import { getAllLessonDataByUserId } from "@/actions/lessonAction";
 import { getAllClassroomDataByUserId } from "@/actions/classroomAction";
 import { getSectionDataByLessonId } from "@/actions/sectionAction";
+import { FilterService } from "@/services/filter.service";
 
 async function Page({ params }: { params: { slug: string } }) {
   const session = await getServerSession(authOptions);
-  const { slug } = await params;
+  const { slug } = await params; 
   
-  if (!session) {
-    redirect("/signin");
-  }
+  if (!session) redirect("/signin");
 
-  // Lấy danh sách classroom của user
-  const classroomData = await getAllClassroomDataByUserId({
+  const classname = decodeURIComponent(slug).replace(/-/g, ' ');
+  
+  // Kiểm tra classroom tồn tại
+  const { data: classrooms } = await getAllClassroomDataByUserId({
     userId: session.user.userId
   });
-
-  // Decode và format classname từ slug
-  const formatClassname = (slug: string) => {
-    return decodeURIComponent(slug).replace(/-/g, ' '); 
-  };
-
-  const classname = formatClassname(slug);
-
-  // Kiểm tra xem classroom có tồn tại trong dữ liệu không
-  const classroomExists = classroomData.data.some(
-    classroom => classroom.classname.toLowerCase() === classname.toLowerCase()
-  );
-
-  // Nếu classroom không tồn tại, chuyển hướng về /lop-hoc
-  if (!classroomExists) {
+  
+  if (!classrooms.some(classroom => 
+    classroom.classname.toLowerCase() === classname.toLowerCase())
+  ) {
     redirect('/lop-hoc');
   }
 
-  const lessonDataByClassname = await getAllLessonDataByUserId({
+  // Lấy và lọc lesson data
+  const lessonData = await getAllLessonDataByUserId({
     userId: session.user.userId
   });
+  
+  const filteredLessons = (Array.isArray(lessonData) ? lessonData : lessonData.data)
+    .filter(lesson => 
+      (lesson.classname || lesson.className).toLowerCase() === classname.toLowerCase()
+    );
 
-  // Lọc data theo classname
-  const filteredLessonData = Array.isArray(lessonDataByClassname) 
-    ? lessonDataByClassname.filter(lesson => lesson.classname.toLowerCase() === classname.toLowerCase())
-    : lessonDataByClassname.data.filter(lesson => lesson.className.toLowerCase() === classname.toLowerCase());
+  // const fetchSectionData = async (lessonId: number) => {
+  //   "use server"
+  //   return await getSectionDataByLessonId({
+  //     userId: session.user.userId,
+  //     lessonId: lessonId.toString()
+  //   });
+  // }
 
-  // Kiểm tra nếu không có data
-  if (filteredLessonData.length === 0) {
-    console.log(`Không tìm thấy dữ liệu cho lớp: ${classname}`);
-    // Có thể redirect hoặc hiển thị thông báo
-    // return redirect('/404');
-  }
-
-//   const sectionData = await getSectionDataByLessonId({
-//     userId: session.user.userId,
-//     lessonId: filteredLessonData[0].lessonId
-//   });
-
-//   const handleLessonSelect = (lessonId: number) => {
-//     console.log("lessonId", lessonId)
-//   }
-
-  const fetchSectionData = async (lessonId: number) => {
-    "use server"
-    const sectionData = await getSectionDataByLessonId({
-      userId: session.user.userId,
-      lessonId: lessonId.toString()
-    });
-    return sectionData;
-  }
+  const filterService = await FilterService.fetchFilterData(session.user.userId);
 
   return (
     <ClassroomChildClient 
       slug={slug} 
-      lessonData={filteredLessonData}
-      fetchSectionData={fetchSectionData}
-    //   userId={session.user.userId}
+      lessonData={filteredLessons}
+      // fetchSectionData={fetchSectionData}
+      initialFilterData={filterService.initialFilterData}
+      fetchFilterData={filterService.fetchFilterData}
     />
   );
 }

@@ -1,3 +1,4 @@
+import { useSession } from 'next-auth/react';
 import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
 
@@ -10,7 +11,7 @@ interface NotificationMessage {
   lastSentTime: string;
 }
 
-const WS_URL = 'wss://smkapi2025.bkt.net.vn/ws';
+// const WS_URL = 'wss://smkapi2025.bkt.net.vn/ws';
 const MAX_RETRIES = 5;
 const INITIAL_RETRY_DELAY = 3000;
 
@@ -19,13 +20,17 @@ export const useSocket = () => {
   const [notifications, setNotifications] = useState<NotificationMessage[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const session = useSession();
+  const token = session?.data?.accessToken;
+
+  console.log("token", session)
 
   const connect = useCallback(() => {
     // Tính toán delay dựa trên số lần retry (exponential backoff)
     const retryDelay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
 
     try {
-      const ws = new WebSocket(WS_URL);
+      const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}?token=${token}`);
 
       ws.onopen = () => {
         console.log('WebSocket đã kết nối thành công');
@@ -113,7 +118,9 @@ export const useSocket = () => {
   }, [retryCount]);
 
   useEffect(() => {
-    connect();
+    if(token) {
+      connect();
+    }
 
     return () => {
       if (socket) {
