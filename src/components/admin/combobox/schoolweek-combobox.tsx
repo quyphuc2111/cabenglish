@@ -99,7 +99,7 @@ export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần
               {filteredWeeks.map((schoolweek) => (
                 <CommandItem
                   key={schoolweek.swId}
-                  value={`Tuần ${schoolweek.value}`}
+                  value={schoolweek.swId.toString()}
                   onSelect={handleSelect}
                 >
                   <Check

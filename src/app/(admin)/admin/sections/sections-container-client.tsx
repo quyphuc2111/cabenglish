@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { useSchoolWeek } from "@/hooks/use-schoolweek";
 import { ModalData, ModalType, useModal } from "@/hooks/useModalStore";
 import { useSectionColumns } from "@/components/admin/table/sections/columns";
-import { SchoolWeekCombobox } from "@/components/admin/combobox/schoolweek-combobox";
 import { Download, Plus, Upload } from "lucide-react";
 import { ClassroomCombobox } from "@/components/admin/combobox/classroom-combobox";
 import { UnitByClassCombobox } from "@/components/admin/combobox/unitbyclass-combobox";
@@ -159,18 +158,18 @@ function SectionsContainerClient() {
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
   >({});
-  const [selectedClassId, setSelectedClassId] = React.useState<string>("");
-  const [selectedUnitId, setSelectedUnitId] = React.useState<string>("");
-  const { selectedLessonId, setSelectedLessonId } = useLessonStore();
+  // const [selectedClassId, setSelectedClassId] = React.useState<string>("");
+  // const [selectedUnitId, setSelectedUnitId] = React.useState<string>("");
+  const { activeLesson, activateLesson, activateUnit, activateClass } = useLessonStore();
 
   const columns = useSectionColumns();
   const { onOpen } = useModal();
 
   const { data, isLoading, error } = useSchoolWeek();
   const { data: unitData, isLoading: unitLoading } =
-    useUnitByClassId(selectedClassId);
+    useUnitByClassId(activeLesson.classId);
   const { data: sectionData, isLoading: sectionLoading } =
-    useGetSectionByLessonId(Number(selectedLessonId));
+    useGetSectionByLessonId(Number(activeLesson.lessonId));
 
   // Xử lý lỗi data fetching
   React.useEffect(() => {
@@ -222,10 +221,9 @@ function SectionsContainerClient() {
   // }, []);
 
   const handleSelectClassroom = React.useCallback((value: string) => {
-    setSelectedClassId(value);
-    // Reset selectedUnitId khi đổi lớp học
-    setSelectedUnitId("");
-    setSelectedLessonId("");
+    activateClass(value);
+    activateUnit("");
+    activateLesson("");
 
     if (value) {
       showToast.success(
@@ -237,8 +235,8 @@ function SectionsContainerClient() {
   }, []);
 
   const handleSelectUnit = React.useCallback((value: string) => {
-    setSelectedUnitId(value);
-    setSelectedLessonId("");
+    activateUnit(value);
+    activateLesson("");
 
     if (value) {
       showToast.success(
@@ -250,7 +248,7 @@ function SectionsContainerClient() {
   }, []);
 
   const handleSelectLesson = React.useCallback((value: string) => {
-    setSelectedLessonId(value);
+    activateLesson(value);
     
     if (value) {
       showToast.success(
@@ -262,7 +260,7 @@ function SectionsContainerClient() {
         </div>
       );
     }
-  }, [setSelectedLessonId]);
+  }, [activateLesson]);
 
   const searchComponent = (
     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-wrap">
@@ -271,20 +269,20 @@ function SectionsContainerClient() {
         placeholder="Tìm kiếm lớp học..."
         buttonClassName="w-full sm:w-[250px]"
       />
-      {selectedClassId && (
+      {activeLesson.classId && (
         <UnitByClassCombobox
           onSelect={handleSelectUnit}
           placeholder="Chọn unit..."
-          classId={selectedClassId}
+          classId={activeLesson.classId}
           buttonClassName="w-full sm:w-[250px]"
         />
       )}
-      {selectedUnitId && selectedClassId && (
+      {activeLesson.unitId && activeLesson.classId && (
         <LessonCombobox
           onSelect={handleSelectLesson}
           placeholder="Chọn bài học..."
-          unitId={selectedUnitId}
-          classId={selectedClassId}
+          unitId={activeLesson.unitId}
+          classId={activeLesson.classId}
           buttonClassName="w-full sm:w-[250px]"
         />
       )}
@@ -307,12 +305,12 @@ function SectionsContainerClient() {
             onCreate={() =>
               handleModalOpen("createUpdateSection", {
                 formType: "create",
-                lessonIds: Number(selectedLessonId)
+                lessonIds: Number(activeLesson.lessonId)
               })
             }
-            selectedUnitId={selectedUnitId}
-            selectedClassId={selectedClassId}
-            selectedLessonId={selectedLessonId}
+            selectedUnitId={activeLesson.unitId}
+            selectedClassId={activeLesson.classId}
+            selectedLessonId={activeLesson.lessonId}
           />
         }
         // filterFunction={filterSchoolWeeks}

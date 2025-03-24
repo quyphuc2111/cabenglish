@@ -72,9 +72,9 @@ function LessonsContainerClient() {
   // const [selectedUnitId, setSelectedUnitId] = React.useState<string>("");
   const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
 
-  const { selectedClassId, selectedUnitId, setSelectedClassId, setSelectedUnitId } = useLessonStore();
+  const { activeLesson, activateLesson, activateUnit, activateClass } = useLessonStore();
 
-  const { data, isLoading, error } = useLessonsByClassIdUnitId(selectedClassId, selectedUnitId);
+  const { data, isLoading, error } = useLessonsByClassIdUnitId(activeLesson.classId, activeLesson.unitId);
   const columns = useLessonsColumns();
   const { onOpen } = useModal();
 
@@ -86,8 +86,9 @@ function LessonsContainerClient() {
   }, [error]);
 
   React.useEffect(() => {
-    setSelectedClassId("")
-    setSelectedUnitId("")
+    activateLesson("")
+    activateUnit("")
+    activateClass("")
   }, []);
 
   // Xử lý dữ liệu đã được lọc
@@ -104,10 +105,10 @@ function LessonsContainerClient() {
     // }
     
     return filtered;
-  }, [data?.data, selectedUnitId]);
+  }, [data?.data, activeLesson.unitId]);
 
   const handleCreateLesson = React.useCallback(() => {
-    if (!selectedClassId || !selectedUnitId) {
+    if (!activeLesson.classId || !activeLesson.unitId) {
       toast.error(
         <div className="flex flex-col gap-1">
           <p className="font-medium">Không thể tạo bài học!</p>
@@ -121,15 +122,15 @@ function LessonsContainerClient() {
     
     onOpen("createUpdateLessons", {
       formType: "create",
-      classroomId: selectedClassId,
-      unitId: Number(selectedUnitId)
+      classroomId: activeLesson.classId,
+      unitId: Number(activeLesson.unitId)
     });
-  }, [selectedClassId, onOpen, selectedUnitId]);
+  }, [activeLesson.classId, activeLesson.unitId, onOpen]);
 
   const handleSelectClassroom = React.useCallback((value: string) => {
-    setSelectedClassId(value);
-    // Reset selectedUnitId khi đổi lớp học
-    setSelectedUnitId("");
+    activateClass(value);
+    activateUnit("");
+    activateLesson("");
     
     if (value) {
       toast.success(
@@ -144,7 +145,8 @@ function LessonsContainerClient() {
   }, []);
 
   const handleSelectUnit = React.useCallback((value: string) => {
-    setSelectedUnitId(value);
+    activateUnit(value);
+    activateLesson("");
   }, []);
 
   // Hàm filter cho search
@@ -163,11 +165,11 @@ function LessonsContainerClient() {
         placeholder="Tìm kiếm lớp học..."
         buttonClassName="w-full sm:w-[250px]"
       />
-      {selectedClassId && (
+      {activeLesson.classId && (
         <UnitByClassCombobox
           onSelect={handleSelectUnit}
           placeholder="Chọn unit..."
-          classId={selectedClassId}
+          classId={activeLesson.classId}
            buttonClassName="w-full sm:w-[250px]"
         />
       )}
@@ -201,7 +203,7 @@ function LessonsContainerClient() {
             onExport={() => onOpen("exportLessons")}
             onImport={() => onOpen("importLessons")}
             onCreate={handleCreateLesson}
-            isEnabled={!!(selectedClassId && selectedUnitId)}
+            isEnabled={!!(activeLesson.classId && activeLesson.unitId)}
           />
         }
         // filterFunction={filterUnits}
@@ -209,7 +211,7 @@ function LessonsContainerClient() {
         getRowId={(row) => row.lessonId.toString()}
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
-        meta={{ selectedClassId }}
+        meta={{ activeLesson }}
       />
     </div>
   );
