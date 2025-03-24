@@ -33,7 +33,6 @@ export async function getAllNotiAdminData(): Promise<NotiResponse> {
 
 
 export async function createNotiAdminData(notiData: NotiAdminType): Promise<NotiResponse> {
-  console.log("notiData11", notiData);
   try {
     const response = await serverFetch(`/api/Noti`, {
       method: "POST",
@@ -68,6 +67,7 @@ export async function updateNotiAdminData({
   notiId: number;
 }): Promise<NotiResponse> {
   try {
+    console.log("notiData22", notiData);
     const response = await serverFetch(`/api/Noti/${notiId}`, {
       method: "PUT",
       data: notiData
@@ -91,4 +91,79 @@ export async function updateNotiAdminData({
     };
   }
 }
+
+export async function getSingleNotiAdminData({
+  ntId
+}: {
+  ntId: number;
+}): Promise<NotiResponse> {
+  try {
+    const data = await serverFetch(`/api/Noti/${ntId}`);
+
+    return {
+      data,
+      error: undefined
+    };
+  } catch (error) {
+    console.error("Lỗi khi lấy dữ liệu thông báo:", error);
+    return {
+      data: [],
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
+    };
+  }
+}
+
+export async function sendNotiAdminData(notificationId: number): Promise<NotiResponse> {
+  try {
+    const response = await serverFetch(`/api/Noti/send/${notificationId}`, {
+      method: "POST"
+    });
+
+    if (!response) {
+      throw new Error("Không nhận được phản hồi từ server");
+    }
+
+    return {
+      success: true,
+      data: response
+    };
+  } catch (error) {
+    console.error("Lỗi khi gửi thông báo:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi gửi thông báo",
+      data: []
+    };
+  }
+}
+
+export async function deleteNotiAdminData(notificationId: number): Promise<NotiResponse> {
+  try {
+    const response = await serverFetch(`/api/Noti/${notificationId}`, {
+      method: "DELETE"
+    });
+
+    // if (!response) {
+    //   throw new Error("Không nhận được phản hồi từ server");
+    // }
+
+    return {
+      success: true,
+      data: response
+    };
+  } catch (error) {
+    console.error("Lỗi khi xóa thông báo:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi xóa thông báo",
+      data: []
+    };
+  }
+}
+
+
+
 

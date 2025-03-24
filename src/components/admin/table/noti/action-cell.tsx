@@ -10,42 +10,65 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
-import { SectionContentAdminType, SectionType } from "@/types/section";
-import { useLessonStore } from '@/store/use-lesson-store';
+import { useNotiStore } from "@/store/useNoti";
+import { NotiAdminType } from "@/types/notification";
 
 interface ActionCellProps {
   row: {
-    original: SectionContentAdminType;
+    original: NotiAdminType;
   };
 }
 
 export const ActionCell = memo(function ActionCell({ row }: ActionCellProps) {
   const { onOpen } = useModal();
-  const sectionContent = row.original;
-  const { activeLesson } = useLessonStore();
+  const noti = row.original;
+  // const { activeLesson } = useLessonStore();
+  const {selectedNotiType} = useNotiStore();
 
   const handleEdit = useCallback(() => {
-    onOpen("createUpdateSectionContent", {
+    onOpen("createUpdateNoti", {
       formType: "update",
-      sectionContent: sectionContent,
-      sectionIds: [Number(activeLesson.sectionId)]
+      noti: noti,
+      notiType: selectedNotiType,
+      notiId: noti.ntId
     });
-  }, [sectionContent, activeLesson.sectionId, onOpen]);
+  }, [noti, selectedNotiType, onOpen]);
 
   const handleDelete = useCallback(() => {
-    onOpen("deleteSectionContent", {
-      sectionContentIds: [sectionContent.sc_id.toString()],
-      sectionContents: sectionContent
+    onOpen("deleteNoti", {
+      notiIds: [noti.ntId.toString()],
+      noti: noti
     //   schoolWeek: {
     //     swId: schoolWeek.swId,
     //     value: schoolWeek.value
     //   } as any
     });
-  }, [sectionContent, onOpen]);
+  }, [noti, onOpen]);
+
+  const handleSendNoti = useCallback(() => {
+    onOpen("sendNoti", {
+      noti: noti
+    });
+  }, [noti, onOpen]); 
 
   return (
     <div className="flex gap-2">
       <TooltipProvider>
+      <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="cursor-pointer" onClick={handleSendNoti}>
+              <OptimizeImage
+                src="/assets/image/admin/send_noti.webp"
+                width={25}
+                height={25}
+                alt="send noti"
+              />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-[500px] whitespace-pre-wrap">
+            Gửi thông báo
+          </TooltipContent>
+        </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="cursor-pointer" onClick={handleEdit}>
@@ -61,9 +84,7 @@ export const ActionCell = memo(function ActionCell({ row }: ActionCellProps) {
             Sửa
           </TooltipContent>
         </Tooltip>
-      </TooltipProvider>
-
-      <TooltipProvider>
+     
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="cursor-pointer" onClick={handleDelete}>

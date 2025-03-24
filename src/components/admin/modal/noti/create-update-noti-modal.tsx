@@ -46,7 +46,7 @@ import TextAlign from '@tiptap/extension-text-align';
 import Image from '@tiptap/extension-image';
 import Color from '@tiptap/extension-color';
 import TextStyle from '@tiptap/extension-text-style';
-import { useCreateNoti, useUpdateNoti } from "@/hooks/useNoti";
+import { useCreateNoti, useGetSingleNoti, useUpdateNoti } from "@/hooks/useNoti";
 import { useNotiStore } from "@/store/useNoti";
 import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
@@ -91,16 +91,16 @@ const ANIMATIONS = {
 function CreateUpdateNotiModal() {
   const { isOpen, onClose, type, data } = useModal();
   const formType = data?.formType;
-  const notiId = formType === "update" ? data?.notification?.id : null;
+  const notiId = formType === "update" ? data?.noti.notificationId : null;
 
   const form = useForm<NotiFormValues>({
     resolver: zodResolver(notiFormSchema),
     defaultValues: {
-      notificationId: 0,
-      ntId: 1,
-      title: "",
-      contentHtml: "",
-      description: "",
+      notificationId: formType === "update" ? data?.noti?.notificationId : 0,
+      ntId: formType === "update" ? data?.noti?.ntId : 0,
+      title: formType === "update" ? data?.noti?.title : "",
+      contentHtml: formType === "update" ? data?.noti?.contentHtml : "",
+      description: formType === "update" ? data?.noti?.description : "",
       createdAt: new Date().toISOString(),
       lastSentTime: new Date().toISOString(),
     },
@@ -114,49 +114,75 @@ function CreateUpdateNotiModal() {
 
   const isPending = isCreating || isUpdating;
 
+  React.useEffect(() => {
+    if (formType === "update" && data?.noti) {
+      form.reset({
+        notificationId: data.noti.notificationId,
+        title: data.noti.title,  
+        description: data.noti.description,
+        contentHtml: data.noti.contentHtml,
+        ntId: data.noti.ntId,
+        createdAt: data.noti.createdAt,
+        lastSentTime: data.noti.lastSentTime
+      });
+    }
+  }, [data, formType, form]);
+
   const handleClose = React.useCallback(() => {
-    form.reset();
+    form.reset({
+      notificationId: 0,
+      title: "",
+      description: "",
+      contentHtml: "",
+      ntId: 0,
+      createdAt: new Date().toISOString(),
+      lastSentTime: new Date().toISOString()
+    });
     onClose();
   }, [form, onClose]);
 
   const handleSubmit = React.useCallback(
     async (values: NotiFormValues) => {
       try {
-        const action =
-          formType === "create"
-            ? createNoti({
+        if (formType === "create") {
+          createNoti({
+            ...values,
+            ntId: selectedNotiType
+          }, {
+            onSuccess: () => {
+              showToast.success("Tạo thông báo thành công");
+              handleClose();
+            },
+            onError: (error: Error) => {
+              showToast.error(error.message || "Có lỗi xảy ra khi tạo thông báo");
+            }
+          });
+        } else if (formType === "update" && notiId) {
+          updateNoti(
+            {
+              notiId: notiId,
+              notiData: {
                 ...values,
-                ntId: selectedNotiType
-            }, {
-                onSuccess: () => {
-                  showToast.success("Tạo thông báo thành công");
-                  handleClose();
-                },
-                onError: (error: Error) => {
-                  showToast.error(
-                    error.message || "Có lỗi xảy ra khi tạo thông báo"
-                  );
-                }
-              })
-            : updateNoti(
-                {
-                  notiId: notiId as number,
-                  data: values
-                },
-                {
-                  onSuccess: () => {
-                    showToast.success("Cập nhật thông báo thành công");
-                    handleClose();
-                  }
-                }
-              );
-
-        await action;
+                notificationId: data?.noti?.notificationId,
+                ntId: data?.noti?.ntId
+              }
+            },
+            {
+              onSuccess: () => {
+                showToast.success("Cập nhật thông báo thành công");
+                handleClose();
+              },
+              onError: (error: Error) => {
+                showToast.error(error.message || "Có lỗi xảy ra khi cập nhật thông báo");
+              }
+            }
+          );
+        }
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra!");
       }
     },
-    [formType, notiId, createNoti, updateNoti, handleClose]
+    [formType, notiId, createNoti, updateNoti, handleClose, selectedNotiType, data]
   );
 
   if (!isOpen || type !== "createUpdateNoti") return null;

@@ -240,24 +240,6 @@ export function useNotiColumns() {
         size: 100
       },
       {
-        accessorKey: "notiTypeValue",
-        header: () => <div className="font-semibold text-gray-900">Loại</div>,
-        cell: ({ row }) => {
-          const notiTypeValue = row.original.notiTypeValue;
-          const type = notiTypeValue.toLowerCase().includes("error") ? "error" 
-            : notiTypeValue.toLowerCase().includes("success") ? "success"
-            : notiTypeValue.toLowerCase().includes("warning") ? "warning" 
-            : "default";
-            
-          return (
-            <div className={`px-3 py-1.5 ${typeBadgeStyles[type]} rounded-full text-xs font-semibold max-w-fit transition-all duration-200 hover:shadow-md`}>
-              {notiTypeValue}
-            </div>
-          );
-        },
-        size: 120
-      },
-      {
         id: "actions",
         cell: ActionCell,
         header: () => <div className="font-semibold text-gray-900">Thao tác</div>,
