@@ -306,7 +306,7 @@ function ListGroup() {
                       <Image
                         src="https://static.edupia.vn/dungchung/dungchung/core_cms/resources/uploads/common/images/2022/06/14/property-1frame-8520.png"
                         alt="property"
-                        layout="fill"
+                        fill
                         objectFit="contain"
                       />
                     </div>

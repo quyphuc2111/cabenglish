@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Navbar } from "@/components/admin-panel/navbar";
 import { ScrollArea } from "../ui/scroll-area";
@@ -20,34 +20,34 @@ const userData = {
   progress: {
     units: [
       {
-        unit_id: 1,
+        unit_id: 1
       },
       {
-        unit_id: 2,
+        unit_id: 2
       }
     ],
     lessons: [
       {
-        lesson_id: 1,
+        lesson_id: 1
       },
       {
-        lesson_id: 2,
+        lesson_id: 2
       }
     ],
     sections: [
       {
-        section_id: 1,
+        section_id: 1
       },
       {
-        section_id: 2,
+        section_id: 2
       }
     ],
     classrooms: [
       {
-        class_id: 1,
+        class_id: 1
       },
       {
-        class_id: 2,
+        class_id: 2
       }
     ]
   },
@@ -56,23 +56,22 @@ const userData = {
     section_contents: [1, 2],
     lessons: [1, 2]
   }
-}
+};
 
 export function ContentLayout({ title, type, children }: ContentLayoutProps) {
   const { user, setUser } = useUserStore();
 
   useEffect(() => {
-    setUser({
-      ...userData
-    });
+    if (!user) {
+      setUser({
+        ...userData
+      });
+    }
   }, []);
 
-  console.log(user);
-
-  
   return (
     <>
-      <div className="2xl:px-10 mt-5 ">
+      <div className="2xl:px-8 mt-5 ">
         <Navbar title={title} type={type} />
       </div>
       <ScrollArea className="h-5/6 2xl:px-[40px] mt-7 ">

@@ -29,7 +29,7 @@ export default async function initTranslations(
   // Kiểm tra nếu i18n đã được khởi tạo, không khởi tạo lại
   if (!i18nInstance.isInitialized) {
     await i18nInstance.init({
-      debug: process.env.NODE_ENV === "development",
+      debug: false,
       lng: lang,
       resources,
       fallbackLng: i18NextConfig.i18n.defaultLocale,

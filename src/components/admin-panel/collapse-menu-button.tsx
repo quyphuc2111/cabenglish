@@ -63,8 +63,6 @@ export function CollapseMenuButton({
     setIsCollapsed((prev) => !prev);
   };
 
-  console.log("123", submenus)
-
   return isOpen ? (
     <Collapsible
       open={isCollapsed}
@@ -77,7 +75,7 @@ export function CollapseMenuButton({
       >
         <Button
           variant={active ? "secondary" : "ghost"}
-          className="w-full justify-start h-20"
+          className="w-full justify-start h-16"
           disabled={disabled}
         >
           <div className="w-full items-center flex justify-between">
@@ -86,8 +84,8 @@ export function CollapseMenuButton({
                 {/* <Icon size={18} /> */}
                 <Image 
                   src={iconSrc} 
-                  width={50} 
-                  height={50} 
+                  width={40} 
+                  height={40} 
                   alt="icon"
                   className="object-contain" 
                 />

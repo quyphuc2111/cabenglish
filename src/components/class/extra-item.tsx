@@ -13,7 +13,7 @@ function ExtraItem({ title, desc, imageUrl, type }: any) {
           <Image
             src={imageUrl}
             alt="activiti"
-            layout="fill"
+            fill
             objectFit="cover"
           />
         </div>
@@ -28,7 +28,7 @@ function ExtraItem({ title, desc, imageUrl, type }: any) {
                     <Image
                       src="https://static.edupia.vn/uploads/v3/assets/images/classroom/sapdienra.png"
                       alt="timer"
-                      layout="fill"
+                      fill
                       objectFit="cover"
                     />
                   </div>
@@ -52,7 +52,7 @@ function ExtraItem({ title, desc, imageUrl, type }: any) {
                       <Image
                         src={coin}
                         alt="coin"
-                        layout="fill"
+                        fill
                         objectFit="contain"
                       />
                     </div>

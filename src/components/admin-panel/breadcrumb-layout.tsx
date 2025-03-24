@@ -10,7 +10,7 @@ interface BreadcrumbLayoutProps {
 export function BreadcrumbLayout({ title, type, children }: BreadcrumbLayoutProps) {
   return (
     <>
-      <div className="2xl:px-10 mt-5 ">
+      <div className="2xl:px-6 mt-5 ">
         <BreadcrumbNavbar title={title} type={type} />
       </div>
       <ScrollArea className="h-5/6 2xl:px-[40px] mt-7 ">

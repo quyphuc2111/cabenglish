@@ -126,10 +126,14 @@ const config = {
       backgroundImage: {
         "player-texture": "url('/src/assets/player_background.png')",
         "menu-texture": "url('/menu-icon/pattern.png')"
-      }
+      },
+      screens: {
+        '3xl': '1920px',
+        '4xl': '2560px',
+      },
     }
   },
-  plugins: [require("tailwindcss-animate")]
+  plugins: [require("tailwindcss-animate"), require('@tailwindcss/typography')],
 } satisfies Config;
 
 export default config;
