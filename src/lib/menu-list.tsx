@@ -220,9 +220,9 @@ export function useAdminMenuList(pathname: string): Group[] {
       groupLabel: "",
       menus: [
         {
-          href: "/admin/categories",
+          href: "/admin/categories/classrooms",
           label: "Quản lý danh mục",
-          active: pathname.includes("/admin/categories"),
+          active: pathname.includes("/admin/categories/classrooms"),
           icon: Tag,
           iconSrc: "/assets/image/admin/sidebar_2.webp",
           submenus: [
