@@ -27,6 +27,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -44,3 +45,5 @@ public/_next-video
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+

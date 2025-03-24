@@ -16,7 +16,6 @@ import { useModal } from "@/hooks/useModalStore";
 import { useUserTheme, useUserStore, useUserMode } from "@/store/useUserStore";
 import useLocalStorage from "@/hooks/use-local-storage";
 import OptimizeImage from "../common/optimize-image";
-import NotificationButton from "../notification-button";
 import i18next from "i18next";
 import { useTranslation } from "@/hooks/useTranslation";
 // import { useTeachingModeStore } from "@/store/useTeachingModeStore";

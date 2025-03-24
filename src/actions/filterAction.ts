@@ -48,10 +48,11 @@ export async function fetchFilterData({ classId, unitId, userId }: FilterParams)
         unitId: unit.unitId,
         unitName: unit.unitName
       })),
-      schoolWeeks: schoolWeeksResponse.map((week: any) => ({
-        swId: week.swId,
-        value: week.value
-      }))
+      // schoolWeeks: schoolWeeksResponse.map((week: any) => ({
+      //   swId: week.swId,
+      //   value: week.value
+      // }))
+      schoolWeeks: schoolWeeksResponse.sort((a: any, b: any) => a.value - b.value)
     };
 
     return transformedData;

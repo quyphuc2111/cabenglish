@@ -11,6 +11,7 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 import { toast } from "react-toastify";
+import { useLessonStore } from "@/store/use-lesson-store";
 
 interface ActionCellProps {
   row: {
@@ -29,20 +30,21 @@ export const ActionCell = memo(function ActionCell({ row, table }: ActionCellPro
   const { onOpen } = useModal();
   const lesson = row.original;
   const selectedClassId = table.options.meta?.selectedClassId;
+  const {activeLesson} = useLessonStore();
 
   const handleEdit = useCallback(() => {
-    if (!selectedClassId) {
+    if (!activeLesson.classId) {
       toast.error("Không tìm thấy thông tin lớp học!");
       return;
     }
 
     onOpen("createUpdateLessons", {
       formType: "update",
-      classroomId: selectedClassId,
+      classroomId: activeLesson.classId,
       lessonId: lesson.lessonId,
       // schoolweek: lesson.schoolweek
     });
-  }, [selectedClassId, onOpen, lesson.lessonId]);
+  }, [activeLesson.classId, onOpen, lesson.lessonId]);
 
   const handleDelete = useCallback(() => {
     onOpen("deleteLesson", {

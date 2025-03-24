@@ -127,7 +127,7 @@ function ClassroomCard({
 
   const cardClasses = useMemo(() => 
     cn(
-      "px-3 py-4 bg-white rounded-2xl flex flex-col gap-2 shadow-course-inset border relative overflow-hidden",
+      "px-3 py-4 bg-white rounded-2xl flex flex-col gap-2 shadow-course-inset border relative overflow-hidden h-[400px]",
       isLocked ? "opacity-60 cursor-not-allowed bg-[#d9d9d9]" : "cursor-pointer",
       className
     ),
@@ -174,7 +174,7 @@ function ClassroomCard({
         </motion.div>
       </div>
 
-      <div className={cn("flex flex-col gap-3")}>
+      <div className={cn("flex flex-col gap-3 flex-grow")}>
       <motion.h2
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -189,7 +189,7 @@ function ClassroomCard({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: delay + 0.4 }}
-          className="text-base text-gray-600 line-clamp-10"
+          className="text-base text-gray-600 line-clamp-3 flex-grow"
         >
           {description}
         </motion.p>

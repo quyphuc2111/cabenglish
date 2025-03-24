@@ -77,16 +77,14 @@ interface DeleteUnitsModalProps {
 function DeleteUnitsModal() {
   const { isOpen, onClose, type, data } = useModal();
 
-  const {selectedClassId} = useLessonStore()
+  const {activeLesson} = useLessonStore()
 
-  const { mutate: deleteUnits, isPending } = useDeleteUnits(Number(selectedClassId));
+  const { mutate: deleteUnits, isPending } = useDeleteUnits(Number(activeLesson.classId));
 
   const handleConfirm = React.useCallback(() => {
    
 
-    deleteUnits({
-      unitIds: data?.unitIds,
-    }, {
+    deleteUnits(data?.unitIds, {
       onError: (error) => {
         console.error("Lỗi khi xóa:", error);
         showToast.error(error.message || "Có lỗi xảy ra khi xóa unit!");
@@ -99,7 +97,7 @@ function DeleteUnitsModal() {
         onClose();
       }
     });
-  }, [data, deleteUnits, onClose, selectedClassId]);
+  }, [data, deleteUnits, onClose]);
 
   if (!isOpen || type !== "deleteUnits") return null;
 

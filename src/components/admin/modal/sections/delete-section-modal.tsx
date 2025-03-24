@@ -76,14 +76,14 @@ function DeleteSectionModal() {
   const { isOpen, onClose, type, data } = useModal();
 
   const { mutate: deleteSection, isPending } = useDeleteSection();
-  const {selectedLessonId} = useLessonStore()
+  const {activeLesson} = useLessonStore()
 
   const handleConfirm = React.useCallback(() => {
    
 
     deleteSection({
       sectionIds: data?.sectionIds,
-      lessonId: Number(selectedLessonId)
+      lessonId: Number(activeLesson.lessonId)
     }, {
       onError: (error) => {
         console.error("Lỗi khi xóa:", error);
@@ -98,7 +98,7 @@ function DeleteSectionModal() {
         onClose();
       }
     });
-  }, [data, deleteSection, onClose]);
+  }, [data, deleteSection, onClose, activeLesson.lessonId]);
 
   if (!isOpen || type !== "deleteSection") return null;
 

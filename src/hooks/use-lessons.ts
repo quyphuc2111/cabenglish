@@ -130,7 +130,6 @@ export function useDeleteLesson() {
 
   return useMutation<LessonResponse, Error, LessonParams>({
     mutationFn: async (params: LessonParams) => {
-      console.log("params",params);
       
       if (!params.lessonIds?.length) {
         throw new Error("Không tìm thấy thông tin lessonIds");
