@@ -103,8 +103,8 @@ export function PaginatedContent<T>({
   return (
     <div className={className}>
       
-      <ScrollArea className="h-[55vh] pr-10">
-      <div className={`grid ${getGridColumns()} gap-8 my-8`}>
+      <ScrollArea className=" pr-10 mt-2">
+      <div className={`grid ${getGridColumns()} gap-8 my-8 mx-2`}>
         {currentItems.map((item, index) => (
           <Fragment key={index}>{renderItem(item)}</Fragment>
         ))}

@@ -20,48 +20,80 @@ export const useSocket = () => {
   const [notifications, setNotifications] = useState<NotificationMessage[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [retryTimeoutId, setRetryTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const session = useSession();
   const token = session?.data?.accessToken;
 
-  console.log("token", session)
-
   const connect = useCallback(() => {
-    // Tính toán delay dựa trên số lần retry (exponential backoff)
-    const retryDelay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+    if (retryTimeoutId) {
+      clearTimeout(retryTimeoutId);
+      setRetryTimeoutId(null);
+    }
 
     try {
+      if (socket) {
+        socket.close();
+        setSocket(null);
+      }
+
       const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}?token=${token}`);
 
       ws.onopen = () => {
+        console.log('=== WebSocket Event: onopen ===');
         console.log('WebSocket đã kết nối thành công');
+        console.log('URL:', process.env.NEXT_PUBLIC_WS_URL);
+        console.log('Trạng thái:', ws.readyState);
         setIsConnected(true);
-        setRetryCount(0); // Reset retry count khi kết nối thành công
+        setRetryCount(0);
       };
 
       ws.onmessage = (event) => {
         try {
+          console.log('=== WebSocket Event: onmessage ===');
+          console.log('Raw event:', event);
+          
           let parsedData;
+          const rawData = event.data.trim();
           
-          // Đầu tiên parse message để kiểm tra type
-          const initialData = JSON.parse(event.data);
-          
-          // Nếu là message connected thì return luôn
-          if (initialData.type === 'connected') {
-            console.log('Connected message:', initialData);
-            return;
+          try {
+            console.log('Raw data type:', typeof rawData);
+            console.log('Raw data value:', rawData);
+
+            if (typeof rawData === 'object') {
+              parsedData = rawData;
+            } else {
+              let firstParse = JSON.parse(rawData);
+              
+              if (typeof firstParse === 'string') {
+                parsedData = JSON.parse(firstParse);
+              } else {
+                parsedData = firstParse;
+              }
+            }
+            
+            console.log('Final parsed data:', parsedData);
+            console.log('Final parsed data type:', typeof parsedData);
+            
+          } catch (parseError) {
+            console.error('Parse error:', parseError);
+            const cleanData = rawData
+              .replace(/^"|"$/g, '')
+              .replace(/\\"/g, '"')
+              .replace(/\\/g, '');
+            parsedData = JSON.parse(cleanData);
+            console.log('Parsed data after cleanup:', parsedData);
           }
 
-          // Nếu không phải connected message thì xử lý tiếp
-          if (typeof event.data === 'string') {
-            const cleanData = event.data.replace(/^"|"$/g, '');
-            const decodedString = JSON.parse(`"${cleanData}"`);
-            parsedData = JSON.parse(decodedString);
+          if (parsedData.type === 'connected') {
+            console.log('Connected message received:', parsedData);
+            return;
           }
 
           if (parsedData.type === 'ping' || parsedData.type === 'info') {
+            console.log('Ping/Info message received:', parsedData);
             return;
           }
-
+          
           const newNotification: NotificationMessage = {
             notificationId: parsedData.NotificationId,
             type: parsedData.NotificationType?.toLowerCase() || 'info',
@@ -70,66 +102,74 @@ export const useSocket = () => {
             contentHtml: parsedData.ContentHtml,
             lastSentTime: parsedData.LastSentTime
           };
+          console.log('New notification created:', newNotification);
 
           if (newNotification.notificationId && newNotification.title) {
             setNotifications(prev => {
               const exists = prev.some(n => n.notificationId === newNotification.notificationId);
+              console.log('Notification exists:', exists);
               return exists ? prev : [...prev, newNotification];
             });
           }
         } catch (error) {
-          console.error('Lỗi khi xử lý tin nhắn:', error);
+          console.error('=== WebSocket Error in onmessage ===');
+          console.error('Error details:', error);
+          console.error('Raw event data:', event.data);
         }
       };
 
       ws.onclose = (event) => {
-        console.log(`WebSocket đóng với code: ${event.code}`);
+        console.log('=== WebSocket Event: onclose ===');
+        console.log('Close event:', {
+          code: event.code,
+          reason: event.reason,
+          wasClean: event.wasClean
+        });
         setIsConnected(false);
 
-        // Thử kết nối lại nếu chưa vượt quá số lần retry tối đa
         if (retryCount < MAX_RETRIES) {
-          console.log(`Đang thử kết nối lại sau ${retryDelay}ms...`);
-          // setTimeout(() => {
-          //   setRetryCount(prev => prev + 1);
-          //   connect();
-          // }, retryDelay);
+          const retryDelay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+          console.log(`Retry attempt ${retryCount + 1}/${MAX_RETRIES} in ${retryDelay}ms`);
+          const timeoutId = setTimeout(() => {
+            setRetryCount(prev => prev + 1);
+            // connect();
+          }, retryDelay);
+          setRetryTimeoutId(timeoutId);
         } else {
-          // toast.error("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.", {
-          //   position: "top-right",
-          //   autoClose: 5000
-          // });
-          console.error("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.");
+          console.error('=== WebSocket: Max retries reached ===');
+          toast.error("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.", {
+            position: "top-right",
+            autoClose: 5000
+          });
         }
       };
 
       ws.onerror = (error) => {
-        console.error('Lỗi WebSocket:', error);
-        // Có thể thêm xử lý lỗi cụ thể ở đây nếu cần
+        console.error('=== WebSocket Event: onerror ===');
+        console.error('Error details:', error);
       };
 
       setSocket(ws);
     } catch (error) {
       console.error('Lỗi khi tạo kết nối WebSocket:', error);
-      // toast.error("Không thể kết nối đến máy chủ", {
-      //   position: "top-right",
-      //   autoClose: 3000
-      // });
     }
-  }, [retryCount]);
+  }, [token]);
 
   useEffect(() => {
-    if(token) {
+    if (token) {
       connect();
     }
 
     return () => {
+      if (retryTimeoutId) {
+        clearTimeout(retryTimeoutId);
+      }
       if (socket) {
         socket.close();
       }
     };
-  }, [connect]);
+  }, [token]);
 
-  // Gửi ping định kỳ để giữ kết nối
   useEffect(() => {
     const pingInterval = setInterval(() => {
       if (socket && socket.readyState === WebSocket.OPEN) {
@@ -139,7 +179,7 @@ export const useSocket = () => {
           console.error('Lỗi khi gửi ping:', error);
         }
       }
-    }, 30000);
+    }, 14400000);
 
     return () => clearInterval(pingInterval);
   }, [socket]);
@@ -147,20 +187,18 @@ export const useSocket = () => {
   const sendMessage = (message: any) => {
     if (socket && socket.readyState === WebSocket.OPEN) {
       try {
+        console.log('=== Sending WebSocket Message ===');
+        console.log('Message:', message);
         socket.send(JSON.stringify(message));
       } catch (error) {
-        console.error('Lỗi khi gửi tin nhắn:', error);
-        // toast.error("Không thể gửi tin nhắn", {
-        //   position: "top-right",
-        //   autoClose: 3000
-        // });
+        console.error('=== Error Sending Message ===');
+        console.error('Message:', message);
+        console.error('Error:', error);
       }
     } else {
-      // toast.warning("Đang mất kết nối, vui lòng thử lại sau", {
-      //   position: "top-right",
-      //   autoClose: 3000
-      // });
-      console.warn("Đang mất kết nối, vui lòng thử lại sau");
+      console.warn('=== WebSocket Not Connected ===');
+      console.warn('Current socket state:', socket?.readyState);
+      console.warn('Message not sent:', message);
     }
   };
 

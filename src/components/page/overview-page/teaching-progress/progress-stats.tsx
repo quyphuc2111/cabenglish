@@ -58,7 +58,7 @@ export function ProgressStats({ onOpen, t, courseData, classroomData }: Progress
       exit={{ opacity: 0, x: currentPage > previousPage ? -100 : 100 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
     >
-      <div className="flex items-center my-1 hover:shadow-lg transition-shadow duration-300 p-4 rounded-xl">
+      <div className="flex items-center my-1  py-4  rounded-xl">
         <p className="w-1/6 font-medium">{"Lớp học"}:</p>
         <div className="flex flex-col gap-2 w-5/6">
           <motion.div
@@ -122,7 +122,7 @@ export function ProgressStats({ onOpen, t, courseData, classroomData }: Progress
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="w-full lg:w-1/2 px-2 lg:px-5 mb-8 lg:mb-0 relative"
+      className="w-full lg:w-1/2 pr-4 mb-8 lg:mb-0 relative"
     >
       <div 
         className="flex items-center gap-5 justify-center mb-2"

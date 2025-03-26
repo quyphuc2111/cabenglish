@@ -1,6 +1,8 @@
 "use server"
 
 import { serverFetch } from "@/lib/api";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 
 interface ProgressResponse {
   success: boolean;
@@ -46,6 +48,8 @@ export async function initializeProgress(userId: string): Promise<ProgressRespon
 } 
 
 export async function updateProgressSectionContent({userId, sectionContentId, progress}: {userId: string, sectionContentId: string | number, progress: 0 | 1}) {
+  const session = await getServerSession(authOptions);
+
   if (!userId) {
     return {
       success: false,
@@ -68,12 +72,23 @@ export async function updateProgressSectionContent({userId, sectionContentId, pr
   }
 
   try {
+    
+
+    if (!session) {
+      return {
+        success: false,
+        error: "Không tìm thấy session"
+      };
+    }
+
+
+
     const response = await serverFetch(`/api/Progress/updateProgress`, {
       method: "PUT",
-      headers: {
-        'accept': '*/*',
-        'Content-Type': 'application/json'
-      },
+      // headers: {
+      //   'accept': '*/*',
+      //   'Content-Type': 'application/json'
+      // },
       data: {
         userId,
         scId: sectionContentId,

@@ -20,10 +20,12 @@ async function Page({ params }: { params: { slug: string } }) {
     userId: session.user.userId
   });
   
-  if (!classrooms.some(classroom => 
-    classroom.classname.toLowerCase() === classname.toLowerCase())
-  ) {
-    redirect('/lop-hoc');
+  const hasMatchingClass = classrooms.some(classroom => 
+    classroom.classname.toLowerCase() === classname.toLowerCase()
+  );
+
+  if (!hasMatchingClass) {
+    return redirect('/lop-hoc');
   }
 
   // Lấy và lọc lesson data
@@ -36,21 +38,12 @@ async function Page({ params }: { params: { slug: string } }) {
       (lesson.classname || lesson.className).toLowerCase() === classname.toLowerCase()
     );
 
-  // const fetchSectionData = async (lessonId: number) => {
-  //   "use server"
-  //   return await getSectionDataByLessonId({
-  //     userId: session.user.userId,
-  //     lessonId: lessonId.toString()
-  //   });
-  // }
-
   const filterService = await FilterService.fetchFilterData(session.user.userId);
 
   return (
     <ClassroomChildClient 
       slug={slug} 
       lessonData={filteredLessons}
-      // fetchSectionData={fetchSectionData}
       initialFilterData={filterService.initialFilterData}
       fetchFilterData={filterService.fetchFilterData}
     />

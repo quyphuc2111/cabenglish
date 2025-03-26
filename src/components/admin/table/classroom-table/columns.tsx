@@ -100,7 +100,7 @@ export function useClassroomColumns() {
                     href={imageUrl}
                     target="_blank"
                     rel="noopener noreferrer" 
-                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline line-clamp-1 max-w-[450px] w-full"
+                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline truncate max-w-[450px] w-full"
                   >
                     {imageUrl}
                   </a>

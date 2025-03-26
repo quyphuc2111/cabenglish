@@ -15,5 +15,5 @@ export default async function ClientLayout({
   }
   const notificationList = await getNotificationListByUserId({userId: session.user.userId});
 
-  return <ClientPanelLayout notificationList={notificationList.data}>{children}</ClientPanelLayout>;
+  return <ClientPanelLayout notificationList={notificationList.data || []}>{children}</ClientPanelLayout>;
 }

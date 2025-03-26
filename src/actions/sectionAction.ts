@@ -160,6 +160,67 @@ export async function updateLockedSectionContent({userId, sectionContentId, isLo
   }
 }
 
+export async function updateSectionContentLocked({userId, scID}: {userId: string, scID: string}) {
+  if (!userId) {
+    // return {
+    //   success: false,
+    //   error: "UserId không được để trống"
+    // };
+    throw new Error("UserId không được để trống");
+  }
+
+  if (!scID) {
+    // return {
+    //   success: false,
+    //   error: "scID không được để trống"
+    // };
+    throw new Error("scID không được để trống");
+  }
+
+  try {
+    const response = await serverFetch(`/api/Locked/updateSectionContentLocked`, {
+      method: "PUT",
+      data: { userId, scID }
+    });
+
+    return {
+      success: true,
+      data: response
+    };
+  } catch (error) {
+    console.error("Lỗi khi cập nhật trạng thái khóa section content", {
+      error,
+      timestamp: new Date().toISOString()
+    });
+  }
+}
+
+export async function updateSectionLocked({userId, sectionId}: {userId: string, sectionId: string}) {
+  if (!userId) {
+    throw new Error("UserId không được để trống");
+  }
+
+  if (!sectionId) {
+    throw new Error("sectionId không được để trống");
+  }
+
+  try {
+    const response = await serverFetch(`/api/Locked/updateSectionLocked`, {
+      method: "PUT",
+      data: { userId, sectionId }
+    });
+
+    return {
+      success: true,
+      data: response
+    };
+  } catch (error) {
+    console.error("Lỗi khi cập nhật trạng thái khóa section", {
+      error,
+      timestamp: new Date().toISOString()
+    });
+  }
+}
 
 //Admin
 export async function createSectionAdminData({

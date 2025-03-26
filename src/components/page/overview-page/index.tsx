@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { ClassroomType } from "@/types/classroom";
+import { useModal } from "@/hooks/useModalStore";
+import { useSession } from "next-auth/react";
 
 const LectureFavouriteList = dynamic(
   () =>
@@ -39,6 +41,16 @@ function OverviewPage({
   fetchFilterData,
   classroomData
 }: OverviewPageProps) {
+  const {onOpen} = useModal()
+  const { data: session } = useSession();
+  console.log("sdlfjsadklf", session)
+
+  useEffect(() => {
+    if(session && !session.user.isFirstLogin) {
+      onOpen("teachingMode")
+    }
+  }, [session])
+
   return (
     <div>
       <LectureFavouriteList

@@ -24,7 +24,7 @@ export function TeachingProgress({ courseData, classroomData }: TeachingProgress
           {t('teachingProgress')}
         </p>
       </div>
-      <div className="bg-white px-4 lg:px-7 py-5 my-2 flex flex-col lg:flex-row relative">
+      <div className="bg-white px-4 3xl:px-7 py-5 my-2 flex flex-col lg:flex-row relative rounded-xl">
         <ProgressStats onOpen={onOpen} t={t} courseData={courseData} classroomData={classroomData} />
         <CurrentAndNextLecture courseData={courseData} t={t} />
       </div>

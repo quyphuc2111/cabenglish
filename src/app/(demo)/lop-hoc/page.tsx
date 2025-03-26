@@ -1,5 +1,3 @@
-// "use client"
-
 import { Suspense } from "react";
 import ClassroomClient from "./classroom-client";
 import {
@@ -11,6 +9,7 @@ import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { Loading } from "@/components/common/loading";
 
 async function ClassroomPage() {
   const session = await getServerSession(authOptions);
@@ -35,7 +34,7 @@ async function ClassroomPage() {
 
   // Nếu classroom không tồn tại, chuyển hướng về /lop-hoc
   if (classroomName && !classroomExists) {
-    redirect("/lop-hoc");
+    return redirect("/lop-hoc");
   }
 
   const increamentLike = async ({ classroomId }: { classroomId: number }) => {
@@ -55,7 +54,7 @@ async function ClassroomPage() {
   };
 
   return (
-    <Suspense fallback={<div>Đang tải...</div>}>
+    <Suspense fallback={<Loading />}>
       <ClassroomClient
         classroomData={classroomData.data}
         increamentLike={increamentLike}

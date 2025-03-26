@@ -73,12 +73,12 @@ export function Menu({ isOpen, disabled }: MenuProps) {
 
   return (
     <motion.nav 
-      className="mt-8 h-full w-full"
+      className="mt-4 3xl:mt-8 h-full w-full"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      <ScrollArea className="h-[50vh] w-full pr-2">
+      <ScrollArea className="h-[42vh] 3xl:h-[50vh] w-full pr-2">
         <motion.ul className="flex flex-col items-start space-y-1 px-2">
         {menuList.map(({ groupLabel, menus }, index) => (
           <motion.li 

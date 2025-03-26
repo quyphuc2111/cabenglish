@@ -103,10 +103,6 @@ export async function createNotiTypeAdminData({
       data: notiTypeData
     });
 
-    if (!Array.isArray(data)) {
-      throw new Error("Dữ liệu không đúng định dạng");
-    }
-
     return {
       data,
       error: undefined

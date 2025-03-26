@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import {
   getSectionContentDataBSectionId,
   getSectionDataByLessonId,
-  updateLockedSectionContent
+  updateLockedSectionContent,
+  updateSectionContentLocked
 } from "@/actions/sectionAction";
 import { updateProgressSectionContent } from "@/actions/progressAction";
 
@@ -39,43 +40,52 @@ async function LessonPage({
     // console.log(sectionContentData);
   }
 
-  // const sectionContentData = await getSectionContentDataBSectionId({
-  //   userId: session.user.userId,
-  //   sectionId: sectionId
-  // });
+  // const updateLockedSectionContentAction = async ({
+  //   sectionContentId,
+  //   isLocked
+  // }: {
+  //   sectionContentId: string;
+  //   isLocked: boolean;
+  // }) => {
+  //   "use server";
+  //   const response = await updateLockedSectionContent({
+  //     userId: session.user.userId,
+  //     sectionContentId: sectionContentId,
+  //     isLocked: isLocked
+  //   });
 
-  const updateLockedSectionContentAction = async ({
-    sectionContentId,
-    isLocked
-  }: {
-    sectionContentId: string;
-    isLocked: boolean;
-  }) => {
-    "use server";
-    const response = await updateLockedSectionContent({
-      userId: session.user.userId,
-      sectionContentId: sectionContentId,
-      isLocked: isLocked
-    });
+  //   return response;
+  // };
+  // const updateLockedSectionContentAction = async ({
+  //   sectionContentId,
+  // }: {
+  //   sectionContentId: string;
+  //   isLocked: boolean;
+  // }) => {
+  //   "use server";
+  //   const response = await updateSectionContentLocked({
+  //     userId: session.user.userId,
+  //     scID: sectionContentId,
+  //   });
 
-    return response;
-  };
+  //   return response;
+  // };
 
-  const updateProgressSectionContentAction = async ({
-    sectionContentId,
-    progress
-  }: {
-    sectionContentId: string;
-    progress: number;
-  }) => {
-    "use server";
-    const response = await updateProgressSectionContent({
-      userId: session.user.userId,
-      sectionContentId: sectionContentId,
-      progress: progress
-    });
-    return response
-  }
+  // const updateProgressSectionContentAction = async ({
+  //   sectionContentId,
+  //   progress
+  // }: {
+  //   sectionContentId: string;
+  //   progress: number;
+  // }) => {
+  //   "use server";
+  //   const response = await updateProgressSectionContent({
+  //     userId: session.user.userId,
+  //     sectionContentId: sectionContentId,
+  //     progress: progress
+  //   });
+  //   return response
+  // }
 
 
 
@@ -83,8 +93,8 @@ async function LessonPage({
     <LessonClient
       sectionData={sectionData.data}
       sectionContentData={sectionContentData?.data}
-      updateLockedSectionContentAction={updateLockedSectionContentAction}
-      updateProgressSectionContentAction={updateProgressSectionContentAction}
+      // updateLockedSectionContentAction={updateLockedSectionContentAction}
+      // updateProgressSectionContentAction={updateProgressSectionContentAction}
     />
   );
 }
