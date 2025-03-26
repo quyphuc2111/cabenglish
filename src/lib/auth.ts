@@ -13,6 +13,7 @@ declare module "next-auth/jwt" {
     email?: string;
     isFirstLogin?: boolean;
     theme: string;
+    authCookie?: string;
   }
 }
 
@@ -26,7 +27,8 @@ declare module "next-auth" {
     userId?: string;
     mode?: string;
     isFirstLogin?: boolean;
-    theme: 'theme-blue' | 'theme-gold' | 'theme-pink' | 'theme-red'
+    theme: 'theme-blue' | 'theme-gold' | 'theme-pink' | 'theme-red';
+    authCookie?: string;
   }
 
   interface Session {
@@ -39,6 +41,7 @@ declare module "next-auth" {
       email?: string;
       isFirstLogin?: string;
       theme?:string;
+      authCookie?: string;
     };
   }
 }
@@ -94,23 +97,20 @@ export const authOptions: NextAuthOptions = {
               username: credentials?.username,
               password: credentials?.password,
               rememberMe: true
-            },
-            // {
-            //   headers: {
-            //     "Content-Type": "application/json",
-            //     Accept: "application/json"
-            //   },
-            //   withCredentials: true,
-            //   httpsAgent: new (require("https").Agent)({
-            //     rejectUnauthorized: false
-            //   })
-            // }
+            }
           );
 
-          // const authCookie = loginResponse.headers.get('set-cookie');
-          // if (authCookie) {
-          //   cookies().set('thirdPartyAuth', authCookie);
-          // }
+          // Lấy cookie từ response headers
+          const authCookie = loginResponse.headers['set-cookie'];
+          
+          // Lưu ý: Trong Next.js, việc thiết lập cookie từ authorize callback có giới hạn
+          // vì đây là server-side function nhưng không phải là Route Handler
+          // Thay vào đó, bạn có thể:
+          // 1. Lưu thông tin cookie vào session và thiết lập trong Route Handler
+          // 2. Hoặc thiết lập cookie ở phía client sau khi đăng nhập thành công
+          
+          // Để lưu cookie từ API, bạn có thể tạo một API Route riêng
+          // và gọi nó sau khi đăng nhập thành công
 
           if(loginResponse.data) {
             const userId = "user2" // lấy từ api login
@@ -123,17 +123,6 @@ export const authOptions: NextAuthOptions = {
                   Authorization: `Bearer ${loginResponse.data.token}`
                 }
               }
-              // ,
-              // {
-              //   headers: {
-              //     "Content-Type": "application/json",
-              //     Accept: "application/json"
-              //   },
-              //   withCredentials: true,
-              //   httpsAgent: new (require("https").Agent)({
-              //     rejectUnauthorized: false
-              //   })
-              // }
             );
 
             if(userResponse) {
@@ -144,7 +133,8 @@ export const authOptions: NextAuthOptions = {
                 role: loginResponse.data.role,
                 accessToken: loginResponse.data.token,
                 isFirstLogin: userResponse.data.is_firstlogin,
-                theme: userResponse.data.theme as 'theme-blue' | 'theme-gold' | 'theme-pink' | 'theme-red'
+                theme: userResponse.data.theme as 'theme-blue' | 'theme-gold' | 'theme-pink' | 'theme-red',
+                authCookie: authCookie ? authCookie[0] : undefined
               }
             }
           }
@@ -192,6 +182,7 @@ export const authOptions: NextAuthOptions = {
         token.theme = user.theme;
         token.email = user.email;
         token.isFirstLogin = user.isFirstLogin;
+        token.authCookie = user.authCookie;
       }
       return token;
     },
@@ -213,6 +204,7 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email;
         session.user.theme = token.theme;
         session.user.isFirstLogin = token.isFirstLogin;
+        session.user.authCookie = token.authCookie;
       }
       return session;
     }
