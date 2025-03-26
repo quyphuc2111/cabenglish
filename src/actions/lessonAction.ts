@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import { serverFetch } from "@/lib/api";
 import { LessonAdminType, LessonType } from "@/types/lesson";
@@ -17,9 +17,9 @@ interface LessonAdminResponse {
 
 //User
 export async function getAllLessonDataByUserId({
-  userId 
+  userId
 }: {
-  userId: string
+  userId: string;
 }): Promise<LessonResponse> {
   if (!userId) {
     return {
@@ -30,7 +30,7 @@ export async function getAllLessonDataByUserId({
 
   try {
     const data = await serverFetch(`/api/Lesson/user/${userId}`);
-    
+
     if (!Array.isArray(data)) {
       throw new Error("Dữ liệu không đúng định dạng");
     }
@@ -39,20 +39,69 @@ export async function getAllLessonDataByUserId({
       data: data as LessonType[],
       error: undefined
     };
-
   } catch (error) {
-    console.error('Lỗi khi lấy dữ liệu bài học:', error);
+    console.error("Lỗi khi lấy dữ liệu bài học:", error);
     return {
       data: [],
-      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
+    };
+  }
+}
+
+export async function incrementLessonLike(lessonId): Promise<LessonResponse> {
+  try {
+    const data = await serverFetch(`/api/Lesson/like/${lessonId}`, {
+      method: "POST"
+    });
+
+    return {
+      data: data,
+      error: undefined
+    };
+  } catch (error) {
+    console.error("Lỗi khi tăng số lượt thích cho bài học:", error);
+    return {
+      data: [],
+      error:
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra khi tăng số lượt thích cho bài học"
+    };
+  }
+}
+
+export async function decrementLessonLike(lessonId): Promise<LessonResponse> {
+  try {
+    const data = await serverFetch(`/api/Lesson/unlike/${lessonId}`, {
+      method: "POST"
+    });
+
+    return {
+      data: data,
+      error: undefined
+    };
+  } catch (error) {
+    console.error("Lỗi khi tăng số lượt thích cho bài học:", error);
+    return {
+      data: [],
+      error:
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra khi tăng số lượt thích cho bài học"
     };
   }
 }
 
 //Admin
-export async function getAllLessonAdminDataByClassIdUnitId(classId: string, unitId: string) {
+export async function getAllLessonAdminDataByClassIdUnitId(
+  classId: string,
+  unitId: string
+) {
   try {
-    const data = await serverFetch(`/api/Lesson/class/${classId}/unit/${unitId}/withschoolweekID`);
+    const data = await serverFetch(
+      `/api/Lesson/class/${classId}/unit/${unitId}/withschoolweekID`
+    );
     if (!Array.isArray(data)) {
       throw new Error("Dữ liệu không đúng định dạng");
     }
@@ -62,10 +111,11 @@ export async function getAllLessonAdminDataByClassIdUnitId(classId: string, unit
       error: undefined
     };
   } catch (error) {
-    console.error('Lỗi khi lấy dữ liệu bài học:', error);
+    console.error("Lỗi khi lấy dữ liệu bài học:", error);
     return {
       data: [],
-      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
     };
   }
 }
@@ -79,15 +129,15 @@ export async function createLessonAdminDataByClassIdUnitId({
   classId: number;
   unitId: number;
 }): Promise<LessonAdminResponse> {
-  console.log('lessonData', lessonData);
+  console.log("lessonData", lessonData);
 
   try {
     const lesson = {
       classId: classId,
       unitId: unitId,
       lessons: lessonData
-    }
-    
+    };
+
     const data = await serverFetch(`/api/Lesson/batch`, {
       method: "POST",
       data: lesson
@@ -111,9 +161,19 @@ export async function createLessonAdminDataByClassIdUnitId({
   }
 }
 
-export async function getSingleLessonAdminData({lessonId, classId, unitId}: {lessonId: number, classId: number, unitId: number}): Promise<LessonAdminType> {
+export async function getSingleLessonAdminData({
+  lessonId,
+  classId,
+  unitId
+}: {
+  lessonId: number;
+  classId: number;
+  unitId: number;
+}): Promise<LessonAdminType> {
   try {
-    const response = await serverFetch(`/api/Lesson/${classId}/${unitId}/${lessonId}`);
+    const response = await serverFetch(
+      `/api/Lesson/${classId}/${unitId}/${lessonId}`
+    );
 
     console.log(response);
 
@@ -127,21 +187,37 @@ export async function getSingleLessonAdminData({lessonId, classId, unitId}: {les
       success: true
     };
   } catch (error) {
-    console.error('Lỗi khi lấy dữ liệu bài học:', error);
+    console.error("Lỗi khi lấy dữ liệu bài học:", error);
     return {
       data: null,
-      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra khi lấy dữ liệu",
       success: false
     };
   }
 }
 
-export async function updateLessonAdminDataByClassIdUnitId({lessonId, classId, unitId, lessonData}: {lessonId: number, classId: number, unitId: number, lessonData: LessonAdminType}): Promise<LessonAdminResponse> {
+export async function updateLessonAdminDataByClassIdUnitId({
+  lessonId,
+  classId,
+  unitId,
+  lessonData
+}: {
+  lessonId: number;
+  classId: number;
+  unitId: number;
+  lessonData: LessonAdminType;
+}): Promise<LessonAdminResponse> {
   try {
-    const data = await serverFetch(`/api/Lesson/${classId}/${unitId}/${lessonId}`, {
-      method: "PUT",
-      data: lessonData
-    });
+    const data = await serverFetch(
+      `/api/Lesson/${classId}/${unitId}/${lessonId}`,
+      {
+        method: "PUT",
+        data: lessonData
+      }
+    );
 
     // if (!Array.isArray(data)) {
     //   throw new Error("Dữ liệu không đúng định dạng");
@@ -155,12 +231,23 @@ export async function updateLessonAdminDataByClassIdUnitId({lessonId, classId, u
     console.error("Lỗi khi cập nhật bài học:", error);
     return {
       data: [],
-      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi cập nhật bài học"
+      error:
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra khi cập nhật bài học"
     };
   }
 }
 
-export async function deleteLessonAdminData({lessonIds, classId, unitId}: {lessonIds: string[], classId: number, unitId: number}): Promise<LessonAdminResponse> {
+export async function deleteLessonAdminData({
+  lessonIds,
+  classId,
+  unitId
+}: {
+  lessonIds: string[];
+  classId: number;
+  unitId: number;
+}): Promise<LessonAdminResponse> {
   try {
     const data = await serverFetch(`/api/Lesson/batch`, {
       method: "DELETE",
@@ -179,7 +266,8 @@ export async function deleteLessonAdminData({lessonIds, classId, unitId}: {lesso
     console.error("Lỗi khi xóa bài học:", error);
     return {
       data: [],
-      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi xóa bài học"
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi xóa bài học"
     };
   }
 }

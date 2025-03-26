@@ -10,12 +10,62 @@ import OptimizeImage from "../common/optimize-image";
 import { motion } from "framer-motion";
 import { useModal } from "@/hooks/useModalStore";
 import { NotificationType } from "@/types/notification";
-
+import { useSocket } from "@/hooks/useSocket";
+import { showToast } from "@/utils/toast-config";
+import { useEffect } from "react";
 export function Sidebar({notificationList}  : {notificationList: NotificationType[]}) {
   const sidebar = useStore(useSidebarToggle, (state) => state);
+  const { socket, notifications: socketNotifications } = useSocket();
   const { onOpen } = useModal();
 
+  useEffect(() => {
+    if (socketNotifications.length > 0) {
+      const latestNotification = socketNotifications[socketNotifications.length - 1];
+      showToast.success(
+        <div className="min-w-[320px] max-w-[400px] p-2 font-sans">
+          {/* Header */}
+          <div className="flex justify-between items-start mb-2">
+            <h4 className="text-base font-semibold text-gray-900 leading-tight m-0">
+              {latestNotification.title}
+            </h4>
+            <span className="text-xs text-gray-500 ml-3 whitespace-nowrap">
+              {new Date(latestNotification.lastSentTime).toLocaleTimeString('vi-VN')}
+            </span>
+          </div>
+          
+          {/* Content */}
+          <div className="text-gray-600">
+            {latestNotification.description && (
+              <p className="text-sm leading-relaxed mb-2">
+                {latestNotification.description}
+              </p>
+            )}
+            
+            {latestNotification.contentHtml && (
+              <div 
+                className="text-sm leading-relaxed prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: latestNotification.contentHtml }}
+              />
+            )}
+          </div>
+        </div>,
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          className: 'bg-white shadow-lg border-l-4 border-green-500'
+        }
+      );
+    }
+  }, [socketNotifications]);
+
   if (!sidebar) return null;
+
+
 
   return (
     <aside
@@ -29,8 +79,8 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
         <div className="flex justify-between">
           <Image
             src="/bkt_logo.png"
-            width={70}
-            height={50}
+            width={60}
+            height={40}
             alt="bkt-logo"
             priority
             quality={75}
@@ -78,7 +128,7 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
           />
         </div>
         <Menu isOpen={sidebar?.isOpen} />
-        <div className="relative h-full w-full">
+        <div className="relative h-auto w-full">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{
@@ -94,15 +144,15 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
                 ease: "easeInOut"
               }
             }}
-            className="absolute bottom-4 left-[13%] flex items-start gap-3"
+            className="absolute bottom-1 left-[13%] flex items-start gap-3"
             onClick={() => onOpen("notification", {
               notificationList: notificationList
             })}
           >
             <OptimizeImage
               src="/assets/image/bkt_mascot.webp"
-              width={90}
-              height={128}
+              width={80}
+              height={114}
               alt="BKT Mascot"
               className="flex-shrink-0 object-contain"
               priority={true}
@@ -111,8 +161,8 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
             <div className="relative">
               <OptimizeImage
                 src="/assets/image/notification.webp"
-                width={60}
-                height={60}
+                width={50}
+                height={50}
                 alt="Notification Icon"
                 className="flex-shrink-0 object-contain"
               />

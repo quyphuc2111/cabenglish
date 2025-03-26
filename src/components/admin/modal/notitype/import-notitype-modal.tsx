@@ -12,15 +12,14 @@ import { Upload } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import * as XLSX from "xlsx";
-import { useCreateClassroom } from "@/hooks/use-classrooms";
 import { showToast } from "@/utils/toast-config";
-import { ClassroomFormValues } from "@/lib/validations/classroom";
-import {
-  useCheckSchoolWeekExists,
-  useCreateSchoolWeek,
-  checkSchoolWeekExists
-} from "@/hooks/use-schoolweek";
+// import {
+//   useCreateSchoolWeek,
+//   checkSchoolWeekExists
+// } from "@/hooks/use-schoolweek";
 import { SchoolWeekFormValues } from "@/lib/validations/schoolweek";
+import { useCreateNotiType, checkNotiTypeExists } from "@/hooks/use-notitype";
+import { NotiTypeFormValues } from "@/lib/validations/notitype";
 
 // Định nghĩa các tùy chọn import
 type ImportOption = {
@@ -57,6 +56,9 @@ type PreviewData = {
   rows: any[][];
 };
 
+// Thêm hàm delay helper
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 function ImportNotiTypeModal() {
   const [file, setFile] = React.useState<File | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
@@ -66,9 +68,16 @@ function ImportNotiTypeModal() {
     null
   );
 
+  // Thêm state để theo dõi tiến trình
+  const [progress, setProgress] = React.useState({
+    current: 0,
+    total: 0,
+    isCompleted: false
+  });
+
   const { isOpen, onClose, type } = useModal();
-  const { mutate: createSchoolWeek, isPending: isCreating } =
-    useCreateSchoolWeek();
+  const { mutate: createNotiType, isPending: isCreating } =
+    useCreateNotiType();
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -192,7 +201,7 @@ function ImportNotiTypeModal() {
       );
 
       // Kiểm tra các cột bắt buộc
-      const requiredColumns = ["Tuần học"];
+      const requiredColumns = ["Loại thông báo"];
       const missingColumns = requiredColumns.filter(
         (col) => !headers.includes(col)
       );
@@ -211,26 +220,25 @@ function ImportNotiTypeModal() {
       });
 
       const importData = formattedData.map((item) => ({
-        value: item["Tuần học"],
-        swId: 0
+        ntId: 0,
+        value: item["Loại thông báo"]
       }));
 
       // Kiểm tra từng tuần học có tồn tại không
-      const duplicateWeeks: string[] = [];
+      const duplicateNotiTypes: string[] = [];
       for (const item of importData) {
-        const exists = await checkSchoolWeekExists(item.value);
+        const exists = await checkNotiTypeExists(item.value);
         if (exists) {
-          duplicateWeeks.push(item.value);
+          duplicateNotiTypes.push(item.value);
         }
       }
-      //   setDuplicateWeeks(duplicateWeeks);
 
-      if (duplicateWeeks.length > 0) {
+      if (duplicateNotiTypes.length > 0) {
         showToast.error(
           <div className="flex flex-col gap-1">
             <p className="font-medium">Phát hiện dữ liệu trùng lặp</p>
             <p className="text-sm text-gray-600">
-              Các tuần sau đã tồn tại: {duplicateWeeks.join(", ")}
+              Các loại thông báo sau đã tồn tại: {duplicateNotiTypes.join(", ")}
             </p>
           </div>,
           {
@@ -245,21 +253,63 @@ function ImportNotiTypeModal() {
       }
 
       if (importOption === "create") {
-        createSchoolWeek(importData as unknown as SchoolWeekFormValues, {
-          onSuccess: () => {
-            showToast.success("Import dữ liệu thành công!");
-            handleClose();
-          },
-          onError: (error: Error) => {
-            console.error("Import error:", error);
-            showToast.error(
-              <div className="flex flex-col gap-1">
-                <p className="font-medium">Có lỗi xảy ra khi import dữ liệu</p>
-                <p className="text-sm text-gray-600">{error.message}</p>
-              </div>
-            );
+        try {
+          let successCount = 0;
+          // Tạo tuần tự từng notitype
+          for (const [index, item] of importData.entries()) {
+            try {
+              // Đợi cho đến khi tạo xong mới tiếp tục
+              await new Promise((resolve, reject) => {
+                createNotiType(item as NotiTypeFormValues, {
+                  onSuccess: () => {
+                    successCount++;
+                    // Hiển thị tiến độ
+                    showToast.success(
+                      <div className="flex flex-col gap-1">
+                        <p className="font-medium">Đang import dữ liệu...</p>
+                        <p className="text-sm text-gray-600">
+                          Đã tạo {successCount}/{importData.length} loại thông báo
+                        </p>
+                      </div>
+                    );
+                    resolve(true);
+                  },
+                  onError: (error: Error) => {
+                    reject(error);
+                  }
+                });
+              });
+
+              // Đợi 500ms trước khi tạo tiếp
+              if (index < importData.length - 1) {
+                await delay(500);
+              }
+            } catch (error) {
+              throw new Error(`Lỗi khi tạo loại thông báo thứ ${index + 1}: ${error instanceof Error ? error.message : "Lỗi không xác định"}`);
+            }
           }
-        });
+
+          // Hiển thị thông báo khi hoàn thành tất cả
+          showToast.success(
+            <div className="flex flex-col gap-1">
+              <p className="font-medium">Import dữ liệu thành công!</p>
+              <p className="text-sm text-gray-600">
+                Đã tạo {successCount}/{importData.length} loại thông báo
+              </p>
+            </div>
+          );
+          handleClose();
+        } catch (error) {
+          console.error("Import error:", error);
+          showToast.error(
+            <div className="flex flex-col gap-1">
+              <p className="font-medium">Có lỗi xảy ra khi import dữ liệu</p>
+              <p className="text-sm text-gray-600">
+                {error instanceof Error ? error.message : "Vui lòng thử lại"}
+              </p>
+            </div>
+          );
+        }
       }
       // toast.success("Import dữ liệu thành công!");
       // handleClose();
@@ -377,6 +427,28 @@ function ImportNotiTypeModal() {
           transition={{ delay: 0.1, duration: 0.3 }}
           className="mt-4"
         >
+          {/* Thêm progress bar khi đang upload */}
+          {isUploading && progress.total > 0 && (
+            <div className="mb-6">
+              <div className="flex justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">
+                  Tiến trình import
+                </span>
+                <span className="text-sm text-gray-500">
+                  {progress.current}/{progress.total}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${(progress.current / progress.total) * 100}%`
+                  }}
+                ></div>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-6">
             {/* Cột trái: Upload và Options */}
             <div className="space-y-6">
@@ -499,7 +571,7 @@ function ImportNotiTypeModal() {
                     Sử dụng template mẫu để đảm bảo dữ liệu được import chính
                     xác
                   </li>
-                  <li>Các cột bắt buộc: Tuần học</li>
+                  <li>Các cột bắt buộc: Loại thông báo</li>
                   <li>Không thay đổi tên và thứ tự các cột trong template</li>
                   <li>Dữ liệu trong file Excel phải đúng định dạng quy định</li>
                 </ul>
@@ -587,6 +659,7 @@ function ImportNotiTypeModal() {
               {isUploading ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  
                   <span>Đang xử lý...</span>
                 </div>
               ) : (

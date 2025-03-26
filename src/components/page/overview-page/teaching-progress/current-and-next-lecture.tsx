@@ -16,7 +16,7 @@ function CurrentAndNextLecture({ courseData, t }: { courseData: any[], t: any })
   const nextLecture = currentIndex !== -1 ? courseData[currentIndex + 1] : null;
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 w-full lg:w-1/2">
+    <div className="flex flex-col lg:flex-row w-full lg:w-1/2">
       <div className="w-full lg:w-1/2 flex flex-col gap-3 lg:border-l border-[#e969ad]/50 lg:px-5">
         <div className="flex items-center gap-3 ">
           <Image 
@@ -26,7 +26,7 @@ function CurrentAndNextLecture({ courseData, t }: { courseData: any[], t: any })
             height={35} 
             priority
           />
-          <p className="text-xl">{t('lectureBeingTaught')}</p>
+          <p className="text-lg 3xl:text-xl">{t('lectureBeingTaught')}</p>
         </div>
         <div className="">
           {courseData.filter(i => i.progress < 1 && i.progress > 0).slice(-1).map((courseItem, index) => {
@@ -52,7 +52,7 @@ function CurrentAndNextLecture({ courseData, t }: { courseData: any[], t: any })
             height={35} 
             priority
           />
-          <p className="text-xl">{t('nextLecture')}</p>
+          <p className="text-lg 3xl:text-xl">{t('nextLecture')}</p>
         </div>
         <div className="">
           {nextLecture && (

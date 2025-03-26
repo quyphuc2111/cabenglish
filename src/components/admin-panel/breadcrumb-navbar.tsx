@@ -11,7 +11,6 @@ import { motion } from "framer-motion";
 import { navbarAnimations } from "@/constants/animation-variants";
 import { LogoSection } from "./navbar/logo-section";
 import { LanguageSwitcher } from "./navbar/language-switcher";
-import { useNavbarLogic } from "@/hooks/useNavbarLogic";
 import { useModal } from "@/hooks/useModalStore";
 import { useUserTheme, useUserStore, useUserMode } from "@/store/useUserStore";
 import useLocalStorage from "@/hooks/use-local-storage";

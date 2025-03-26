@@ -1,7 +1,14 @@
-import { createLesson, getAllLessonsByClassIdUnitId } from "@/app/api/actions/lessons";
+import {
+  createLesson,
+  getAllLessonsByClassIdUnitId
+} from "@/app/api/actions/lessons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LessonAdminType } from "@/types/lesson";
-import { deleteLessonAdminData, getSingleLessonAdminData, updateLessonAdminDataByClassIdUnitId } from "@/actions/lessonAction";
+import {
+  deleteLessonAdminData,
+  getSingleLessonAdminData,
+  updateLessonAdminDataByClassIdUnitId
+} from "@/actions/lessonAction";
 
 interface LessonResponse {
   success: boolean;
@@ -15,16 +22,12 @@ interface LessonParams {
   unitId: number;
 }
 
-
-
-
-
 export function useLessonsByClassIdUnitId(classId: string, unitId: string) {
-    return useQuery({
-      queryKey: ["lessons-by-class-id-unit-id", classId, unitId],
-      queryFn: () => getAllLessonsByClassIdUnitId(classId, unitId),
-      enabled: !!classId && !!unitId
-    });
+  return useQuery({
+    queryKey: ["lessons-by-class-id-unit-id", classId, unitId],
+    queryFn: () => getAllLessonsByClassIdUnitId(classId, unitId),
+    enabled: !!classId && !!unitId
+  });
 }
 
 interface CreateLessonParams {
@@ -68,12 +71,16 @@ export function useCreateLessonByClassIdUnitId() {
     onSuccess: (_, variables) => {
       // Invalidate các queries liên quan
       const queryKeys = [
-        ["lessons-by-class-id-unit-id", String(variables.classId), String(variables.unitId)],
+        [
+          "lessons-by-class-id-unit-id",
+          String(variables.classId),
+          String(variables.unitId)
+        ],
         ["lessons-by-class-id", String(variables.classId)],
         ["lessons"]
       ];
 
-      queryKeys.forEach(queryKey => {
+      queryKeys.forEach((queryKey) => {
         queryClient.invalidateQueries({
           queryKey,
           exact: false
@@ -87,13 +94,17 @@ export function useCreateLessonByClassIdUnitId() {
   });
 }
 
-export const useGetSingleLesson = (lessonId: number, classId: number, unitId: number) => {
+export const useGetSingleLesson = (
+  lessonId: number,
+  classId: number,
+  unitId: number
+) => {
   return useQuery({
     queryKey: ["lesson", lessonId, classId, unitId],
     queryFn: async () => {
       if (!lessonId || !classId || !unitId) return null;
-      
-      const response = await getSingleLessonAdminData({ 
+
+      const response = await getSingleLessonAdminData({
         lessonId: lessonId,
         classId: classId,
         unitId: unitId
@@ -107,30 +118,37 @@ export const useGetSingleLesson = (lessonId: number, classId: number, unitId: nu
   });
 };
 
-export const useUpdateLessonByClassIdUnitId = (lessonId: number, classId: number, unitId: number) => {
+export const useUpdateLessonByClassIdUnitId = (
+  lessonId: number,
+  classId: number,
+  unitId: number
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: LessonAdminType) => updateLessonAdminDataByClassIdUnitId({
-      lessonId: lessonId,
-      classId: classId,
-      unitId: unitId,
-      lessonData: data
-    }),
+    mutationFn: (data: LessonAdminType) =>
+      updateLessonAdminDataByClassIdUnitId({
+        lessonId: lessonId,
+        classId: classId,
+        unitId: unitId,
+        lessonData: data
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["lesson", lessonId, classId, unitId] });
-      queryClient.invalidateQueries({ queryKey: ["lessons-by-class-id-unit-id", classId, unitId] });
+      queryClient.invalidateQueries({
+        queryKey: ["lesson", lessonId, classId, unitId]
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["lessons-by-class-id-unit-id", classId, unitId]
+      });
     }
   });
 };
-  
 
 export function useDeleteLesson() {
   const queryClient = useQueryClient();
 
   return useMutation<LessonResponse, Error, LessonParams>({
     mutationFn: async (params: LessonParams) => {
-      
       if (!params.lessonIds?.length) {
         throw new Error("Không tìm thấy thông tin lessonIds");
       }
@@ -142,14 +160,14 @@ export function useDeleteLesson() {
       if (!params.unitId) {
         throw new Error("Không tìm thấy thông tin unitId");
       }
-      
-      const response = await deleteLessonAdminData({ 
-        lessonIds: params.lessonIds, 
-        classId: params.classId, 
-        unitId: params.unitId 
+
+      const response = await deleteLessonAdminData({
+        lessonIds: params.lessonIds,
+        classId: params.classId,
+        unitId: params.unitId
       });
 
-      console.log("response",response);
+      console.log("response", response);
 
       if (!response.success) {
         throw new Error(response.error || "Có lỗi xảy ra khi xóa bài học");
@@ -160,12 +178,16 @@ export function useDeleteLesson() {
     onSuccess: (_, variables) => {
       // Invalidate các queries liên quan
       const queryKeys = [
-        ["lessons-by-class-id-unit-id", String(variables.classId), String(variables.unitId)],
+        [
+          "lessons-by-class-id-unit-id",
+          String(variables.classId),
+          String(variables.unitId)
+        ],
         ["lessons-by-class-id", String(variables.classId)],
         ["lessons"]
       ];
 
-      queryKeys.forEach(queryKey => {
+      queryKeys.forEach((queryKey) => {
         queryClient.invalidateQueries({
           queryKey,
           exact: false

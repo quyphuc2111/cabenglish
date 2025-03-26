@@ -23,37 +23,64 @@ export function CourseCarousel({ courseData, className }: CourseCarouselProps) {
   const [swiper, setSwiper] = useState<any>(null);
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(1);
   
   const isMobile = useMediaQuery('(max-width: 640px)');
   const isTablet = useMediaQuery('(max-width: 1024px)');
+  const isLargeScreen = useMediaQuery('(min-width: 1536px)');
+
+  const slidesPerView = isMobile 
+    ? 1.2 
+    : isTablet 
+    ? 2.2 
+    : isLargeScreen 
+    ? 4 
+    : 3;
+
+  const effectiveSlidesPerView = Math.floor(slidesPerView);
+  const totalPages = Math.ceil(courseData.length / effectiveSlidesPerView);
+
+  const getCurrentPage = (activeIndex: number) => {
+    // Đảm bảo không vượt quá tổng số trang
+    const calculatedPage = Math.min(
+      Math.ceil((activeIndex + 1) / effectiveSlidesPerView),
+      totalPages
+    );
+    return Math.max(1, calculatedPage); // Đảm bảo không nhỏ hơn 1
+  };
 
   return (
     <div className={cn("relative group", className)}>
       <Swiper
         onSwiper={setSwiper}
         modules={[Navigation, Pagination]}
-        spaceBetween={isMobile ? 10 : 20}
-        slidesPerView={isMobile ? 1.2 : isTablet ? 2.2 : 4}
+        spaceBetween={isMobile ? 10 : isTablet ? 15 : 20}
+        slidesPerView={slidesPerView}
         centeredSlides={isMobile ? true : false}
         loop={isMobile ? true : false}
+        slideToClickedSlide={true}
+        watchSlidesProgress={true}
+        observer={true}
+        observeParents={true}
         pagination={{
           clickable: true,
           el: '.swiper-pagination',
           dynamicBullets: isMobile ? true : false,
         }}
-        // slideActiveClass=""
-        // centeredSlidesBounds={true}
         onSlideChange={(swiper) => {
           setIsBeginning(swiper.isBeginning);
           setIsEnd(swiper.isEnd);
+          setCurrentSlide(getCurrentPage(swiper.activeIndex));
+          console.log('Current Index:', swiper.activeIndex, 'Current Page:', getCurrentPage(swiper.activeIndex));
         }}
-        className="course-swiper"
+        className="course-swiper pb-12"
       >
         {courseData.map((course, index) => {
           const customCourse = {
             ...course,
             classRoomName: course.className,
           }
+          console.log("cuss", customCourse)
           return (
             <SwiperSlide key={index}>
               <LessonCard {...customCourse} />
@@ -61,37 +88,43 @@ export function CourseCarousel({ courseData, className }: CourseCarouselProps) {
           );
         })}
         
-        <div className="swiper-pagination mt-8" />
+        {/* <div className="swiper-pagination" /> */}
       </Swiper>
 
       {!isMobile && (
-        <>
+        <div className="flex items-center justify-center gap-4 mt-6">
           <Button
             variant="outline"
             size="xl"
             className={cn(
-              "absolute left-7 top-1/2 -translate-y-1/2 -translate-x-4 rounded-full bg-white opacity-0 transition-all group-hover:opacity-100 group-hover:-translate-x-12 disabled:opacity-0",
-              isBeginning && "hidden"
+              "rounded-full bg-white hover:bg-gray-50 transition-all disabled:opacity-50",
+              "border-2 border-gray-200 hover:border-gray-300",
+              isBeginning && "opacity-50"
             )}
             onClick={() => swiper?.slidePrev()}
             disabled={isBeginning}
           >
-            <ChevronLeft className="h-8 w-8" />
+            <ChevronLeft className="h-6 w-6 text-gray-700" />
           </Button>
+
+          <div className="min-w-[80px] text-center font-medium text-gray-600">
+            {currentSlide} / {totalPages}
+          </div>
 
           <Button
             variant="outline"
             size="xl" 
             className={cn(
-              "absolute right-7 top-1/2 -translate-y-1/2 translate-x-4 rounded-full bg-white opacity-0 transition-all group-hover:opacity-100 group-hover:translate-x-12 disabled:opacity-0",
-              isEnd && "hidden"
+              "rounded-full bg-white hover:bg-gray-50 transition-all disabled:opacity-50",
+              "border-2 border-gray-200 hover:border-gray-300",
+              isEnd && "opacity-50"
             )}
             onClick={() => swiper?.slideNext()}
             disabled={isEnd}
           >
-            <ChevronRight className="h-8 w-8" />
+            <ChevronRight className="h-6 w-6 text-gray-700" />
           </Button>
-        </>
+        </div>
       )}
     </div>
   );

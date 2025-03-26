@@ -1,102 +1,110 @@
-"use server"
+"use server";
 
 import { serverFetch } from "@/lib/api";
+import { authOptions } from "@/lib/auth";
 import { ClassroomFormValues, ClassroomType } from "@/types/classroom";
+import { getServerSession, Session, User } from "next-auth";
 
 interface ClassroomResponse {
-  data: ClassroomType[] ;
+  data: ClassroomType[];
   error?: string;
   success?: boolean;
 }
 
-// Client 
+// Client
 export async function getAllClassroomDataByUserId({
-    userId 
-  }: {
-    userId: string
-  }): Promise<ClassroomResponse> {
-    if (!userId) {
-      return {
-        data: [],
-        error: "UserId không được để trống"
-      };
-    }
-  
-    try {
-      const data = await serverFetch(`/api/Classroom/user/${userId}`);
-      
-      if (!Array.isArray(data)) {
-        throw new Error("Dữ liệu không đúng định dạng");
-      }
-  
-      return {
-        data: data as ClassroomType[],
-        error: undefined
-      };
-  
-    } catch (error) {
-      console.error('Lỗi khi lấy dữ liệu bài học:', error);
-      return {
-        data: [],
-        error: error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
-      };
-    }
+  userId
+}: {
+  userId: User;
+}) {
+  if (!userId) {
+    throw new Error("UserId không được để trống!");
   }
 
+  try {
+    const data = await serverFetch(`/api/Classroom/user/${userId}`);
 
-export async function incrementLikeByClassroomId({
-    classroomId
-  }: {
-    classroomId: number
-  }): Promise<ClassroomResponse> {
-    try {
-        const data = await serverFetch(`/api/Classroom/${classroomId}/like/increment`, {
-            method: "PATCH",
-        });
-
-        return {
-            data: data as ClassroomType[],
-            error: undefined
-        };
-    } catch (error) {
-        console.error('Lỗi khi tăng số lượt thích:', error);
-        return {
-            data: [],
-            error: error instanceof Error ? error.message : "Có lỗi xảy ra khi tăng số lượt thích"
-        };
+    if (!Array.isArray(data)) {
+      throw new Error("Dữ liệu không đúng định dạng");
     }
+
+    return {
+      data: data as ClassroomType[],
+      error: undefined
+    };
+  } catch (error) {
+    console.error("Lỗi khi lấy dữ liệu bài học:", error);
+    return {
+      data: [],
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
+    };
   }
-
-export async function decrementLikeByClassroomId({
-    classroomId
-  }: {
-    classroomId: number
-  }): Promise<ClassroomResponse> {
-    try {
-        const data = await serverFetch(`/api/Classroom/${classroomId}/like/decrement`, {
-            method: "PATCH",
-        });
-
-        return {
-            data: data as ClassroomType[],
-            error: undefined
-        };
-    } catch (error) {
-        console.error('Lỗi khi giảm số lượt thích:', error);
-        return {
-            data: [],
-            error: error instanceof Error ? error.message : "Có lỗi xảy ra khi giảm số lượt thích"
-        };
-    }
 }
 
+export async function incrementLikeByClassroomId({
+  classroomId
+}: {
+  classroomId: number;
+}): Promise<ClassroomResponse> {
+  try {
+    const data = await serverFetch(
+      `/api/Classroom/${classroomId}/like/increment`,
+      {
+        method: "PATCH"
+      }
+    );
 
-// Admin 
+    return {
+      data: data as ClassroomType[],
+      error: undefined
+    };
+  } catch (error) {
+    console.error("Lỗi khi tăng số lượt thích:", error);
+    return {
+      data: [],
+      error:
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra khi tăng số lượt thích"
+    };
+  }
+}
+
+export async function decrementLikeByClassroomId({
+  classroomId
+}: {
+  classroomId: number;
+}): Promise<ClassroomResponse> {
+  try {
+    const data = await serverFetch(
+      `/api/Classroom/${classroomId}/like/decrement`,
+      {
+        method: "PATCH"
+      }
+    );
+
+    return {
+      data: data as ClassroomType[],
+      error: undefined
+    };
+  } catch (error) {
+    console.error("Lỗi khi giảm số lượt thích:", error);
+    return {
+      data: [],
+      error:
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra khi giảm số lượt thích"
+    };
+  }
+}
+
+// Admin
 export async function getAllClassroomAdminData(): Promise<ClassroomResponse> {
-  
   try {
     const data = await serverFetch(`/api/Classroom`);
-    
+
     if (!Array.isArray(data)) {
       throw new Error("Dữ liệu không đúng định dạng");
     }
@@ -105,34 +113,43 @@ export async function getAllClassroomAdminData(): Promise<ClassroomResponse> {
       data,
       error: undefined
     };
-
   } catch (error) {
-    console.error('Lỗi khi lấy dữ liệu bài học:', error);
+    console.error("Lỗi khi lấy dữ liệu bài học:", error);
     return {
       data: [],
-      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
     };
   }
 }
 
-export async function getSingleClassroomAdminData({classroomId}: {classroomId: number}): Promise<ClassroomResponse> {
+export async function getSingleClassroomAdminData({
+  classroomId
+}: {
+  classroomId: number;
+}): Promise<ClassroomResponse> {
   try {
     const data = await serverFetch(`/api/Classroom/${classroomId}`);
-    
+
     return {
       data,
       error: undefined
     };
   } catch (error) {
-    console.error('Lỗi khi lấy dữ liệu bài học:', error);
+    console.error("Lỗi khi lấy dữ liệu bài học:", error);
     return {
       data: null,
-      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
     };
   }
 }
 
-export async function createClassroomsAdminData({classData}: {classData: ClassroomType[]}): Promise<ClassroomResponse> {
+export async function createClassroomsAdminData({
+  classData
+}: {
+  classData: ClassroomType[];
+}): Promise<ClassroomResponse> {
   // console.log("classData123", classData)
   try {
     const response = await serverFetch(`/api/Classroom`, {
@@ -145,18 +162,17 @@ export async function createClassroomsAdminData({classData}: {classData: Classro
     if (response.error) {
       return Promise.reject(new Error(response.error));
     }
-    
+
     // if (!Array.isArray(response.data)) {
     //   return Promise.reject(new Error("Dữ liệu không đúng định dạng"));
     // }
 
     return {
       data: response.data,
-      success: true,
+      success: true
     };
-
   } catch (error) {
-    console.error('Lỗi khi tạo lớp học:', error);
+    console.error("Lỗi khi tạo lớp học:", error);
     return Promise.reject(error);
   }
 }
@@ -208,21 +224,26 @@ export async function updateClassroomAdminData({
   }
 }
 
-export async function deleteClassroomAdminData({classroomId}: {classroomId: number}): Promise<ClassroomResponse> {
+export async function deleteClassroomAdminData({
+  classroomId
+}: {
+  classroomId: number;
+}): Promise<ClassroomResponse> {
   try {
     const data = await serverFetch(`/api/Classroom/${classroomId}`, {
-      method: "DELETE",
+      method: "DELETE"
     });
-    
+
     return {
       data,
       error: undefined
     };
   } catch (error) {
-    console.error('Lỗi khi xóa lớp học:', error);
+    console.error("Lỗi khi xóa lớp học:", error);
     return {
       data: [],
-      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi xóa lớp học"
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi xóa lớp học"
     };
   }
 }

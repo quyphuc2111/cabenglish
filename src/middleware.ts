@@ -29,11 +29,15 @@ const handleLocale = (request: Request) => {
   const lang = searchParams.get('lang');
   const validLocales = i18NextConfig.i18n.locales;
   const defaultLocale = i18NextConfig.i18n.defaultLocale;
-
-  // Sử dụng ngôn ngữ hợp lệ từ query hoặc mặc định
   const locale = lang && validLocales.includes(lang) ? lang : defaultLocale;
   
+  // Tạo URL mới và copy tất cả searchParams gốc
   const newUrl = new URL(pathname, request.url);
+  searchParams.forEach((value, key) => {
+    newUrl.searchParams.set(key, value);
+  });
+  
+  // Set/update param lang
   newUrl.searchParams.set('lang', locale);
   
   return newUrl;
@@ -107,7 +111,9 @@ export const config = {
     '/profile/:path*',
     '/admin/:path*',
     '/auth/:path*',
-    '/((?!api|_next|static|.*\\..*).*)'
+    '/((?!api|_next|static|.*\\..*).*)',
+    '/lop-hoc',
+    '/lop-hoc/:path*'
   ]
 }; 
 

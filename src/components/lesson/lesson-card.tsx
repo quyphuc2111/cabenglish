@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { cn, formatProgress, validateImageUrl } from "@/lib/utils";
 import { toast } from 'react-toastify';
+import { useLessonLike } from "@/hooks/client/useLesson";
 
 interface LessonCardProps {
   classId: number | string;
@@ -110,9 +111,11 @@ function LessonCard({
   className,
   isLocked,
   delay = 0,
+  lessonId,
   onClick
 }: LessonCardProps) {
   const router = useRouter();
+  const {mutate: likeAction } = useLessonLike()
 
   const handleChooseCourse = useCallback(() => {
     if (isLocked) {
@@ -141,6 +144,18 @@ function LessonCard({
     ),
     [isLocked, horizontal, className]
   );
+
+  const handleLessonLike = async () => {
+    console.log(123123)
+    await likeAction({
+      lessonId: lessonId,
+      action: numLiked === 0 ? "like" : "unlike"
+    }, {
+      onSuccess: () => {
+        router.refresh()
+      }
+    })
+  }
 
   return (
     <motion.div
@@ -224,12 +239,12 @@ function LessonCard({
               progress == 0 ? "border-[#333333]/20" : "",
               progress > 0 && progress < 100 ? "border-[#e25762]/50" : "",
               progress == 100 ? "border-[#3EC474]" : "",
-              horizontal ? "w-1/3" : "w-1/2",
+              horizontal ? "w-1/3" : "w-2/3",
               "rounded-tr-lg p-1 flex justify-around items-center"
             )}
           >
             <ProgressIndicator progress={progress} delay={delay} />
-            {progress > 0 && progress < 100 && (
+            {progress > 0 && progress < 1 && (
               <p className="text-center px-2">{formatProgress(progress)}%</p>
             )}
             {progress === 100 && (
@@ -254,6 +269,7 @@ function LessonCard({
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: delay + 0.9 }}
             className="flex items-center gap-1"
+            onClick={handleLessonLike}
           >
             <Image src="/modal/heart.png" alt="likes" width={28} height={34} />
             <span className="text-sm text-gray-500">{numLiked}</span>

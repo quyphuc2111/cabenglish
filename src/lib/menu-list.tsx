@@ -46,7 +46,6 @@ export function useMenuList(
   const [classrooms, setClassrooms] = useState<ClassroomType[]>([]);
   useEffect(() => {
     const fetchClassrooms = async () => {
-      // TODO: Thay thế userId thực tế từ context hoặc props
       const userId = "user2";
       const response = await getAllClassroomDataByUserId({ userId });
       if (response.data) {
@@ -54,7 +53,7 @@ export function useMenuList(
       }
     };
     fetchClassrooms();
-  }, []);
+  }, [pathname]);
 
   return [
     {

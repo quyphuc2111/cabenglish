@@ -3,7 +3,17 @@ import Image from 'next/image'
 import React from 'react'
 import { motion } from 'framer-motion'
 
-function AdminDashboardCardInfo({title, value, imageUrl}: {title: string, value: number, imageUrl: string}) {
+interface AdminDashboardCardInfoProps {
+  title: string;
+  value: number;
+  imageUrl: string;
+}
+
+const AdminDashboardCardInfo: React.FC<AdminDashboardCardInfoProps> = ({
+  title,
+  value, 
+  imageUrl
+}) => {
   return (
     <motion.div 
       className='shadow-md p-[2px] rounded-lg max-h-[200px]'
@@ -35,7 +45,7 @@ function AdminDashboardCardInfo({title, value, imageUrl}: {title: string, value:
           </motion.div>
         </motion.div>
         <motion.p 
-          className='text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'
+          className='text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'
           initial={{ scale: 0.5 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2 }}

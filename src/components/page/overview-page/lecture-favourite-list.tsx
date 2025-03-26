@@ -89,7 +89,7 @@ export function LectureFavouriteList({
             />
           </div>
 
-          <div className="hidden lg:flex gap-20 absolute top-0 right-[12%]">
+          <div className="hidden lg:flex gap-20 absolute -top-1 right-[12%]">
             <Image src="/rank.gif" alt="rank" width={40} height={40} />
             <Image src="/rank.gif" alt="rank" width={40} height={40} />
           </div>

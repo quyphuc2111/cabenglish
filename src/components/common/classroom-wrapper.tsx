@@ -108,7 +108,7 @@ function ClassroomWrapper(props: ClassroomWrapperProps) {
             whileHover={{ scale: 1.1 }}
             transition={{ duration: 0.2 }}
           >
-            <BackIcon width={40} height={40} />
+            <BackIcon width={30} height={30} />
           </motion.div>
           <p className="text-xl font-semibold text-[#555] group-hover:text-[#4079CE] transition-colors duration-200">
             Quay lại
