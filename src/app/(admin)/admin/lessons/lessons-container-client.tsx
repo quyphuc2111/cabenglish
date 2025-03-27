@@ -14,7 +14,7 @@ import { Download, Plus, Upload } from "lucide-react";
 import { useLessonStore } from "@/store/use-lesson-store";
 
 // Xử lý lỗi
-const handleError = (error: any, component: string, operation: string, extra?: object) => {
+const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
   Sentry.captureException(error, {
     tags: { component, operation },
     extra
@@ -68,8 +68,6 @@ const ActionButtons = ({ rowSelection, onDelete, onExport, onImport, onCreate, i
 );
 
 function LessonsContainerClient() {
-  // const [selectedClassId, setSelectedClassId] = React.useState<string>("");
-  // const [selectedUnitId, setSelectedUnitId] = React.useState<string>("");
   const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
 
   const { activeLesson, activateLesson, activateUnit, activateClass } = useLessonStore();
@@ -177,9 +175,9 @@ function LessonsContainerClient() {
   );
 
   const handleDeleteLesson = React.useCallback(() => {
-    const selectedIds = Object.keys(rowSelection);
+    const selectedIds = Object.keys(rowSelection).map(Number);
     const selectedLessons = data?.data?.filter(lesson => 
-      selectedIds.includes(lesson.lessonId.toString())
+      selectedIds.includes(lesson.lessonId)
     );
     
     onOpen("deleteLesson", {

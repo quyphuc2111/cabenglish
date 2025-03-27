@@ -133,8 +133,6 @@ function TeachingModeModal() {
   const [mode, setMode] = useState<TeachingModeType | null>(null);
   const { data: session } = useSession();
 
-  console.log("123321", session)
-
   const { mutate: updateUserInfo } = useUpdateUserInfo();
 
   const isModalOpen = isOpen && type === "teachingMode";

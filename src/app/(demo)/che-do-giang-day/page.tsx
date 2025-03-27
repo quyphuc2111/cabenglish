@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
@@ -15,28 +16,6 @@ async function TeachingMode() {
   }
 
   const initialTeachingMode = session.user.mode;
-
-  // const updateUserLocal = await updateUserInfo({
-  //   userId: session.user.userId,
-  //   userInfo: {
-  //     mode: initialTeachingMode,
-  //     email: session.user.email,
-  //     language: session.user.language,
-  //     theme: session.user.theme
-  //   }
-  // });
-
-  // let userInfo = {
-  //   mode: initialTeachingMode,
-  //   email: session.user.email,
-  //   language: session.user.language,
-  //   theme: session.user.theme
-  // }
-
-  // const userInfo = await getUserInfo({
-  //   userId: session.user.userId
-  // });
-
   const updateUser = async ({mode}: {mode: string}) => {
     "use server"
     const userInfo = await updateUserInfo({

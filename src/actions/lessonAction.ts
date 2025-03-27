@@ -10,7 +10,7 @@ interface LessonResponse {
 }
 
 interface LessonAdminResponse {
-  data: LessonAdminType[];
+  data: LessonAdminType[] | null;
   error?: string;
   success?: boolean;
 }
@@ -49,7 +49,7 @@ export async function getAllLessonDataByUserId({
   }
 }
 
-export async function incrementLessonLike(lessonId): Promise<LessonResponse> {
+export async function incrementLessonLike(lessonId: string): Promise<LessonResponse> {
   try {
     const data = await serverFetch(`/api/Lesson/like/${lessonId}`, {
       method: "POST"
@@ -71,7 +71,7 @@ export async function incrementLessonLike(lessonId): Promise<LessonResponse> {
   }
 }
 
-export async function decrementLessonLike(lessonId): Promise<LessonResponse> {
+export async function decrementLessonLike(lessonId: string): Promise<LessonResponse> {
   try {
     const data = await serverFetch(`/api/Lesson/unlike/${lessonId}`, {
       method: "POST"
@@ -129,7 +129,6 @@ export async function createLessonAdminDataByClassIdUnitId({
   classId: number;
   unitId: number;
 }): Promise<LessonAdminResponse> {
-  console.log("lessonData", lessonData);
 
   try {
     const lesson = {
@@ -169,17 +168,11 @@ export async function getSingleLessonAdminData({
   lessonId: number;
   classId: number;
   unitId: number;
-}): Promise<LessonAdminType> {
+}): Promise<LessonAdminResponse> {
   try {
     const response = await serverFetch(
       `/api/Lesson/${classId}/${unitId}/${lessonId}`
     );
-
-    console.log(response);
-
-    // if (!response.data) {
-    //   throw new Error("Dữ liệu không đúng định dạng");
-    // }
 
     return {
       data: response,
@@ -218,10 +211,6 @@ export async function updateLessonAdminDataByClassIdUnitId({
         data: lessonData
       }
     );
-
-    // if (!Array.isArray(data)) {
-    //   throw new Error("Dữ liệu không đúng định dạng");
-    // }
 
     return {
       data,

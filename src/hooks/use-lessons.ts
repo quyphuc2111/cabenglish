@@ -167,8 +167,6 @@ export function useDeleteLesson() {
         unitId: params.unitId
       });
 
-      console.log("response", response);
-
       if (!response.success) {
         throw new Error(response.error || "Có lỗi xảy ra khi xóa bài học");
       }

@@ -93,7 +93,6 @@ function DeleteSectionContentModal() {
         showToast.error(error.message || "Có lỗi xảy ra khi xóa section content!");
       },
       onSuccess: () => {
-        console.log("Xóa thành công");
         showToast.success("Xóa section content thành công!");
         if (data?.onSuccess) {
           data.onSuccess();

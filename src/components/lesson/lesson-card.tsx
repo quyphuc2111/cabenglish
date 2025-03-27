@@ -146,7 +146,7 @@ function LessonCard({
   );
 
   const handleLessonLike = async () => {
-    console.log(123123)
+
     await likeAction({
       lessonId: lessonId,
       action: numLiked === 0 ? "like" : "unlike"

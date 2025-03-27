@@ -5,19 +5,14 @@ import * as Sentry from "@sentry/nextjs";
 import { GenericTable } from "@/components/admin/table/common/generic-table";
 import { Button } from "@/components/ui/button";
 import { ModalData, ModalType, useModal } from "@/hooks/useModalStore";
-import { Download, Plus, Upload } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import { useNoti } from "@/hooks/useNoti";
 import { useNotiColumns } from "@/components/admin/table/noti/columns";
 import { NotiTypeCombobox } from "@/components/admin/combobox/notitype-combobox";
 import { useNotiStore } from "@/store/useNoti";
 
 // Xử lý lỗi
-const handleError = (
-  error: any,
-  component: string,
-  operation: string,
-  extra?: object
-) => {
+const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
   Sentry.captureException(error, {
     tags: { component, operation },
     extra
@@ -77,9 +72,6 @@ function NotiContainerClient() {
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
   >({});
-  // const [selectedNotiType, setSelectedNotiType] = React.useState<string | null>(
-  //   null
-  // );
 
   const {selectedNotiType, setSelectedNotiType} = useNotiStore();
 
@@ -160,9 +152,7 @@ function NotiContainerClient() {
             onImport={() => handleModalOpen("importNoti")}
             onCreate={() =>
               handleModalOpen("createUpdateNoti", {
-                formType: "create",
-
-                // notiIds: Number(activeLesson.sectionId)
+                formType: "create"
               })
             }
             selectedNotiType={selectedNotiType}

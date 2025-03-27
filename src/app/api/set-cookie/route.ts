@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         });
 
         // Extract domain from API URL to match cookie domain
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+        const API_URL = "https://lms.bkt.net.vn";
         let domain;
         try {
           const url = new URL(API_URL);
@@ -47,13 +47,11 @@ export async function GET(request: NextRequest) {
         }
 
         // Prepare cookie options for cross-domain access
-        const cookieOptions: any = {
-          name: cookieName,
-          value: cookieValue,
+        const cookieOptions = {
+          path: "/",
           httpOnly: true,
           secure: true,
-          sameSite: "none",
-          path: "/"
+          sameSite: "none"
         };
 
         // Add domain if available
@@ -83,7 +81,12 @@ export async function GET(request: NextRequest) {
 
         try {
           // Set the cookie in the response
-          response.cookies.set(cookieOptions);
+          response.cookies.set({
+            name: cookieName,
+            value: cookieValue,
+            ...cookieOptions,
+            maxAge: cookieOptions.maxAge || 86400
+          });
           console.log(
             "Cookie set in response with options:",
             JSON.stringify(cookieOptions, null, 2)
@@ -91,12 +94,13 @@ export async function GET(request: NextRequest) {
 
           // Set Access-Control-Allow-Credentials header to ensure cookies are included in CORS
           response.headers.set("Access-Control-Allow-Credentials", "true");
+          response.headers.set("Access-Control-Allow-Origin", API_URL);
 
           // Try also setting the cookie directly in the Set-Cookie header as a fallback
           const cookieHeader = `${cookieName}=${cookieValue}; Path=/; HttpOnly; Secure; SameSite=None${
             domain ? `; Domain=${domain}` : ""
           }; Max-Age=${cookieOptions.maxAge || 86400}`;
-          response.headers.append("Set-Cookie", cookieHeader);
+          response.headers.set("Set-Cookie", cookieHeader);
 
           return response;
         } catch (cookieError) {

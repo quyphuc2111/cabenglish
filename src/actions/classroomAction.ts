@@ -1,11 +1,10 @@
 "use server";
 
 import { serverFetch } from "@/lib/api";
-import { authOptions } from "@/lib/auth";
-import { ClassroomFormValues, ClassroomType } from "@/types/classroom";
-import { getServerSession, Session, User } from "next-auth";
+import { ClassroomType } from "@/types/classroom";
+import { User } from "next-auth";
 
-interface ClassroomResponse {
+export interface ClassroomResponse {
   data: ClassroomType[];
   error?: string;
   success?: boolean;
@@ -15,7 +14,7 @@ interface ClassroomResponse {
 export async function getAllClassroomDataByUserId({
   userId
 }: {
-  userId: User;
+  userId: any;
 }) {
   if (!userId) {
     throw new Error("UserId không được để trống!");
@@ -138,7 +137,7 @@ export async function getSingleClassroomAdminData({
   } catch (error) {
     console.error("Lỗi khi lấy dữ liệu bài học:", error);
     return {
-      data: null,
+      data: [],
       error:
         error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
     };
@@ -150,22 +149,15 @@ export async function createClassroomsAdminData({
 }: {
   classData: ClassroomType[];
 }): Promise<ClassroomResponse> {
-  // console.log("classData123", classData)
   try {
     const response = await serverFetch(`/api/Classroom`, {
       method: "POST",
       data: classData
     });
 
-    // console.log("response123", response)
-
     if (response.error) {
       return Promise.reject(new Error(response.error));
     }
-
-    // if (!Array.isArray(response.data)) {
-    //   return Promise.reject(new Error("Dữ liệu không đúng định dạng"));
-    // }
 
     return {
       data: response.data,
@@ -193,13 +185,7 @@ export async function updateClassroomAdminData({
   };
 }): Promise<ClassroomResponse> {
   try {
-    // Log request data
-    console.log("Server action update data:", {
-      classroomId,
-      classData
-    });
-
-    const response = await serverFetch(`/api/Classroom/${classroomId}`, {
+       const response = await serverFetch(`/api/Classroom/${classroomId}`, {
       method: "PUT",
       data: classData
     });
@@ -208,9 +194,6 @@ export async function updateClassroomAdminData({
       throw new Error("Không nhận được phản hồi từ server");
     }
 
-    // Log response
-    console.log("Server response:", response);
-
     return {
       data: response,
       error: undefined
@@ -218,7 +201,7 @@ export async function updateClassroomAdminData({
   } catch (error) {
     console.error("Server action error:", error);
     return {
-      data: null,
+      data: [],
       error: error instanceof Error ? error.message : "Lỗi không xác định"
     };
   }

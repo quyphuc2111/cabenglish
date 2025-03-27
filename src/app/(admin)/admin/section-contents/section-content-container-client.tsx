@@ -16,12 +16,7 @@ import { useGetSectionContentBySectionId } from "@/hooks/useSectionContent";
 import { useSectionContentColumns } from "@/components/admin/table/secton-content/columns";
 
 // Xử lý lỗi
-const handleError = (
-  error: any,
-  component: string,
-  operation: string,
-  extra?: object
-) => {
+const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
   Sentry.captureException(error, {
     tags: { component, operation },
     extra
@@ -137,7 +132,7 @@ function SectionContentContainerClient() {
     const selectedIds = Object.keys(rowSelection);
     const selectedSections = sectionContentData?.filter((sc) =>
       selectedIds.includes(sc.sc_id.toString())
-    );
+    ) || [];
 
     handleModalOpen("deleteSectionContent", {
       sectionContentIds: selectedIds,

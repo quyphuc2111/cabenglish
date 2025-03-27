@@ -66,8 +66,6 @@ export async function createSchoolWeekAdminData({
       data: schoolWeekData
     });
 
-    console.log("response123", response);
-
     if (!response || response.error) {
       return {
         data: [],
@@ -101,10 +99,6 @@ export async function updateSchoolWeekAdminData({
     swId: number;
   };
 }): Promise<SchoolWeekResponse> {
-  // console.log(response);
-  console.log(schoolWeekData);
-  console.log(swId);
-
   try {
     const response = await serverFetch(`/api/Schoolweek/${swId}`, {
       method: "PUT",

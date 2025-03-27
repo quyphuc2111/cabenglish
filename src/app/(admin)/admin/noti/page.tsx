@@ -2,7 +2,6 @@ import React from 'react'
 import { AdminContentLayout } from '@/components/admin-panel/admin-content-layout'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
 import { getAllSchoolWeekAdminData } from '@/actions/schoolWeekAction';
-import SectionContentContainerClient from './section-content-container-client';
 import NotiContainerClient from './noti-container-client';
 
 const breadcrumbItems = [

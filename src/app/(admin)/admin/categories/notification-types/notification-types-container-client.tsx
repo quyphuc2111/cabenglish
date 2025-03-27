@@ -3,16 +3,18 @@
 import React from "react";
 import * as Sentry from "@sentry/nextjs";
 import { Download, Plus, Upload } from "lucide-react";
+import { type ColumnDef } from "@tanstack/react-table";
 
 import { GenericTable } from "@/components/admin/table/common/generic-table";
 import { Button } from "@/components/ui/button";
 import { ModalData, ModalType, useModal } from "@/hooks/useModalStore";
 import { useNotiType } from "@/hooks/use-notitype";
 import { useNotiTypeColumns } from "@/components/admin/table/notitype/columns";
+import { type NotiType } from "@/components/admin/table/notitype/columns";
 import { NotiTypeCombobox } from "@/components/admin/combobox/notitype-combobox";
 
 // Xử lý lỗi
-const handleError = (error: any, component: string, operation: string, extra?: object) => {
+const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
   Sentry.captureException(error, {
     tags: { component, operation },
     extra
@@ -98,7 +100,7 @@ function NotificationTypesContainerClient() {
     <div className="bg-white rounded-lg p-10 h-full">
       <GenericTable
         data={filteredData}
-        columns={columns}
+        columns={columns  as ColumnDef<any>[]}
         isLoading={isLoading}
         searchComponent={
           <NotiTypeCombobox 
@@ -125,3 +127,4 @@ function NotificationTypesContainerClient() {
 }
 
 export default NotificationTypesContainerClient;
+

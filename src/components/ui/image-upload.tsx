@@ -24,6 +24,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { uploadFiles } from "@/app/api/actions/uploadFiles";
 import { showToast } from "@/utils/toast-config";
+import Image from "next/image";
 
 interface ImageUploaderProps {
   value?: string;
@@ -248,16 +249,21 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                                 <p className="mt-2 text-sm text-gray-500">Đang tải lên...</p>
                               </motion.div>
                             ) : preview ? (
-                              <motion.img
+                              <motion.div
                                 key="preview"
                                 initial="hidden"
                                 animate="visible"
                                 exit="exit"
                                 variants={scaleIn}
-                                src={preview}
-                                alt="Ảnh đã tải lên"
-                                className="max-h-[200px] rounded-lg object-cover"
-                              />
+                              >
+                                <Image
+                                  src={preview}
+                                  alt="Ảnh đã tải lên"
+                                  width={400}
+                                  height={200}
+                                  className="max-h-[200px] rounded-lg object-cover"
+                                />
+                              </motion.div>
                             ) : (
                               <motion.div
                                 key="placeholder"
@@ -343,9 +349,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                   variants={scaleIn}
                   className="rounded-lg border border-gray-200 p-2"
                 >
-                  <img
+                  <Image
                     src={preview}
                     alt="Ảnh từ URL"
+                    width={400}
+                    height={200}
                     className="max-h-[200px] rounded-lg object-cover mx-auto"
                   />
                 </motion.div>

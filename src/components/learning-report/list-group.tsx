@@ -151,7 +151,6 @@ function ListGroup() {
     router.push(`?tab=${index}`)
 
   }
-  console.log(tabParams);
 
   return (
     <div className="md:w-full">

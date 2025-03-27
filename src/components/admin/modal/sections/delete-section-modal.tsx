@@ -90,7 +90,6 @@ function DeleteSectionModal() {
         showToast.error(error.message || "Có lỗi xảy ra khi xóa phần học!");
       },
       onSuccess: () => {
-        console.log("Xóa thành công");
         showToast.success("Xóa phần học thành công!");
         if (data?.onSuccess) {
           data.onSuccess();

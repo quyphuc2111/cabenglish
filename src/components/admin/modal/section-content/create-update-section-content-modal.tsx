@@ -128,7 +128,7 @@ function CreateUpdateSectionContentModal() {
             sectionContentData: [values],
             sectionIds: activeLesson.sectionId
         };
-        console.log("formattedValues", formattedValues);
+
         await createSectionContent(formattedValues, {
           onSuccess: () => {
             showToast.success("Tạo section content thành công!");

@@ -68,14 +68,11 @@ function ResetUnitModal() {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const handleReset = async () => {
-    console.log("123", data)
     try {
       if (!session?.user?.userId || !data?.lessonIds) return;
       
       setIsLoading(true);
       const result = await resetLessonProgress(session.user.userId, data.lessonIds);
-
-      console.log("result", result)
       
       if (result.success) {
         toast.success("Đã khởi tạo lại tiến trình thành công!", {

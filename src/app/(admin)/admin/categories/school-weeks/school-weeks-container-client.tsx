@@ -13,7 +13,7 @@ import { SchoolWeekCombobox } from "@/components/admin/combobox/schoolweek-combo
 import { Download, Plus, Upload } from "lucide-react";
 
 // Xử lý lỗi
-const handleError = (error: any, component: string, operation: string, extra?: object) => {
+const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
   Sentry.captureException(error, {
     tags: { component, operation },
     extra

@@ -13,7 +13,8 @@ export default async function ClientLayout({
   if (!session) {
     redirect("/signin");
   }
-  const notificationList = await getNotificationListByUserId({userId: session.user.userId});
+  const userId = session.user.userId as string;
+  const notificationList = await getNotificationListByUserId({userId});
 
   return <ClientPanelLayout notificationList={notificationList.data || []}>{children}</ClientPanelLayout>;
 }

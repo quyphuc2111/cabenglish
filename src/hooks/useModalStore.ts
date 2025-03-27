@@ -1,4 +1,6 @@
-import { NotificationType } from "@/types/notification";
+import { LessonAdminType } from "@/types/lesson";
+import { NotiAdminType, NotificationType, NotiType } from "@/types/notification";
+import { SectionAdminType, SectionContentAdminType, SectionContentType } from "@/types/section";
 import { create } from "zustand";
 
 export type ModalType =
@@ -27,17 +29,46 @@ export type ModalType =
   | "createUpdateSection"
   | "deleteSection"
   | "createUpdateSectionContent"
-  | "deleteSectionContent";
+  | "deleteSectionContent"
+
+  | "exportNotiType"
+  | "importNotiType"
+  | "importNoti"
+  | "exportNoti"
+  | "deleteLesson"
+  | "exportSection"
+  | "createUpdateNoti"
+  | "importSection"
+  | "importSectionContent"
+  | "exportSectionContent"
+  | "deleteNoti"
+  | "deleteUnit"
+  | "importUnits"
+  | "exportUnits"
+  | "exportLessons"
+  | "importLessons"
+  ;
 
 export interface ModalData {
   onConfirm?: () => void;
   mode?: "defaultMode" | "freeMode";
   notificationList?: NotificationType[];
-  lessonIds?: number[];
+  lessonIds?: number[] | number;
   formType?: "create" | "update";
   classroomId?: string;
   classroomIds?: string[];
   schoolWeekIds?: string[];
+  notiTypeIds?: string[];
+  notiTypes?: NotiType[];
+  notiIds?: string[];
+  sectionIds?: number | string[];
+  sections?: SectionAdminType[];
+  unitIds?: string[];
+  units?: any;
+  sectionContentIds?: string[];
+  sectionContents?: SectionContentType[];
+  notis?: NotiAdminType[];
+  lessons?: LessonAdminType[];
   schoolWeeks?: {
     value: number;
     swId: number;

@@ -71,7 +71,6 @@ export function CourseCarousel({ courseData, className }: CourseCarouselProps) {
           setIsBeginning(swiper.isBeginning);
           setIsEnd(swiper.isEnd);
           setCurrentSlide(getCurrentPage(swiper.activeIndex));
-          console.log('Current Index:', swiper.activeIndex, 'Current Page:', getCurrentPage(swiper.activeIndex));
         }}
         className="course-swiper pb-12"
       >

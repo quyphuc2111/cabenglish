@@ -127,8 +127,6 @@ function CreateUpdateClassroomModal() {
           }
         };
 
-        console.log("Update data:", updateData);
-
         await updateClassroom(updateData, {
           onSuccess: () => {
             toast.success("Cập nhật lớp học thành công!");

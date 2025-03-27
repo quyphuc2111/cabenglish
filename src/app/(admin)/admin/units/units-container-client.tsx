@@ -11,6 +11,10 @@ import { toast } from "react-toastify";
 import { UnitByClassCombobox } from "@/components/admin/combobox/unitbyclass-combobox";
 import { Plus, Download, Upload } from "lucide-react";
 
+interface UnitRow {
+  unitId: number;
+}
+
 // Thêm interface cho ActionButtons
 interface ActionButtonsProps {
   onDelete?: () => void;
@@ -161,8 +165,8 @@ function UnitsContainerClient() {
   return (
     <div className="bg-white rounded-lg p-10 h-full">
       <GenericTable
-        data={filteredData}
-        columns={columns}
+        data={filteredData as any}
+        columns={columns as any}
         isLoading={isLoading}
         searchComponent={searchComponent}
         actionButtons={
@@ -175,9 +179,9 @@ function UnitsContainerClient() {
             isEnabled={!!selectedClassId}
           />
         }
-        filterFunction={filterUnits}
+        filterFunction={filterUnits as any}
         enableRowSelection={true}
-        getRowId={(row) => row.unitId.toString()}
+        getRowId={(row: UnitRow) => row.unitId.toString()}
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
         meta={{ selectedClassId }}

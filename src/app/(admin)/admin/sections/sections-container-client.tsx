@@ -17,18 +17,12 @@ import { useGetSectionByLessonId } from "@/hooks/use-sections";
 import { useLessonStore } from '@/store/use-lesson-store';
 
 // Xử lý lỗi
-const handleError = (
-  error: any,
-  component: string,
-  operation: string,
-  extra?: object
-) => {
+const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
   Sentry.captureException(error, {
     tags: { component, operation },
     extra
   });
 };
-
 interface ActionButtonsProps {
   rowSelection: Record<string, boolean>;
   onDelete: () => void;
@@ -188,7 +182,7 @@ function SectionsContainerClient() {
 
   const handleDeleteSection = () => {
     const selectedIds = Object.keys(rowSelection);
-    const selectedSections = sectionData.filter((section) =>
+    const selectedSections = sectionData?.filter((section) =>
       selectedIds.includes(section.sectionId.toString())
     );
 

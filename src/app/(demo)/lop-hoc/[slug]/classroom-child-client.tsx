@@ -72,7 +72,8 @@ function ClassroomChildClient({
           renderItem={(lessonItem) => {
             const lessonItemData = {
               ...lessonItem,
-              classRoomName: lessonItem.className
+              classRoomName: lessonItem.className,
+              schoolWeek: lessonItem.schoolWeekId
             };
 
             return (

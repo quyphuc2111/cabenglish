@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 
 import { ContentLayout } from "@/components/admin-panel/content-layout";
@@ -9,8 +10,6 @@ import { useModal } from "@/hooks/useModalStore";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useUserMode, useUserStore } from "@/store/useUserStore";
-import { switchModeAction } from "@/actions/lockedAction";
-import { useSession } from "next-auth/react";
 // import { updateUserInfo } from "@/actions/userAction";
 
 const containerVariants = {

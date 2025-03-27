@@ -41,8 +41,6 @@ export async function createUnitAdminDataByClassId({
   unitData: Units[];
   classId: number;
 }): Promise<UnitsResponse> {
-  console.log("unitData", unitData);
-  console.log("classId", classId);
   try {
     const data = await serverFetch(`/api/Unit/class/${classId}`, {
       method: "POST",
@@ -68,8 +66,6 @@ export async function createUnitAdminDataByClassId({
 }
 
 export async function deleteUnitsByClassId(classId: number, unitIds: number[]) {
-  console.log("classId", classId);
-  console.log("unitIds", unitIds);
   try {
     const response = await serverFetch(`/api/Unit/class/${classId}`, {
       method: "DELETE",

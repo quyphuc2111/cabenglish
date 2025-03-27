@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import { DataTable } from "@/components/admin/table/common/data-table";
 import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
 import React from "react";
+import { ColumnDef } from "@tanstack/react-table";
 
 interface TableState {
   searchQuery: string;
@@ -13,7 +14,7 @@ interface TableState {
 
 interface GenericTableProps<T> {
   data: T[];
-  columns: any[];
+  columns: ColumnDef<T>[];
   isLoading?: boolean;
   searchComponent?: React.ReactNode;
   actionButtons?: React.ReactNode;

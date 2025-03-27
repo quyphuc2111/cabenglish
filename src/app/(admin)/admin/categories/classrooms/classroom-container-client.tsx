@@ -11,7 +11,7 @@ import { ModalData, ModalType, useModal } from "@/hooks/useModalStore";
 import { Download, Plus, Upload } from "lucide-react";
 
 // Tách riêng các hàm xử lý lỗi
-const handleError = (error: any, component: string, operation: string, extra?: object) => {
+const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
   Sentry.captureException(error, {
     tags: { component, operation },
     extra
@@ -84,7 +84,7 @@ function ClassroomContainerClient() {
   }, [data?.data, selectedClassId]);
 
   // Các hàm xử lý sự kiện
-  const handleModalOpen = (modalType: ModalType, options: ModalData = {}) => {
+  const handleModalOpen = (modalType: ModalType, options?: ModalData) => {
     try {
       onOpen(modalType, options);
     } catch (error) {

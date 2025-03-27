@@ -2,27 +2,14 @@
 import React, { useCallback, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { toast } from "react-toastify";
-// import 'react-toastify/dist/ReactToastify.css';
-import { useModal } from "@/hooks/useModalStore";
-import { motion } from "framer-motion";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionContentType, SectionType } from "@/types/section";
 import { cn, formatProgress } from "@/lib/utils";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
-import OptimizeImage from "@/components/common/optimize-image";
 import {
   useUpdateProgressSectionContent,
   useUpdateSectionContentLocked
 } from "@/hooks/client/useLesson";
 import { TabsContainer } from "@/components/lesson/tabs-container";
-// import { Mascot } from "@/components/lesson/mascot";
 import { showToast } from "@/utils/toast-config";
 import dynamic from "next/dynamic"
 

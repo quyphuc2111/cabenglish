@@ -45,8 +45,6 @@ export function SectionsCombobox({
   }, [lessonId, onSelect]);
 
   const { data: sectionData, isLoading: sectionLoading, error: sectionError } = useGetSectionByLessonId(Number(lessonId));
-
-  console.log("sectionData", sectionData);
   // Xử lý và validate dữ liệu
   const sections = React.useMemo(() => {
     if (!sectionData || !Array.isArray(sectionData)) {

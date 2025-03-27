@@ -13,13 +13,13 @@ interface Notification {
 // Định nghĩa state cho notification
 interface NotiState {
   selectedNoti: Notification | null;
-  selectedNotiType: number | null;
+  selectedNotiType: string | null;
 }
 
 // Định nghĩa actions cho notification
 interface NotiActions {
   setSelectedNoti: (noti: Notification | null) => void;
-  setSelectedNotiType: (ntId: number | null) => void;
+  setSelectedNotiType: (ntId: string | null) => void;
   resetNotiState: () => void;
 }
 

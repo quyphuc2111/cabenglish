@@ -67,7 +67,6 @@ export async function updateNotiAdminData({
   notiId: number;
 }): Promise<NotiResponse> {
   try {
-    console.log("notiData22", notiData);
     const response = await serverFetch(`/api/Noti/${notiId}`, {
       method: "PUT",
       data: notiData

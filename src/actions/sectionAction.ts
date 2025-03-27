@@ -162,18 +162,10 @@ export async function updateLockedSectionContent({userId, sectionContentId, isLo
 
 export async function updateSectionContentLocked({userId, scID}: {userId: string, scID: string}) {
   if (!userId) {
-    // return {
-    //   success: false,
-    //   error: "UserId không được để trống"
-    // };
     throw new Error("UserId không được để trống");
   }
 
   if (!scID) {
-    // return {
-    //   success: false,
-    //   error: "scID không được để trống"
-    // };
     throw new Error("scID không được để trống");
   }
 
@@ -258,7 +250,7 @@ export async function createSectionAdminData({
   }
 }
 
-export async function getSingleSectionAdminData({sectionId}: {sectionId: number}): Promise<{data: SectionAdminType, error: string | undefined}> {
+export async function getSingleSectionAdminData({sectionId}: {sectionId: number}): Promise<{data: SectionAdminType | null, error: string | undefined}> {
   try {
     const data = await serverFetch(`/api/Section/${sectionId}`);
     
