@@ -14,6 +14,7 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useModal } from "@/hooks/useModalStore";
 import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
+import axios from "axios";
 
 interface AuthFormProps {
   type: "signup" | "signin" | "forgot_password" | "reset_password";
@@ -63,6 +64,25 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
   const onSubmit = async (data: FormData) => {
     if (type === "signin") {
       try {
+      //   const login  = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/Auth/login`, {
+      //     username: data.email,
+      //     password: data.password,
+      //     rememberMe: true
+      //   });
+      //   console.log(login.data);
+
+      //   if (login.data) {
+      //     router.push("/tong-quan");
+      //     router.refresh();
+      //   } else {
+      //     setError("root", {
+      //       type: "manual",
+      //       message: login.data.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
+      //     });
+      //   }
+
+
+        
         const result = await signIn("credentials", {
           username: data.email,
           password: data.password,

@@ -69,15 +69,11 @@ export async function updateUserInfo({
   try {
     const response = await serverFetch(`/api/Users/${userId}`, {
       method: "PUT",
-      headers: {
-        'accept': 'text/plain',
-        'Content-Type': 'application/json'
-      },
       data: {
-        email: userInfo.email || 'zenadev@gmail.com',
-        language: userInfo.language || 'vi',
-        theme: userInfo.theme || 'light',
-        mode: userInfo.mode || 'free'
+        email: userInfo.email,
+        language: userInfo.language,
+        theme: userInfo.theme,
+        mode: userInfo.mode
       }
     });
 
@@ -91,14 +87,6 @@ export async function updateUserInfo({
       success: true,
     };
   } catch (error) {
-    console.log("userInfo33", userInfo)
-    console.log("userId33", userId)
-    // Log chi tiết lỗi để debug
-    console.error("Lỗi cập nhật thông tin người dùng:", {
-      error,
-      timestamp: new Date().toISOString()
-    });
-
     return {
       success: false,
       error:

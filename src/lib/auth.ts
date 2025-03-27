@@ -2,7 +2,6 @@ import { NextAuthOptions, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios, { AxiosError } from "axios";
-import { cookies } from 'next/headers';
 
 declare module "next-auth/jwt" {
   interface JWT {
@@ -97,20 +96,16 @@ export const authOptions: NextAuthOptions = {
               username: credentials?.username,
               password: credentials?.password,
               rememberMe: true
+            },
+            {
+              withCredentials: true
             }
           );
 
           // Lấy cookie từ response headers
           const authCookie = loginResponse.headers['set-cookie'];
-          
-          // Lưu ý: Trong Next.js, việc thiết lập cookie từ authorize callback có giới hạn
-          // vì đây là server-side function nhưng không phải là Route Handler
-          // Thay vào đó, bạn có thể:
-          // 1. Lưu thông tin cookie vào session và thiết lập trong Route Handler
-          // 2. Hoặc thiết lập cookie ở phía client sau khi đăng nhập thành công
-          
-          // Để lưu cookie từ API, bạn có thể tạo một API Route riêng
-          // và gọi nó sau khi đăng nhập thành công
+          const moodleCookie = "MoodleSession=3qfpb47l8gre739bhq3t0q61d0; path=/; secure; HttpOnly; SameSite=None"
+        
 
           if(loginResponse.data) {
             const userId = "user2" // lấy từ api login
@@ -126,7 +121,8 @@ export const authOptions: NextAuthOptions = {
             );
 
             if(userResponse) {
-              return {
+              // Create the user object that will be stored in the session
+              const user = {
                 email: userResponse.data.email,
                 userId: userId,
                 mode: userResponse.data.mode,
@@ -134,24 +130,13 @@ export const authOptions: NextAuthOptions = {
                 accessToken: loginResponse.data.token,
                 isFirstLogin: userResponse.data.is_firstlogin,
                 theme: userResponse.data.theme as 'theme-blue' | 'theme-gold' | 'theme-pink' | 'theme-red',
-                authCookie: authCookie ? authCookie[0] : undefined
-              }
+                authCookie: authCookie ? authCookie[0] : undefined,
+                moodleCookie: moodleCookie
+              };
+              return user;
             }
           }
 
-          // if (response.data) {
-          //   return {
-          //     id: response.data.user?.id,
-          //     name: response.data.user?.name,
-          //     email: response.data.user?.email,
-          //     userId: "user2",
-          //     mode: "freeMode",
-          //     role: response.data.role,
-          //     accessToken: response.data.token,
-          //     isFirstLogin: false,
-          //     theme: 'theme-blue'
-          //   };
-          // }
           return null;
         } catch (error) {
           console.error("Auth error:", error);
@@ -183,6 +168,7 @@ export const authOptions: NextAuthOptions = {
         token.email = user.email;
         token.isFirstLogin = user.isFirstLogin;
         token.authCookie = user.authCookie;
+        token.moodleCookie = user.moodleCookie;
       }
       return token;
     },
@@ -205,6 +191,7 @@ export const authOptions: NextAuthOptions = {
         session.user.theme = token.theme;
         session.user.isFirstLogin = token.isFirstLogin;
         session.user.authCookie = token.authCookie;
+        session.user.moodleCookie = token.moodleCookie;
       }
       return session;
     }
@@ -214,7 +201,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: Number(process.env.NEXTAUTH_SESSION_MAX_AGE) || 7 * 24 * 60 * 60
+    maxAge: 24 * 60 * 60  
   },
   secret: process.env.NEXTAUTH_SECRET
 };

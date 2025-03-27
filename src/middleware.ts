@@ -17,9 +17,16 @@ const ROLES = {
   TEACHER: 'Teacher'
 } as const;
 
+type RoleType = typeof ROLES[keyof typeof ROLES];
+
+// Default landing pages for each role
+const DEFAULT_LANDING_PAGES: Record<RoleType, string> = {
+  [ROLES.ADMIN]: ROUTES.ADMIN_DASHBOARD,
+  [ROLES.TEACHER]: ROUTES.OVERVIEW
+};
+
 // Helper functions
 const isAdminRoute = (path: string) => path.startsWith(ROUTES.ADMIN);
-const isTeacherRoute = (path: string) => path.startsWith(ROUTES.OVERVIEW);
 
 // Xử lý ngôn ngữ
 const handleLocale = (request: Request) => {
@@ -48,18 +55,28 @@ const handleAuth = (req: Request, token: any) => {
   const path = new URL(req.url).pathname;
   const isAdmin = token?.role === ROLES.ADMIN;
   const isTeacher = token?.role === ROLES.TEACHER;
+  const role = token?.role as RoleType;
 
-  // Nếu là admin và đang ở route admin, cho phép truy cập
-  if (isAdmin && isAdminRoute(path)) {
-    return null;
+  // Nếu người dùng truy cập trang gốc '/', chuyển hướng đến trang mặc định theo role
+  // if (path === '/') {
+  //   const defaultLandingPage = DEFAULT_LANDING_PAGES[role] || ROUTES.OVERVIEW;
+  //   return NextResponse.redirect(new URL(defaultLandingPage, req.url));
+  // }
+
+  // Xử lý quyền truy cập dựa trên role
+  if (isAdmin) {
+    // Admin chỉ được phép truy cập các trang /admin/*
+    if (!isAdminRoute(path)) {
+      return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, req.url));
+    }
+  } else {
+    // Người dùng không phải admin không được phép truy cập các trang /admin/*
+    if (isAdminRoute(path)) {
+      return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
+    }
   }
 
-  // Nếu không phải admin cố truy cập route admin
-  if (!isAdmin && isAdminRoute(path)) {
-    return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
-  }
-
-  // Cho phép giáo viên truy cập tất cả các route khác
+  // Cho phép truy cập nếu không vi phạm quy tắc nào
   return null;
 };
 
@@ -106,6 +123,7 @@ export default withAuth(
 // Cập nhật matcher để bao gồm cả route auth
 export const config = {
   matcher: [
+    '/',
     '/tong-quan/:path*',
     '/khoa-hoc/:path*',
     '/profile/:path*',
@@ -115,5 +133,4 @@ export const config = {
     '/lop-hoc',
     '/lop-hoc/:path*'
   ]
-}; 
-
+};

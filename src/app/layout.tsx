@@ -15,6 +15,7 @@ const inter = Inter({ subsets: ["latin"] });
 import "react-toastify/dist/ReactToastify.css";
 import "../app/globals.css";
 import Providers from "@/providers/providers";
+import CookieSetter from "@/components/cookie-setter";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -80,7 +81,10 @@ export default async function RootLayout({
     // </html>
     <html lang="vi" suppressHydrationWarning>
       <body className={`${inter.className} font-poppins`}>
-        <Providers translations={translations}>{children}</Providers>
+        <Providers translations={translations}>
+          {children}
+          <CookieSetter />
+        </Providers>
       </body>
     </html>
   );

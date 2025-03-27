@@ -5,6 +5,7 @@ import TeachingModeClient from "./teaching-mode-client";
 import { Suspense } from "react";
 import { switchModeAction } from "@/actions/lockedAction";
 import { updateUserInfo } from "@/actions/userAction";
+import { Loading } from "@/components/common/loading";
 
 async function TeachingMode() {
   const session = await getServerSession(authOptions);
@@ -62,7 +63,7 @@ async function TeachingMode() {
   
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Loading />}>
       <TeachingModeClient
         initialMode={initialTeachingMode as "defaultMode" | "freeMode"}
         userId={session.user.userId}

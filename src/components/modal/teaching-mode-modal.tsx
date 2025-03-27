@@ -7,6 +7,8 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import CourseCard from "../course-card/course-card";
+import { useUpdateUserInfo } from "@/hooks/client/useUser";
+import { useSession } from "next-auth/react";
 
 type TeachingModeType = "default" | "freemode";
 
@@ -87,12 +89,12 @@ const ModeHeader = ({ icon, title }: { icon: string; title: string }) => (
   </div>
 );
 
-const ActionButtons = ({ onBack }: { onBack: () => void }) => (
+const ActionButtons = ({ onBack, onSave }: { onBack: () => void, onSave: () => void }) => (
   <div className="flex gap-4">
     <Button onClick={onBack} className="bg-blue-500 hover:bg-blue-500/80 font-medium text-md">
       Quay lại
     </Button>
-    <Button className="bg-[#3EC474] hover:bg-[#3EC474]/80 font-medium text-md">
+    <Button onClick={onSave} className="bg-[#3EC474] hover:bg-[#3EC474]/80 font-medium text-md">
       Lưu
     </Button>
   </div>
@@ -129,8 +131,30 @@ const ModeOption = ({
 function TeachingModeModal() {
   const { isOpen, onClose, type } = useModal();
   const [mode, setMode] = useState<TeachingModeType | null>(null);
+  const { data: session } = useSession();
+
+  console.log("123321", session)
+
+  const { mutate: updateUserInfo } = useUpdateUserInfo();
 
   const isModalOpen = isOpen && type === "teachingMode";
+3
+  const handleSave = () => {
+    if (!session) { 
+      return;
+    }
+    updateUserInfo({
+      userId: session.user.userId,
+      userInfo: {
+        mode: mode === "default" ? "default" : "free",
+        isFirstLogin: false,
+        email: session.user.email,
+        language: session.user.language,
+        theme: session.user.theme
+      }
+    });
+    onClose();
+  };
 
   const renderModeContent = () => {
     if (mode === "default") {
@@ -158,7 +182,7 @@ function TeachingModeModal() {
           </div>
           <div className="flex items-center justify-between">
             <ModeDescription items={MODAL_CONTENT.defaultMode.description} className="w-2/3 text-[#736E6E]" />
-            <ActionButtons onBack={() => setMode(null)} />
+            <ActionButtons onBack={() => setMode(null)} onSave={handleSave} />
           </div>
         </motion.div>
       );

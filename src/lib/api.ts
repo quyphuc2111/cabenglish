@@ -78,6 +78,7 @@ export async function serverFetch(
       headers,
       timeout: 10000,
       validateStatus: (status) => status < 500,
+      withCredentials: true,
       ...options,
     };
 

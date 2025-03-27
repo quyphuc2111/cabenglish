@@ -80,7 +80,6 @@ export function CourseCarousel({ courseData, className }: CourseCarouselProps) {
             ...course,
             classRoomName: course.className,
           }
-          console.log("cuss", customCourse)
           return (
             <SwiperSlide key={index}>
               <LessonCard {...customCourse} />

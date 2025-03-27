@@ -43,7 +43,6 @@ function OverviewPage({
 }: OverviewPageProps) {
   const {onOpen} = useModal()
   const { data: session } = useSession();
-  console.log("sdlfjsadklf", session)
 
   useEffect(() => {
     if(session && !session.user.isFirstLogin) {

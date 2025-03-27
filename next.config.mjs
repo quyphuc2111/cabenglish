@@ -23,12 +23,12 @@ const nextConfig = {
     experimental: {
         optimizeCss: false
     },
-    typescript: {
-        ignoreBuildErrors: true
-    },
-    eslint: {
-        ignoreDuringBuilds: true
-    }
+    // typescript: {
+    //     ignoreBuildErrors: true
+    // },
+    // eslint: {
+    //     ignoreDuringBuilds: true
+    // }
 };
 
 export default withSentryConfig(withNextVideo(nextConfig), {

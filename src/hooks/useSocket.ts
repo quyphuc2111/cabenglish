@@ -39,25 +39,25 @@ export const useSocket = () => {
       const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}?token=${token}`);
 
       ws.onopen = () => {
-        console.log('=== WebSocket Event: onopen ===');
-        console.log('WebSocket đã kết nối thành công');
-        console.log('URL:', process.env.NEXT_PUBLIC_WS_URL);
-        console.log('Trạng thái:', ws.readyState);
+        // console.log('=== WebSocket Event: onopen ===');
+        // console.log('WebSocket đã kết nối thành công');
+        // console.log('URL:', process.env.NEXT_PUBLIC_WS_URL);
+        // console.log('Trạng thái:', ws.readyState);
         setIsConnected(true);
         setRetryCount(0);
       };
 
       ws.onmessage = (event) => {
         try {
-          console.log('=== WebSocket Event: onmessage ===');
-          console.log('Raw event:', event);
+          // console.log('=== WebSocket Event: onmessage ===');
+          // console.log('Raw event:', event);
           
           let parsedData;
           const rawData = event.data.trim();
           
           try {
-            console.log('Raw data type:', typeof rawData);
-            console.log('Raw data value:', rawData);
+            // console.log('Raw data type:', typeof rawData);
+            // console.log('Raw data value:', rawData);
 
             if (typeof rawData === 'object') {
               parsedData = rawData;
@@ -71,8 +71,8 @@ export const useSocket = () => {
               }
             }
             
-            console.log('Final parsed data:', parsedData);
-            console.log('Final parsed data type:', typeof parsedData);
+            // console.log('Final parsed data:', parsedData);
+            // console.log('Final parsed data type:', typeof parsedData);
             
           } catch (parseError) {
             console.error('Parse error:', parseError);
@@ -81,16 +81,16 @@ export const useSocket = () => {
               .replace(/\\"/g, '"')
               .replace(/\\/g, '');
             parsedData = JSON.parse(cleanData);
-            console.log('Parsed data after cleanup:', parsedData);
+            // console.log('Parsed data after cleanup:', parsedData);
           }
 
           if (parsedData.type === 'connected') {
-            console.log('Connected message received:', parsedData);
+            // console.log('Connected message received:', parsedData);
             return;
           }
 
           if (parsedData.type === 'ping' || parsedData.type === 'info') {
-            console.log('Ping/Info message received:', parsedData);
+            // console.log('Ping/Info message received:', parsedData);
             return;
           }
           
@@ -102,12 +102,12 @@ export const useSocket = () => {
             contentHtml: parsedData.ContentHtml,
             lastSentTime: parsedData.LastSentTime
           };
-          console.log('New notification created:', newNotification);
+          // console.log('New notification created:', newNotification);
 
           if (newNotification.notificationId && newNotification.title) {
             setNotifications(prev => {
               const exists = prev.some(n => n.notificationId === newNotification.notificationId);
-              console.log('Notification exists:', exists);
+              // console.log('Notification exists:', exists);
               return exists ? prev : [...prev, newNotification];
             });
           }
@@ -119,17 +119,17 @@ export const useSocket = () => {
       };
 
       ws.onclose = (event) => {
-        console.log('=== WebSocket Event: onclose ===');
-        console.log('Close event:', {
-          code: event.code,
-          reason: event.reason,
-          wasClean: event.wasClean
-        });
+        // console.log('=== WebSocket Event: onclose ===');
+        // console.log('Close event:', {
+        //   code: event.code,
+        //   reason: event.reason,
+        //   wasClean: event.wasClean
+        // });
         setIsConnected(false);
 
         if (retryCount < MAX_RETRIES) {
           const retryDelay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
-          console.log(`Retry attempt ${retryCount + 1}/${MAX_RETRIES} in ${retryDelay}ms`);
+          // console.log(`Retry attempt ${retryCount + 1}/${MAX_RETRIES} in ${retryDelay}ms`);
           const timeoutId = setTimeout(() => {
             setRetryCount(prev => prev + 1);
             // connect();
@@ -187,8 +187,8 @@ export const useSocket = () => {
   const sendMessage = (message: any) => {
     if (socket && socket.readyState === WebSocket.OPEN) {
       try {
-        console.log('=== Sending WebSocket Message ===');
-        console.log('Message:', message);
+        // console.log('=== Sending WebSocket Message ===');
+        // console.log('Message:', message);
         socket.send(JSON.stringify(message));
       } catch (error) {
         console.error('=== Error Sending Message ===');
