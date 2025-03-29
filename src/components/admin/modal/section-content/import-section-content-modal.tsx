@@ -20,6 +20,7 @@ import { SectionFormValues } from "@/lib/validations/section";
 import { useLessonStore } from "@/store/use-lesson-store";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCreateSectionContent } from "@/hooks/useSectionContent";
 
 // Định nghĩa các tùy chọn import
 type ImportOption = {
@@ -52,7 +53,7 @@ type PreviewData = {
   rows: any[][];
 };
 
-function ImportSectionModal() {
+function ImportSectionContentModal() {
   const { isOpen, onClose, type } = useModal();
   const [file, setFile] = React.useState<File | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
@@ -61,7 +62,9 @@ function ImportSectionModal() {
   const [previewData, setPreviewData] = React.useState<PreviewData | null>(null);
   
   const { activeLesson } = useLessonStore();
-  const { mutate: createSection, isPending: isCreating } = useCreateSection();
+//   const { mutate: createSection, isPending: isCreating } = useCreateSection();
+
+  const { mutate: createSectionContent, isPending: isCreating } = useCreateSectionContent();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -176,7 +179,7 @@ function ImportSectionModal() {
       );
 
       // Kiểm tra các cột bắt buộc
-      const requiredColumns = ['Tên phần', 'Thời gian ước tính', 'Hình ảnh', "Thứ tự"];
+      const requiredColumns = ['Tiêu đề', 'Mô tả', 'Iframe Url', 'Hình ảnh', "Thứ tự"];
       const missingColumns = requiredColumns.filter(col => !headers.includes(col));
       
       if (missingColumns.length > 0) {
@@ -193,22 +196,27 @@ function ImportSectionModal() {
       });
 
       const sectionListData = formattedData.map((item) => ({
-        sectionName: item["Tên phần"],
-        estimateTime: item["Thời gian ước tính"],
-        iconUrl: item["Hình ảnh"],
+        title: item["Tiêu đề"],
+        description: item["Mô tả"],
+        iframe_url: item["Iframe Url"],
         order: item["Thứ tự"],
+        icon_url: item["Hình ảnh"],
+        sc_id: 0,
       }));
-
+    //   const formattedValues = {
+    //     sectionContentData: [values],
+    //     sectionIds: activeLesson.sectionId
+    // };
       const importData = {
-        sectionData: sectionListData,
-        lessonId: activeLesson.lessonId,
+        sectionContentData: sectionListData,
+        sectionIds: activeLesson.lessonId,
       }
 
       // console.log("Số hàng dữ liệu:", filteredRows.length);
       // console.log("Dữ liệu đã format:", importData);
 
       if (importOption === "create") {
-        createSection(importData, {
+        createSectionContent(importData, {
           onSuccess: (data) => {
             showToast.success(`Import dữ liệu thành công! ${data.message}`);
             if (data.success) {
@@ -315,7 +323,7 @@ function ImportSectionModal() {
     }
   };
 
-  if (!isOpen || type !== "importSection") return null;
+  if (!isOpen || type !== "importSectionContent") return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -329,7 +337,7 @@ function ImportSectionModal() {
               transition={{ duration: 0.3 }}
             >
               <Upload className="w-6 h-6 text-blue-500" />
-              <span className="text-xl font-medium">Import Dữ Liệu Section</span>
+              <span className="text-xl font-medium">Import Dữ Liệu Section Content</span>
             </motion.div>
           </DialogTitle>
         </DialogHeader>
@@ -436,7 +444,7 @@ function ImportSectionModal() {
                 </h4>
                 <ul className="text-sm text-blue-600 space-y-2 list-disc list-inside mb-4">
                   <li>Sử dụng template mẫu để đảm bảo dữ liệu được import chính xác</li>
-                  <li>Các cột bắt buộc: Tên phần , Thời gian ước tính, Hình ảnh, Thứ tự</li>
+                  <li>Các cột bắt buộc: Tiêu đề , Mô tả, Iframe Url, Hình ảnh, Thứ tự</li>
                   <li>Không thay đổi tên và thứ tự các cột trong template</li>
                   <li>Dữ liệu trong file Excel phải đúng định dạng quy định</li>
                 </ul>
@@ -532,4 +540,4 @@ function ImportSectionModal() {
   );
 }
 
-export default ImportSectionModal;
+export default ImportSectionContentModal;

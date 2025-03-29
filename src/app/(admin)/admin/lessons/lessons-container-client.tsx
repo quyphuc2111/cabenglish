@@ -179,6 +179,8 @@ function LessonsContainerClient() {
     const selectedLessons = data?.data?.filter(lesson => 
       selectedIds.includes(lesson.lessonId)
     );
+
+    console.log(selectedLessons, selectedIds)
     
     onOpen("deleteLesson", {
       lessonIds: selectedIds,

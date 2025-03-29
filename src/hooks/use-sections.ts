@@ -44,7 +44,7 @@ export const useGetSingleSection = (sectionId: string | null) => {
 export function useCreateSection() {
   const queryClient = useQueryClient();
 
-  return useMutation<SectionResponse, Error, SectionParams>({
+  return useMutation<SectionResponse, Error, any>({
     mutationFn: async (params) => {
       if (!params.lessonId) {
         throw new Error("Không tìm thấy thông tin lesson");
@@ -56,16 +56,33 @@ export function useCreateSection() {
       });
 
       if (!response.success) {
-        throw new Error(response.error || "Có lỗi xảy ra khi tạo bài học");
+        throw new Error(response.error || "Có lỗi xảy ra khi tạo section");
       }
 
       return response;
     },
 
-    onSuccess: (_, variables) => {
-      // Cập nhật lại query cache cho section list
-      queryClient.invalidateQueries({
-        queryKey: ["sections-by-lesson-id", variables.lessonId]
+    onSuccess: async (response, variables) => {
+      console.log('Mutation success with lessonId:', variables.lessonId);
+      
+      // Lấy data hiện tại từ cache
+      const previousData = queryClient.getQueryData<any>(["sections", variables.lessonId]);
+      console.log('Previous cache:', previousData);
+
+      if (previousData) {
+        // Cập nhật cache với data mới
+        const updatedData = {
+          ...previousData,
+          data: [...previousData.data, ...variables.sectionData]
+        };
+
+        // Set cache mới
+        queryClient.setQueryData(["sections", variables.lessonId], updatedData);
+      }
+
+      // Sau đó mới invalidate để trigger refetch
+      await queryClient.invalidateQueries({
+        queryKey: ["sections", variables.lessonId]
       });
     },
 
@@ -121,14 +138,13 @@ export function useUpdateSection() {
 
 export function useGetSectionByLessonId(lessonId: number) {
   return useQuery({
-    queryKey: ["sections-by-lesson-id", lessonId],
+    queryKey: ["sections", lessonId],
     queryFn: async () => {
       const response = await getSectionAdminDataByLessonId({ lessonId });
-      console.log("response", response);
       if (response.error) {
         throw new Error(response.error);
       }
-      return response.data;
+      return response;
     },
     enabled: !!lessonId
   });

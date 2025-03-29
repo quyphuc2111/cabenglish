@@ -16,6 +16,8 @@ import "react-toastify/dist/ReactToastify.css";
 import "../app/globals.css";
 import Providers from "@/providers/providers";
 import CookieSetter from "@/components/cookie-setter";
+import Head from "next/head";
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -80,10 +82,13 @@ export default async function RootLayout({
     //   </body>
     // </html>
     <html lang="vi" suppressHydrationWarning>
+      <Script
+        src="https://lms.bkt.net.vn/h5p/h5plib/v127/joubel/core/js/h5p-resizer.js"
+      />
       <body className={`${inter.className} font-poppins`}>
         <Providers translations={translations}>
           {children}
-          <CookieSetter />
+          {/* <CookieSetter /> */}
         </Providers>
       </body>
     </html>

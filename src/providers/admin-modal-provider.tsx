@@ -24,6 +24,11 @@ import DeleteSectionContentModal from "@/components/admin/modal/section-content/
 import CreateUpdateNotiModal from "@/components/admin/modal/noti/create-update-noti-modal";
 import SendNotiModal from "@/components/admin/modal/noti/send-noti-modal";
 import DeleteNotiModal from "@/components/admin/modal/noti/delete-noti-modal";
+import ImportLessonModal from "@/components/admin/modal/lessons/import-lesson-modal";
+import ExportLessonModal from "@/components/admin/modal/lessons/export-lesson-modal";
+import ExportSectionModal from "@/components/admin/modal/sections/export-section-modal";
+import ImportSectionContentModal from "@/components/admin/modal/section-content/import-section-content-modal";
+import ExportSectionContentModal from "@/components/admin/modal/section-content/export-section-content-modal";
 function AdminModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -61,16 +66,20 @@ function AdminModalProvider() {
       {/* lesson */}
       <CreateUpdateLessonModal />
       <DeleteLessonModal />
-   
+      <ImportLessonModal />
+      <ExportLessonModal />
      
       {/* section */}
       <CreateUpdateSectionModal />
       <ImportSectionModal />
       <DeleteSectionModal  />
+      <ExportSectionModal />
 
       {/* section content */}
       <CreateUpdateSectionContentModal />
       <DeleteSectionContentModal />
+      <ImportSectionContentModal />
+      <ExportSectionContentModal />
 
       {/* noti */}
       <CreateUpdateNotiModal />

@@ -12,14 +12,12 @@ import { Upload } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import * as XLSX from 'xlsx';
-import { useCreateClassroom } from "@/hooks/use-classrooms";
 import { showToast } from "@/utils/toast-config";
-import { ClassroomFormValues } from "@/lib/validations/classroom";
 import { useCreateSection } from "@/hooks/use-sections";
 import { SectionFormValues } from "@/lib/validations/section";
+import { useCreateLessonByClassIdUnitId } from "@/hooks/use-lessons";
 import { useLessonStore } from "@/store/use-lesson-store";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+import { LessonsFormValues } from "@/lib/validations/lessons";
 
 // Định nghĩa các tùy chọn import
 type ImportOption = {
@@ -52,18 +50,18 @@ type PreviewData = {
   rows: any[][];
 };
 
-function ImportSectionModal() {
+function ImportLessonModal() {
   const { isOpen, onClose, type } = useModal();
   const [file, setFile] = React.useState<File | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
   const [importOption, setImportOption] = React.useState<string>("create");
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [previewData, setPreviewData] = React.useState<PreviewData | null>(null);
-  
+
   const { activeLesson } = useLessonStore();
+
   const { mutate: createSection, isPending: isCreating } = useCreateSection();
-  const router = useRouter();
-  const queryClient = useQueryClient();
+  const { mutate: createLesson, isPending: isCreatingLesson } = useCreateLessonByClassIdUnitId();
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -176,7 +174,7 @@ function ImportSectionModal() {
       );
 
       // Kiểm tra các cột bắt buộc
-      const requiredColumns = ['Tên phần', 'Thời gian ước tính', 'Hình ảnh', "Thứ tự"];
+      const requiredColumns = ["Tên bài học", "Hình ảnh", "Tuần học", "Thứ tự"];
       const missingColumns = requiredColumns.filter(col => !headers.includes(col));
       
       if (missingColumns.length > 0) {
@@ -192,28 +190,29 @@ function ImportSectionModal() {
         return rowData;
       });
 
-      const sectionListData = formattedData.map((item) => ({
-        sectionName: item["Tên phần"],
-        estimateTime: item["Thời gian ước tính"],
-        iconUrl: item["Hình ảnh"],
+      const lessonListData = formattedData.map((item) => ({
+        lessonName: item["Tên bài học"],
+        imageUrl: item["Hình ảnh"],
+        schoolweek: item["Tuần học"],
         order: item["Thứ tự"],
+        isActive: true
       }));
 
       const importData = {
-        sectionData: sectionListData,
-        lessonId: activeLesson.lessonId,
+        lessonData: lessonListData,
+        unitId: activeLesson.unitId,
+        classId: activeLesson.classId
       }
 
       // console.log("Số hàng dữ liệu:", filteredRows.length);
       // console.log("Dữ liệu đã format:", importData);
 
       if (importOption === "create") {
-        createSection(importData, {
-          onSuccess: (data) => {
-            showToast.success(`Import dữ liệu thành công! ${data.message}`);
-            if (data.success) {
-              handleClose();
-            }
+      
+        createLesson(importData, {
+          onSuccess: () => {
+            showToast.success("Import dữ liệu thành công!");
+            handleClose();
           },
           onError: (error: Error) => {
             console.error("Import error:", error);
@@ -315,7 +314,7 @@ function ImportSectionModal() {
     }
   };
 
-  if (!isOpen || type !== "importSection") return null;
+  if (!isOpen || type !== "importLessons") return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -329,7 +328,7 @@ function ImportSectionModal() {
               transition={{ duration: 0.3 }}
             >
               <Upload className="w-6 h-6 text-blue-500" />
-              <span className="text-xl font-medium">Import Dữ Liệu Section</span>
+              <span className="text-xl font-medium">Import Dữ Liệu bài học</span>
             </motion.div>
           </DialogTitle>
         </DialogHeader>
@@ -436,7 +435,7 @@ function ImportSectionModal() {
                 </h4>
                 <ul className="text-sm text-blue-600 space-y-2 list-disc list-inside mb-4">
                   <li>Sử dụng template mẫu để đảm bảo dữ liệu được import chính xác</li>
-                  <li>Các cột bắt buộc: Tên phần , Thời gian ước tính, Hình ảnh, Thứ tự</li>
+                  <li>Các cột bắt buộc: Tên bài học, Hình ảnh, Tuần học, Thứ tự</li>
                   <li>Không thay đổi tên và thứ tự các cột trong template</li>
                   <li>Dữ liệu trong file Excel phải đúng định dạng quy định</li>
                 </ul>
@@ -532,4 +531,4 @@ function ImportSectionModal() {
   );
 }
 
-export default ImportSectionModal;
+export default ImportLessonModal;

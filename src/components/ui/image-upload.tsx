@@ -262,6 +262,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                                   width={400}
                                   height={200}
                                   className="max-h-[200px] rounded-lg object-cover"
+                                  unoptimized
                                 />
                               </motion.div>
                             ) : (
@@ -355,6 +356,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                     width={400}
                     height={200}
                     className="max-h-[200px] rounded-lg object-cover mx-auto"
+                    unoptimized
                   />
                 </motion.div>
               )}

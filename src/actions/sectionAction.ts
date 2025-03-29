@@ -7,6 +7,7 @@ interface SectionResponse {
   data: SectionType[];
   error?: string;
   success?: boolean;
+  message?: string;
 }
 
 
@@ -237,7 +238,8 @@ export async function createSectionAdminData({
 
     return {
       success: true,
-      data: response
+      data: response,
+      message: response.message
     };
   } catch (error) {
     console.error("Lỗi khi tạo dữ liệu section:", error);

@@ -128,36 +128,23 @@ export async function createLessonAdminDataByClassIdUnitId({
   lessonData: LessonAdminType[];
   classId: number;
   unitId: number;
-}): Promise<LessonAdminResponse> {
+}) {
+  const lesson = {
+    classId: classId,
+    unitId: unitId,
+    lessons: lessonData
+  };
 
-  try {
-    const lesson = {
-      classId: classId,
-      unitId: unitId,
-      lessons: lessonData
-    };
+  const data = await serverFetch(`/api/Lesson/batch`, {
+    method: "POST",
+    data: lesson
+  });
 
-    const data = await serverFetch(`/api/Lesson/batch`, {
-      method: "POST",
-      data: lesson
-    });
-
-    if (!Array.isArray(data)) {
-      throw new Error("Dữ liệu không đúng định dạng");
-    }
-
-    return {
-      data,
-      error: undefined
-    };
-  } catch (error) {
-    console.error("Lỗi khi tạo unit:", error);
-    return {
-      data: [],
-      error:
-        error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
-    };
+  if (!Array.isArray(data)) {
+    throw new Error("Dữ liệu không đúng định dạng");
   }
+
+  return data;
 }
 
 export async function getSingleLessonAdminData({

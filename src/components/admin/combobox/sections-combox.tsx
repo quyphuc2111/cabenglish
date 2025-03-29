@@ -47,7 +47,7 @@ export function SectionsCombobox({
   const { data: sectionData, isLoading: sectionLoading, error: sectionError } = useGetSectionByLessonId(Number(lessonId));
   // Xử lý và validate dữ liệu
   const sections = React.useMemo(() => {
-    if (!sectionData || !Array.isArray(sectionData)) {
+    if (!sectionData?.data || !Array.isArray(sectionData.data)) {
       return [];
     }
 
@@ -58,8 +58,8 @@ export function SectionsCombobox({
     //   }
     //   return 0;
     // });
-    return [...sectionData]
-  }, [sectionData]);
+    return [...sectionData.data]
+  }, [sectionData?.data]);
 
   const handleSelect = React.useCallback(
     (currentValue: string) => {

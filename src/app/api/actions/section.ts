@@ -24,7 +24,7 @@ export async function createSection(values: any) {
     try {
       const result = await createSectionAdminData(values);
   
-      return { success: true, data: result.data };
+      return { success: true, data: result.data, message: result.message };
     } catch (error) {
       return {
         success: false,

@@ -11,7 +11,7 @@ import { Download, Plus, Upload } from "lucide-react";
 import { ClassroomCombobox } from "@/components/admin/combobox/classroom-combobox";
 import { UnitByClassCombobox } from "@/components/admin/combobox/unitbyclass-combobox";
 import { showToast } from "@/utils/toast-config";
-import { useUnitByClassId } from "@/hooks/use-units";
+// import { useUnitByClassId } from "@/hooks/use-units";
 import { LessonCombobox } from "@/components/admin/combobox/lesson-combobox";
 import { useGetSectionByLessonId } from "@/hooks/use-sections";
 import { useLessonStore } from '@/store/use-lesson-store';
@@ -88,67 +88,67 @@ const ActionButtons = ({
   </>
 );
 
-const fakeData = [
-  {
-    sectionId: 1,
-    iconUrl: "string",
-    sectionName: "string",
-    estimateTime: "string",
-    progress: 0.5,
-    isLocked: true,
-    order: 1
-  },
-  {
-    sectionId: 2,
-    iconUrl: "string",
-    sectionName: "string",
-    estimateTime: "string",
-    progress: 1,
-    isLocked: true,
-    order: 2
-  },
-  {
-    sectionId: 3,
-    iconUrl: "string",
-    sectionName: "string",
-    estimateTime: "string",
-    progress: 0,
-    isLocked: true,
-    order: 3
-  },
-  {
-    sectionId: 4,
-    iconUrl: "string",
-    sectionName: "string",
-    estimateTime: "string",
-    progress: 0.5,
-    isLocked: true,
-    order: 1
-  },
-  {
-    sectionId: 5,
-    iconUrl: "string",
-    sectionName: "string",
-    estimateTime: "string",
-    progress: 0.2,
-    isLocked: true,
-    order: 2
-  },
-  {
-    sectionId: 6,
-    iconUrl: "string",
-    sectionName: "string",
-    estimateTime: "string",
-    progress: 0.8,
-    isLocked: true,
-    order: 3
-  }
-];
+// const fakeData = [
+//   {
+//     sectionId: 1,
+//     iconUrl: "string",
+//     sectionName: "string",
+//     estimateTime: "string",
+//     progress: 0.5,
+//     isLocked: true,
+//     order: 1
+//   },
+//   {
+//     sectionId: 2,
+//     iconUrl: "string",
+//     sectionName: "string",
+//     estimateTime: "string",
+//     progress: 1,
+//     isLocked: true,
+//     order: 2
+//   },
+//   {
+//     sectionId: 3,
+//     iconUrl: "string",
+//     sectionName: "string",
+//     estimateTime: "string",
+//     progress: 0,
+//     isLocked: true,
+//     order: 3
+//   },
+//   {
+//     sectionId: 4,
+//     iconUrl: "string",
+//     sectionName: "string",
+//     estimateTime: "string",
+//     progress: 0.5,
+//     isLocked: true,
+//     order: 1
+//   },
+//   {
+//     sectionId: 5,
+//     iconUrl: "string",
+//     sectionName: "string",
+//     estimateTime: "string",
+//     progress: 0.2,
+//     isLocked: true,
+//     order: 2
+//   },
+//   {
+//     sectionId: 6,
+//     iconUrl: "string",
+//     sectionName: "string",
+//     estimateTime: "string",
+//     progress: 0.8,
+//     isLocked: true,
+//     order: 3
+//   }
+// ];
 
 function SectionsContainerClient() {
-  const [selectedWeekId, setSelectedWeekId] = React.useState<string | null>(
-    null
-  );
+  // const [selectedWeekId, setSelectedWeekId] = React.useState<string | null>(
+  //   null
+  // );
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
   >({});
@@ -159,30 +159,32 @@ function SectionsContainerClient() {
   const columns = useSectionColumns();
   const { onOpen } = useModal();
 
-  const { data, isLoading, error } = useSchoolWeek();
-  const { data: unitData, isLoading: unitLoading } =
-    useUnitByClassId(activeLesson.classId);
-  const { data: sectionData, isLoading: sectionLoading } =
+  // const { data, isLoading, error } = useSchoolWeek();
+
+  // const { data: unitData, isLoading: unitLoading } =
+  //   useUnitByClassId(activeLesson.classId);
+
+  const { data: sectionData, isLoading: sectionLoading, error: sectionError } =
     useGetSectionByLessonId(Number(activeLesson.lessonId));
 
   // Xử lý lỗi data fetching
   React.useEffect(() => {
-    if (error) {
-      handleError(error, "SchoolWeekContainerClient", "data_fetching");
+    if (sectionError) {
+      handleError(sectionError, "SectionsContainerClient", "data_fetching");
     }
-  }, [error]);
+  }, [sectionError]);
 
   const handleModalOpen = (modalType: ModalType, options: ModalData = {}) => {
     try {
       onOpen(modalType, options);
     } catch (error) {
-      handleError(error, "SchoolWeekContainerClient", `open_${modalType}`);
+      handleError(error, "SectionsContainerClient", `open_${modalType}`);
     }
   };
 
   const handleDeleteSection = () => {
     const selectedIds = Object.keys(rowSelection);
-    const selectedSections = sectionData?.filter((section) =>
+    const selectedSections = sectionData?.data?.filter((section) =>
       selectedIds.includes(section.sectionId.toString())
     );
 
@@ -195,14 +197,14 @@ function SectionsContainerClient() {
     setRowSelection({});
   };
 
-  const filteredData = React.useMemo(() => {
-    if (!data?.data) return [];
+  // const filteredData = React.useMemo(() => {
+  //   if (!data?.data) return [];
 
-    let filtered = [...data.data];
-    if (!selectedWeekId) return filtered;
+  //   let filtered = [...data.data];
+  //   if (!selectedWeekId) return filtered;
 
-    return filtered.filter((week) => week.swId === Number(selectedWeekId));
-  }, [data?.data, selectedWeekId]);
+  //   return filtered.filter((week) => week.swId === Number(selectedWeekId));
+  // }, [data?.data, selectedWeekId]);
 
   // const filterSchoolWeeks = React.useCallback((schoolWeek: any, searchQuery: string) => {
   //   if (!searchQuery) return true;
@@ -286,9 +288,9 @@ function SectionsContainerClient() {
   return (
     <div className="bg-white rounded-lg p-10 h-full">
       <GenericTable
-        data={sectionData || []}
+        data={sectionData?.data || []}
         columns={columns}
-        isLoading={isLoading}
+        isLoading={sectionLoading}
         searchComponent={searchComponent}
         actionButtons={
           <ActionButtons

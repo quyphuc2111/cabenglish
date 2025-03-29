@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
 import { GenericTable } from "@/components/admin/table/common/generic-table";
 import { Button } from "@/components/ui/button";
@@ -75,8 +75,13 @@ function NotiContainerClient() {
 
   const {selectedNotiType, setSelectedNotiType} = useNotiStore();
 
+
   const columns = useNotiColumns();
   const { onOpen } = useModal();
+
+  useEffect(() => {
+    setSelectedNotiType(null);
+  }, []);
 
   const {
     data: notiData,

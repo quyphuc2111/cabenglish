@@ -102,7 +102,7 @@ function LessonClient({
       <MotionMascot position="right" />
 
       <div
-        className={`bg-[#F1B9D7] w-full md:w-4/5 lg:w-3/5 ${
+        className={`bg-[#F1B9D7] w-full md:w-4/5 lg:w-3/5 lg:max-w-3/5 ${
           selectedSection ? "h-full" : "h-3/4 py-4 md:py-8"
         } absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-xl max-h-[600px] 3xl:max-h-[730px]`}
       >

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/tooltip";
 import OptimizeImage from "@/components/common/optimize-image";
 import { useUpdateSectionLocked } from "@/hooks/client/useLesson";
+import { Button } from "../ui/button";
 
 interface TabsContainerProps {
   sectionContents: SectionContentType[];
@@ -22,7 +23,7 @@ interface TabsContainerProps {
   onClose: () => void;
   updateProgressSectionContent: any;
   updateSectionContentLocked: any;
-  nextSection?: SectionType;
+  nextSection?: SectionType; 
 }
 
 const tabTransitionVariants = {
@@ -70,15 +71,17 @@ export const TabsContainer = ({
   const [lastToastTime, setLastToastTime] = useState<number>(0);
   const [currentContentIndex, setCurrentContentIndex] = useState(0);
   const [iframeLoading, setIframeLoading] = useState(true);
-  const [lastSCItem, setLastSCItem] = useState()
+  const [lastSCItem, setLastSCItem] = useState();
+  const iframeRef = useRef<HTMLIFrameElement | null>(null); 
 
-  const {mutate: updateSectionLocked } = useUpdateSectionLocked()
+  const { mutate: updateSectionLocked } = useUpdateSectionLocked();
 
   useEffect(() => {
-    const lastItem = sectionContents.reduce((max, item) => 
-      item.order > max.order ? item : max
-    , sectionContents[0]);
-    
+    const lastItem = sectionContents.reduce(
+      (max, item) => (item.order > max.order ? item : max),
+      sectionContents[0]
+    );
+
     setLastSCItem(lastItem);
   }, [sectionContents]);
 
@@ -104,8 +107,11 @@ export const TabsContainer = ({
     onOpen("completeLesson", {
       onConfirm: async () => {
         const nextContent = sectionContents[currentContentIndex + 1];
-        
-        if (lastSCItem && lastSCItem.sc_id === sectionContents[currentContentIndex].sc_id) {
+
+        if (
+          lastSCItem &&
+          lastSCItem.sc_id === sectionContents[currentContentIndex].sc_id
+        ) {
           await updateSectionLocked({
             sectionId: nextSection?.sectionId
           });
@@ -143,7 +149,13 @@ export const TabsContainer = ({
     });
   };
 
-  console.log("lastSCItem", lastSCItem)
+  const handleFullScreen = () => {
+    if (iframeRef.current) {
+      if (iframeRef.current.requestFullscreen) {
+        iframeRef.current.requestFullscreen();
+      }
+    }
+  }
 
   return (
     <Tabs
@@ -259,31 +271,21 @@ export const TabsContainer = ({
               className="bg-white rounded-md h-full flex flex-col"
             >
               <div className="relative flex-shrink-0">
-                {/* {iframeLoading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#56B165]"></div>
-                  </div>
-                )} */}
                 {content.iframe_url.startsWith("http") ? (
-                  <iframe
-                    src={
-                      content.iframe_url.startsWith("http")
-                        ? content.iframe_url
-                        : null
-                    }
-                    className="w-full h-[350px] 3xl:h-[450px]"
-                    title={content.title}
-                    onLoad={() => setIframeLoading(false)}
-                    onError={() => {
-                      setIframeLoading(false);
-                      toast.error("Không thể tải nội dung bài học", {
-                        position: "top-right",
-                        autoClose: 3000
-                      });
-                    }}
-                    sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-                    referrerPolicy="no-referrer"
-                  />
+                  <>
+                    <iframe
+                    ref={iframeRef}
+                      src={content.iframe_url}
+                      className="w-full max-h-[450px] h-[350px] border-none"
+                      title={content.title}
+                      allowFullScreen
+                      allow="geolocation *; microphone *; camera *; midi *; encrypted-media *"
+                      sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-downloads"
+                      onLoad={() => {
+                        setIframeLoading(false);
+                      }}
+                    />
+                  </>
                 ) : (
                   <div className="w-full h-[350px] 3xl:h-[450px] flex items-center justify-center bg-gray-100">
                     <p className="text-gray-500">
@@ -346,6 +348,9 @@ export const TabsContainer = ({
                     </div>
                   </div>
                 )}
+                <div>
+                  <Button onClick={handleFullScreen}>Toàn màn hình</Button>
+                </div>
               </div>
             </motion.div>
           </TabsContent>

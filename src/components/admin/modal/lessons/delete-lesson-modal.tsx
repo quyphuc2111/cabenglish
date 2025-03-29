@@ -103,6 +103,8 @@ function DeleteLessonModal() {
 
   if (!isOpen || type !== "deleteLesson") return null;
 
+  console.log(data?.lessons)
+
   return (
     <AnimatePresence>
       <Dialog open={true} onOpenChange={onClose}>
