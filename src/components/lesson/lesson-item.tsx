@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Video from "next-video";
-import learning from "https://static.edupia.vn/dungchung/dungchung/core_cms/resources/uploads/tieng-anh/video_timestamps/2023/04/11/g2u10l1_video-vocab-new-convert.mp4";
+// import learning from "https://static.edupia.vn/dungchung/dungchung/core_cms/resources/uploads/tieng-anh/video_timestamps/2023/04/11/g2u10l1_video-vocab-new-convert.mp4";
 import { useDeviceOrientation } from "@/hooks/useDeviceOrientation";
 
 type LessonItemProps = {
@@ -108,13 +108,13 @@ function LessonItem({
           <div className="video-content">
             {!params && activeIndexTab === 1 && (
               <div>
-                <Video src={learning} />
+                {/* <Video src={learning} /> */}
               </div>
             )}
 
             {params && activeIndexTab === 1 && (
               <div>
-                <Video src={learning} />
+                {/* <Video src={learning} /> */}
               </div>
             )}
 

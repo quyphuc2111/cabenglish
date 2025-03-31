@@ -400,97 +400,153 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
         </motion.div>
 
         <motion.div
-          className="grid grid-cols-2 gap-1 md:gap-3 items-center md:items-start "
+          className="grid grid-cols-2 gap-2 sm:gap-3 
+            w-full md:w-auto items-center"
           variants={navbarAnimations.item}
         >
-
-           {/* Language Switcher */}
-           <motion.div
-            className="relative border border-gray-200 rounded-lg flex items-center bg-white px-3 h-12 
-                         shadow-sm hover:shadow-md transition-all duration-200"
+          {/* Language Switcher */}
+          <motion.div
+            className="relative flex items-center w-full"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleContainerClick}
           >
-            <div className="flex items-center gap-3">
-              <OptimizeImage
-                src={
-                  isChecked
-                    ? "/assets/image/navbar/american_flag.webp"
-                    : "/assets/image/navbar/vietnam_flag.webp"
-                }
-                width={32}
-                height={32}
+            <div className="flex items-center justify-between w-full
+              bg-white px-3 sm:px-4 md:px-5 
+              h-10 sm:h-12 md:h-14 xl:h-12
+              shadow-sm hover:shadow-md transition-all duration-200 
+              border border-gray-200 rounded-lg"
+            >
+              <Image
+                src={isChecked ? "/assets/image/navbar/american_flag.webp" : "/assets/image/navbar/vietnam_flag.webp"}
+                width={28}
+                height={28}
                 alt={isChecked ? "american_flag" : "vietnam_flag"}
-                className="rounded-sm"
+                className="rounded-sm w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 
+                  object-contain flex-shrink-0"
                 priority
+                quality={90}
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
               />
               <Switch
                 id="change_language"
-                className="data-[state=checked]:bg-blue-600"
+                className="data-[state=checked]:bg-blue-600 scale-75 sm:scale-90 md:scale-100"
                 checked={isChecked}
                 onCheckedChange={handleLanguageChange}
               />
             </div>
           </motion.div>
 
-          {/* Notification Button */}
-          {/* <NotificationButton showNotifications={showNotifications} setShowNotifications={setShowNotifications} userId={"1"} /> */}
-
-
-         
           {/* Theme Switcher */}
           <motion.div
-            className="border border-gray-200 rounded-lg flex items-center bg-white px-3 py-2 gap-3
-                         shadow-sm hover:shadow-md transition-all duration-200"
+            className="border border-gray-200 rounded-lg flex items-center justify-between
+              bg-white w-full h-10 sm:h-12 md:h-14 xl:h-12
+              px-3 sm:px-4 md:px-5 
+              shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleChangeTheme}
           >
-            <OptimizeImage
-              src="/assets/image/navbar/color.webp"
-              width={28}
-              height={28}
-              alt="color_icon"
-              priority
-            />
-            <p className="font-medium text-gray-700">{t("changeTheme")}</p>
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap">
+              <Image
+                src="/assets/image/navbar/color.webp"
+                width={24}
+                height={24}
+                alt="color_icon"
+                className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 
+                  object-contain flex-shrink-0 hover:opacity-90 transition-opacity"
+                priority
+                quality={90}
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
+              />
+              <p className="font-medium text-gray-700 text-sm 
+                whitespace-nowrap overflow-hidden text-ellipsis">
+                {t("changeTheme")}
+              </p>
+            </div>
           </motion.div>
 
           {/* Teaching Mode Selector */}
           <motion.div
-            className="border border-gray-200 rounded-lg flex items-center bg-white px-3 py-2 gap-3
-                         shadow-sm hover:shadow-md transition-all duration-200"
+            className="border border-gray-200 rounded-lg flex items-center justify-between
+              bg-white w-full h-10 sm:h-12 md:h-14 xl:h-12
+              px-3 sm:px-4 md:px-5
+              shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => router.push("/che-do-giang-day")}
           >
             {currentTeachingMode === "defaultMode" ? (
-              <>
-                <OptimizeImage
+              <div className="flex items-center gap-2 sm:gap-3 flex-nowrap">
+                <Image
                   src="/assets/image/modal/bkt_logo.webp"
-                  width={40}
-                  height={28}
+                  width={32}
+                  height={24}
                   alt="bkt_logo"
-                  className="object-contain"
+                  className="object-contain w-full h-full sm:w-8 sm:h-6 md:w-10 md:h-8
+                    flex-shrink-0 hover:opacity-90 transition-opacity"
                   quality={100}
                   priority
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
                 />
-                <p className="font-medium text-gray-700">{t("defaultMode")}</p>
-              </>
+                <p className="font-medium text-gray-700 text-sm
+                  whitespace-nowrap overflow-hidden text-ellipsis">
+                  {t("defaultMode")}
+                </p>
+              </div>
             ) : (
-              <>
-                <OptimizeImage
+              <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap">
+                <Image
                   src="/assets/image/modal/freemode.webp"
-                  width={32}
-                  height={28}
+                  width={28}
+                  height={24}
                   alt="freemode"
-                  className="object-contain"
+                  className="object-contain w-6 h-5 sm:w-7 sm:h-6 md:w-9 md:h-8
+                    flex-shrink-0 hover:opacity-90 transition-opacity"
                   priority
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
                 />
-                <p className="font-medium text-gray-700">{t("freeMode")}</p>
-              </>
+                <p className="font-medium text-gray-700 text-sm
+                  whitespace-nowrap overflow-hidden text-ellipsis">
+                  {t("freeMode")}
+                </p>
+              </div>
             )}
+          </motion.div>
+
+          <motion.div
+            className="border border-gray-200 rounded-lg flex items-center justify-between
+              bg-[#E25762]/90 w-full h-10 sm:h-12 md:h-14 xl:h-12
+              px-3 sm:px-4 md:px-5 
+              shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
+              hover:bg-[#E25762]"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() =>{}}
+          >
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap w-full justify-center">
+              <Image
+                src="/assets/image/navbar/logout_icon.webp"
+                width={24}
+                height={24}
+                alt="logout_icon"
+                className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7
+                  object-contain flex-shrink-0 
+                  group-hover:rotate-12 transition-all duration-300"
+                priority
+                quality={90}
+              />
+              <p className="font-medium group-hover:text-red-500 text-white
+                text-sm md:text-base
+                whitespace-nowrap overflow-hidden text-ellipsis
+                transition-colors duration-200">
+                Đăng xuất
+              </p>
+            </div>
           </motion.div>
         </motion.div>
       </div>

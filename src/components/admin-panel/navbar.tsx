@@ -501,7 +501,7 @@ export function Navbar({ title, type }: NavbarProps) {
               hover:bg-[#E25762]"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={handleChangeTheme}
+            onClick={() =>{}}
           >
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap w-full justify-center">
               <Image

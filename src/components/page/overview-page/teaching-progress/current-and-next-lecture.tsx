@@ -1,9 +1,12 @@
 import CourseCard from '@/components/course-card/course-card'
 import LessonCard from '@/components/lesson/lesson-card'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation';
 import React, { Fragment } from 'react'
 
 function CurrentAndNextLecture({ courseData, t }: { courseData: any[], t: any }) {
+  const router = useRouter();
+
   // Lọc ra bài học đang dạy (0 < progress < 1)
   const currentLecture = courseData
     .filter(i => i.progress < 1 && i.progress > 0)
@@ -14,6 +17,10 @@ function CurrentAndNextLecture({ courseData, t }: { courseData: any[], t: any })
   
   // Lấy bài học tiếp theo (nếu có)
   const nextLecture = currentIndex !== -1 ? courseData[currentIndex + 1] : null;
+
+  const handleLessonClick = async (lessonId: number) => {
+    router.push(`/lesson/${lessonId}`);
+  };
 
   return (
     <div className="flex flex-col lg:flex-row w-full lg:w-1/2">
@@ -36,7 +43,9 @@ function CurrentAndNextLecture({ courseData, t }: { courseData: any[], t: any })
             }
             return (
               <Fragment key={index}>
-                <LessonCard {...customCourse} />
+                <LessonCard {...customCourse} 
+                  onClick={() => handleLessonClick(courseItem.lessonId)}
+                />
               </Fragment>
             )
           })}
