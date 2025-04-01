@@ -38,6 +38,7 @@ export function AdminSidebar() {
             alt="bkt-logo"
             priority
             quality={75}
+            loading="eager"
           />
         </div>
         <AdminMenu isOpen={sidebar?.isOpen} />

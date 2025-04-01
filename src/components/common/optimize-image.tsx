@@ -77,7 +77,7 @@ interface ImageProps {
    * Hàm xử lý lỗi khi tải hình ảnh
    * @default undefined
    */
-  onError?: (error: ErrorEvent) => void;
+  onError?: React.ReactEventHandler<HTMLImageElement>;
 }
 
 /**

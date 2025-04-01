@@ -1,7 +1,9 @@
 "use server";
 
 import { serverFetch } from "@/lib/api";
+import { authOptions } from "@/lib/auth";
 import { NotiAdminType } from "@/types/notification";
+import { getServerSession } from "next-auth";
 
 interface NotiResponse {
   data: NotiAdminType[];
@@ -9,6 +11,45 @@ interface NotiResponse {
   success?: boolean;
 }
 
+// User
+export async function markAsReadNoti({
+  notiId
+}: {
+  notiId: number;
+}): Promise<NotiResponse> {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session) {
+      throw new Error("Không tìm thấy session");
+    }
+    const response = await serverFetch(`/api/Noti/markAsRead`, {
+      method: "PUT",
+      data: {
+        userId: session.user.userId,
+        notificationId: notiId
+      }
+    });
+
+    if (!response) {
+      throw new Error("Không nhận được phản hồi từ server");
+    }
+
+    return {
+      success: true,
+      data: response
+    };
+  } catch (error) {
+    console.error("Lỗi khi đánh dấu đã đọc thông báo:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi đánh dấu đã đọc thông báo",
+      data: []
+    };
+  }
+}
+
+// Admin
 export async function getAllNotiAdminData(): Promise<NotiResponse> {
   try {
     const data = await serverFetch(`/api/Noti/all`);
@@ -31,33 +72,25 @@ export async function getAllNotiAdminData(): Promise<NotiResponse> {
   }
 }
 
-
 export async function createNotiAdminData(notiData: NotiAdminType): Promise<NotiResponse> {
-  try {
-    const response = await serverFetch(`/api/Noti`, {
-      method: "POST",
-      data: notiData
-    });
+  const response = await serverFetch(`/api/Noti`, {
+    method: "POST",
+    data: notiData
+  });
 
-    if (!response) {
-      throw new Error("Không nhận được phản hồi từ server");
-    }
-
-    return {
-      success: true,
-      data: response
-    };
-  } catch (error) {
-    console.error("Lỗi khi tạo dữ liệu notification:", error);
+  if (!response) {
     return {
       success: false,
-      error:
-        error instanceof Error ? error.message : "Có lỗi xảy ra khi tạo dữ liệu notification",
+      error: "Không nhận được phản hồi từ server",
       data: []
     };
   }
-}
 
+  return {
+    success: true,
+    data: response
+  };
+}
 
 export async function updateNotiAdminData({
   notiData,
@@ -162,7 +195,5 @@ export async function deleteNotiAdminData(notificationId: number): Promise<NotiR
     };
   }
 }
-
-
 
 

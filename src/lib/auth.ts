@@ -126,12 +126,14 @@ export const authOptions: NextAuthOptions = {
                 email: userResponse.data.email,
                 userId: userId,
                 mode: userResponse.data.mode,
+                language: userResponse.data.language,
                 role: loginResponse.data.role,
                 accessToken: loginResponse.data.token,
                 isFirstLogin: userResponse.data.is_firstlogin,
                 theme: userResponse.data.theme as 'theme-blue' | 'theme-gold' | 'theme-pink' | 'theme-red',
                 authCookie: authCookie ? authCookie[0] : undefined,
                 moodleCookie: moodleCookie
+        
               };
               return user;
             }
@@ -166,6 +168,7 @@ export const authOptions: NextAuthOptions = {
         token.mode = user.mode;
         token.theme = user.theme;
         token.email = user.email;
+        token.language = user.language;
         token.isFirstLogin = user.isFirstLogin;
         token.authCookie = user.authCookie;
         token.moodleCookie = user.moodleCookie;
@@ -189,6 +192,7 @@ export const authOptions: NextAuthOptions = {
         session.user.mode = token.mode;
         session.user.email = token.email;
         session.user.theme = token.theme;
+        session.user.language = token.language;
         session.user.isFirstLogin = token.isFirstLogin;
         session.user.authCookie = token.authCookie;
         session.user.moodleCookie = token.moodleCookie;

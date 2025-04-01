@@ -127,6 +127,8 @@ function UnitsContainerClient() {
   // Hàm filter cho search
   const filterUnits = React.useCallback((data: any[], filter: string) => {
     if (!filter) return data;
+
+    console.log(data);
     
     return data.filter((item) => 
       item.unitName.toLowerCase().includes(filter.toLowerCase())

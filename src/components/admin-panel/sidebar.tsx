@@ -158,6 +158,7 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
               priority={true}
             />
 
+
             <div className="relative">
               <OptimizeImage
                 src="/assets/image/notification.webp"

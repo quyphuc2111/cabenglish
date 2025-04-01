@@ -8,31 +8,43 @@ import Image from "next/image";
 import { ModalProvider } from "@/providers/modal-provider";
 import { useUserTheme } from "@/store/useUserStore";
 import { ToastContainer } from 'react-toastify';
-import { NotificationType } from "@/types/notification";
+import { useQuery } from "@tanstack/react-query";
+import { getNotificationListByUserId } from "@/actions/notificationAction";
+import { useSession } from "next-auth/react";
 
 export default function ClientPanelLayout({
   children,
-  notificationList
 }: {
   children: React.ReactNode;
-  notificationList: NotificationType[];
 }) {
-  const  currentTheme  = useUserTheme();
+  const currentTheme = useUserTheme() as 'theme-gold' | 'theme-blue' | 'theme-pink' | 'theme-red';
   const sidebar = useStore(useSidebarToggle, (state) => state);
+  const { data: session } = useSession();
+
+  const { data: notificationList = [] } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: async () => {
+      const response = await getNotificationListByUserId({
+        userId: session?.user?.userId as string
+      });
+      return response.data || [];
+    },
+    enabled: !!session?.user?.userId
+  });
 
   const themeClasses = {
     'theme-gold': 'bg-theme-gold-primary',
     'theme-blue': 'bg-theme-blue-primary',
     'theme-pink': 'bg-theme-pink-primary',
     'theme-red': 'bg-theme-red-primary'
-  };
+  } as const;
 
   const themeSecondaryClasses = {
     'theme-gold': 'bg-theme-gold-secondary',
     'theme-blue': 'bg-theme-blue-secondary',
     'theme-pink': 'bg-theme-pink-secondary',
     'theme-red': 'bg-theme-red-secondary'
-  };
+  } as const;
 
   if (!sidebar) return null;
 

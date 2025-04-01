@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, Fragment, useState } from "react";
+import React, { Fragment, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { useModal } from "@/hooks/useModalStore";
 import Image from "next/image";
@@ -9,6 +9,7 @@ import { Button } from "../ui/button";
 import CourseCard from "../course-card/course-card";
 import { useUpdateUserInfo } from "@/hooks/client/useUser";
 import { useSession } from "next-auth/react";
+import { useUpdateSession } from "@/hooks/client/useUpdateSession";
 
 type TeachingModeType = "default" | "freemode";
 
@@ -136,7 +137,7 @@ function TeachingModeModal() {
   const { mutate: updateUserInfo } = useUpdateUserInfo();
 
   const isModalOpen = isOpen && type === "teachingMode";
-3
+
   const handleSave = () => {
     if (!session) { 
       return;

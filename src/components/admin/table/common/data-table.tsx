@@ -36,7 +36,7 @@ interface DataTableProps<TData, TValue> {
 }
 
 // Tạo một wrapper component cho animation
-const AnimatedTableContent = motion(TableBody);
+const AnimatedTableContent = motion.create(TableBody);
 
 const tableContentAnimation = {
   initial: { opacity: 0, y: 20 },

@@ -45,7 +45,8 @@ function OverviewPage({
   const { data: session } = useSession();
 
   useEffect(() => {
-    if(session && !session.user.isFirstLogin) {
+    console.log("session", session)
+    if(session && session.user.isFirstLogin) {
       onOpen("teachingMode")
     }
   }, [session])

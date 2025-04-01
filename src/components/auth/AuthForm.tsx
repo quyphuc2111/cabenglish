@@ -121,13 +121,14 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
         <Input
           {...register("email", {
             required: "Email là bắt buộc",
-            pattern: {
-              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: "Email không hợp lệ"
-            }
+            // pattern: {
+            //   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+            //   message: "Email không hợp lệ"
+            // }
           })}
-          id="email"
+          id="forgot-password-email"
           type="email"
+          autoComplete="email"
           placeholder="Nhập email của bạn"
           className="bg-gray-100"
         />
@@ -251,9 +252,10 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
               //   message: "Email không hợp lệ"
               // }
             })}
-            id="email"
+            id={`${type}-email`}
             // type="email"
-            placeholder="Email của bạn 123"
+            autoComplete="email"
+            placeholder="Email của bạn"
             className="bg-gray-100"
           />
           {errors.email && (
@@ -272,8 +274,9 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
                   message: "Mật khẩu phải có ít nhất 3 ký tự"
                 }
               })}
-              id="password"
+              id={`${type}-password`}
               type={showPassword ? "text" : "password"}
+              autoComplete={type === "signin" ? "current-password" : "new-password"}
               placeholder="Nhập mật khẩu"
               className="bg-gray-100"
             />
@@ -319,8 +322,9 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
             <Label htmlFor="confirm_password">Xác nhận mật khẩu</Label>
             <div className="relative">
               <Input
-                id="confirm_password"
+                id={`${type}-confirm-password`}
                 type={showConfirmPassword ? "text" : "password"}
+                autoComplete="new-password"
                 placeholder="Nhập lại mật khẩu"
                 className="bg-gray-100"
               />

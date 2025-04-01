@@ -9,6 +9,10 @@ import OptimizeImage from "../common/optimize-image";
 import { ScrollArea } from "../ui/scroll-area";
 import { NotificationType } from "@/types/notification";
 import { useSocket } from "@/hooks/useSocket";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNotification } from "@/hooks/client/useNotification";
+import { getNotificationListByUserId } from "@/actions/notificationAction";
+import { useSession } from "next-auth/react";
 
 // Thêm các animation variants
 const modalVariants = {
@@ -50,81 +54,51 @@ const slideVariants = {
 };
 
 function NotificationModal() {
-  const { isOpen, onClose, type, data } = useModal();
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [notifications, setNotifications] = React.useState<NotificationType[]>(
-    []
-  );
+  const { isOpen, onClose, type } = useModal();
   const [selectedNotification, setSelectedNotification] =
     React.useState<NotificationType | null>(null);
+
   const { socket, notifications: socketNotifications } = useSocket();
+  const { mutate: markAsReadNoti } = useNotification();
+  const { data: session } = useSession();
+  const queryClient = useQueryClient();
 
-  React.useEffect(() => {
-    if (data?.notificationList) {
-      setNotifications(data.notificationList);
-      setIsLoading(false);
-    }
-  }, [data?.notificationList]);
-
-  React.useEffect(() => {
-
-    if (socketNotifications.length > 0) {
-      const latestNotification =
-        socketNotifications[socketNotifications.length - 1];
-
-      const newNotification: NotificationType = {
-        notificationId: latestNotification.notificationId,
-        type: latestNotification.type,
-        title: latestNotification.title,
-        description: latestNotification.description,
-        contentHtml: latestNotification.contentHtml,
-        createdAt: latestNotification.lastSentTime,
-        isRead: false
-      };
-
-      setNotifications((prev) => {
-        const exists = prev.some(
-          (n) => n.notificationId === newNotification.notificationId
-        );
-        if (!exists) {
-          return [newNotification, ...prev];
-        }
-        return prev;
+  const { data: notifications = [] } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: async () => {
+      const response = await getNotificationListByUserId({
+        userId: session?.user?.userId as string
       });
-    }
-  }, [socketNotifications]);
+      return response.data || [];
+    },
+    enabled: !!session?.user?.userId
+  });
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  React.useEffect(() => {
+    if (socketNotifications.length > 0) {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    }
+  }, [socketNotifications, queryClient]);
+
+  const unreadCount = notifications.filter((n: NotificationType) => !n.isRead).length;
 
   const handleNotificationClick = (notification: NotificationType) => {
     setSelectedNotification(notification);
   };
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+  const markAllAsRead = async () => {
+    // Implement markAllAsRead functionality here
+    // After implementation, invalidate notifications query
+    queryClient.invalidateQueries({ queryKey: ["notifications"] });
   };
 
-  const markAsRead = (notificationId: number) => {
-    setNotifications((prev) =>
-      prev.map((n) =>
-        n.notificationId === notificationId ? { ...n, isRead: true } : n
-      )
-    );
+  const markAsRead = async (notificationId: number) => {
+    await markAsReadNoti({
+      notificationId: notificationId
+    });
   };
 
   const renderContent = () => {
-    if (isLoading) {
-      return (
-        <div className="flex items-center justify-center h-[400px]">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full"
-          />
-        </div>
-      );
-    }
-
     return (
       <ScrollArea className="h-[400px] px-2 py-4 bg-[#E48B8B]/60 ">
         <div className="space-y-3">
@@ -310,11 +284,6 @@ function NotificationModal() {
                       </div>
 
                       <div className="col-span-3">
-                        {/* <ScrollArea className="h-[400px] px-2 py-4 bg-[#E48B8B]/60 ">
-                          <div className="space-y-3">
-                            
-                          </div>
-                        </ScrollArea> */}
                         {renderContent()}
                       </div>
                     </div>

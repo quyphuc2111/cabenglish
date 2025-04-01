@@ -401,8 +401,6 @@ export function Navbar({ title, type }: NavbarProps) {
                   object-contain flex-shrink-0"
                 priority
                 quality={90}
-                placeholder="blur"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
               />
               <Switch
                 id="change_language"
@@ -433,8 +431,6 @@ export function Navbar({ title, type }: NavbarProps) {
                   object-contain flex-shrink-0 hover:opacity-90 transition-opacity"
                 priority
                 quality={90}
-                placeholder="blur"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
               />
               <p className="font-medium text-gray-700 text-sm 
                 whitespace-nowrap overflow-hidden text-ellipsis">
@@ -464,8 +460,6 @@ export function Navbar({ title, type }: NavbarProps) {
                     flex-shrink-0 hover:opacity-90 transition-opacity"
                   quality={100}
                   priority
-                  placeholder="blur"
-                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
                 />
                 <p className="font-medium text-gray-700 text-sm
                   whitespace-nowrap overflow-hidden text-ellipsis">
@@ -482,8 +476,6 @@ export function Navbar({ title, type }: NavbarProps) {
                   className="object-contain w-6 h-5 sm:w-7 sm:h-6 md:w-9 md:h-8
                     flex-shrink-0 hover:opacity-90 transition-opacity"
                   priority
-                  placeholder="blur"
-                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
                 />
                 <p className="font-medium text-gray-700 text-sm
                   whitespace-nowrap overflow-hidden text-ellipsis">
@@ -513,7 +505,6 @@ export function Navbar({ title, type }: NavbarProps) {
                   object-contain flex-shrink-0 
                   group-hover:rotate-12 transition-all duration-300"
                 priority
-                quality={90}
               />
               <p className="font-medium group-hover:text-red-500 text-white
                 text-sm md:text-base

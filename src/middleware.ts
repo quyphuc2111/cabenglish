@@ -9,7 +9,8 @@ const ROUTES = {
   OVERVIEW: '/tong-quan',
   PROFILE: '/profile',
   COURSES: '/khoa-hoc',
-  LOGIN: '/signin'
+  LOGIN: '/signin',
+  LANDING_PAGE: '/',
 } as const;
 
 const ROLES = {
@@ -58,8 +59,8 @@ const handleAuth = (req: Request, token: any) => {
   const role = token?.role as RoleType;
 
   // Nếu người dùng truy cập trang gốc '/', chuyển hướng đến trang mặc định theo role
-  // if (path === '/') {
-  //   const defaultLandingPage = DEFAULT_LANDING_PAGES[role] || ROUTES.OVERVIEW;
+  // if (path === ROUTES.LANDING_PAGE) {
+  //   const defaultLandingPage =  ROUTES.LANDING_PAGE;
   //   return NextResponse.redirect(new URL(defaultLandingPage, req.url));
   // }
 
@@ -84,13 +85,17 @@ export default withAuth(
   function middleware(req) {
     try {
       const token = req.nextauth.token;
+      const path = new URL(req.url).pathname;
       
+      // Cho phép truy cập trang chủ mà không cần đăng nhập
+      if (path === ROUTES.LANDING_PAGE) {
+        return null;
+      }
+
       // Kiểm tra nếu không có token (chưa đăng nhập), chuyển hướng về trang login
       if (!token) {
         return NextResponse.redirect(new URL(ROUTES.LOGIN, req.url));
       }
-
-      const path = new URL(req.url).pathname;
 
       // Bỏ qua middleware cho các API routes
       if (path.startsWith('/api/')) {
@@ -112,7 +117,13 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      authorized: ({ req, token }) => {
+        // Cho phép truy cập trang chủ mà không cần token
+        if (req.nextUrl.pathname === '/') {
+          return true;
+        }
+        return !!token;
+      },
     },
     pages: {
       signIn: '/signin',

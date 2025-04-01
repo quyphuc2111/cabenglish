@@ -159,6 +159,8 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
         codeBlock: false,
         blockquote: false,
         horizontalRule: false,
+        strike: false,
+        listItem: false,
         paragraph: {
           HTMLAttributes: {
             class: 'prevent-submit'
@@ -169,6 +171,7 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
       OrderedList,
       ListItem,
       Underline,
+      Strike,
       Heading.configure({
         levels: [1, 2, 3, 4, 5, 6]
       }),
@@ -185,7 +188,6 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
       }),
       Color,
       TextStyle,
-      Strike,
       Subscript,
       Superscript,
       FontFamily.configure({
@@ -225,7 +227,8 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
           return true;
         }
       }
-    }
+    },
+    immediatelyRender: false
   });
 
   return (
@@ -421,6 +424,7 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
 
         {/* Nhóm Danh sách */}
         <ToolbarButton
+          type="button"
           onClick={() => editor?.chain().focus().toggleBulletList().run()}
           active={editor?.isActive("bulletList")}
           title="Danh sách không thứ tự"
@@ -429,6 +433,7 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
         </ToolbarButton>
 
         <ToolbarButton
+          type="button"
           onClick={() => editor?.chain().focus().toggleOrderedList().run()}
           active={editor?.isActive("orderedList")}
           title="Danh sách có thứ tự"
