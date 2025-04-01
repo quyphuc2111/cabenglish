@@ -124,20 +124,14 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           throw new Error(result.error);
         }
 
-        // Log response để kiểm tra cấu trúc
-        console.log('Upload response:', result.data);
-
-        // Điều chỉnh theo cấu trúc response thực tế
         const fileUrl = result.data?.[0]?.file_url || '';
 
-        // Kiểm tra URL hợp lệ
         if (!fileUrl || typeof fileUrl !== 'string') {
           throw new Error('URL không hợp lệ từ response');
         }
 
-        // Kiểm tra URL có thể truy cập được
         const checkImage = new Promise((resolve, reject) => {
-          const img = new Image();
+          const img = document.createElement('img');
           img.onload = () => resolve(true);
           img.onerror = () => reject(new Error('Không thể tải ảnh từ URL'));
           img.src = fileUrl;
@@ -145,7 +139,6 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
         await checkImage;
 
-        // Nếu mọi thứ OK, cập nhật state
         setPreview(fileUrl);
         if (onChange) {
           onChange(fileUrl);
@@ -182,8 +175,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       return;
     }
 
-    // Kiểm tra URL hình ảnh hợp lệ
-    const img = new Image();
+    const img = document.createElement('img');
     img.onload = () => {
       setPreview(imageUrl);
       if (onChange) {

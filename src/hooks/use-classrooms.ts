@@ -16,7 +16,7 @@ interface UpdateClassroomParams {
   data: {
     classname: string;
     description: string;
-    imageUrl: string;
+    imageurl: string;
     numliked?: number;
     progress?: number;
     order?: number;
@@ -95,7 +95,7 @@ export const useUpdateClassroom = () => {
         classData: {
           classname: data.classname,
           description: data.description,
-          imageurl: data.imageUrl, 
+          imageurl: data.imageurl, 
           numliked: data.numliked || 0,
           progress: data.progress || 0,
           order: data.order || 0,

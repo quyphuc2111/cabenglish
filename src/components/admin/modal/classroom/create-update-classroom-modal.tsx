@@ -1,20 +1,14 @@
 "use client";
 
 import React from "react";
+
+// component import
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogHeader
 } from "@/components/ui/dialog";
-import { useModal } from "@/hooks/useModalStore";
-import { motion, AnimatePresence } from "framer-motion";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  classroomFormSchema,
-  type ClassroomFormValues
-} from "@/lib/validations/classroom";
 import {
   Form,
   FormControl,
@@ -28,8 +22,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ImageUploader } from "@/components/ui/image-upload";
 import { toast } from "react-toastify";
+import { showToast } from "@/utils/toast-config";
 import { BadgePlus, Pencil } from "lucide-react";
 import { useCreateClassroom, useGetSingleClassroom, useUpdateClassroom } from "@/hooks/use-classrooms";
+import { useModal } from "@/hooks/useModalStore";
+import { motion, AnimatePresence } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  classroomFormSchema,
+  type ClassroomFormValues
+} from "@/lib/validations/classroom";
+import { useClassroomForm } from "@/hooks/client/form/useClassroomForm";
+
 
 const formAnimation = {
   hidden: { opacity: 0, y: 20 },
@@ -44,109 +49,32 @@ const formAnimation = {
   })
 };
 
-const buttonAnimation = {
-  tap: { scale: 0.95 },
-  hover: { scale: 1.05 }
-};
-
 function CreateUpdateClassroomModal() {
   const { isOpen, onClose, type, data } = useModal();
   const formType = data?.formType;
   const classroomId = formType === "update" ? data?.classroom?.id : null;
 
-  // Query để lấy dữ liệu classroom khi edit
-  const { data: classroomData, isLoading } = useGetSingleClassroom(classroomId as string);
-
-  const { mutate: createClassroom, isPending: isCreating } = useCreateClassroom();
-  const { mutate: updateClassroom, isPending: isUpdating } = useUpdateClassroom();
-
-  const isPending = isCreating || isUpdating || isLoading;
-  // const isPending = isCreating  || isLoading;
-
-  const form = useForm<ClassroomFormValues>({
-    resolver: zodResolver(classroomFormSchema),
-    defaultValues: {
-      classname: "",
-      description: "",
-      imageUrl: "",
-      numliked: 0,
-      progress: 0,
-      order: 0,
-      class_id: 0
-    }
-  });
+  const { data: classroomData, isLoading: isLoadingClassroom } = useGetSingleClassroom(classroomId as string);
+  const { form, handleSubmit, isPending } = useClassroomForm(formType as "create" | "update", classroomId as string);
 
   const handleClose = () => {
     form.reset();
     onClose();
   };
 
-  // Cập nhật form khi có dữ liệu từ API
   React.useEffect(() => {
     if (formType === "update" && classroomData) {
-      const data = Array.isArray(classroomData) ? classroomData[0] : classroomData;
-      form.reset({
-        classname: data.classname,
-        description: data.description,
-        imageUrl: data.imageurl,
-        numliked: data.numliked,
-        progress: data.progress,
-        order: data.order,
-        class_id: parseInt(data.class_id)
-      });
+      form.reset(classroomData);
     }
   }, [classroomData, formType, form]);
 
-  // Sửa lại hàm submit
-  const onSubmit = React.useCallback(async (values: ClassroomFormValues) => {
-    
-    try {
-      if (formType === "create") {
-        await createClassroom(values, {
-          onSuccess: () => {
-            toast.success("Tạo lớp học thành công!");
-            handleClose();
-          },
-          onError: (error) => {
-            console.error("Create error:", error);
-            toast.error("Đã có lỗi xảy ra khi tạo lớp học!");
-          }
-        });
-      } else if (classroomId && classroomData) {
-        // Đảm bảo có đầy đủ dữ liệu từ classroomData
-        const updateData = {
-          classId: classroomId,
-          data: {
-            classname: values.classname,
-            description: values.description,
-            imageUrl: values.imageUrl,
-            numliked: classroomData.numliked ,
-            progress: classroomData.progress ,
-            order: classroomData.order ,
-            class_id: parseInt(classroomData.class_id) 
-          }
-        };
-
-        await updateClassroom(updateData, {
-          onSuccess: () => {
-            toast.success("Cập nhật lớp học thành công!");
-            handleClose();
-          },
-          onError: (error) => {
-            console.error("Update error:", error);
-            toast.error(
-              error instanceof Error 
-                ? `Lỗi: ${error.message}`
-                : "Đã có lỗi xảy ra khi cập nhật lớp học!"
-            );
-          }
-        });
-      }
-    } catch (error) {
-      console.error("Submit error:", error);
-      toast.error("Đã có lỗi xảy ra!");
+  const onSubmit = async (values: ClassroomFormValues) => {
+    const success = await handleSubmit(values);
+ 
+    if (success) {
+      handleClose();
     }
-  }, [formType, classroomId, createClassroom, updateClassroom, classroomData, handleClose]);
+  };
 
   return (
     <AnimatePresence>
@@ -256,7 +184,7 @@ function CreateUpdateClassroomModal() {
                   >
                     <FormField
                       control={form.control}
-                      name="imageUrl"
+                      name="imageurl"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-lg font-medium">
@@ -288,7 +216,7 @@ function CreateUpdateClassroomModal() {
                   
                   <Button
                     type="submit"
-                    disabled={isPending || !form.formState.isValid}
+                    disabled={isPending}
                     className="bg-blue-500"
                   >
                     {isPending 

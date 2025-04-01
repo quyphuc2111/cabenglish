@@ -5,7 +5,13 @@ import { ClassroomType } from "@/types/classroom";
 import { User } from "next-auth";
 
 export interface ClassroomResponse {
-  data: ClassroomType[];
+  data: ClassroomType[] ;
+  error?: string;
+  success?: boolean;
+}
+
+interface SingleClassroomResponse {
+  data: ClassroomType | null;
   error?: string;
   success?: boolean;
 }
@@ -126,7 +132,7 @@ export async function getSingleClassroomAdminData({
   classroomId
 }: {
   classroomId: number;
-}): Promise<ClassroomResponse> {
+}): Promise<SingleClassroomResponse> {
   try {
     const data = await serverFetch(`/api/Classroom/${classroomId}`);
 
@@ -137,7 +143,7 @@ export async function getSingleClassroomAdminData({
   } catch (error) {
     console.error("Lỗi khi lấy dữ liệu bài học:", error);
     return {
-      data: [],
+      data: null,
       error:
         error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
     };
