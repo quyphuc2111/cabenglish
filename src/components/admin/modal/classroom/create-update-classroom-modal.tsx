@@ -21,16 +21,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ImageUploader } from "@/components/ui/image-upload";
-import { toast } from "react-toastify";
-import { showToast } from "@/utils/toast-config";
 import { BadgePlus, Pencil } from "lucide-react";
-import { useCreateClassroom, useGetSingleClassroom, useUpdateClassroom } from "@/hooks/use-classrooms";
+import {  useGetSingleClassroom } from "@/hooks/use-classrooms";
 import { useModal } from "@/hooks/useModalStore";
 import { motion, AnimatePresence } from "framer-motion";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  classroomFormSchema,
   type ClassroomFormValues
 } from "@/lib/validations/classroom";
 import { useClassroomForm } from "@/hooks/client/form/useClassroomForm";
@@ -216,8 +211,8 @@ function CreateUpdateClassroomModal() {
                   
                   <Button
                     type="submit"
-                    disabled={isPending}
-                    className="bg-blue-500"
+                    disabled={isPending }
+                    className="bg-blue-500/90 hover:bg-blue-500"
                   >
                     {isPending 
                       ? `Đang ${formType === "create" ? "tạo" : "cập nhật"}...` 
