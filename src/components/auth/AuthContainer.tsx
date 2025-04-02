@@ -8,14 +8,20 @@ import Image from "next/image";
 interface AuthFormProps {
   type: "signup" | "signin" | "forgot_password" | "reset_password";
   animated: boolean;
-  onSwitchForm: (type: "signin" | "signup" | "forgot_password" | "reset_password") => void;
+  onSwitchForm: (
+    type: "signin" | "signup" | "forgot_password" | "reset_password"
+  ) => void;
 }
 
 const AuthContainer = () => {
   const [isSignIn, setIsSignIn] = useState(false);
-  const [formType, setFormType] = useState<"signin" | "signup" | "forgot_password" | "reset_password">("signin");
+  const [formType, setFormType] = useState<
+    "signin" | "signup" | "forgot_password" | "reset_password"
+  >("signin");
 
-  const handleSwitchForm = (type: "signin" | "signup" | "forgot_password" | "reset_password") => {
+  const handleSwitchForm = (
+    type: "signin" | "signup" | "forgot_password" | "reset_password"
+  ) => {
     setFormType(type);
     if (type === "forgot_password") {
       setIsSignIn(true);
@@ -31,16 +37,16 @@ const AuthContainer = () => {
 
   return (
     <div className="relative w-full max-w-3xl bg-white shadow-lg overflow-hidden rounded-3xl">
-      <div className="flex w-full min-h-[520px]">
-        <AuthForm 
-          type={formType} 
-          animated={isSignIn} 
+      <div className="flex w-full min-h-[620px]">
+        <AuthForm
+          type={formType}
+          animated={isSignIn}
           onSwitchForm={handleSwitchForm}
         />
         {(formType === "signin" || formType === "signup") && (
-          <AuthForm 
-            type={formType === "signin" ? "signup" : "signin"} 
-            animated={isSignIn} 
+          <AuthForm
+            type={formType === "signin" ? "signup" : "signin"}
+            animated={isSignIn}
             onSwitchForm={handleSwitchForm}
           />
         )}
@@ -98,8 +104,8 @@ const AuthContainer = () => {
                 variant="outline"
                 className="mt-4 hover:text-white border-white hover:bg-white/20 bg-white w-full"
                 onClick={() => {
-                  setIsSignIn(!isSignIn)
-                  setFormType(isSignIn ? "signin" : "signup")
+                  setIsSignIn(!isSignIn);
+                  setFormType(isSignIn ? "signin" : "signup");
                 }}
               >
                 {isSignIn ? "Đăng nhập" : "Đăng ký"}

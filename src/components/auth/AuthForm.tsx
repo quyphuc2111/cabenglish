@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import SocialIcons from "./SocialIcons";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -15,6 +15,7 @@ import { useModal } from "@/hooks/useModalStore";
 import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import axios from "axios";
+import { GoogleReCaptchaCheckbox } from "@google-recaptcha/react";
 
 interface AuthFormProps {
   type: "signup" | "signin" | "forgot_password" | "reset_password";
@@ -48,6 +49,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("1234567890"); // Default Vietnamese phone number
 
   const formVariants = {
     hidden: { opacity: 0, x: type === "signin" ? -100 : 100 },
@@ -64,35 +66,18 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
   const onSubmit = async (data: FormData) => {
     if (type === "signin") {
       try {
-      //   const login  = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/Auth/login`, {
-      //     username: data.email,
-      //     password: data.password,
-      //     rememberMe: true
-      //   });
-      //   console.log(login.data);
-
-      //   if (login.data) {
-      //     router.push("/tong-quan");
-      //     router.refresh();
-      //   } else {
-      //     setError("root", {
-      //       type: "manual",
-      //       message: login.data.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
-      //     });
-      //   }
-
-
-        
         const result = await signIn("credentials", {
           username: data.email,
           password: data.password,
-          redirect: false,
+          redirect: false
         });
 
         if (result?.error) {
           setError("root", {
             type: "manual",
-            message: result.error || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
+            message:
+              result.error ||
+              "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
           });
         } else {
           router.push("/tong-quan");
@@ -101,7 +86,46 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
       } catch (error) {
         setError("root", {
           type: "manual",
-          message: error instanceof Error ? error.message : "Có lỗi xảy ra. Vui lòng thử lại sau."
+          message:
+            error instanceof Error
+              ? error.message
+              : "Có lỗi xảy ra. Vui lòng thử lại sau."
+        });
+      }
+    }
+
+    if (type === "signup") {
+      try {
+        const recaptchaToken = localStorage.getItem("recapt_token");
+        if (!recaptchaToken) {
+          setError("root", {
+            type: "manual",
+            message: "Vui lòng xác minh Captcha trước khi đăng ký."
+          });
+          return;
+        }
+        const signupResponse = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/Auth/register`,
+          {
+            username: data.email,
+            email: data.email,
+            password: data.password,
+            full_name: data.fullname,
+            phone_number: phoneNumber,
+            app_id: 1,
+            recaptcha_token: localStorage.getItem("recapt_token")
+          }
+        );
+        console.log("Signup Response:", signupResponse.data);
+        router.push("/signin");
+        router.refresh();
+      } catch (error: any) {
+        console.error("Signup Error:", error);
+        setError("root", {
+          type: "manual",
+          message:
+            error.response?.data?.message ||
+            "Đăng ký thất bại. Vui lòng thử lại sau."
         });
       }
     }
@@ -120,11 +144,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
         <Label htmlFor="email">Email</Label>
         <Input
           {...register("email", {
-            required: "Email là bắt buộc",
-            // pattern: {
-            //   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-            //   message: "Email không hợp lệ"
-            // }
+            required: "Email là bắt buộc"
           })}
           id="forgot-password-email"
           type="email"
@@ -221,7 +241,9 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
 
   const renderAuthForm = () => (
     <>
-      <h1 className="text-3xl font-bold">{t(`${type}`)}</h1>
+      <h1 className="text-3xl font-bold">
+        {type === "signup" ? "Đăng ký" : type === "signin" ? "Đăng nhập" : type}
+      </h1>
 
       <form className="w-full space-y-4" onSubmit={handleSubmit(onSubmit)}>
         {type === "signup" && (
@@ -247,13 +269,8 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
           <Input
             {...register("email", {
               required: "Email là bắt buộc"
-              // pattern: {
-              //   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              //   message: "Email không hợp lệ"
-              // }
             })}
             id={`${type}-email`}
-            // type="email"
             autoComplete="email"
             placeholder="Email của bạn"
             className="bg-gray-100"
@@ -276,7 +293,9 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
               })}
               id={`${type}-password`}
               type={showPassword ? "text" : "password"}
-              autoComplete={type === "signin" ? "current-password" : "new-password"}
+              autoComplete={
+                type === "signin" ? "current-password" : "new-password"
+              }
               placeholder="Nhập mật khẩu"
               className="bg-gray-100"
             />
@@ -298,22 +317,24 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
         </div>
 
         {type === "signin" && (
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                {...register("remember_password")}
-                id="remember_password"
-              />
-              <Label htmlFor="remember_password">Nhớ mật khẩu</Label>
+          <div>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  {...register("remember_password")}
+                  id="remember_password"
+                />
+                <Label htmlFor="remember_password">Nhớ mật khẩu</Label>
+              </div>
+              <Button
+                type="button"
+                variant="link"
+                className="text-[#3454E6] p-0"
+                onClick={() => onSwitchForm?.("forgot_password")}
+              >
+                Quên mật khẩu?
+              </Button>
             </div>
-            <Button
-              type="button"
-              variant="link"
-              className="text-[#3454E6] p-0"
-              onClick={() => onSwitchForm?.("forgot_password")}
-            >
-              Quên mật khẩu?
-            </Button>
           </div>
         )}
 
@@ -349,6 +370,27 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
           </p>
         )}
 
+        {(type === "signup" || type === "signin") && (
+          <div className="mb-2">
+            <GoogleReCaptchaCheckbox
+              onChange={(token) => {
+                try {
+                  localStorage.setItem("recapt_token", token);
+                } catch (error) {
+                  console.error("Lỗi khi đặt token:", error);
+                }
+              }}
+              onExpired={() => {
+                try {
+                  localStorage.removeItem("recapt_token");
+                } catch (error) {
+                  console.error("Lỗi khi xóa token:", error);
+                }
+              }}
+            />
+          </div>
+        )}
+
         <div
           className={`flex ${
             type === "signup" ? "justify-end" : "justify-start"
@@ -365,6 +407,13 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
       </form>
     </>
   );
+
+  useEffect(() => {
+    const token = localStorage.getItem("recapt_token");
+    if (token) {
+      localStorage.removeItem("recapt_token");
+    }
+  }, []);
 
   return (
     <motion.div

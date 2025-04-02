@@ -9,6 +9,7 @@ import { ThemeProvider } from "./theme-provider";
 // import { SocketProvider } from "./socket-provider";
 import { SessionProvider } from "next-auth/react";
 import { QueryProvider } from "./query-provider";
+import { GoogleReCaptchaProvider } from "@google-recaptcha/react";
 
 const ToastContainerClient = dynamic(
   () => import("react-toastify").then((mod) => mod.ToastContainer),
@@ -24,19 +25,24 @@ function Providers({
 }) {
   return (
     <Fragment>
-      <SessionProvider>
-        <QueryProvider>
-        {/* <SocketProvider> */}
-          <ThemeProvider>
-            <TranslationProvider translations={translations}>
-              {children}
-            </TranslationProvider>
-          </ThemeProvider>
-        {/* </SocketProvider> */}
-        <ModalProvider />
-        <ToastContainerClient />
-        </QueryProvider>
-      </SessionProvider>
+      <GoogleReCaptchaProvider
+        type="v2-checkbox"
+        siteKey="6LfrPQYrAAAAACvE3gCdKyICFMiPcmeFwr7EK-Yq"
+      >
+        <SessionProvider>
+          <QueryProvider>
+            {/* <SocketProvider> */}
+            <ThemeProvider>
+              <TranslationProvider translations={translations}>
+                {children}
+              </TranslationProvider>
+            </ThemeProvider>
+            {/* </SocketProvider> */}
+            <ModalProvider />
+            <ToastContainerClient />
+          </QueryProvider>
+        </SessionProvider>
+      </GoogleReCaptchaProvider>
     </Fragment>
   );
 }
