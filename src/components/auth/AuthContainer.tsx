@@ -31,15 +31,19 @@ const AuthContainer = () => {
 
   return (
     <div className="relative w-full max-w-3xl bg-white shadow-lg overflow-hidden rounded-3xl">
-      <div className="flex w-full min-h-[480px]">
+      <div className="flex w-full min-h-[520px]">
         <AuthForm 
           type={formType} 
           animated={isSignIn} 
           onSwitchForm={handleSwitchForm}
         />
-        {formType === "signin" || formType === "signup" ? (
-          <AuthForm type="signup" animated={isSignIn} />
-        ) : null}
+        {(formType === "signin" || formType === "signup") && (
+          <AuthForm 
+            type={formType === "signin" ? "signup" : "signin"} 
+            animated={isSignIn} 
+            onSwitchForm={handleSwitchForm}
+          />
+        )}
       </div>
       <motion.div
         className="absolute top-0 left-1/2 w-1/2 h-full bg-gradient-to-r from-purple-500 to-indigo-600"
