@@ -22,6 +22,9 @@ const AuthContainer = () => {
   const handleSwitchForm = (
     type: "signin" | "signup" | "forgot_password" | "reset_password"
   ) => {
+    // Clear any existing recaptcha token before switching forms
+    localStorage.removeItem("recapt_token");
+
     setFormType(type);
     if (type === "forgot_password") {
       setIsSignIn(true);
@@ -31,8 +34,12 @@ const AuthContainer = () => {
     }
   };
 
-  const handleSubmitButton = () => {
+  const handleToggleForm = () => {
+    // Clear any existing recaptcha token before toggling
+    localStorage.removeItem("recapt_token");
+
     setIsSignIn(!isSignIn);
+    setFormType(isSignIn ? "signin" : "signup");
   };
 
   return (
@@ -103,12 +110,9 @@ const AuthContainer = () => {
               <Button
                 variant="outline"
                 className="mt-4 hover:text-white border-white hover:bg-white/20 bg-white w-full"
-                onClick={() => {
-                  setIsSignIn(!isSignIn);
-                  setFormType(isSignIn ? "signin" : "signup");
-                }}
+                onClick={handleToggleForm}
               >
-                {isSignIn ? "Đăng nhập" : "Đăng ký"}
+                {isSignIn ? "Đến đăng nhập" : "Đến đăng ký"}
               </Button>
             </motion.div>
           </motion.div>

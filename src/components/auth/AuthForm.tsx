@@ -50,6 +50,8 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("1234567890"); // Default Vietnamese phone number
+  const [isActive, setIsActive] = useState(true);
+  const [recaptchaKey, setRecaptchaKey] = useState(Date.now());
 
   const formVariants = {
     hidden: { opacity: 0, x: type === "signin" ? -100 : 100 },
@@ -370,9 +372,10 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
           </p>
         )}
 
-        {(type === "signup" || type === "signin") && (
+        {isActive && (type === "signup" || type === "signin") && (
           <div className="mb-2">
             <GoogleReCaptchaCheckbox
+              key={`recaptcha-${type}-${recaptchaKey}`}
               onChange={(token) => {
                 try {
                   localStorage.setItem("recapt_token", token);
@@ -409,11 +412,18 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
   );
 
   useEffect(() => {
+    setIsActive(
+      (type === "signin" && !animated) ||
+        (type === "signup" && animated) ||
+        type === "forgot_password" ||
+        type === "reset_password"
+    );
+
     const token = localStorage.getItem("recapt_token");
     if (token) {
       localStorage.removeItem("recapt_token");
     }
-  }, []);
+  }, [type, animated]);
 
   return (
     <motion.div
