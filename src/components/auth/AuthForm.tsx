@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import axios from "axios";
 import { GoogleReCaptchaCheckbox } from "@google-recaptcha/react";
+import { showToast } from "@/utils/toast-config";
 
 interface AuthFormProps {
   type: "signup" | "signin" | "forgot_password" | "reset_password";
@@ -36,6 +37,8 @@ interface LoginResponse {
   message?: string;
 }
 
+const domain = `${process.env.NEXT_PUBLIC_BKT_ACCOUNT_API_URL}`;
+
 const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
   const {
     register,
@@ -43,6 +46,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
     formState: { errors, isSubmitting },
     setError
   } = useForm<FormData>();
+
   const router = useRouter();
   const { onOpen } = useModal();
   const { t } = useTranslation("", "common");
@@ -100,35 +104,41 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
       try {
         const recaptchaToken = localStorage.getItem("recapt_token");
         if (!recaptchaToken) {
-          setError("root", {
-            type: "manual",
-            message: "Vui lòng xác minh Captcha trước khi đăng ký."
-          });
+          showToast.error("Vui lòng xác nhận reCAPTCHA trước khi đăng ký.");
           return;
         }
+        // lấy trước @ của email để lấy tên người dùng
+        const username = data.email.split("@")[0];
         const signupResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/Auth/register`,
+          `${domain}/api/Account/register`,
           {
-            username: data.email,
+            username: username,
             email: data.email,
             password: data.password,
             full_name: data.fullname,
             phone_number: phoneNumber,
             app_id: 1,
-            recaptcha_token: localStorage.getItem("recapt_token")
+            recaptcha_token: recaptchaToken
           }
         );
         console.log("Signup Response:", signupResponse.data);
-        router.push("/signin");
-        router.refresh();
+        if (signupResponse.data.success) {
+          showToast.success("Đăng ký thành công. Vui lòng đăng nhập.");
+          setTimeout(() => {
+            router.push("/signin");
+            router.refresh();
+          }, 2000); // Redirect after 2 seconds
+        } else {
+          showToast.error(signupResponse.data.message || "Đăng ký thất bại.");
+          // xóa recapt_token
+          localStorage.removeItem("recapt_token");
+        }
       } catch (error: any) {
-        console.error("Signup Error:", error);
-        setError("root", {
-          type: "manual",
-          message:
-            error.response?.data?.message ||
-            "Đăng ký thất bại. Vui lòng thử lại sau."
-        });
+        showToast.error(
+          error?.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại."
+        );
+        // xóa recapt_token
+        localStorage.removeItem("recapt_token");
       }
     }
   };
@@ -340,7 +350,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
           </div>
         )}
 
-        {type === "signup" && (
+        {/* {type === "signup" && (
           <div className="space-y-2">
             <Label htmlFor="confirm_password">Xác nhận mật khẩu</Label>
             <div className="relative">
@@ -364,7 +374,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
               </button>
             </div>
           </div>
-        )}
+        )} */}
 
         {errors.root && (
           <p className="text-red-500 text-sm text-center">
@@ -372,7 +382,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
           </p>
         )}
 
-        {isActive && (type === "signup" || type === "signin") && (
+        {isActive && type === "signup" && (
           <div className="mb-2">
             <GoogleReCaptchaCheckbox
               key={`recaptcha-${type}-${recaptchaKey}`}
@@ -404,7 +414,11 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
             className="w-3/4 bg-purple-700 hover:bg-purple-800"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Đang xử lý..." : t(`${type}`)}
+            {isSubmitting
+              ? "Đang xử lý..."
+              : type === "signup"
+              ? "Đăng ký"
+              : "Đăng nhập"}
           </Button>
         </div>
       </form>
