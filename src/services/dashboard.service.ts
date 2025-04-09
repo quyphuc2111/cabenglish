@@ -9,7 +9,6 @@ import { getAllClassroomDataByUserId } from "@/actions/classroomAction";
 
 export const DashboardService = {
   async fetchDashboardData(userId: string) {
-    console.log("Fetching dashboard data for userId:", userId);
     try {
       const [courseData, filterData, lockedData, classroomData, progressData] =
         await Promise.all([

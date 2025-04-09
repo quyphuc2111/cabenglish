@@ -1,5 +1,11 @@
 import axios from "axios";
 
+export interface TokenResponseDto {
+  accessToken: string;
+  expiresIn: number;
+  tokenType: string;
+}
+
 export interface UserResponse {
   user_id: string;
   email: string;
@@ -15,6 +21,22 @@ export interface UserCreateRequest {
   language?: string;
   theme?: string;
   mode?: string;
+}
+
+export async function refreshAccessToken(
+  authCookie: string
+): Promise<TokenResponseDto> {
+  const response = await axios.post<TokenResponseDto>(
+    `${process.env.BKT_ACCOUNT_API_URL}/api/Auth/refresh-token`,
+    {},
+    {
+      headers: {
+        Cookie: authCookie
+      },
+      withCredentials: true
+    }
+  );
+  return response.data;
 }
 
 export async function fetchUserByEmail(

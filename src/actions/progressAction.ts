@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import { serverFetch } from "@/lib/api";
 import { authOptions } from "@/lib/auth";
@@ -9,7 +9,9 @@ interface ProgressResponse {
   error?: string;
 }
 
-export async function initializeProgress(userId: string): Promise<ProgressResponse> {
+export async function initializeProgress(
+  userId: string
+): Promise<ProgressResponse> {
   if (!userId) {
     return {
       success: false,
@@ -20,7 +22,7 @@ export async function initializeProgress(userId: string): Promise<ProgressRespon
   try {
     const response = await serverFetch("/api/Progress/initialize", {
       method: "POST",
-      data: userId,
+      data: JSON.stringify(userId)
     });
 
     if (!response) {
@@ -30,7 +32,6 @@ export async function initializeProgress(userId: string): Promise<ProgressRespon
     return {
       success: true
     };
-
   } catch (error) {
     console.error("Lỗi khởi tạo progress:", {
       error,
@@ -40,14 +41,23 @@ export async function initializeProgress(userId: string): Promise<ProgressRespon
 
     return {
       success: false,
-      error: error instanceof Error 
-        ? `Lỗi: ${error.message}`
-        : "Có lỗi xảy ra khi khởi tạo progress"
+      error:
+        error instanceof Error
+          ? `Lỗi: ${error.message}`
+          : "Có lỗi xảy ra khi khởi tạo progress"
     };
   }
-} 
+}
 
-export async function updateProgressSectionContent({userId, sectionContentId, progress}: {userId: string, sectionContentId: string | number, progress: 0 | 1}) {
+export async function updateProgressSectionContent({
+  userId,
+  sectionContentId,
+  progress
+}: {
+  userId: string;
+  sectionContentId: string | number;
+  progress: 0 | 1;
+}) {
   const session = await getServerSession(authOptions);
 
   if (!userId) {
@@ -72,16 +82,12 @@ export async function updateProgressSectionContent({userId, sectionContentId, pr
   }
 
   try {
-    
-
     if (!session) {
       return {
         success: false,
         error: "Không tìm thấy session"
       };
     }
-
-
 
     const response = await serverFetch(`/api/Progress/updateProgress`, {
       method: "PUT",
@@ -102,10 +108,9 @@ export async function updateProgressSectionContent({userId, sectionContentId, pr
     }
 
     return {
-      success: true,
+      success: true
     };
   } catch (error) {
-  
     // Log chi tiết lỗi để debug
     console.error("Lỗi cập nhật tiến trình section content", {
       error,
@@ -122,7 +127,13 @@ export async function updateProgressSectionContent({userId, sectionContentId, pr
   }
 }
 
-export async function resetLessonProgress({userId, lessonIds}: {userId: string, lessonIds: number[] }) {
+export async function resetLessonProgress({
+  userId,
+  lessonIds
+}: {
+  userId: string;
+  lessonIds: number[];
+}) {
   if (!userId) {
     return {
       success: false,
@@ -130,20 +141,19 @@ export async function resetLessonProgress({userId, lessonIds}: {userId: string, 
     };
   }
 
-  if(!lessonIds || lessonIds.length === 0) {
+  if (!lessonIds || lessonIds.length === 0) {
     return {
       success: false,
       error: "LessonIds không được để trống"
     };
   }
-  
 
   try {
     const response = await serverFetch(`/api/Progress/resetLesson`, {
       method: "POST",
       headers: {
-        'accept': '*/*',
-        'Content-Type': 'application/json'
+        accept: "*/*",
+        "Content-Type": "application/json"
       },
       data: {
         userId,
@@ -157,10 +167,9 @@ export async function resetLessonProgress({userId, lessonIds}: {userId: string, 
     }
 
     return {
-      success: true,
+      success: true
     };
   } catch (error) {
-  
     // Log chi tiết lỗi để debug
     console.error("Lỗi reset tiến trình bài học", {
       error,

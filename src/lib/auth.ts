@@ -7,6 +7,7 @@ import { fetchUserByEmail, createUser } from "@/hooks/client/userApi";
 declare module "next-auth/jwt" {
   interface JWT {
     accessToken?: string;
+    accessTokenExpires?: number;
     role?: string;
     userId?: string;
     mode?: string;
@@ -117,7 +118,6 @@ export const authOptions: NextAuthOptions = {
           );
 
           const data = loginResponse.data;
-          console.log("Login response:", data);
 
           if (data?.success && data?.accessToken) {
             const userId = data.accountId;
@@ -216,7 +216,29 @@ export const authOptions: NextAuthOptions = {
         token.isFirstLogin = user.isFirstLogin;
         token.authCookie = user.authCookie;
         token.moodleCookie = user.moodleCookie;
+        token.accessTokenExpires = Date.now() + 15 * 60 * 1000; // 15 phút
+        return token;
       }
+
+      // Nếu token chưa hết hạn, trả về token cũ
+      if (token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
+        return token;
+      }
+
+      // Token hết hạn, thử refresh
+      if (token.authCookie) {
+        try {
+          const { refreshAccessToken } = await import("@/hooks/client/userApi");
+          const refreshed = await refreshAccessToken(token.authCookie);
+          token.accessToken = refreshed.accessToken;
+          token.accessTokenExpires = Date.now() + refreshed.expiresIn * 1000;
+          return token;
+        } catch (error) {
+          console.error("Refresh token failed in jwt callback:", error);
+          return token; // Trả về token cũ, có thể sẽ bị lỗi 401
+        }
+      }
+
       return token;
     },
     async session({

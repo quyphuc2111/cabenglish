@@ -11,10 +11,13 @@ import { Loading } from "@/components/ui/loading";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
-  console.log("session", session);
 
   if (!session) {
     redirect("/signin");
+  }
+
+  if (!session.user.userId) {
+    throw new Error("User ID is undefined");
   }
 
   const dashboardData = await DashboardService.fetchDashboardData(
