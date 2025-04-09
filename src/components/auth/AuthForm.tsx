@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/useTranslation";
 import { motion } from "framer-motion";
@@ -10,6 +10,7 @@ import { GoogleReCaptchaCheckbox } from "@google-recaptcha/react";
 import { showToast } from "@/utils/toast-config";
 import { cn } from "@/lib/utils";
 import { useModal } from "@/hooks/useModalStore";
+import { useCreateUser } from "@/hooks/client/useCreateUser";
 
 import ForgotPasswordForm from "./forms/ForgotPasswordForm";
 import ResetPasswordForm from "./forms/ResetPasswordForm";
@@ -34,6 +35,8 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
   const [phoneNumber, setPhoneNumber] = useState("1234567890");
   const [isActive, setIsActive] = useState(true);
   const [recaptchaKey, setRecaptchaKey] = useState(Date.now());
+
+  const createUserMutation = useCreateUser();
 
   const formVariants = {
     hidden: { opacity: 0, x: type === "signin" ? -100 : 100 },
@@ -94,18 +97,24 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
       );
       if (signupResponse.data.success) {
         showToast.success("Đăng ký thành công. Vui lòng đăng nhập.");
+        // uncheck GoogleReCaptchaCheckbox
+        setRecaptchaKey(Date.now());
+        localStorage.removeItem("recapt_token");
         setTimeout(() => {
-          router.push("/signin");
-          router.refresh();
+          onSwitchForm?.("signin");
         }, 2000);
       } else {
         showToast.error(signupResponse.data.message || "Đăng ký thất bại.");
+        // uncheck GoogleReCaptchaCheckbox
+        setRecaptchaKey(Date.now());
         localStorage.removeItem("recapt_token");
       }
     } catch (error: any) {
       showToast.error(
         error?.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại."
       );
+      // uncheck GoogleReCaptchaCheckbox
+      setRecaptchaKey(Date.now());
       localStorage.removeItem("recapt_token");
     }
   };
@@ -120,6 +129,26 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
     // TODO: Implement reset password API call
     showToast.success("Mật khẩu đã được đặt lại thành công (giả lập).");
     onSwitchForm?.("signin");
+  };
+
+  const handleRecaptchaChange = useCallback((token?: string | null) => {
+    try {
+      if (token) {
+        localStorage.setItem("recapt_token", token);
+      } else {
+        localStorage.removeItem("recapt_token");
+      }
+    } catch (error) {
+      console.error("Lỗi khi xử lý reCAPTCHA token:", error);
+    }
+  }, []);
+
+  const handleRecaptchaExpired = () => {
+    try {
+      localStorage.removeItem("recapt_token");
+    } catch (error) {
+      console.error("Lỗi khi xử lý reCAPTCHA expired:", error);
+    }
   };
 
   useEffect(() => {
@@ -185,20 +214,8 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
             <div className="mb-2">
               <GoogleReCaptchaCheckbox
                 key={`recaptcha-${type}-${recaptchaKey}`}
-                onChange={(token) => {
-                  try {
-                    localStorage.setItem("recapt_token", token);
-                  } catch (error) {
-                    console.error("Lỗi khi đặt token:", error);
-                  }
-                }}
-                onExpired={() => {
-                  try {
-                    localStorage.removeItem("recapt_token");
-                  } catch (error) {
-                    console.error("Lỗi khi xóa token:", error);
-                  }
-                }}
+                onChange={handleRecaptchaChange}
+                onExpired={handleRecaptchaExpired}
               />
             </div>
           )}

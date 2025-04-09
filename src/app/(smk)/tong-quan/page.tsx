@@ -11,12 +11,15 @@ import { Loading } from "@/components/ui/loading";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
+  console.log("session", session);
 
   if (!session) {
     redirect("/signin");
   }
 
-  const dashboardData = await DashboardService.fetchDashboardData(session.user.userId);
+  const dashboardData = await DashboardService.fetchDashboardData(
+    session.user.userId
+  );
 
   return (
     <ContentLayout title="Dashboard">

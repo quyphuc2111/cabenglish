@@ -2,6 +2,7 @@ import { NextAuthOptions, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios, { AxiosError } from "axios";
+import { fetchUserByEmail, createUser } from "@/hooks/client/userApi";
 
 declare module "next-auth/jwt" {
   interface JWT {
@@ -101,7 +102,7 @@ export const authOptions: NextAuthOptions = {
             throw new Error("API_URL is not defined");
           }
 
-          console.log("API_URL", ACC_DOMAIN);
+          console.log("api url", ACC_DOMAIN);
 
           const loginResponse = await axios.post(
             `${ACC_DOMAIN}/api/Account/login`,
@@ -124,14 +125,36 @@ export const authOptions: NextAuthOptions = {
               throw new Error("User ID is not available");
             }
 
-            const userResponse = await axios.get<UserResponse>(
-              `${SMK_DOMAIN}/api/Users/${userId}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${data.accessToken}`
+            let userResponse;
+            try {
+              userResponse = await fetchUserByEmail(
+                credentials.email,
+                data.accessToken
+              );
+              // If fetchUserByEmail succeeds, treat as user found or created
+            } catch (error) {
+              if (axios.isAxiosError(error) && error.response?.status === 404) {
+                // User not found, attempt to create
+                try {
+                  userResponse = await createUser(
+                    {
+                      email: credentials.email,
+                      user_id: userId.toString(),
+                      language: "vi",
+                      theme: "theme-blue",
+                      mode: "default"
+                    },
+                    data.accessToken
+                  );
+                } catch (createError) {
+                  console.error("User creation failed:", createError);
+                  return null;
                 }
+              } else {
+                console.error("Fetch user error:", error);
+                return null;
               }
-            );
+            }
 
             const authCookie = loginResponse.headers["set-cookie"];
             const moodleCookie =
@@ -139,16 +162,16 @@ export const authOptions: NextAuthOptions = {
 
             const user: User = {
               email: data.email,
-              userId: userId,
+              userId: userId.toString(),
               username: data.username,
               role:
                 data.roles && data.roles.length > 0 ? data.roles[0] : undefined,
               accessToken: data.accessToken,
-              isFirstLogin: userResponse.data.is_firstlogin || false,
-              mode: userResponse.data.mode || "default",
-              language: userResponse.data.language || "vi",
+              isFirstLogin: userResponse.is_firstlogin || false,
+              mode: userResponse.mode || "default",
+              language: userResponse.language || "vi",
               theme:
-                (userResponse.data.theme as
+                (userResponse.theme as
                   | "theme-blue"
                   | "theme-gold"
                   | "theme-pink"

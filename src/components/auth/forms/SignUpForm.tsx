@@ -76,7 +76,7 @@ const SignUpForm: FC<SignUpFormProps> = ({
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 hidden">
         <Label htmlFor="confirm_password">Xác nhận mật khẩu</Label>
         <div className="relative">
           <Input
