@@ -13,6 +13,8 @@ declare module "next-auth/jwt" {
     isFirstLogin?: boolean;
     theme: string;
     authCookie?: string;
+    language?: string;
+    moodleCookie?: string;
   }
 }
 
@@ -21,13 +23,16 @@ declare module "next-auth" {
     id?: string;
     name?: string;
     email?: string;
+    username?: string;
     accessToken?: string;
     role?: string;
     userId?: string;
     mode?: string;
     isFirstLogin?: boolean;
-    theme: 'theme-blue' | 'theme-gold' | 'theme-pink' | 'theme-red';
+    theme: "theme-blue" | "theme-gold" | "theme-pink" | "theme-red";
     authCookie?: string;
+    language?: string;
+    moodleCookie?: string;
   }
 
   interface Session {
@@ -38,9 +43,11 @@ declare module "next-auth" {
       mode?: string;
       name?: string;
       email?: string;
-      isFirstLogin?: string;
-      theme?:string;
+      isFirstLogin?: boolean;
+      theme?: string;
       authCookie?: string;
+      language?: string;
+      moodleCookie?: string;
     };
   }
 }
@@ -63,80 +70,94 @@ interface UserResponse {
   language: string;
   theme: string;
   mode: string;
-  is_firstlogin: boolean
+  is_firstlogin: boolean;
 }
 
 interface Credentials {
-  username: string;
+  email: string;
   password: string;
 }
+
+const ACC_DOMAIN = process.env.BKT_ACCOUNT_API_URL;
+const SMK_DOMAIN = process.env.NEXT_PUBLIC_API_URL;
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text" },
+        email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials: Credentials | undefined): Promise<User | null> {
-        if (!credentials?.username || !credentials?.password) {
-          throw new Error("Username and password are required");
+      async authorize(
+        credentials: Credentials | undefined
+      ): Promise<User | null> {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password are required");
         }
-        
+
         try {
-          const API_URL = process.env.NEXT_PUBLIC_API_URL; 
-          if (!API_URL) {
+          if (!ACC_DOMAIN) {
             throw new Error("API_URL is not defined");
           }
 
-          const loginResponse = await axios.post<LoginResponse>(
-            `${API_URL}/api/Auth/login`,
+          console.log("API_URL", ACC_DOMAIN);
+
+          const loginResponse = await axios.post(
+            `${ACC_DOMAIN}/api/Account/login`,
             {
-              username: credentials?.username,
-              password: credentials?.password,
-              rememberMe: true
+              email: credentials.email,
+              password: credentials.password,
+              app_id: 1
             },
             {
               withCredentials: true
             }
           );
 
-          // Lấy cookie từ response headers
-          const authCookie = loginResponse.headers['set-cookie'];
-          const moodleCookie = "MoodleSession=3qfpb47l8gre739bhq3t0q61d0; path=/; secure; HttpOnly; SameSite=None"
-        
+          const data = loginResponse.data;
+          console.log("Login response:", data);
 
-          if(loginResponse.data) {
-            const userId = "user2" // lấy từ api login
+          if (data?.success && data?.accessToken) {
+            const userId = data.accountId;
             if (!userId) {
               throw new Error("User ID is not available");
             }
+
             const userResponse = await axios.get<UserResponse>(
-              `${API_URL}/api/Users/${userId}`, {
+              `${SMK_DOMAIN}/api/Users/${userId}`,
+              {
                 headers: {
-                  Authorization: `Bearer ${loginResponse.data.token}`
+                  Authorization: `Bearer ${data.accessToken}`
                 }
               }
             );
 
-            if(userResponse) {
-              // Create the user object that will be stored in the session
-              const user = {
-                email: userResponse.data.email,
-                userId: userId,
-                mode: userResponse.data.mode,
-                language: userResponse.data.language,
-                role: loginResponse.data.role,
-                accessToken: loginResponse.data.token,
-                isFirstLogin: userResponse.data.is_firstlogin,
-                theme: userResponse.data.theme as 'theme-blue' | 'theme-gold' | 'theme-pink' | 'theme-red',
-                authCookie: authCookie ? authCookie[0] : undefined,
-                moodleCookie: moodleCookie
-        
-              };
-              return user;
-            }
+            const authCookie = loginResponse.headers["set-cookie"];
+            const moodleCookie =
+              "MoodleSession=3qfpb47l8gre739bhq3t0q61d0; path=/; secure; HttpOnly; SameSite=None";
+
+            const user: User = {
+              email: data.email,
+              userId: userId,
+              username: data.username,
+              role:
+                data.roles && data.roles.length > 0 ? data.roles[0] : undefined,
+              accessToken: data.accessToken,
+              isFirstLogin: userResponse.data.is_firstlogin || false,
+              mode: userResponse.data.mode || "default",
+              language: userResponse.data.language || "vi",
+              theme:
+                (userResponse.data.theme as
+                  | "theme-blue"
+                  | "theme-gold"
+                  | "theme-pink"
+                  | "theme-red") || "theme-blue",
+              authCookie: authCookie ? authCookie[0] : undefined,
+              moodleCookie: moodleCookie
+            };
+
+            return user;
           }
 
           return null;
@@ -205,7 +226,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 24 * 60 * 60  
+    maxAge: 24 * 60 * 60
   },
   secret: process.env.NEXTAUTH_SECRET
 };

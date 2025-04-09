@@ -73,7 +73,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
     if (type === "signin") {
       try {
         const result = await signIn("credentials", {
-          username: data.email,
+          email: data.email,
           password: data.password,
           redirect: false
         });
