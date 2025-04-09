@@ -216,7 +216,7 @@ export const authOptions: NextAuthOptions = {
         token.isFirstLogin = user.isFirstLogin;
         token.authCookie = user.authCookie;
         token.moodleCookie = user.moodleCookie;
-        token.accessTokenExpires = Date.now() + 15 * 60 * 1000; // 15 phút
+        token.accessTokenExpires = Date.now() + 1 * 60 * 1000; // 1 phút
         return token;
       }
 

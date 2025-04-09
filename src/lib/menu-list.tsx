@@ -12,6 +12,7 @@ import {
   LayoutGrid,
   LucideIcon
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 type Submenu = {
@@ -44,9 +45,13 @@ export function useMenuList(
 
   const { t } = useTranslation("", "common");
   const [classrooms, setClassrooms] = useState<ClassroomType[]>([]);
+
+  // lấy session từ next-auth
+  const session = useSession();
+
   useEffect(() => {
     const fetchClassrooms = async () => {
-      const userId = "user2";
+      const userId = session.data?.user.userId || "";
       const response = await getAllClassroomDataByUserId({ userId });
       if (response.data) {
         setClassrooms(response.data);

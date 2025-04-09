@@ -39,6 +39,20 @@ export async function refreshAccessToken(
   return response.data;
 }
 
+export async function logout(authCookie: string): Promise<{ message: string }> {
+  const response = await axios.post<{ message: string }>(
+    `${process.env.BKT_ACCOUNT_API_URL}/api/Auth/logout`,
+    {},
+    {
+      headers: {
+        Cookie: authCookie
+      },
+      withCredentials: true
+    }
+  );
+  return response.data;
+}
+
 export async function fetchUserByEmail(
   email: string,
   accessToken: string
