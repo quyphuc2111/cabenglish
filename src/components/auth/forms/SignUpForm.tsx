@@ -25,7 +25,7 @@ const SignUpForm: FC<SignUpFormProps> = ({
   showPassword,
   setShowPassword,
   showConfirmPassword,
-  setShowConfirmPassword,
+  setShowConfirmPassword
 }) => {
   const form = useForm<SignUpFormData>();
 
@@ -112,4 +112,4 @@ const SignUpForm: FC<SignUpFormProps> = ({
   );
 };
 
-export default SignUpForm; 
+export default SignUpForm;

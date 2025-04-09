@@ -1,22 +1,20 @@
 "use client";
 
-import { FC, useEffect, useMemo, useState } from "react";
-import SocialIcons from "./SocialIcons";
+import { FC, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/useTranslation";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
-import { Checkbox } from "../ui/checkbox";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { useModal } from "@/hooks/useModalStore";
-import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import axios from "axios";
 import { GoogleReCaptchaCheckbox } from "@google-recaptcha/react";
 import { showToast } from "@/utils/toast-config";
+import { cn } from "@/lib/utils";
+import { useModal } from "@/hooks/useModalStore";
+
+import ForgotPasswordForm from "./forms/ForgotPasswordForm";
+import ResetPasswordForm from "./forms/ResetPasswordForm";
+import SignInForm from "./forms/SignInForm";
+import SignUpForm from "./forms/SignUpForm";
 
 interface AuthFormProps {
   type: "signup" | "signin" | "forgot_password" | "reset_password";
@@ -24,36 +22,16 @@ interface AuthFormProps {
   onSwitchForm?: (type: AuthFormProps["type"]) => void;
 }
 
-interface FormData {
-  fullname?: string;
-  email: string;
-  password: string;
-  confirm_password?: string;
-  remember_password?: boolean;
-}
-
-interface LoginResponse {
-  success: boolean;
-  message?: string;
-}
-
 const domain = `${process.env.NEXT_PUBLIC_BKT_ACCOUNT_API_URL}`;
 
 const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    setError
-  } = useForm<FormData>();
-
   const router = useRouter();
   const { onOpen } = useModal();
   const { t } = useTranslation("", "common");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("1234567890"); // Default Vietnamese phone number
+  const [phoneNumber, setPhoneNumber] = useState("1234567890");
   const [isActive, setIsActive] = useState(true);
   const [recaptchaKey, setRecaptchaKey] = useState(Date.now());
 
@@ -69,361 +47,80 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
     }
   };
 
-  const onSubmit = async (data: FormData) => {
-    if (type === "signin") {
-      try {
-        const result = await signIn("credentials", {
-          email: data.email,
-          password: data.password,
-          redirect: false
-        });
+  const handleSignIn = async (data: any) => {
+    try {
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false
+      });
 
-        if (result?.error) {
-          setError("root", {
-            type: "manual",
-            message:
-              result.error ||
-              "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
-          });
-        } else {
-          router.push("/tong-quan");
-          router.refresh();
-        }
-      } catch (error) {
-        setError("root", {
-          type: "manual",
-          message:
-            error instanceof Error
-              ? error.message
-              : "Có lỗi xảy ra. Vui lòng thử lại sau."
-        });
-      }
-    }
-
-    if (type === "signup") {
-      try {
-        const recaptchaToken = localStorage.getItem("recapt_token");
-        if (!recaptchaToken) {
-          showToast.error("Vui lòng xác nhận reCAPTCHA trước khi đăng ký.");
-          return;
-        }
-        // lấy trước @ của email để lấy tên người dùng
-        const username = data.email.split("@")[0];
-        const signupResponse = await axios.post(
-          `${domain}/api/Account/register`,
-          {
-            username: username,
-            email: data.email,
-            password: data.password,
-            full_name: data.fullname,
-            phone_number: phoneNumber,
-            app_id: 1,
-            recaptcha_token: recaptchaToken
-          }
-        );
-        console.log("Signup Response:", signupResponse.data);
-        if (signupResponse.data.success) {
-          showToast.success("Đăng ký thành công. Vui lòng đăng nhập.");
-          setTimeout(() => {
-            router.push("/signin");
-            router.refresh();
-          }, 2000); // Redirect after 2 seconds
-        } else {
-          showToast.error(signupResponse.data.message || "Đăng ký thất bại.");
-          // xóa recapt_token
-          localStorage.removeItem("recapt_token");
-        }
-      } catch (error: any) {
+      if (result?.error) {
         showToast.error(
-          error?.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại."
+          result.error || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
         );
-        // xóa recapt_token
-        localStorage.removeItem("recapt_token");
+      } else {
+        router.push("/tong-quan");
+        router.refresh();
       }
+    } catch (error) {
+      showToast.error(
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra. Vui lòng thử lại sau."
+      );
     }
   };
 
-  const renderForgotPasswordForm = () => (
-    <div className="space-y-4">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold mb-2">Quên mật khẩu?</h2>
-        <p className="text-gray-600">
-          Nhập email của bạn để nhận link đặt lại mật khẩu
-        </p>
-      </div>
+  const handleSignUp = async (data: any) => {
+    try {
+      const recaptchaToken = localStorage.getItem("recapt_token");
+      if (!recaptchaToken) {
+        showToast.error("Vui lòng xác nhận reCAPTCHA trước khi đăng ký.");
+        return;
+      }
+      const username = data.email.split("@")[0];
+      const signupResponse = await axios.post(
+        `${domain}/api/Account/register`,
+        {
+          username: username,
+          email: data.email,
+          password: data.password,
+          full_name: data.fullname,
+          phone_number: phoneNumber,
+          app_id: 1,
+          recaptcha_token: recaptchaToken
+        }
+      );
+      if (signupResponse.data.success) {
+        showToast.success("Đăng ký thành công. Vui lòng đăng nhập.");
+        setTimeout(() => {
+          router.push("/signin");
+          router.refresh();
+        }, 2000);
+      } else {
+        showToast.error(signupResponse.data.message || "Đăng ký thất bại.");
+        localStorage.removeItem("recapt_token");
+      }
+    } catch (error: any) {
+      showToast.error(
+        error?.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại."
+      );
+      localStorage.removeItem("recapt_token");
+    }
+  };
 
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          {...register("email", {
-            required: "Email là bắt buộc"
-          })}
-          id="forgot-password-email"
-          type="email"
-          autoComplete="email"
-          placeholder="Nhập email của bạn"
-          className="bg-gray-100"
-        />
-        {errors.email && (
-          <p className="text-red-500 text-sm">{errors.email.message}</p>
-        )}
-      </div>
+  const handleForgotPassword = async (data: any) => {
+    // TODO: Implement forgot password API call
+    showToast.success("Yêu cầu đặt lại mật khẩu đã được gửi (giả lập).");
+    onSwitchForm?.("reset_password");
+  };
 
-      <div className="flex flex-col gap-4">
-        <Button
-          type="submit"
-          className="w-full bg-purple-700 hover:bg-purple-800"
-          onClick={() => onSwitchForm?.("reset_password")}
-        >
-          Gửi yêu cầu
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => onSwitchForm?.("signin")}
-          className="w-full"
-        >
-          Quay lại đăng nhập
-        </Button>
-      </div>
-    </div>
-  );
-
-  const renderResetPasswordForm = () => (
-    <div className="space-y-4">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold mb-2">Đặt lại mật khẩu</h2>
-        <p className="text-gray-600">Tạo mật khẩu mới cho tài khoản của bạn</p>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="new_password">Mật khẩu mới</Label>
-        <div className="relative">
-          <Input
-            id="new_password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Nhập mật khẩu mới"
-            className="bg-gray-100"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-          >
-            {showPassword ? (
-              <EyeOffIcon className="h-4 w-4" />
-            ) : (
-              <EyeIcon className="h-4 w-4" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="confirm_password">Xác nhận mật khẩu mới</Label>
-        <div className="relative">
-          <Input
-            id="confirm_password"
-            type={showConfirmPassword ? "text" : "password"}
-            placeholder="Nhập lại mật khẩu mới"
-            className="bg-gray-100"
-          />
-          <button
-            type="button"
-            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-          >
-            {showConfirmPassword ? (
-              <EyeOffIcon className="h-4 w-4" />
-            ) : (
-              <EyeIcon className="h-4 w-4" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      <Button
-        type="submit"
-        className="w-full bg-purple-700 hover:bg-purple-800"
-      >
-        Đặt lại mật khẩu
-      </Button>
-    </div>
-  );
-
-  const renderAuthForm = () => (
-    <>
-      <h1 className="text-3xl font-bold">
-        {type === "signup" ? "Đăng ký" : type === "signin" ? "Đăng nhập" : type}
-      </h1>
-
-      <form className="w-full space-y-4" onSubmit={handleSubmit(onSubmit)}>
-        {type === "signup" && (
-          <div className="space-y-2">
-            <Label htmlFor="fullname">Họ và tên</Label>
-            <Input
-              {...register("fullname", {
-                required: "Họ và tên là bắt buộc"
-              })}
-              id="fullname"
-              type="text"
-              placeholder="Họ và tên"
-              className="bg-gray-100"
-            />
-            {errors.fullname && (
-              <p className="text-red-500 text-sm">{errors.fullname.message}</p>
-            )}
-          </div>
-        )}
-
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            {...register("email", {
-              required: "Email là bắt buộc"
-            })}
-            id={`${type}-email`}
-            autoComplete="email"
-            placeholder="Email của bạn"
-            className="bg-gray-100"
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm">{errors.email.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="password">Mật khẩu</Label>
-          <div className="relative">
-            <Input
-              {...register("password", {
-                required: "Mật khẩu là bắt buộc",
-                minLength: {
-                  value: 3,
-                  message: "Mật khẩu phải có ít nhất 3 ký tự"
-                }
-              })}
-              id={`${type}-password`}
-              type={showPassword ? "text" : "password"}
-              autoComplete={
-                type === "signin" ? "current-password" : "new-password"
-              }
-              placeholder="Nhập mật khẩu"
-              className="bg-gray-100"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-            >
-              {showPassword ? (
-                <EyeOffIcon className="h-4 w-4" />
-              ) : (
-                <EyeIcon className="h-4 w-4" />
-              )}
-            </button>
-          </div>
-          {errors.password && (
-            <p className="text-red-500 text-sm">{errors.password.message}</p>
-          )}
-        </div>
-
-        {type === "signin" && (
-          <div>
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  {...register("remember_password")}
-                  id="remember_password"
-                />
-                <Label htmlFor="remember_password">Nhớ mật khẩu</Label>
-              </div>
-              <Button
-                type="button"
-                variant="link"
-                className="text-[#3454E6] p-0"
-                onClick={() => onSwitchForm?.("forgot_password")}
-              >
-                Quên mật khẩu?
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* {type === "signup" && (
-          <div className="space-y-2">
-            <Label htmlFor="confirm_password">Xác nhận mật khẩu</Label>
-            <div className="relative">
-              <Input
-                id={`${type}-confirm-password`}
-                type={showConfirmPassword ? "text" : "password"}
-                autoComplete="new-password"
-                placeholder="Nhập lại mật khẩu"
-                className="bg-gray-100"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              >
-                {showConfirmPassword ? (
-                  <EyeOffIcon className="h-4 w-4" />
-                ) : (
-                  <EyeIcon className="h-4 w-4" />
-                )}
-              </button>
-            </div>
-          </div>
-        )} */}
-
-        {errors.root && (
-          <p className="text-red-500 text-sm text-center">
-            {errors.root.message}
-          </p>
-        )}
-
-        {isActive && type === "signup" && (
-          <div className="mb-2">
-            <GoogleReCaptchaCheckbox
-              key={`recaptcha-${type}-${recaptchaKey}`}
-              onChange={(token) => {
-                try {
-                  localStorage.setItem("recapt_token", token);
-                } catch (error) {
-                  console.error("Lỗi khi đặt token:", error);
-                }
-              }}
-              onExpired={() => {
-                try {
-                  localStorage.removeItem("recapt_token");
-                } catch (error) {
-                  console.error("Lỗi khi xóa token:", error);
-                }
-              }}
-            />
-          </div>
-        )}
-
-        <div
-          className={`flex ${
-            type === "signup" ? "justify-end" : "justify-start"
-          }`}
-        >
-          <Button
-            type="submit"
-            className="w-3/4 bg-purple-700 hover:bg-purple-800"
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? "Đang xử lý..."
-              : type === "signup"
-              ? "Đăng ký"
-              : "Đăng nhập"}
-          </Button>
-        </div>
-      </form>
-    </>
-  );
+  const handleResetPassword = async (data: any) => {
+    // TODO: Implement reset password API call
+    showToast.success("Mật khẩu đã được đặt lại thành công (giả lập).");
+    onSwitchForm?.("signin");
+  };
 
   useEffect(() => {
     setIsActive(
@@ -449,11 +146,64 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
         type === "signin" ? "" : "right-0"
       )}
     >
-      {type === "forgot_password"
-        ? renderForgotPasswordForm()
-        : type === "reset_password"
-        ? renderResetPasswordForm()
-        : renderAuthForm()}
+      {type === "forgot_password" && (
+        <ForgotPasswordForm
+          onSubmit={handleForgotPassword}
+          onSwitchForm={(t) => onSwitchForm?.(t as AuthFormProps["type"])}
+        />
+      )}
+
+      {type === "reset_password" && (
+        <ResetPasswordForm
+          onSubmit={handleResetPassword}
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
+          showConfirmPassword={showConfirmPassword}
+          setShowConfirmPassword={setShowConfirmPassword}
+        />
+      )}
+
+      {type === "signin" && (
+        <SignInForm
+          onSubmit={handleSignIn}
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
+          onSwitchForm={(t) => onSwitchForm?.(t as AuthFormProps["type"])}
+        />
+      )}
+
+      {type === "signup" && (
+        <>
+          <SignUpForm
+            onSubmit={handleSignUp}
+            showPassword={showPassword}
+            setShowPassword={setShowPassword}
+            showConfirmPassword={showConfirmPassword}
+            setShowConfirmPassword={setShowConfirmPassword}
+          />
+          {isActive && (
+            <div className="mb-2">
+              <GoogleReCaptchaCheckbox
+                key={`recaptcha-${type}-${recaptchaKey}`}
+                onChange={(token) => {
+                  try {
+                    localStorage.setItem("recapt_token", token);
+                  } catch (error) {
+                    console.error("Lỗi khi đặt token:", error);
+                  }
+                }}
+                onExpired={() => {
+                  try {
+                    localStorage.removeItem("recapt_token");
+                  } catch (error) {
+                    console.error("Lỗi khi xóa token:", error);
+                  }
+                }}
+              />
+            </div>
+          )}
+        </>
+      )}
     </motion.div>
   );
 };

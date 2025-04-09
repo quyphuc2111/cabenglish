@@ -23,7 +23,7 @@ const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
   showPassword,
   setShowPassword,
   showConfirmPassword,
-  setShowConfirmPassword,
+  setShowConfirmPassword
 }) => {
   const form = useForm<ResetPasswordFormData>();
 
@@ -31,9 +31,7 @@ const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
     <div className="space-y-4">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold mb-2">Đặt lại mật khẩu</h2>
-        <p className="text-gray-600">
-          Tạo mật khẩu mới cho tài khoản của bạn
-        </p>
+        <p className="text-gray-600">Tạo mật khẩu mới cho tài khoản của bạn</p>
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -69,9 +67,10 @@ const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Nhập lại mật khẩu mới"
               className="bg-gray-100"
-              {...form.register("confirm_password", { 
+              {...form.register("confirm_password", {
                 required: true,
-                validate: (value) => value === form.watch("new_password") || "Mật khẩu không khớp"
+                validate: (value) =>
+                  value === form.watch("new_password") || "Mật khẩu không khớp"
               })}
             />
             <button
@@ -88,7 +87,7 @@ const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
           </div>
         </div>
 
-        <Button 
+        <Button
           type="submit"
           className="w-full bg-purple-700 hover:bg-purple-800"
         >
@@ -99,4 +98,4 @@ const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
   );
 };
 
-export default ResetPasswordForm; 
+export default ResetPasswordForm;

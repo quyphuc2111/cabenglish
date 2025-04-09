@@ -23,7 +23,7 @@ const SignInForm: FC<SignInFormProps> = ({
   onSubmit,
   showPassword,
   setShowPassword,
-  onSwitchForm,
+  onSwitchForm
 }) => {
   const form = useForm<SignInFormData>();
 
@@ -65,12 +65,15 @@ const SignInForm: FC<SignInFormProps> = ({
 
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-2">
-          <Checkbox id="remember_password" {...form.register("remember_password")} />
+          <Checkbox
+            id="remember_password"
+            {...form.register("remember_password")}
+          />
           <Label htmlFor="remember_password">Nhớ mật khẩu</Label>
         </div>
-        <Button 
+        <Button
           type="button"
-          variant="link" 
+          variant="link"
           className="text-[#3454E6] p-0"
           onClick={() => onSwitchForm("forgot_password")}
         >
@@ -90,4 +93,4 @@ const SignInForm: FC<SignInFormProps> = ({
   );
 };
 
-export default SignInForm; 
+export default SignInForm;

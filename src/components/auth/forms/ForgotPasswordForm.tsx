@@ -15,7 +15,7 @@ interface ForgotPasswordFormData {
 
 const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
   onSubmit,
-  onSwitchForm,
+  onSwitchForm
 }) => {
   const form = useForm<ForgotPasswordFormData>();
 
@@ -27,7 +27,7 @@ const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
           Nhập email của bạn để nhận link đặt lại mật khẩu
         </p>
       </div>
-      
+
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -39,15 +39,15 @@ const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
             {...form.register("email", { required: true })}
           />
         </div>
-        
+
         <div className="flex flex-col gap-4">
-          <Button 
+          <Button
             type="submit"
             className="w-full bg-purple-700 hover:bg-purple-800"
           >
             Gửi yêu cầu
           </Button>
-          <Button 
+          <Button
             type="button"
             variant="outline"
             onClick={() => onSwitchForm("signin")}
@@ -61,4 +61,4 @@ const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
   );
 };
 
-export default ForgotPasswordForm; 
+export default ForgotPasswordForm;
