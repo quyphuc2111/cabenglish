@@ -53,7 +53,7 @@ const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
             onClick={() => onSwitchForm("signin")}
             className="w-full"
           >
-            Quay lại đăng nhập
+            Quay lại đăng nhập BKT
           </Button>
         </div>
       </form>

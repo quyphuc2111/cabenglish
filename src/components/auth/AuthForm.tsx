@@ -27,16 +27,12 @@ const domain = `${process.env.NEXT_PUBLIC_BKT_ACCOUNT_API_URL}`;
 
 const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
   const router = useRouter();
-  const { onOpen } = useModal();
-  const { t } = useTranslation("", "common");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("1234567890");
   const [isActive, setIsActive] = useState(true);
   const [recaptchaKey, setRecaptchaKey] = useState(Date.now());
-
-  const createUserMutation = useCreateUser();
 
   const formVariants = {
     hidden: { opacity: 0, x: type === "signin" ? -100 : 100 },
@@ -77,6 +73,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
 
   const handleSignUp = async (data: any) => {
     try {
+      console.log("data", data);
       const recaptchaToken = localStorage.getItem("recapt_token");
       if (!recaptchaToken) {
         showToast.error("Vui lòng xác nhận reCAPTCHA trước khi đăng ký.");
@@ -119,13 +116,13 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
     }
   };
 
-  const handleForgotPassword = async (data: any) => {
+  const handleForgotPassword = async () => {
     // TODO: Implement forgot password API call
     showToast.success("Yêu cầu đặt lại mật khẩu đã được gửi (giả lập).");
     onSwitchForm?.("reset_password");
   };
 
-  const handleResetPassword = async (data: any) => {
+  const handleResetPassword = async () => {
     // TODO: Implement reset password API call
     showToast.success("Mật khẩu đã được đặt lại thành công (giả lập).");
     onSwitchForm?.("signin");

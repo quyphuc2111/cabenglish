@@ -27,10 +27,14 @@ const SignUpForm: FC<SignUpFormProps> = ({
   showConfirmPassword,
   setShowConfirmPassword
 }) => {
-  const form = useForm<SignUpFormData>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<SignUpFormData>();
 
   return (
-    <form className="w-full space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+    <form className="w-full space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-2">
         <Label htmlFor="fullname">Họ và tên</Label>
         <Input
@@ -38,8 +42,11 @@ const SignUpForm: FC<SignUpFormProps> = ({
           type="text"
           placeholder="Họ và tên"
           className="bg-gray-100"
-          {...form.register("fullname", { required: true })}
+          {...register("fullname", { required: true })}
         />
+        {errors.fullname && (
+          <p className="text-red-500 text-sm">Vui lòng nhập họ và tên</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -48,8 +55,11 @@ const SignUpForm: FC<SignUpFormProps> = ({
           id="email"
           placeholder="Email của bạn"
           className="bg-gray-100"
-          {...form.register("email", { required: true })}
+          {...register("email", { required: true })}
         />
+        {errors.email && (
+          <p className="text-red-500 text-sm">Vui lòng nhập email</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -60,8 +70,11 @@ const SignUpForm: FC<SignUpFormProps> = ({
             type={showPassword ? "text" : "password"}
             placeholder="Nhập mật khẩu"
             className="bg-gray-100"
-            {...form.register("password", { required: true })}
+            {...register("password", { required: true })}
           />
+          {errors.password && (
+            <p className="text-red-500 text-sm">Vui lòng nhập mật khẩu</p>
+          )}
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
@@ -84,7 +97,7 @@ const SignUpForm: FC<SignUpFormProps> = ({
             type={showConfirmPassword ? "text" : "password"}
             placeholder="Nhập lại mật khẩu"
             className="bg-gray-100"
-            {...form.register("confirm_password", { required: true })}
+            {...register("confirm_password", { required: false })}
           />
           <button
             type="button"
@@ -105,7 +118,7 @@ const SignUpForm: FC<SignUpFormProps> = ({
           type="submit"
           className="w-3/4 bg-purple-700 hover:bg-purple-800"
         >
-          Đăng ký
+          Đăng ký BKT
         </Button>
       </div>
     </form>
