@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import CourseCard from "../course-card/course-card";
 import { useUpdateUserInfo } from "@/hooks/client/useUser";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { useUpdateSession } from "@/hooks/client/useUpdateSession";
 
 type TeachingModeType = "default" | "freemode";
@@ -157,25 +157,34 @@ function TeachingModeModal() {
   const [mode, setMode] = useState<TeachingModeType | null>(null);
   const { data: session } = useSession();
 
-  const { mutate: updateUserInfo } = useUpdateUserInfo();
+  const { mutateAsync: updateUserInfo } = useUpdateUserInfo();
 
   const isModalOpen = isOpen && type === "teachingMode";
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!session) {
       return;
     }
-    updateUserInfo({
-      userId: session.user.userId,
-      userInfo: {
-        mode: mode === "default" ? "default" : "free",
-        isFirstLogin: false,
-        email: session.user.email,
-        language: session.user.language,
-        theme: session.user.theme
+    try {
+      const result = await updateUserInfo({
+        userId: session.user.userId ?? "",
+        userInfo: {
+          mode: mode === "default" ? "default" : "free",
+          isFirstLogin: false,
+          email: session.user.email ?? "",
+          language: session.user.language ?? "",
+          theme: session.user.theme ?? ""
+        }
+      });
+
+      if (result?.sessionShouldUpdate) {
+        await signIn("credentials", { redirect: false });
       }
-    });
-    onClose();
+    } catch (error) {
+      console.error("Lỗi khi cập nhật user info:", error);
+    } finally {
+      onClose();
+    }
   };
 
   const renderModeContent = () => {
@@ -247,7 +256,7 @@ function TeachingModeModal() {
               items={MODAL_CONTENT.freeMode.description}
               className="w-2/3 text-[#736E6E]"
             />
-            <ActionButtons onBack={() => setMode(null)} />
+            <ActionButtons onBack={() => setMode(null)} onSave={handleSave} />
           </div>
         </motion.div>
       );

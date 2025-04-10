@@ -13,10 +13,11 @@ interface userParams {
   };
 }
 
-interface userResponse {
+export interface userResponse {
   success: boolean;
   error?: string;
   data?: any;
+  sessionShouldUpdate?: boolean;
 }
 
 export async function getUserInfo({
@@ -85,8 +86,10 @@ export async function updateUserInfo({
       throw new Error("Không nhận được phản hồi từ server");
     }
 
+    // Sau khi cập nhật user thành công, client nên gọi signIn('credentials', { redirect: false }) để refresh session
     return {
-      success: true
+      success: true,
+      sessionShouldUpdate: true
     };
   } catch (error) {
     console.error("Lỗi khi cập nhật thông tin người dùng:", {

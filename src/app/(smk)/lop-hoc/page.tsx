@@ -1,4 +1,5 @@
 // @ts-nocheck
+"use server";
 import { Suspense } from "react";
 import ClassroomClient from "./classroom-client";
 import {
