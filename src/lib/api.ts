@@ -12,31 +12,6 @@ interface ServerFetchOptions extends Omit<AxiosRequestConfig, "url"> {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// export async function apiRequest(endpoint: string, options: any = {}) {
-//   const session = await getSession();
-
-//   const config = {
-//     headers: {
-//       "Content-Type": "application/json",
-//       "Accept": "application/json",
-//       ...(session?.accessToken && { Authorization: `Bearer ${session.accessToken}` }),
-//       ...options.headers,
-//     },
-//     withCredentials: true,
-//     httpsAgent: new https.Agent({
-//       rejectUnauthorized: false
-//     }),
-//     ...options,
-//   };
-
-//   const response = await axios({
-//     url: `${API_URL}${endpoint}`,
-//     ...config,
-//   });
-
-//   return response.data;
-// }
-
 export async function clientFetch(endpoint: string, options: any = {}) {
   const session = await getSession();
 

@@ -1,4 +1,6 @@
 import axios from "axios";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export interface TokenResponseDto {
   accessToken: string;
@@ -39,13 +41,16 @@ export async function refreshAccessToken(
   return response.data;
 }
 
-export async function logout(authCookie: string): Promise<{ message: string }> {
+export async function logout(): Promise<{ message: string }> {
+  console.log("Logging out...");
+  const session = await getServerSession(authOptions);
+  console.log("Logging out session:", session);
   const response = await axios.post<{ message: string }>(
     `${process.env.BKT_ACCOUNT_API_URL}/api/Auth/logout`,
     {},
     {
       headers: {
-        Cookie: authCookie
+        Cookie: session?.user.authCookie || ""
       },
       withCredentials: true
     }

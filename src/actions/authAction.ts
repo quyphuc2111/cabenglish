@@ -1,103 +1,57 @@
 "use server";
 
-import { cookies } from "next/headers";
-import { getIronSession } from "iron-session";
-import type { SessionData } from "@/lib/session";
-import { sessionOptions } from "@/lib/session";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import axios from "axios";
 
-interface LoginResponse {
+export async function logoutAction(): Promise<{
   success: boolean;
   message?: string;
-  accessToken?: string;
-  refreshToken?: string;
-  roles?: string[];
-  accountId?: string;
-  username?: string;
-  email?: string;
-  [key: string]: any;
-}
-
-interface LoginResult {
-  success: boolean;
-  message?: string;
-  data?: SessionData;
-}
-
-export async function loginAction({
-  email,
-  password,
-  app_id
-}: {
-  email: string;
-  password: string;
-  app_id: number;
-}): Promise<LoginResult> {
-  const cookieStore = await cookies();
-  const session = await getIronSession<SessionData>(
-    cookieStore,
-    sessionOptions
-  );
-
+}> {
   try {
+    const session = await getServerSession(authOptions);
+    const authCookie = session?.user?.authCookie;
+
+    if (!authCookie) {
+      console.error("Logout Action: Auth cookie not found in session.");
+      // Decide if this is an error or just means the user is already effectively logged out server-side
+      // For now, let's proceed to client-side logout anyway, but report potential issue.
+      return { success: false, message: "Auth cookie not found." };
+    }
+
     const apiUrl = process.env.BKT_ACCOUNT_API_URL;
     if (!apiUrl) {
-      throw new Error("API URL is not defined");
+      throw new Error(
+        "BKT_ACCOUNT_API_URL is not defined in environment variables."
+      );
     }
 
-    // console.log("API URL:", apiUrl);
-
-    const response = await fetch(`${apiUrl}/api/Account/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, password, app_id }),
-      credentials: "include"
-    });
-
-    let data: LoginResponse = { success: false };
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      try {
-        data = await response.json();
-      } catch {
-        data = { success: false };
+    console.log("Calling backend logout API...");
+    await axios.post(
+      `${apiUrl}/api/Auth/logout`,
+      {},
+      {
+        headers: {
+          Cookie: authCookie
+        },
+        withCredentials: true // Important if your backend relies on cookies being sent
       }
-    }
-
-    if (!response.ok || !data.success) {
+    );
+    console.log("Backend logout API call successful.");
+    return { success: true };
+  } catch (error) {
+    console.error("Logout Action failed:", error);
+    // Check if it's an Axios error to potentially get more details
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error details:", error.response?.data);
       return {
         success: false,
-        message: data.message || "Login failed"
+        message: error.response?.data?.message || "API logout failed."
       };
     }
-
-    // Save relevant data to session
-    session.accessToken = data.accessToken;
-    session.refreshToken = data.refreshToken;
-    session.roles = data.roles;
-    session.accountId = data.accountId;
-    session.username = data.username;
-    session.email = data.email;
-
-    await session.save();
-
-    return {
-      success: true,
-      data: {
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-        roles: data.roles,
-        accountId: data.accountId,
-        username: data.username,
-        email: data.email
-      }
-    };
-  } catch (error) {
-    console.error("Login error:", error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: "An unexpected error occurred during logout."
     };
   }
 }
