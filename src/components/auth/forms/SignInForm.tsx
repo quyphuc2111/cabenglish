@@ -11,6 +11,7 @@ interface SignInFormProps {
   showPassword: boolean;
   setShowPassword: (show: boolean) => void;
   onSwitchForm: (type: string) => void;
+  errorMessage?: string | null;
 }
 
 interface SignInFormData {
@@ -23,13 +24,25 @@ const SignInForm: FC<SignInFormProps> = ({
   onSubmit,
   showPassword,
   setShowPassword,
-  onSwitchForm
+  onSwitchForm,
+  errorMessage
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors }
-  } = useForm<SignInFormData>();
+  } = useForm<SignInFormData>({
+    defaultValues: {
+      email:
+        typeof window !== "undefined"
+          ? localStorage.getItem("remember_email") || ""
+          : "",
+      remember_password:
+        typeof window !== "undefined"
+          ? localStorage.getItem("remember_password") === "true"
+          : false
+    }
+  });
 
   return (
     <form className="w-full space-y-4" onSubmit={handleSubmit(onSubmit)}>
@@ -96,6 +109,10 @@ const SignInForm: FC<SignInFormProps> = ({
           Đăng nhập BKT
         </Button>
       </div>
+
+      {errorMessage && (
+        <p className="text-red-500 text-sm text-center">{errorMessage}</p>
+      )}
     </form>
   );
 };

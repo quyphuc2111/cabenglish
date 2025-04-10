@@ -2,15 +2,12 @@
 
 import { FC, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslation } from "@/hooks/useTranslation";
 import { motion } from "framer-motion";
 import { signIn } from "next-auth/react";
 import axios from "axios";
 import { GoogleReCaptchaCheckbox } from "@google-recaptcha/react";
 import { showToast } from "@/utils/toast-config";
 import { cn } from "@/lib/utils";
-import { useModal } from "@/hooks/useModalStore";
-import { useCreateUser } from "@/hooks/client/useCreateUser";
 
 import ForgotPasswordForm from "./forms/ForgotPasswordForm";
 import ResetPasswordForm from "./forms/ResetPasswordForm";
@@ -33,6 +30,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
   const [phoneNumber, setPhoneNumber] = useState("1234567890");
   const [isActive, setIsActive] = useState(true);
   const [recaptchaKey, setRecaptchaKey] = useState(Date.now());
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const formVariants = {
     hidden: { opacity: 0, x: type === "signin" ? -100 : 100 },
@@ -55,14 +53,31 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
       });
 
       if (result?.error) {
+        setErrorMessage(
+          result.error || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
+        );
         showToast.error(
           result.error || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
         );
       } else {
+        setErrorMessage(null);
+        // Save remember_password + email if checked
+        if (data.remember_password) {
+          localStorage.setItem("remember_password", "true");
+          localStorage.setItem("remember_email", data.email);
+        } else {
+          localStorage.removeItem("remember_password");
+          localStorage.removeItem("remember_email");
+        }
         router.push("/tong-quan");
         router.refresh();
       }
     } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra. Vui lòng thử lại sau."
+      );
       showToast.error(
         error instanceof Error
           ? error.message
@@ -195,6 +210,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
           showPassword={showPassword}
           setShowPassword={setShowPassword}
           onSwitchForm={(t) => onSwitchForm?.(t as AuthFormProps["type"])}
+          errorMessage={errorMessage}
         />
       )}
 

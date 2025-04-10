@@ -1,14 +1,16 @@
+"use server";
 import { serverFetch } from "@/lib/api";
 import { UserResponse } from "@/types/user";
 
 interface userParams {
   userId: string;
   userInfo: {
-    email: string ;
+    email: string;
     language: string;
     theme: string;
     mode: string;
-  }
+    isFirstLogin: boolean;
+  };
 }
 
 interface userResponse {
@@ -19,7 +21,9 @@ interface userResponse {
 
 export async function getUserInfo({
   userId
-}: {userId: string}): Promise<UserResponse> {
+}: {
+  userId: string;
+}): Promise<UserResponse> {
   if (!userId) {
     return {
       success: false,
@@ -54,7 +58,6 @@ export async function getUserInfo({
   }
 }
 
-
 export async function updateUserInfo({
   userId,
   userInfo
@@ -65,7 +68,6 @@ export async function updateUserInfo({
       error: "UserId không được để trống"
     };
   }
-
   try {
     const response = await serverFetch(`/api/Users/${userId}`, {
       method: "PUT",
@@ -73,20 +75,24 @@ export async function updateUserInfo({
         email: userInfo.email,
         language: userInfo.language,
         theme: userInfo.theme,
-        mode: userInfo.mode
+        mode: userInfo.mode,
+        isFirstLogin: userInfo.isFirstLogin
       }
     });
 
-  
     // Kiểm tra response từ API nếu cần
     if (!response) {
       throw new Error("Không nhận được phản hồi từ server");
     }
 
     return {
-      success: true,
+      success: true
     };
   } catch (error) {
+    console.error("Lỗi khi cập nhật thông tin người dùng:", {
+      error,
+      timestamp: new Date().toISOString()
+    });
     return {
       success: false,
       error:

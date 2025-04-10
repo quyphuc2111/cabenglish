@@ -63,8 +63,8 @@ export async function serverFetch(
 
     let response = await axios(axiosConfig);
 
-    if (endpoint === "/api/Progress/initialize") {
-      console.log("Initialize progress response", response.data);
+    if (endpoint.startsWith("/api/Users/")) {
+      console.log("API response", response.data);
     }
     if (response.status === 401 && session?.user?.authCookie) {
       try {
