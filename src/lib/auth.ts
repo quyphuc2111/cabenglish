@@ -81,7 +81,6 @@ interface Credentials {
 }
 
 const ACC_DOMAIN = process.env.BKT_ACCOUNT_API_URL;
-const SMK_DOMAIN = process.env.NEXT_PUBLIC_API_URL;
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -118,6 +117,7 @@ export const authOptions: NextAuthOptions = {
           );
 
           const data = loginResponse.data;
+          // console.log("loginResponse", loginResponse.data);
 
           if (data?.success && data?.accessToken) {
             const userId = data.accountId;
