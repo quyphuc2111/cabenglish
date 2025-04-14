@@ -5,7 +5,7 @@ import { ClassroomType } from "@/types/classroom";
 import { User } from "next-auth";
 
 export interface ClassroomResponse {
-  data: ClassroomType[] ;
+  data: ClassroomType[];
   error?: string;
   success?: boolean;
 }
@@ -17,11 +17,7 @@ interface SingleClassroomResponse {
 }
 
 // Client
-export async function getAllClassroomDataByUserId({
-  userId
-}: {
-  userId: any;
-}) {
+export async function getAllClassroomDataByUserId({ userId }: { userId: any }) {
   if (!userId) {
     throw new Error("UserId không được để trống!");
   }
@@ -191,7 +187,7 @@ export async function updateClassroomAdminData({
   };
 }): Promise<ClassroomResponse> {
   try {
-       const response = await serverFetch(`/api/Classroom/${classroomId}`, {
+    const response = await serverFetch(`/api/Classroom/${classroomId}`, {
       method: "PUT",
       data: classData
     });
