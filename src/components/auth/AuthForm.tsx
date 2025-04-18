@@ -118,7 +118,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
           password: data.password,
           full_name: data.fullname,
           phone_number: phoneNumber,
-          app_id: 1,
+          app_id: process.env.NEXT_PUBLIC_BKT_APP_ID || 1,
           recaptcha_token: recaptchaToken
         }
       );
@@ -156,6 +156,28 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
     // TODO: Implement reset password API call
     showToast.success("Mật khẩu đã được đặt lại thành công (giả lập).");
     onSwitchForm?.("signin");
+  };
+
+  const handleGoogleLogin = () => {
+    const redirectUri = `${window.location.origin}/login/callback`;
+
+    // Use our new API route instead of calling the external API directly
+    fetch(`/api/auth/google?redirectUri=${encodeURIComponent(redirectUri)}`, {
+      method: "GET",
+      credentials: "include" // Important to include cookies
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.authUrl) {
+          window.open(data.authUrl, "_self");
+        } else {
+          showToast.error(data.message || "Lỗi khi khởi tạo đăng nhập Google.");
+        }
+      })
+      .catch((err) => {
+        console.error("Google login error:", err);
+        showToast.error("Không thể kết nối đến máy chủ để đăng nhập Google.");
+      });
   };
 
   const handleRecaptchaChange = useCallback((token?: string | null) => {
@@ -226,6 +248,7 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
           setShowPassword={setShowPassword}
           onSwitchForm={(t) => onSwitchForm?.(t as AuthFormProps["type"])}
           errorMessage={errorMessage}
+          onGoogleLogin={handleGoogleLogin}
         />
       )}
 

@@ -30,7 +30,8 @@ const nextConfig = {
   },
   // Add environment variables accessible on the client-side
   env: {
-    NEXT_PUBLIC_BKT_ACCOUNT_API_URL: process.env.BKT_ACCOUNT_API_URL
+    NEXT_PUBLIC_BKT_ACCOUNT_API_URL: process.env.BKT_ACCOUNT_API_URL,
+    NEXT_PUBLIC_BKT_APP_ID: process.env.BKT_APP_ID
   }
 };
 

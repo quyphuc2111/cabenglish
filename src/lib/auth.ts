@@ -109,7 +109,7 @@ export const authOptions: NextAuthOptions = {
             {
               email: credentials.email,
               password: credentials.password,
-              app_id: 1
+              app_id: process.env.BKT_APP_ID || 1
             },
             {
               withCredentials: true
