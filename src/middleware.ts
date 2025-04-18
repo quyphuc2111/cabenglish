@@ -1,24 +1,24 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
-import i18NextConfig from '@/locales/i18next.config';
+import i18NextConfig from "@/locales/i18next.config";
 
 // Các constants
 const ROUTES = {
-  ADMIN: '/admin',
-  ADMIN_DASHBOARD: '/admin/dashboard',
-  OVERVIEW: '/tong-quan',
-  PROFILE: '/profile',
-  COURSES: '/khoa-hoc',
-  LOGIN: '/signin',
-  LANDING_PAGE: '/',
+  ADMIN: "/admin",
+  ADMIN_DASHBOARD: "/admin/dashboard",
+  OVERVIEW: "/tong-quan",
+  PROFILE: "/profile",
+  COURSES: "/khoa-hoc",
+  LOGIN: "/signin",
+  LANDING_PAGE: "/"
 } as const;
 
 const ROLES = {
-  ADMIN: 'Administrator',
-  TEACHER: 'Teacher'
+  ADMIN: "Administrator",
+  TEACHER: "Teacher"
 } as const;
 
-type RoleType = typeof ROLES[keyof typeof ROLES];
+type RoleType = (typeof ROLES)[keyof typeof ROLES];
 
 // Default landing pages for each role
 const DEFAULT_LANDING_PAGES: Record<RoleType, string> = {
@@ -33,21 +33,21 @@ const isAdminRoute = (path: string) => path.startsWith(ROUTES.ADMIN);
 const handleLocale = (request: Request) => {
   const url = new URL(request.url);
   const { pathname, searchParams } = url;
-  
-  const lang = searchParams.get('lang');
+
+  const lang = searchParams.get("lang");
   const validLocales = i18NextConfig.i18n.locales;
   const defaultLocale = i18NextConfig.i18n.defaultLocale;
   const locale = lang && validLocales.includes(lang) ? lang : defaultLocale;
-  
+
   // Tạo URL mới và copy tất cả searchParams gốc
   const newUrl = new URL(pathname, request.url);
   searchParams.forEach((value, key) => {
     newUrl.searchParams.set(key, value);
   });
-  
+
   // Set/update param lang
-  newUrl.searchParams.set('lang', locale);
-  
+  newUrl.searchParams.set("lang", locale);
+
   return newUrl;
 };
 
@@ -86,7 +86,7 @@ export default withAuth(
     try {
       const token = req.nextauth.token;
       const path = new URL(req.url).pathname;
-      
+
       // Cho phép truy cập trang chủ mà không cần đăng nhập
       if (path === ROUTES.LANDING_PAGE) {
         return null;
@@ -98,50 +98,53 @@ export default withAuth(
       }
 
       // Bỏ qua middleware cho các API routes
-      if (path.startsWith('/api/')) {
+      if (path.startsWith("/api/")) {
         return null;
       }
 
       // Xử lý ngôn ngữ
       const localeUrl = handleLocale(req);
-      
+
       // Xử lý phân quyền
       const authRedirect = handleAuth(req, token);
       if (authRedirect) return authRedirect;
 
       return NextResponse.rewrite(localeUrl);
     } catch (error) {
-      console.error('Middleware error:', error);
+      console.error("Middleware error:", error);
       return NextResponse.redirect(new URL(ROUTES.LOGIN, req.url));
     }
   },
   {
-    callbacks: {
-      authorized: ({ req, token }) => {
-        // Cho phép truy cập trang chủ mà không cần token
-        if (req.nextUrl.pathname === '/') {
-          return true;
-        }
-        return !!token;
-      },
-    },
-    pages: {
-      signIn: '/signin',
-    },
+    // callbacks: {
+    //   authorized: ({ req, token }) => {
+    //     // Cho phép truy cập trang chủ mà không cần token
+    //     if (
+    //       req.nextUrl.pathname === "/" ||
+    //       req.nextUrl.pathname === "/login/callback"
+    //     ) {
+    //       return true;
+    //     }
+    //     return !!token;
+    //   }
+    // },
+    // pages: {
+    //   signIn: "/signin"
+    // }
   }
 );
 
 // Cập nhật matcher để bao gồm cả route auth
 export const config = {
   matcher: [
-    '/',
-    '/tong-quan/:path*',
-    '/khoa-hoc/:path*',
-    '/profile/:path*',
-    '/admin/:path*',
-    '/auth/:path*',
-    '/((?!api|_next|static|.*\\..*).*)',
-    '/lop-hoc',
-    '/lop-hoc/:path*'
+    "/",
+    "/tong-quan/:path*",
+    "/khoa-hoc/:path*",
+    "/profile/:path*",
+    "/admin/:path*",
+    "/auth/:path*",
+    "/((?!api|_next|static|.*\\..*).*)",
+    "/lop-hoc",
+    "/lop-hoc/:path*"
   ]
 };

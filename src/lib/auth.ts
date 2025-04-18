@@ -1,6 +1,7 @@
 import { NextAuthOptions, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import axios, { AxiosError } from "axios";
 import { fetchUserByEmail, createUser } from "@/hooks/client/userApi";
 
@@ -55,11 +56,6 @@ declare module "next-auth" {
 }
 
 interface LoginResponse {
-  // user: {
-  //   id: string;
-  //   name: string;
-  //   email: string;
-  // };
   role: string;
   token: string;
   username: string;
@@ -117,7 +113,6 @@ export const authOptions: NextAuthOptions = {
           );
 
           const data = loginResponse.data;
-          // console.log("loginResponse", loginResponse.data);
 
           if (data?.success && data?.accessToken) {
             const userId = data.accountId;
@@ -131,10 +126,8 @@ export const authOptions: NextAuthOptions = {
                 credentials.email,
                 data.accessToken
               );
-              // If fetchUserByEmail succeeds, treat as user found or created
             } catch (error) {
               if (axios.isAxiosError(error) && error.response?.status === 404) {
-                // User not found, attempt to create
                 try {
                   userResponse = await createUser(
                     {
@@ -195,6 +188,84 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Authentication failed");
         }
       }
+    }),
+    CredentialsProvider({
+      id: "google-token",
+      name: "Google Token",
+      credentials: {
+        accessToken: { label: "Access Token", type: "text" },
+        accountId: { label: "Account ID", type: "text" },
+        email: { label: "Email", type: "text" },
+        username: { label: "Username", type: "text" },
+        roles: { label: "Roles", type: "text" }
+      },
+      async authorize(credentials): Promise<User | null> {
+        if (!credentials) return null;
+
+        try {
+          const { accessToken, accountId, email, username, roles } =
+            credentials;
+
+          if (!accessToken || !accountId || !email) {
+            throw new Error("Missing required credentials");
+          }
+
+          let userResponse;
+          try {
+            userResponse = await fetchUserByEmail(email, accessToken);
+          } catch (error) {
+            if (axios.isAxiosError(error) && error.response?.status === 404) {
+              try {
+                userResponse = await createUser(
+                  {
+                    email: email,
+                    user_id: accountId.toString(),
+                    language: "vi",
+                    theme: "theme-blue",
+                    mode: "default"
+                  },
+                  accessToken
+                );
+              } catch (createError) {
+                console.error("User creation failed:", createError);
+                return null;
+              }
+            } else {
+              console.error("Fetch user error:", error);
+              return null;
+            }
+          }
+
+          const parsedRoles =
+            typeof roles === "string" ? JSON.parse(roles) : roles;
+          const role =
+            Array.isArray(parsedRoles) && parsedRoles.length > 0
+              ? parsedRoles[0]
+              : undefined;
+
+          const user: User = {
+            email: email,
+            userId: accountId.toString(),
+            username: username,
+            role: role,
+            accessToken: accessToken,
+            isFirstLogin: userResponse.is_firstlogin || false,
+            mode: userResponse.mode || "default",
+            language: userResponse.language || "vi",
+            theme:
+              (userResponse.theme as
+                | "theme-blue"
+                | "theme-gold"
+                | "theme-pink"
+                | "theme-red") || "theme-blue"
+          };
+
+          return user;
+        } catch (error) {
+          console.error("Google token auth error:", error);
+          return null;
+        }
+      }
     })
   ],
   callbacks: {
@@ -220,12 +291,10 @@ export const authOptions: NextAuthOptions = {
         return token;
       }
 
-      // Nếu token chưa hết hạn, trả về token cũ
       if (token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
         return token;
       }
 
-      // Token hết hạn, thử refresh
       if (token.authCookie) {
         try {
           const { refreshAccessToken } = await import("@/hooks/client/userApi");
@@ -235,7 +304,7 @@ export const authOptions: NextAuthOptions = {
           return token;
         } catch (error) {
           console.error("Refresh token failed in jwt callback:", error);
-          return token; // Trả về token cũ, có thể sẽ bị lỗi 401
+          return token;
         }
       }
 

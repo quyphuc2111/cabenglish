@@ -14,6 +14,8 @@ export async function GET(request: Request) {
   const AppID = parseInt(process.env.BKT_APP_ID || "1", 10);
   const Domain = `${process.env.BKT_ACCOUNT_API_URL}`;
 
+  console.log(redirectUri);
+
   try {
     // Call the external Google auth API
     const googleLoginUrl = `${Domain}/api/Auth/google?appId=${AppID}&redirectUri=${encodeURIComponent(
@@ -26,6 +28,8 @@ export async function GET(request: Request) {
     const data = await response.json();
 
     if (data.authUrl) {
+      // Log the response for debugging
+      console.log("Google auth response:", data);
       // Create response object
       const nextResponse = NextResponse.json({
         success: true,

@@ -36,8 +36,6 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
 
     if (data.success) {
-      // Get session
-
       const jsonResponse = NextResponse.json({
         success: true,
         message: data.message || "Đăng nhập thành công!",
@@ -56,7 +54,7 @@ export async function GET(request: NextRequest) {
         });
       }
 
-      // xóa cookie google_auth_state
+      // Clear the google_auth_state cookie
       jsonResponse.headers.append(
         "Set-Cookie",
         `google_auth_state=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax;`

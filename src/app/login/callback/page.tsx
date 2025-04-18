@@ -1,45 +1,66 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { signInWithGoogleToken } from "@/lib/auth-helpers";
 
 export default function LoginCallbackPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [isProcessing, setIsProcessing] = useState(true);
 
   useEffect(() => {
     if (!searchParams) {
-      // Handle the case where searchParams is null, maybe show an error or wait
       console.error("Search params not available");
+      setIsProcessing(false);
       return;
     }
+
     const code = searchParams.get("code");
     const state = searchParams.get("state");
 
     if (code && state) {
-      // Call our API route that handles session creation
+      // First call our API route to validate the code with the backend
       fetch(`/api/auth/google/callback?code=${code}&state=${state}`, {
         method: "GET",
         credentials: "include"
       })
         .then((res) => res.json())
-        .then((data) => {
+        .then(async (data) => {
           if (data.success) {
-            toast.success(data.message || "Đăng nhập thành công!");
+            // Use the returned data to create a NextAuth session
+            const authResult = await signInWithGoogleToken({
+              accessToken: data.accessToken,
+              accountId: data.accountId,
+              username: data.username,
+              email: data.email,
+              roles: data.roles || []
+            });
 
-            // Redirect to home page
-            router.push("/");
+            if (authResult.success) {
+              toast.success("Đăng nhập thành công!");
+              router.push("/");
+            } else {
+              toast.error(
+                "Không thể tạo phiên đăng nhập: " +
+                  (authResult.error || "Lỗi không xác định")
+              );
+              setIsProcessing(false);
+            }
           } else {
             toast.error(data.message || "Đăng nhập thất bại");
+            setIsProcessing(false);
           }
         })
         .catch((err) => {
           console.error("Google callback error:", err);
           toast.error("Không thể xử lý đăng nhập Google");
+          setIsProcessing(false);
         });
     } else {
       toast.error("Thiếu thông tin xác thực cần thiết");
+      setIsProcessing(false);
     }
   }, [searchParams, router]);
 
