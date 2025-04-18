@@ -10,7 +10,8 @@ const ROUTES = {
   PROFILE: "/profile",
   COURSES: "/khoa-hoc",
   LOGIN: "/signin",
-  LANDING_PAGE: "/"
+  LANDING_PAGE: "/",
+  LOGIN_CALLBACK: "/login/callback"
 } as const;
 
 const ROLES = {
@@ -88,9 +89,11 @@ export default withAuth(
       const path = new URL(req.url).pathname;
 
       // Cho phép truy cập trang chủ mà không cần đăng nhập
-      if (path === ROUTES.LANDING_PAGE) {
+      if (path === ROUTES.LANDING_PAGE || path === ROUTES.LOGIN_CALLBACK) {
         return null;
       }
+
+      
 
       // Kiểm tra nếu không có token (chưa đăng nhập), chuyển hướng về trang login
       if (!token) {
@@ -116,21 +119,21 @@ export default withAuth(
     }
   },
   {
-    // callbacks: {
-    //   authorized: ({ req, token }) => {
-    //     // Cho phép truy cập trang chủ mà không cần token
-    //     if (
-    //       req.nextUrl.pathname === "/" ||
-    //       req.nextUrl.pathname === "/login/callback"
-    //     ) {
-    //       return true;
-    //     }
-    //     return !!token;
-    //   }
-    // },
-    // pages: {
-    //   signIn: "/signin"
-    // }
+    callbacks: {
+      authorized: ({ req, token }) => {
+        // Cho phép truy cập trang chủ mà không cần token
+        if (
+          req.nextUrl.pathname === "/" ||
+          req.nextUrl.pathname === "/login/callback"
+        ) {
+          return true;
+        }
+        return !!token;
+      }
+    },
+    pages: {
+      signIn: "/signin"
+    }
   }
 );
 
