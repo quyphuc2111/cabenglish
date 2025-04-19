@@ -116,21 +116,18 @@ export default withAuth(
     }
   },
   {
-    // callbacks: {
-    //   authorized: ({ req, token }) => {
-    //     // Cho phép truy cập trang chủ mà không cần token
-    //     if (
-    //       req.nextUrl.pathname === "/" ||
-    //       req.nextUrl.pathname === "/login/callback"
-    //     ) {
-    //       return true;
-    //     }
-    //     return !!token;
-    //   }
-    // },
-    // pages: {
-    //   signIn: "/signin"
-    // }
+    callbacks: {
+      authorized: ({ req, token }) => {
+        // Cho phép truy cập trang chủ mà không cần token
+        if (req.nextUrl.pathname === "/") {
+          return true;
+        }
+        return !!token;
+      }
+    },
+    pages: {
+      signIn: "/signin"
+    }
   }
 );
 
@@ -143,7 +140,7 @@ export const config = {
     "/profile/:path*",
     "/admin/:path*",
     "/auth/:path*",
-    "/((?!api|_next|static|.*\\..*).*)",
+    "/((?!api|_next|login/callback|static|.*\\..*).*)",
     "/lop-hoc",
     "/lop-hoc/:path*"
   ]

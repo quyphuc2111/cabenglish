@@ -28,6 +28,7 @@ export default function LoginCallbackPage() {
       })
         .then((res) => res.json())
         .then(async (data) => {
+          console.log("Google callback data:", data);
           if (data.success) {
             // Use the returned data to create a NextAuth session
             const authResult = await signInWithGoogleToken({
@@ -35,12 +36,13 @@ export default function LoginCallbackPage() {
               accountId: data.accountId,
               username: data.username,
               email: data.email,
-              roles: data.roles || []
+              roles: data.roles || [],
+              authCookie: data.authCookie // Add the auth cookie to the sign-in credentials
             });
 
             if (authResult.success) {
               toast.success("Đăng nhập thành công!");
-              router.push("/");
+              router.push("/tong-quan");
             } else {
               toast.error(
                 "Không thể tạo phiên đăng nhập: " +

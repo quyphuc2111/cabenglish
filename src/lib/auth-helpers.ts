@@ -6,6 +6,7 @@ export async function signInWithGoogleToken(data: {
   username: string;
   email: string;
   roles: string[];
+  authCookie?: string; // Optional, if you want to pass the auth cookie
 }) {
   try {
     const result = await signIn("google-token", {
@@ -14,7 +15,8 @@ export async function signInWithGoogleToken(data: {
       email: data.email,
       username: data.username,
       roles: JSON.stringify(data.roles),
-      redirect: false
+      redirect: false,
+      authCookie: data.authCookie
     });
 
     return {
