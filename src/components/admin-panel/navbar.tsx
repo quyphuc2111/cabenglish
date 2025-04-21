@@ -57,9 +57,7 @@ export function Navbar({ title, type }: NavbarProps) {
       // Optionally: Show a notification to the user here
     }
 
-    // Manually redirect to the sign-in page
-    console.log("Redirecting to /signin...");
-    router.push("/signin");
+    router.push("/signin-v2");
     router.refresh();
   };
 

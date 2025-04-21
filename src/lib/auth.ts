@@ -333,8 +333,8 @@ export const authOptions: NextAuthOptions = {
         session.user.theme = token.theme;
         session.user.language = token.language;
         session.user.isFirstLogin = token.isFirstLogin;
-        session.user.authCookie = token.authCookie;
-        session.user.moodleCookie = token.moodleCookie;
+        // session.user.authCookie = token.authCookie;
+        // session.user.moodleCookie = token.moodleCookie;
       }
       return session;
     }
@@ -344,7 +344,8 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 24 * 60 * 60
+    // 1 tuần
+    maxAge: 7 * 24 * 60 * 60 // 1 tuần
   },
   secret: process.env.NEXTAUTH_SECRET
 };
