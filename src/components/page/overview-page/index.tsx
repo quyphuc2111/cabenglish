@@ -41,15 +41,14 @@ function OverviewPage({
   fetchFilterData,
   classroomData
 }: OverviewPageProps) {
-  const {onOpen} = useModal()
+  const { onOpen } = useModal();
   const { data: session } = useSession();
 
   useEffect(() => {
-    console.log("session", session)
-    if(session && session.user.isFirstLogin) {
-      onOpen("teachingMode")
+    if (session && session.user.isFirstLogin) {
+      onOpen("teachingMode");
     }
-  }, [session])
+  }, [session]);
 
   return (
     <div>

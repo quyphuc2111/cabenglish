@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { signInWithGoogleToken } from "@/lib/auth-helpers";
+import axios from "axios";
 
 export default function LoginCallbackPage() {
   const searchParams = useSearchParams();
@@ -41,8 +42,25 @@ export default function LoginCallbackPage() {
             });
 
             if (authResult.success) {
-              toast.success("Đăng nhập thành công!");
-              router.push("/tong-quan");
+              // Call external API as per user request
+              try {
+                // lấy moodle cookies
+                const domain = process.env.NEXT_PUBLIC_BKT_ACCOUNT_API_URL;
+                if (!domain) {
+                  console.error("API domain is not set");
+                  return;
+                }
+                const url = `${domain}/api/Moodle/login-default`;
+                await axios.post(url, {}, { withCredentials: true });
+                toast.success("Đăng nhập thành công!");
+                // Redirect to the dashboard or home page
+                router.push("/tong-quan");
+              } catch (apiError) {
+                // Optionally handle API error, but do not block login flow
+                toast.error(
+                  "Có lỗi xảy ra khi kết nối với BKT LMS. Vui lòng thử lại sau."
+                );
+              }
             } else {
               toast.error(
                 "Không thể tạo phiên đăng nhập: " +

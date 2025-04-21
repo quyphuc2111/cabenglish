@@ -126,7 +126,7 @@ export default withAuth(
       }
     },
     pages: {
-      signIn: "/signin"
+      signIn: "/signin-v2"
     }
   }
 );
