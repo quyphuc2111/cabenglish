@@ -197,13 +197,14 @@ export const authOptions: NextAuthOptions = {
         accountId: { label: "Account ID", type: "text" },
         email: { label: "Email", type: "text" },
         username: { label: "Username", type: "text" },
-        roles: { label: "Roles", type: "text" }
+        roles: { label: "Roles", type: "text" },
+        authCookie: { label: "Auth Cookie", type: "text" } // Add this field
       },
       async authorize(credentials): Promise<User | null> {
         if (!credentials) return null;
 
         try {
-          const { accessToken, accountId, email, username, roles } =
+          const { accessToken, accountId, email, username, roles, authCookie } =
             credentials;
 
           if (!accessToken || !accountId || !email) {
@@ -257,7 +258,10 @@ export const authOptions: NextAuthOptions = {
                 | "theme-blue"
                 | "theme-gold"
                 | "theme-pink"
-                | "theme-red") || "theme-blue"
+                | "theme-red") || "theme-blue",
+            authCookie: authCookie, // Add this line to include the auth cookie
+            moodleCookie:
+              "MoodleSession=3qfpb47l8gre739bhq3t0q61d0; path=/; secure; HttpOnly; SameSite=None" // Add moodle cookie like in the other provider
           };
 
           return user;
@@ -329,8 +333,8 @@ export const authOptions: NextAuthOptions = {
         session.user.theme = token.theme;
         session.user.language = token.language;
         session.user.isFirstLogin = token.isFirstLogin;
-        session.user.authCookie = token.authCookie;
-        session.user.moodleCookie = token.moodleCookie;
+        // session.user.authCookie = token.authCookie;
+        // session.user.moodleCookie = token.moodleCookie;
       }
       return session;
     }
@@ -340,7 +344,8 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 24 * 60 * 60
+    // 1 tuần
+    maxAge: 7 * 24 * 60 * 60 // 1 tuần
   },
   secret: process.env.NEXTAUTH_SECRET
 };

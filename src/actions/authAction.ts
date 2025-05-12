@@ -3,6 +3,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import axios from "axios";
+import { cookies } from "next/headers";
 
 export async function logoutAction(): Promise<{
   success: boolean;
@@ -38,6 +39,12 @@ export async function logoutAction(): Promise<{
       }
     );
     console.log("Backend logout API call successful.");
+
+    // Xóa các cookies từ trình duyệt
+    const cookieStore = await cookies();
+    // Xóa cookie session của ứng dụng
+    cookieStore.delete("bkt_account");
+
     return { success: true };
   } catch (error) {
     console.error("Logout Action failed:", error);

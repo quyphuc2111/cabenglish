@@ -11,6 +11,7 @@ import { LogoDecorations } from "./navbar-com/LogoDecorations";
 // import { logout as apiLogout } from "@/hooks/client/userApi"; // Replaced by server action
 import { signOut, useSession } from "next-auth/react";
 import { logoutAction } from "@/actions/authAction"; // Import the server action
+import axios from "axios";
 
 interface NavbarProps {
   title: string;
@@ -23,7 +24,6 @@ export function Navbar({ title, type }: NavbarProps) {
   const { onOpen } = useModal();
   const router = useRouter();
   const currentTeachingMode = useUserMode() ?? "defaultMode";
-  const { data: session } = useSession();
 
   const handleChangeTheme = () => {
     onOpen("changeTheme");
@@ -47,6 +47,28 @@ export function Navbar({ title, type }: NavbarProps) {
       // Optionally: Show a notification to the user here
     }
 
+    // Call the logout-default API to clear Moodle cookies
+    try {
+      console.log("Calling logout-default API to clear Moodle cookies...");
+      const apiUrl = process.env.NEXT_PUBLIC_BKT_ACCOUNT_API_URL || "";
+      const response = await axios.post(
+        `${apiUrl}/api/Moodle/logout-default`,
+        {},
+        {
+          withCredentials: true // Important to include cookies in the request
+        }
+      );
+
+      if (response.data.success) {
+        console.log("Moodle logout successful:", response.data.message);
+      } else {
+        console.error("Moodle logout failed:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error calling logout-default API:", error);
+      // Continue with logout process regardless of Moodle logout result
+    }
+
     try {
       // Perform client-side sign out regardless of server action outcome
       console.log("Performing client-side signOut...");
@@ -57,9 +79,7 @@ export function Navbar({ title, type }: NavbarProps) {
       // Optionally: Show a notification to the user here
     }
 
-    // Manually redirect to the sign-in page
-    console.log("Redirecting to /signin...");
-    router.push("/signin");
+    router.push("/signin-v2");
     router.refresh();
   };
 

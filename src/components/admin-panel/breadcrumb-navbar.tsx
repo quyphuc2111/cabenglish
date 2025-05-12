@@ -1,20 +1,13 @@
 "use client";
-import { ModeToggle } from "@/components/mode-toggle";
-import { UserNav } from "@/components/admin-panel/user-nav";
 import { SheetMenu } from "@/components/admin-panel/sheet-menu";
-import { Button } from "../ui/button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Switch } from "../ui/switch";
 import { motion } from "framer-motion";
 import { navbarAnimations } from "@/constants/animation-variants";
-import { LogoSection } from "./navbar/logo-section";
-import { LanguageSwitcher } from "./navbar/language-switcher";
 import { useModal } from "@/hooks/useModalStore";
-import { useUserTheme, useUserStore, useUserMode } from "@/store/useUserStore";
-import useLocalStorage from "@/hooks/use-local-storage";
-import OptimizeImage from "../common/optimize-image";
+import { useUserTheme, useUserMode } from "@/store/useUserStore";
 import i18next from "i18next";
 import { useTranslation } from "@/hooks/useTranslation";
 // import { useTeachingModeStore } from "@/store/useTeachingModeStore";
@@ -25,10 +18,10 @@ interface BreadcrumbNavbarProps {
 }
 
 const foregroundThemeClasses = {
-  'theme-gold': 'bg-theme-gold-foreground',
-  'theme-blue': 'bg-theme-blue-foreground',
-  'theme-pink': 'bg-theme-pink-foreground',
-  'theme-red': 'bg-theme-red-foreground'
+  "theme-gold": "bg-theme-gold-foreground",
+  "theme-blue": "bg-theme-blue-foreground",
+  "theme-pink": "bg-theme-pink-foreground",
+  "theme-red": "bg-theme-red-foreground"
 };
 
 export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
@@ -52,7 +45,6 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
     setLastSlug(slug);
   }, []);
 
-
   const handleBack = () => {
     router.push("/lop-hoc");
   };
@@ -63,15 +55,14 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
 
   const handleContainerClick = (e: React.MouseEvent) => {
     // Chỉ xử lý click khi không click vào Switch
-    if (!(e.target as HTMLElement).closest('.switch-component')) {
+    if (!(e.target as HTMLElement).closest(".switch-component")) {
       handleClick();
     }
   };
 
   const handleChangeTheme = () => {
-    onOpen("changeTheme")
-  
-  }
+    onOpen("changeTheme");
+  };
 
   const handleLanguageChange = () => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -120,32 +111,34 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
           <div className="w-3/4 bg-white absolute top-1/2 -translate-y-1/2 left-10  rounded-xl p-2 px-12">
             <div className="w-fit relative">
               {/* <LogoSection /> */}
-             <div className="flex gap-5">
-             <div onClick={handleBack} className=" cursor-pointer flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group">
-                <div className="relative w-10- h-10 flex-shrink-0">
-                  <Image 
-                    src="/book_multi.png" 
-                    width={40} 
-                    height={40} 
-                    alt="book_multi"
-                    className="object-contain group-hover:scale-110 transition-transform duration-300"
-                  />
+              <div className="flex gap-5">
+                <div
+                  onClick={handleBack}
+                  className=" cursor-pointer flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group"
+                >
+                  <div className="relative w-10- h-10 flex-shrink-0">
+                    <Image
+                      src="/book_multi.png"
+                      width={40}
+                      height={40}
+                      alt="book_multi"
+                      className="object-contain group-hover:scale-110 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="text-[#555] text-xl font-bold group-hover:text-[#4079CE] transition-colors duration-300">
+                      Lớp học
+                    </p>
+                    <div className="h-0.5 w-0 bg-[#4079CE] group-hover:w-full transition-all duration-300" />
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <p className="text-[#555] text-xl font-bold group-hover:text-[#4079CE] transition-colors duration-300">
-                    Lớp học
-                  </p>
-                  <div className="h-0.5 w-0 bg-[#4079CE] group-hover:w-full transition-all duration-300"/>
-                </div>
-              </div>
-              {
-                title != "Lớp học" && (
-                    <div className="cursor-pointer flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group">
+                {title != "Lớp học" && (
+                  <div className="cursor-pointer flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group">
                     <div className="relative w-10- h-10 flex-shrink-0">
-                      <Image 
-                        src="/book_multi.png" 
-                        width={40} 
-                        height={40} 
+                      <Image
+                        src="/book_multi.png"
+                        width={40}
+                        height={40}
                         alt="book_multi"
                         className="object-contain group-hover:scale-110 transition-transform duration-300"
                       />
@@ -154,14 +147,11 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                       <p className="text-[#555] text-xl font-bold group-hover:text-[#4079CE] transition-colors duration-300">
                         {title}
                       </p>
-                      <div className="h-0.5 w-0 bg-[#4079CE] group-hover:w-full transition-all duration-300"/>
+                      <div className="h-0.5 w-0 bg-[#4079CE] group-hover:w-full transition-all duration-300" />
                     </div>
                   </div>
-                )
-              }
-
-             
-             </div>
+                )}
+              </div>
               <motion.div
                 className="absolute top-1 -left-8 -rotate-12"
                 // variants={rotatingVariants}
@@ -411,14 +401,19 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
             whileTap={{ scale: 0.98 }}
             onClick={handleContainerClick}
           >
-            <div className="flex items-center justify-between w-full
+            <div
+              className="flex items-center justify-between w-full
               bg-white px-3 sm:px-4 md:px-5 
               h-10 sm:h-12 md:h-14 xl:h-12
               shadow-sm hover:shadow-md transition-all duration-200 
               border border-gray-200 rounded-lg"
             >
               <Image
-                src={isChecked ? "/assets/image/navbar/american_flag.webp" : "/assets/image/navbar/vietnam_flag.webp"}
+                src={
+                  isChecked
+                    ? "/assets/image/navbar/american_flag.webp"
+                    : "/assets/image/navbar/vietnam_flag.webp"
+                }
                 width={28}
                 height={28}
                 alt={isChecked ? "american_flag" : "vietnam_flag"}
@@ -461,8 +456,10 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                 placeholder="blur"
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
               />
-              <p className="font-medium text-gray-700 text-sm 
-                whitespace-nowrap overflow-hidden text-ellipsis">
+              <p
+                className="font-medium text-gray-700 text-sm 
+                whitespace-nowrap overflow-hidden text-ellipsis"
+              >
                 {t("changeTheme")}
               </p>
             </div>
@@ -492,8 +489,10 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                   placeholder="blur"
                   blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
                 />
-                <p className="font-medium text-gray-700 text-sm
-                  whitespace-nowrap overflow-hidden text-ellipsis">
+                <p
+                  className="font-medium text-gray-700 text-sm
+                  whitespace-nowrap overflow-hidden text-ellipsis"
+                >
                   {t("defaultMode")}
                 </p>
               </div>
@@ -510,8 +509,10 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                   placeholder="blur"
                   blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
                 />
-                <p className="font-medium text-gray-700 text-sm
-                  whitespace-nowrap overflow-hidden text-ellipsis">
+                <p
+                  className="font-medium text-gray-700 text-sm
+                  whitespace-nowrap overflow-hidden text-ellipsis"
+                >
                   {t("freeMode")}
                 </p>
               </div>
@@ -526,7 +527,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
               hover:bg-[#E25762]"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() =>{}}
+            onClick={() => {}}
           >
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap w-full justify-center">
               <Image
@@ -540,10 +541,12 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                 priority
                 quality={90}
               />
-              <p className="font-medium group-hover:text-red-500 text-white
+              <p
+                className="font-medium group-hover:text-red-500 text-white
                 text-sm md:text-base
                 whitespace-nowrap overflow-hidden text-ellipsis
-                transition-colors duration-200">
+                transition-colors duration-200"
+              >
                 Đăng xuất
               </p>
             </div>

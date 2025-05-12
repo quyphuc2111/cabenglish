@@ -43,16 +43,9 @@ export async function GET(request: NextRequest) {
         accountId: data.accountId,
         username: data.username,
         email: data.email,
-        roles: data.roles
+        roles: data.roles,
+        authCookie: response.headers.get("set-cookie") // Include the auth cookie in the response
       });
-
-      // Pass through any cookies from the backend
-      const responseCookieHeader = response.headers.get("set-cookie");
-      if (responseCookieHeader) {
-        response.headers.getSetCookie().forEach((cookie) => {
-          jsonResponse.headers.append("Set-Cookie", cookie);
-        });
-      }
 
       // Clear the google_auth_state cookie
       jsonResponse.headers.append(

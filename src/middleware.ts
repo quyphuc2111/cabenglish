@@ -122,17 +122,14 @@ export default withAuth(
     callbacks: {
       authorized: ({ req, token }) => {
         // Cho phép truy cập trang chủ mà không cần token
-        if (
-          req.nextUrl.pathname === "/" ||
-          req.nextUrl.pathname === "/login/callback"
-        ) {
+        if (req.nextUrl.pathname === "/") {
           return true;
         }
         return !!token;
       }
     },
     pages: {
-      signIn: "/signin"
+      signIn: "/signin-v2"
     }
   }
 );
@@ -146,7 +143,7 @@ export const config = {
     "/profile/:path*",
     "/admin/:path*",
     "/auth/:path*",
-    "/((?!api|_next|static|.*\\..*).*)",
+    "/((?!api|_next|login/callback|static|.*\\..*).*)",
     "/lop-hoc",
     "/lop-hoc/:path*"
   ]
