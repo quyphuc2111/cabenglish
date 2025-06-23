@@ -10,6 +10,7 @@ import { useModal } from "@/hooks/useModalStore";
 import { useUserTheme, useUserMode } from "@/store/useUserStore";
 import i18next from "i18next";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSession } from "next-auth/react";
 // import { useTeachingModeStore } from "@/store/useTeachingModeStore";
 
 interface BreadcrumbNavbarProps {
@@ -30,10 +31,12 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
   const [isChecked, setIsChecked] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  const currentTheme = useUserTheme();
+  const { data: session } = useSession();
+
+  const currentTheme = session?.user.theme ?? "theme-red";
   const { onOpen } = useModal();
   const router = useRouter();
-  const currentTeachingMode = useUserMode();
+  const currentTeachingMode = session?.user.mode === "default" ? "defaultMode" : "freeMode";
 
   const { t } = useTranslation("", "common");
 
@@ -527,7 +530,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
               hover:bg-[#E25762]"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => {}}
+            onClick={() => onOpen("logout")}
           >
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap w-full justify-center">
               <Image

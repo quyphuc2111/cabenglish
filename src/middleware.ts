@@ -10,7 +10,8 @@ const ROUTES = {
   PROFILE: "/profile",
   COURSES: "/khoa-hoc",
   LOGIN: "/signin",
-  LANDING_PAGE: "/"
+  LANDING_PAGE: "/",
+  LOGIN_CALLBACK: "/login/callback"
 } as const;
 
 const ROLES = {
@@ -65,17 +66,17 @@ const handleAuth = (req: Request, token: any) => {
   // }
 
   // Xử lý quyền truy cập dựa trên role
-  if (isAdmin) {
-    // Admin chỉ được phép truy cập các trang /admin/*
-    if (!isAdminRoute(path)) {
-      return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, req.url));
-    }
-  } else {
-    // Người dùng không phải admin không được phép truy cập các trang /admin/*
-    if (isAdminRoute(path)) {
-      return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
-    }
-  }
+  // if (isAdmin) {
+  //   // Admin chỉ được phép truy cập các trang /admin/*
+  //   if (!isAdminRoute(path)) {
+  //     return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, req.url));
+  //   }
+  // } else {
+  //   // Người dùng không phải admin không được phép truy cập các trang /admin/*
+  //   if (isAdminRoute(path)) {
+  //     return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
+  //   }
+  // }
 
   // Cho phép truy cập nếu không vi phạm quy tắc nào
   return null;
@@ -88,9 +89,11 @@ export default withAuth(
       const path = new URL(req.url).pathname;
 
       // Cho phép truy cập trang chủ mà không cần đăng nhập
-      if (path === ROUTES.LANDING_PAGE) {
+      if (path === ROUTES.LANDING_PAGE || path === ROUTES.LOGIN_CALLBACK) {
         return null;
       }
+
+      
 
       // Kiểm tra nếu không có token (chưa đăng nhập), chuyển hướng về trang login
       if (!token) {

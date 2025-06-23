@@ -56,7 +56,7 @@ const ANIMATIONS = {
   }
 } as const;
 
-const ProgressIndicator = ({ progress, delay }: { progress: number, delay: number }) => {
+const ProgressIndicator = ({ progress, delay }: { progress: number , delay: number }) => {
   const flowerCount = Math.ceil(progress / 25);
   
   return (
@@ -71,7 +71,7 @@ const ProgressIndicator = ({ progress, delay }: { progress: number, delay: numbe
     >
       <div
         className={cn(
-          "flex items-center gap-2",
+          "flex items-center gap-2 justify-around",
           progress === 0 && "justify-center"
         )}
       >
@@ -222,7 +222,7 @@ function LessonCard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: delay + 0.4 }}
           className={cn(
-            "text-xl font-bold",
+            "text-xl font-bold h-14 line-clamp-2",
             horizontal === true ? "flex-1" : ""
           )}
         >
@@ -238,16 +238,16 @@ function LessonCard({
               "border-4",
               progress == 0 ? "border-[#333333]/20" : "",
               progress > 0 && progress < 100 ? "border-[#e25762]/50" : "",
-              progress == 100 ? "border-[#3EC474]" : "",
+              progress == 1 ? "border-[#3EC474]" : "",
               horizontal ? "w-1/3" : "w-2/3",
               "rounded-tr-lg p-1 flex justify-around items-center"
             )}
           >
-            <ProgressIndicator progress={progress} delay={delay} />
+            <ProgressIndicator progress={Number(formatProgress(progress))} delay={delay} />
             {progress > 0 && progress < 1 && (
               <p className="text-center px-2">{formatProgress(progress)}%</p>
             )}
-            {progress === 100 && (
+            {progress === 1 && (
               <motion.div
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}

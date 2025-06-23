@@ -8,6 +8,9 @@ import Image from "next/image";
 import StarIcon from "../icon/star";
 import { Button } from "../ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUpdateUserInfo } from "@/hooks/client/useUser";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const THEME_OPTIONS = [
   { id: "theme-gold", color: "#ECC98D" },
@@ -27,22 +30,78 @@ type ThemeType = "theme-gold" | "theme-blue" | "theme-pink" | "theme-red";
 
 function ChangeTheme() {
   const { isOpen, onClose, type } = useModal();
-  const currentTheme = useUserTheme();
+  // const currentTheme = useUserTheme();
   const { updateUser } = useUserStore();
+
+
+  const { data: session, update } = useSession();
+  const currentTheme = session?.user.theme ?? "theme-red";
+
   const [selectedTheme, setSelectedTheme] = React.useState<ThemeType>(
     currentTheme as ThemeType
   );
 
-  const handleChangeTheme = () => {
-    updateUser({
-      theme: selectedTheme
-    });
-    onClose();
+  const { mutate: updateUserInfo, isPending } = useUpdateUserInfo();
+  const router = useRouter();
+
+  const handleChangeTheme = async () => {
+    try {
+      updateUserInfo({
+        userId: session?.user.userId as string,
+        userInfo: {
+          theme: selectedTheme,
+          email: session?.user.email as string,
+          language: session?.user.language as string,
+          mode: session?.user.mode as string,
+        }
+      }, {
+        onSuccess: async () => {
+          await update({
+            user: {
+              ...session?.user,
+              theme: selectedTheme
+            }
+          });
+          onClose();
+        },
+        onError: (error) => {
+          console.error("Lỗi khi cập nhật theme:", error);
+        }
+      });
+    } catch (error) {
+      console.error("Lỗi khi cập nhật theme:", error);
+    }
   };
 
   return (
     <Dialog open={isOpen && type === "changeTheme"} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-3xl !rounded-3xl overflow-hidden">
+      <DialogContent className="sm:max-w-3xl !rounded-3xl overflow-hidden !fixed !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !z-50">
+        {/* Loading Overlay */}
+        <AnimatePresence>
+          {isPending && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center rounded-3xl"
+            >
+              <motion.div
+                className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center gap-4"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+              >
+                <motion.div
+                  className="w-8 h-8 border-4 border-[#17B155] border-t-transparent rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+                <p className="text-gray-700 font-medium">Đang cập nhật theme...</p>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -111,8 +170,8 @@ function ChangeTheme() {
                     transition: { duration: 0.5 }
                   }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => setSelectedTheme(theme.id)}
-                  className="cursor-pointer relative"
+                  onClick={() => !isPending && setSelectedTheme(theme.id as ThemeType)}
+                  className={`cursor-pointer relative ${isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <StarIcon width={58} height={58} color={theme.color} />
                   {selectedTheme === theme.id && (
@@ -157,15 +216,45 @@ function ChangeTheme() {
                 </motion.div>
                 <div className="flex items-center gap-3">
                   <motion.div
-                    className={`${THEME_CLASSES[selectedTheme]} h-10 w-48 rounded`}
+                    className={`${THEME_CLASSES[selectedTheme]} h-10 w-48 rounded relative overflow-hidden`}
                     layoutId="themeColor"
                     transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                  />
+                  >
+                    {isPending && (
+                      <motion.div
+                        className="absolute inset-0 bg-white/30 flex items-center justify-center"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                      >
+                        <motion.div
+                          className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        />
+                      </motion.div>
+                    )}
+                  </motion.div>
                   <Button
                     onClick={handleChangeTheme}
-                    className="bg-[#17B155] hover:bg-[#17B155]/80"
+                    disabled={isPending}
+                    className="bg-[#17B155] hover:bg-[#17B155]/80 min-w-[80px] relative"
                   >
-                    Thay đổi
+                    {isPending ? (
+                      <motion.div
+                        className="flex items-center gap-2"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                      >
+                        <motion.div
+                          className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        />
+                        <span>Đang lưu...</span>
+                      </motion.div>
+                    ) : (
+                      "Thay đổi"
+                    )}
                   </Button>
                 </div>
               </div>

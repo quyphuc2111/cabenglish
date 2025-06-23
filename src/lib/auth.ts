@@ -198,7 +198,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         username: { label: "Username", type: "text" },
         roles: { label: "Roles", type: "text" },
-        authCookie: { label: "Auth Cookie", type: "text" } // Add this field
+        authCookie: { label: "Auth Cookie", type: "text" } 
       },
       async authorize(credentials): Promise<User | null> {
         if (!credentials) return null;
@@ -275,10 +275,14 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({
       token,
-      user
+      user,
+      trigger,
+      session
     }: {
       token: JWT;
       user: User | null;
+      trigger?: "signIn" | "signUp" | "update";
+      session?: any;
     }): Promise<JWT> {
       if (user) {
         token.accessToken = user.accessToken;
@@ -292,6 +296,19 @@ export const authOptions: NextAuthOptions = {
         token.authCookie = user.authCookie;
         token.moodleCookie = user.moodleCookie;
         token.accessTokenExpires = Date.now() + 1 * 60 * 1000; // 1 phút
+        return token;
+      }
+
+      if (trigger === "update" && session) {
+        if (session.user?.theme) {
+          token.theme = session.user.theme;
+        }
+        if (session.user?.language) {
+          token.language = session.user.language;
+        }
+        if (session.user?.mode) {
+          token.mode = session.user.mode;
+        }
         return token;
       }
 

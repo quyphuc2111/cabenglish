@@ -214,10 +214,10 @@
     background-size: cover;
 }
 
-.swiper-slide img {
+/* .swiper-slide img {
     display: block;
     width: 100%;
-}
+} */
 
 .mySwiper {
     width: 100%;
@@ -376,7 +376,7 @@
     height: auto;
     margin: 0 auto;
     padding: 0;
-    padding-bottom: 20px !important;
+    padding-bottom: 40px !important;
 }
 
 .course-swiper .swiper-slide {

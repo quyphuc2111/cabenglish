@@ -17,9 +17,9 @@ export default function ClientPanelLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const currentTheme = useUserTheme() as 'theme-gold' | 'theme-blue' | 'theme-pink' | 'theme-red';
-  const sidebar = useStore(useSidebarToggle, (state) => state);
   const { data: session } = useSession();
+  const currentTheme = (session?.user.theme ?? "theme-red") as keyof typeof themeClasses;
+  const sidebar = useStore(useSidebarToggle, (state) => state);
 
   const { data: notificationList = [] } = useQuery({
     queryKey: ["notifications"],

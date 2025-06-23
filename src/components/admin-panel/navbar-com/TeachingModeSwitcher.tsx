@@ -3,7 +3,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 
 interface TeachingModeSwitcherProps {
-  currentTeachingMode: string;
+  currentTeachingMode: string | undefined;
   t: (key: string) => string;
   onClick: () => void;
 }
@@ -13,6 +13,8 @@ export function TeachingModeSwitcher({
   t,
   onClick
 }: TeachingModeSwitcherProps) {
+
+  
   return (
     <motion.div
       className="border border-gray-200 rounded-lg flex items-center justify-between

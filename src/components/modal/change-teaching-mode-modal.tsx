@@ -64,25 +64,60 @@ interface ChangeTeachingModeModalProps {
 
 function ChangeTeachingModeModal() {
   const { isOpen, onClose, type, data } = useModal();
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleConfirm = () => {
-    if (data?.onConfirm) {
-      data.onConfirm();
+  // Reset loading state khi modal được mở lại
+  React.useEffect(() => {
+    if (isOpen && type === "changeTeachingModeModal") {
+      setIsLoading(false);
     }
-    onClose();
+  }, [isOpen, type]);
+
+  const handleConfirm = async () => {
+    if (data?.onConfirm) {
+      setIsLoading(true);
+      try {
+        await data.onConfirm();
+        // Modal sẽ được đóng trong handleConfirmModeChange của parent component
+      } catch (error) {
+        setIsLoading(false);
+        // Lỗi sẽ được xử lý trong parent component
+      }
+    }
   };
 
   return (
     <AnimatePresence>
       {isOpen && type === "changeTeachingModeModal" && (
         <Dialog open={true} onOpenChange={onClose}>
-          <motion.div
-            variants={modalVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            <DialogContent className="sm:max-w-3xl !rounded-3xl overflow-hidden">
+          <DialogContent className="sm:max-w-3xl !rounded-3xl overflow-hidden relative !fixed !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 !transform">
+            <motion.div
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              {/* Loading Overlay */}
+              <AnimatePresence>
+                {isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-3xl"
+                  >
+                    <div className="flex flex-col items-center gap-4">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full"
+                      />
+                      <p className="text-lg font-medium text-gray-700">Đang chuyển chế độ...</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <DialogHeader>
                 <DialogTitle>
                   <motion.div
@@ -151,25 +186,39 @@ function ChangeTeachingModeModal() {
                 <div className="flex gap-20">
                   <motion.div
                     variants={buttonVariants}
-                    whileHover="hover"
-                    whileTap="tap"
+                    whileHover={!isLoading ? "hover" : {}}
+                    whileTap={!isLoading ? "tap" : {}}
                   >
                     <Button
-                      className="bg-blue-500 hover:bg-blue-500/80 text-md text-white"
+                      className="bg-blue-500 hover:bg-blue-500/80 text-md text-white disabled:bg-blue-400 disabled:cursor-not-allowed"
                       size={"lg"}
                       onClick={handleConfirm}
+                      disabled={isLoading}
                     >
-                      Đồng ý
+                      {isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                          />
+                          Đang xử lý...
+                        </div>
+                      ) : (
+                        "Đồng ý"
+                      )}
                     </Button>
                   </motion.div>
                   <motion.div
                     variants={buttonVariants}
-                    whileHover="hover"
-                    whileTap="tap"
+                    whileHover={!isLoading ? "hover" : {}}
+                    whileTap={!isLoading ? "tap" : {}}
                   >
                     <Button
-                      className="bg-red-500 hover:bg-red-500/80 text-md text-white"
+                      className="bg-red-500 hover:bg-red-500/80 text-md text-white disabled:bg-red-400 disabled:cursor-not-allowed"
                       size="lg"
+                      onClick={onClose}
+                      disabled={isLoading}
                     >
                       Hủy
                     </Button>
@@ -238,8 +287,8 @@ function ChangeTeachingModeModal() {
                   />
                 </motion.div>
               </motion.div>
-            </DialogContent>
-          </motion.div>
+            </motion.div>
+          </DialogContent>
         </Dialog>
       )}
     </AnimatePresence>

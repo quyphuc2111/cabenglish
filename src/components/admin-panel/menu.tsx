@@ -19,6 +19,7 @@ import {
 import Image from "next/image";
 // import { useTeachingModeStore } from "@/store/useTeachingModeStore";
 import { useUserMode, useUserStore } from "@/store/useUserStore";
+import { useSession } from "next-auth/react";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -26,7 +27,8 @@ interface MenuProps {
 }
 
 export function Menu({ isOpen, disabled }: MenuProps) {
-  const currentTeachingMode = useUserMode();
+  const { data: session } = useSession();
+  const currentTeachingMode = session?.user?.mode == "default" ? "defaultMode" : "freeMode";
 
   const pathname = usePathname();
   const menuList = useMenuList(pathname, currentTeachingMode);

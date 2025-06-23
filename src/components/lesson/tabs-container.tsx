@@ -14,7 +14,7 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 import OptimizeImage from "@/components/common/optimize-image";
-import { useUpdateSectionLocked } from "@/hooks/client/useLesson";
+import { useUpdateSectionLockedFromLocked } from "@/hooks/client/useLesson";
 import { Button } from "../ui/button";
 
 interface TabsContainerProps {
@@ -71,10 +71,11 @@ export const TabsContainer = ({
   const [lastToastTime, setLastToastTime] = useState<number>(0);
   const [currentContentIndex, setCurrentContentIndex] = useState(0);
   const [iframeLoading, setIframeLoading] = useState(true);
-  const [lastSCItem, setLastSCItem] = useState();
+  const [lastSCItem, setLastSCItem] = useState<SectionContentType | undefined>();
+  const [localUnlockedContents, setLocalUnlockedContents] = useState<Set<number>>(new Set());
   const iframeRef = useRef<HTMLIFrameElement | null>(null); 
 
-  const { mutate: updateSectionLocked } = useUpdateSectionLocked();
+  const { mutate: updateSectionLocked } = useUpdateSectionLockedFromLocked();
 
   useEffect(() => {
     const lastItem = sectionContents.reduce(
@@ -85,8 +86,13 @@ export const TabsContainer = ({
     setLastSCItem(lastItem);
   }, [sectionContents]);
 
+  // Helper function để check trạng thái locked
+  const isContentLocked = (content: SectionContentType) => {
+    return content.isLocked && !localUnlockedContents.has(content.sc_id);
+  };
+
   const handleContentClick = (content: SectionContentType, index: number) => {
-    if (content.isLocked) {
+    if (isContentLocked(content)) {
       const currentTime = Date.now();
       if (currentTime - lastToastTime > 3000) {
         toast.warning("Hãy hoàn thành phần học trước", {
@@ -106,19 +112,42 @@ export const TabsContainer = ({
   const handleNextContent = () => {
     onOpen("completeLesson", {
       onConfirm: async () => {
+        const currentContent = sectionContents[currentContentIndex];
         const nextContent = sectionContents[currentContentIndex + 1];
 
+        // Luôn cập nhật progress cho content hiện tại trước
+        updateProgressSectionContent(
+          {
+            sectionContentId: currentContent.sc_id,
+            progress: 1
+          },
+          {
+            onSuccess: () => {
+              router.refresh();
+            }
+          }
+        );
+
+        // Nếu đây là content cuối cùng của section
         if (
           lastSCItem &&
-          lastSCItem.sc_id === sectionContents[currentContentIndex].sc_id
+          lastSCItem.sc_id === currentContent.sc_id
         ) {
-          await updateSectionLocked({
-            sectionId: nextSection?.sectionId
-          });
+          // Mở khóa section tiếp theo nếu có
+          if (nextSection?.sectionId) {
+            await updateSectionLocked({
+              sectionId: nextSection.sectionId
+            });
+          }
         }
 
+        // Nếu còn content tiếp theo trong section hiện tại
         if (nextContent) {
+          // Cập nhật state local ngay lập tức để UI responsive
           if (nextContent.isLocked) {
+            setLocalUnlockedContents(prev => new Set([...prev, nextContent.sc_id]));
+            
+            // Mở khóa content tiếp theo
             await updateSectionContentLocked(
               {
                 sectionContentId: nextContent.sc_id
@@ -130,6 +159,7 @@ export const TabsContainer = ({
               }
             );
 
+            // Cập nhật progress cho content tiếp theo
             updateProgressSectionContent(
               {
                 sectionContentId: nextContent.sc_id,
@@ -142,8 +172,10 @@ export const TabsContainer = ({
               }
             );
           }
+          // Chuyển sang tab tiếp theo
           setCurrentContentIndex(currentContentIndex + 1);
         }
+        
         onCloseModal();
       }
     });
@@ -181,20 +213,24 @@ export const TabsContainer = ({
                   <TabsTrigger
                     value={index.toString()}
                     className="flex gap-2 items-center py-2 relative w-[200px]"
-                    disabled={content.isLocked}
+                    disabled={isContentLocked(content)}
                   >
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger className="flex gap-2 items-center">
-                          <Image
-                            src={content.iconUrl || "/assets/image/sc1.png"}
-                            alt="content-icon"
-                            width={40}
-                            height={40}
-                          />
+                          <div className="w-10 h-10 flex-shrink-0 relative overflow-hidden rounded">
+                            <Image
+                              src={content.icon_url || "/assets/image/sc1.png"}
+                              alt="content-icon"
+                              width={40}
+                              height={40}
+                              className="w-full h-full object-cover"
+                              unoptimized
+                            />
+                          </div>
                           <p
                             className={`font-medium truncate ${
-                              content.isLocked ? "opacity-50" : ""
+                              isContentLocked(content) ? "opacity-50" : ""
                             }`}
                           >
                             {content.title}
@@ -206,7 +242,7 @@ export const TabsContainer = ({
                       </Tooltip>
                     </TooltipProvider>
 
-                    {content.isLocked && (
+                    {isContentLocked(content) && (
                       <motion.div
                         variants={lockIconVariants}
                         initial="initial"
@@ -261,22 +297,31 @@ export const TabsContainer = ({
           <TabsContent
             key={content.sc_id}
             value={index.toString()}
-            className="mt-0 flex-1 min-h-0"
+            className="mt-0 flex-1 min-h-0 overflow-hidden"
           >
             <motion.div
               variants={tabTransitionVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="bg-white rounded-md h-full flex flex-col"
+              className="bg-white rounded-md h-full flex flex-col overflow-hidden"
             >
-              <div className="relative flex-shrink-0">
+              {/* Iframe Container với responsive height */}
+              <div className="relative flex-1 min-h-0 bg-gray-50">
                 {content.iframe_url.startsWith("http") ? (
-                  <>
+                  <div className="w-full h-full min-h-[400px] max-h-[70vh] relative">
+                    {iframeLoading && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#56B165]"></div>
+                          <p className="text-gray-500 text-sm">Đang tải bài học...</p>
+                        </div>
+                      </div>
+                    )}
                     <iframe
-                    ref={iframeRef}
+                      ref={iframeRef}
                       src={content.iframe_url}
-                      className="w-full max-h-[450px] h-[350px] border-none"
+                      className="w-full h-full border-none rounded-t-md"
                       title={content.title}
                       allowFullScreen
                       allow="geolocation *; microphone *; camera *; midi *; encrypted-media *"
@@ -285,16 +330,21 @@ export const TabsContainer = ({
                         setIframeLoading(false);
                       }}
                     />
-                  </>
+                  </div>
                 ) : (
-                  <div className="w-full h-[350px] 3xl:h-[450px] flex items-center justify-center bg-gray-100">
-                    <p className="text-gray-500">
-                      Đường dẫn bài học không hợp lệ
-                    </p>
+                  <div className="w-full h-full min-h-[400px] flex items-center justify-center bg-gray-100">
+                    <div className="text-center">
+                      <div className="text-4xl mb-4">⚠️</div>
+                      <p className="text-gray-500 text-lg">
+                        Đường dẫn bài học không hợp lệ
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
-              <div className="flex items-center px-10 py-2 flex-1 min-h-0 gap-2">
+
+              {/* Description và controls */}
+              <div className="flex flex-col md:flex-row items-start px-4 md:px-10 py-3 flex-shrink-0 gap-4 bg-white border-t">
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{
@@ -319,37 +369,62 @@ export const TabsContainer = ({
                     }
                   }}
                   style={{ cursor: "pointer" }}
+                  className="flex-shrink-0 self-center md:self-start"
                 >
                   <OptimizeImage
                     src="/assets/image/bkt_mascot.webp"
-                    width={110}
-                    height={160}
+                    width={80}
+                    height={120}
                     alt="bkt_mascot"
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 w-16 h-24 md:w-20 md:h-28 lg:w-[80px] lg:h-[120px]"
                   />
                 </motion.div>
+                
                 {content.description && (
-                  <div className="relative flex-1 h-3/4 ml-4">
-                    {/* Tam giác bên trái */}
+                  <div className="relative flex-1 min-h-0 min-w-0 order-3 md:order-2">
+                    {/* Tam giác bên trái - chỉ hiển thị trên desktop */}
                     <div
-                      className="absolute left-[-20px] top-1/2 -translate-y-1/2 w-0 h-0 z-10
-                      border-y-[14px] border-y-transparent
-                      border-r-[20px] border-r-[#F5F5F5]"
+                      className="hidden md:block absolute left-[-20px] top-1/2 -translate-y-1/2 w-0 h-0 z-10
+                      border-y-[10px] lg:border-y-[14px] border-y-transparent
+                      border-r-[15px] lg:border-r-[20px] border-r-[#F5F5F5]"
                     >
                       <div
-                        className="absolute right-[-21px] top-[-14px]
-                        border-y-[14px] border-y-transparent 
-                        border-r-[20px] border-r-[#F5F5F5]
+                        className="absolute right-[-16px] lg:right-[-21px] top-[-10px] lg:top-[-14px]
+                        border-y-[10px] lg:border-y-[14px] border-y-transparent 
+                        border-r-[15px] lg:border-r-[20px] border-r-[#F5F5F5]
                         -z-10"
                       ></div>
                     </div>
-                    <div className="bg-[#F5F5F5] rounded-2xl px-5 py-3 h-full overflow-y-auto">
-                      <p>{content.description}</p>
+                    <div className="bg-[#F5F5F5] rounded-2xl px-3 md:px-5 py-2 md:py-3 min-h-[100px] max-h-[120px] overflow-y-auto">
+                      <div className="h-full overflow-y-auto overflow-x-hidden">
+                        <p 
+                          className="break-words whitespace-pre-wrap leading-relaxed text-sm md:text-base"
+                          style={{ 
+                            wordBreak: 'break-all',
+                            overflowWrap: 'break-word',
+                            hyphens: 'auto'
+                          }}
+                        >
+                          {content.description}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 )}
-                <div>
-                  <Button onClick={handleFullScreen}>Toàn màn hình</Button>
+                
+                <div className="flex flex-col gap-2 flex-shrink-0 self-center md:self-start order-2 md:order-3">
+                  <Button 
+                    onClick={handleFullScreen}
+                    size="sm"
+                    className="text-xs md:text-sm px-2 md:px-4 py-1 md:py-2 bg-[#56B165] hover:bg-[#4a9957] transition-colors"
+                  >
+                    🔍 Toàn màn hình
+                  </Button>
+                  {iframeLoading && (
+                    <div className="text-xs text-gray-500 text-center">
+                      Đang tải...
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
