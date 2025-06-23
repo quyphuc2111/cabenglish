@@ -2,6 +2,8 @@
 
 import { serverFetch } from "@/lib/api";
 import { LessonAdminType, LessonType } from "@/types/lesson";
+import { initializeProgress } from "./progressAction";
+import { initializeLocked } from "./lockedAction";
 
 interface LessonResponse {
   data: LessonType[];
@@ -17,9 +19,11 @@ interface LessonAdminResponse {
 
 //User
 export async function getAllLessonDataByUserId({
-  userId
+  userId,
+  mode
 }: {
   userId: string;
+  mode?: "default" | "free"
 }): Promise<LessonResponse> {
   if (!userId) {
     return {
@@ -28,7 +32,11 @@ export async function getAllLessonDataByUserId({
     };
   }
 
+  console.log("mode", mode)
+
   try {
+    await initializeProgress(userId)
+    await initializeLocked({userId, mode: mode })
     const data = await serverFetch(`/api/Lesson/user/${userId}`);
 
     if (!Array.isArray(data)) {
