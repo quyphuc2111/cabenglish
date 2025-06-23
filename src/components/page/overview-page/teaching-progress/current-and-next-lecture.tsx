@@ -1,80 +1,364 @@
-import CourseCard from '@/components/course-card/course-card'
-import LessonCard from '@/components/lesson/lesson-card'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation';
-import React, { Fragment } from 'react'
+import LessonCard from "@/components/lesson/lesson-card";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import React, { Fragment, useState } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Autoplay } from "swiper/modules";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
-function CurrentAndNextLecture({ courseData, t }: { courseData: any[], t: any }) {
+import "swiper/css";
+import "swiper/css/navigation";
+
+// const mockClassrooms = [
+//   { id: "1", name: "Lớp mầm non A", slug: "mam-non-a" },
+//   { id: "2", name: "Lớp mầm non B", slug: "mam-non-b" },
+//   { id: "3", name: "Lớp 3-4 tuổi", slug: "lop-3-4-tuoi" },
+//   { id: "4", name: "Lớp 4-5 tuổi", slug: "lop-4-5-tuoi" },
+//   { id: "5", name: "Lớp 5-6 tuổi", slug: "lop-5-6-tuoi" }
+// ];
+
+function CurrentAndNextLecture({
+  courseData,
+  t,
+  classroomData
+}: {
+  courseData: any[];
+  t: any;
+  classroomData: any[];
+}) {
   const router = useRouter();
+  const [selectedClassroom, setSelectedClassroom] = useState<string>("all");
+  const [currentSwiper, setCurrentSwiper] = useState<any>(null);
+  const [nextSwiper, setNextSwiper] = useState<any>(null);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
+  const [nextSlideIndex, setNextSlideIndex] = useState<number>(0);
 
-  // Lọc ra bài học đang dạy (0 < progress < 1)
-  const currentLecture = courseData
-    .filter(i => i.progress < 1 && i.progress > 0)
-    .slice(-1)[0];
-
-  // Tìm index của bài học đang dạy
-  const currentIndex = courseData.findIndex(course => course.id === currentLecture?.id);
-  
-  // Lấy bài học tiếp theo (nếu có)
-  const nextLecture = currentIndex !== -1 ? courseData[currentIndex + 1] : null;
+  console.log("courseDatacourseData", courseData);
 
   const handleLessonClick = async (lessonId: number) => {
     router.push(`/lesson/${lessonId}`);
   };
 
-  return (
-    <div className="flex flex-col lg:flex-row w-full lg:w-1/2">
-      <div className="w-full lg:w-1/2 flex flex-col gap-3 lg:border-l border-[#e969ad]/50 lg:px-5">
-        <div className="flex items-center gap-3 ">
-          <Image 
-            src="/book_light.png" 
-            alt="book_light" 
-            width={35} 
-            height={35} 
-            priority
-          />
-          <p className="text-lg 3xl:text-xl">{t('lectureBeingTaught')}</p>
-        </div>
-        <div className="">
-          {courseData.filter(i => i.progress < 1 && i.progress > 0).slice(-1).map((courseItem, index) => {
-             const customCourse = {
-              ...courseItem,
-              classRoomName: courseItem.className,
-            }
-            return (
-              <Fragment key={index}>
-                <LessonCard {...customCourse} 
-                  onClick={() => handleLessonClick(courseItem.lessonId)}
-                />
-              </Fragment>
-            )
-          })}
-        </div>
-      </div>
+  // Filter courseData theo classroom được chọn
+  const getFilteredDataByClassroom = (data: any[]) => {
+    return data.filter((course) => {
+      if (!selectedClassroom || selectedClassroom === "all") return true;
+      return course.classId === selectedClassroom;
+    });
+  };
 
-      <div className="w-full lg:w-1/2 flex flex-col gap-3 lg:border-l border-[#e969ad]/50 lg:px-5">
-        <div className="flex items-center gap-3 ">
-          <Image 
-            src="/person_rank.png" 
-            alt="person_rank" 
-            width={35} 
-            height={35} 
-            priority
-          />
-          <p className="text-lg 3xl:text-xl">{t('nextLecture')}</p>
+  console.log("getFilteredDataByClassroom(courseData)", getFilteredDataByClassroom(courseData));
+
+  const filteredCourseData = getFilteredDataByClassroom(courseData)
+    .filter(
+      (course) =>
+        course.progress < 1 &&
+        course.progress > 0 &&
+        !course.isLocked
+    )
+    .sort((a, b) => {
+      if (a.classId !== b.classId) return a.classId - b.classId;
+      if (a.unitId !== b.unitId) return a.unitId - b.unitId;
+      return a.lessonOrder - b.lessonOrder;
+    });
+
+  const nextLectureData = getFilteredDataByClassroom(courseData)
+    .filter((course) => course.progress === 0)
+    .sort((a, b) => {
+      if (a.classId !== b.classId) return a.classId - b.classId;
+      if (a.unitId !== b.unitId) return a.unitId - b.unitId;
+      return a.lessonOrder - b.lessonOrder;
+    });
+
+  return (
+    <div className="relative w-1/2 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 opacity-90 rounded-3xl" />
+      <div className="absolute inset-0 bg-[url('/assets/bg-pattern.svg')] opacity-5" />
+
+      <div className="relative z-10 p-6 lg:p-8">
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div className="w-full sm:w-auto min-w-[280px]">
+              <Select
+                value={selectedClassroom}
+                onValueChange={setSelectedClassroom}
+              >
+                <SelectTrigger className="w-full bg-white/80 backdrop-blur-sm border-2 border-purple-200 hover:border-purple-300 rounded-xl h-12 px-4">
+                  <SelectValue placeholder="🏫 Chọn lớp học" />
+                </SelectTrigger>
+                <SelectContent className="bg-white/95 backdrop-blur-sm border-purple-200">
+                  <SelectGroup>
+                    <SelectItem value="all" className="text-gray-600">
+                      📚 Tất cả lớp học
+                    </SelectItem>
+                    {classroomData.map((classroom) => (
+                      <SelectItem
+                        key={classroom.class_id}
+                        value={classroom.class_id}
+                        className="py-3"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" />
+                          {classroom.classname}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
-        <div className="">
-          {nextLecture && (
-            <LessonCard {...{
-              ...nextLecture,
-              classRoomName: nextLecture.className
-            }} />
-          )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                <Image
+                  src="/book_light.png"
+                  alt="book_light"
+                  width={20}
+                  height={20}
+                  className="brightness-0 invert"
+                />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">
+                  {t("lectureBeingTaught")}
+                </h3>
+                <p className="text-sm text-gray-600">Bài giảng hiện tại</p>
+              </div>
+            </div>
+
+            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
+              {filteredCourseData.length > 0 ? (
+                <div className="relative">
+                  <Swiper
+                    onSwiper={setCurrentSwiper}
+                    onSlideChange={(swiper) =>
+                      setCurrentSlideIndex(swiper.activeIndex)
+                    }
+                    modules={[Navigation, Autoplay]}
+                    spaceBetween={20}
+                    slidesPerView={1}
+                    autoplay={{
+                      delay: 4000,
+                      disableOnInteraction: false,
+                      pauseOnMouseEnter: true
+                    }}
+                    className="current-lecture-swiper"
+                  >
+                    {filteredCourseData.map((courseItem, index) => {
+                      const customCourse = {
+                        ...courseItem,
+                        classRoomName: courseItem.className
+                      };
+                      return (
+                        <SwiperSlide key={index}>
+                          <LessonCard
+                            {...customCourse}
+                            onClick={() =>
+                              handleLessonClick(courseItem.lessonId)
+                            }
+                            className="transform hover:scale-[1.02] transition-all duration-300"
+                          />
+                        </SwiperSlide>
+                      );
+                    })}
+                  </Swiper>
+
+                  {filteredCourseData.length > 1 && (
+                    <div className="flex items-center justify-center gap-3 mt-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-10 h-10 rounded-full bg-white/80 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
+                        onClick={() => currentSwiper?.slidePrev()}
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </Button>
+                      <div className="flex gap-2">
+                        {Array.from({ length: filteredCourseData.length }).map(
+                          (_, idx) => (
+                            <div
+                              key={idx}
+                              className={cn(
+                                "w-2 h-2 rounded-full cursor-pointer transition-all duration-300",
+                                currentSlideIndex === idx
+                                  ? "bg-purple-500 scale-125"
+                                  : "bg-purple-300 hover:bg-purple-400"
+                              )}
+                              onClick={() => {
+                                currentSwiper?.slideTo(idx);
+                                setCurrentSlideIndex(idx);
+                              }}
+                            />
+                          )
+                        )}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-10 h-10 rounded-full bg-white/80 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
+                        onClick={() => currentSwiper?.slideNext()}
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-4 py-12">
+                  <div className="w-20 h-20 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
+                    <Image
+                      src="/assets/image/no_course.png"
+                      alt="no-course"
+                      width={40}
+                      height={40}
+                    />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-gray-600 font-medium">
+                      Hiện tại chưa có bài học nào!
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Hãy bắt đầu một bài học mới
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
+                <Image
+                  src="/person_rank.png"
+                  alt="person_rank"
+                  width={20}
+                  height={20}
+                  className="brightness-0 invert"
+                />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">
+                  {t("nextLecture")}
+                </h3>
+                <p className="text-sm text-gray-600">Bài giảng sắp tới</p>
+              </div>
+            </div>
+
+            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
+              {nextLectureData.length > 0 ? (
+                <div className="relative">
+                  <Swiper
+                    onSwiper={setNextSwiper}
+                    onSlideChange={(swiper) =>
+                      setNextSlideIndex(swiper.activeIndex)
+                    }
+                    modules={[Navigation, Autoplay]}
+                    spaceBetween={20}
+                    slidesPerView={1}
+                    autoplay={{
+                      delay: 5000,
+                      disableOnInteraction: false,
+                      pauseOnMouseEnter: true
+                    }}
+                    className="next-lecture-swiper"
+                  >
+                    {nextLectureData.slice(0, 3).map((courseItem, index) => {
+                      const customCourse = {
+                        ...courseItem,
+                        classRoomName: courseItem.className
+                      };
+                      return (
+                        <SwiperSlide key={index}>
+                          <LessonCard
+                            {...customCourse}
+                            className="transform hover:scale-[1.02] transition-all duration-300 opacity-80"
+                          />
+                        </SwiperSlide>
+                      );
+                    })}
+                  </Swiper>
+
+                  {nextLectureData.length > 1 && (
+                    <div className="flex items-center justify-center gap-3 mt-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-10 h-10 rounded-full bg-white/80 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
+                        onClick={() => nextSwiper?.slidePrev()}
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </Button>
+                      <div className="flex gap-2">
+                        {Array.from({
+                          length: Math.min(nextLectureData.length, 3)
+                        }).map((_, idx) => (
+                          <div
+                            key={idx}
+                            className={cn(
+                              "w-2 h-2 rounded-full cursor-pointer transition-all duration-300",
+                              nextSlideIndex === idx
+                                ? "bg-blue-500 scale-125"
+                                : "bg-blue-300 hover:bg-blue-400"
+                            )}
+                            onClick={() => {
+                              nextSwiper?.slideTo(idx);
+                              setNextSlideIndex(idx);
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-10 h-10 rounded-full bg-white/80 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
+                        onClick={() => nextSwiper?.slideNext()}
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-4 py-12">
+                  <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
+                    <Image
+                      src="/person_rank.png"
+                      alt="person_rank"
+                      width={40}
+                      height={40}
+                    />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-gray-600 font-medium">
+                      Chưa có bài học tiếp theo!
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Tất cả bài học đã hoàn thành
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default CurrentAndNextLecture
-
+export default CurrentAndNextLecture;

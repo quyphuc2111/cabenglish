@@ -10,10 +10,13 @@ import {
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { Loading } from "@/components/common/loading";
 
-async function ClassroomPage() {
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+async function ClassroomPage({ searchParams }: PageProps) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -24,19 +27,28 @@ async function ClassroomPage() {
     userId: session.user.userId
   });
 
-  // Lấy pathname từ headers
-  const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || "";
-  const classroomName = decodeURIComponent(pathname).split("/").pop();
+  console.log("classroomData", classroomData);
 
-  // Kiểm tra xem classroom có tồn tại trong dữ liệu không
-  const classroomExists = classroomData.data.some(
-    (classroom) => classroom.classname === classroomName
-  );
+  // Lấy classroom name từ searchParams
+  const resolvedSearchParams = await searchParams;
+  const classroomName = resolvedSearchParams.classroom as string;
 
-  // Nếu classroom không tồn tại, chuyển hướng về /lop-hoc
-  if (classroomName && !classroomExists) {
-    return redirect("/lop-hoc");
+  console.log("classroomName from searchParams", classroomName);
+
+  // Nếu có classroom name trong searchParams, kiểm tra xem có tồn tại không
+  if (classroomName) {
+    const decodedClassroomName = decodeURIComponent(classroomName);
+    console.log("classroomName decoded", decodedClassroomName);
+
+    // Kiểm tra xem classroom có tồn tại trong dữ liệu không
+    const classroomExists = classroomData.data.some(
+      (classroom) => classroom.classname.toLowerCase() === decodedClassroomName.toLowerCase()
+    );
+
+    // Nếu classroom không tồn tại, chuyển hướng về /lop-hoc
+    if (!classroomExists) {
+      return redirect("/lop-hoc");
+    }
   }
 
   const increamentLike = async ({ classroomId }: { classroomId: number }) => {
@@ -61,6 +73,7 @@ async function ClassroomPage() {
         classroomData={classroomData.data}
         increamentLike={increamentLike}
         decreamentLike={decreamentLike}
+        selectedClassroomName={classroomName ? decodeURIComponent(classroomName) : undefined}
       />
     </Suspense>
   );

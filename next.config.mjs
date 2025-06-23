@@ -15,6 +15,12 @@ const nextConfig = {
         hostname: "static.edupia.vn",
         port: "",
         pathname: "/**"
+      },
+      {
+        protocol: "https",
+        hostname: "data.bkt.net.vn",
+        port: "",
+        pathname: "/**"
       }
     ],
     minimumCacheTTL: 60

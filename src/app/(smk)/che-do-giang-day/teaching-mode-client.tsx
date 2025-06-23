@@ -10,6 +10,7 @@ import { useModal } from "@/hooks/useModalStore";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useUserMode, useUserStore } from "@/store/useUserStore";
+import { useSession } from "next-auth/react";
 // import { updateUserInfo } from "@/actions/userAction";
 
 const containerVariants = {
@@ -201,31 +202,25 @@ function TeachingModeClient({
 }: TeachingModeClientProps) {
   const [modeActive, setModeActive] = useState<"defaultMode" | "freeMode">();
 
-  // const session = useSession();
+  const {data: session, update} = useSession();
 
-  const { onOpen } = useModal();
-  const { user, updateUser } = useUserStore();
-  const currentTeachingMode = useUserMode();
-  // const { user, setUser } = useUserStore();
+  const { onOpen, onClose } = useModal();
+  const currentTeachingMode = session?.user.mode;
 
   useEffect(() => {
-    setModeActive(currentTeachingMode as "defaultMode" | "freeMode");
-  }, []);
+    if (currentTeachingMode) {
+      // Map giá trị từ session sang định dạng component
+      const mappedMode = currentTeachingMode === "default" ? "defaultMode" : "freeMode";
+      setModeActive(mappedMode);
+    }
+  }, [currentTeachingMode]);
 
   const handleConfirmModeChange = async (
     newMode: "defaultMode" | "freeMode"
   ) => {
     try {
-      // const result = await switchModeAction({
-      //   userId: userId,
-      //   mode: newMode === "defaultMode" ? "default" : "free"
-      // });
       const result = await updateUserInfo({
-        // userId: userId,
         mode: newMode === "defaultMode" ? "default" : "free"
-        // email: userInfo.email,
-        // language: userInfo.language,
-        // theme: userInfo.theme
       });
 
       const switchModeResponse = await switchMode({
@@ -233,23 +228,14 @@ function TeachingModeClient({
       });
 
       if (result.success && switchModeResponse.success) {
-        setModeActive(newMode);
-        updateUser({
-          ...user,
-          mode: newMode
+        await update({
+          user: {
+            ...session?.user,
+            mode: newMode === "defaultMode" ? "default" : "free"
+          }
         });
 
-        
-
-        // const updateUserLocal = await updateUserInfo({
-        //   userId: session.data?.user?.userId,
-        //   userInfo: {
-        //     mode: newMode,
-        //     email: session.data?.user?.email,
-        //     language: session.data?.user?.language,
-        //     theme: session.data?.user?.theme
-        //   }
-        // });
+        setModeActive(newMode);
 
         toast.success(
           `Đã chuyển sang ${
@@ -263,11 +249,16 @@ function TeachingModeClient({
             pauseOnHover: true
           }
         );
+
+        // Đóng modal sau khi chuyển chế độ thành công
+        onClose();
       } else {
         toast.error(result.error || "Có lỗi xảy ra khi chuyển chế độ");
+        throw new Error(result.error || "Có lỗi xảy ra khi chuyển chế độ");
       }
     } catch (error) {
       toast.error("Có lỗi xảy ra khi chuyển chế độ");
+      throw error; 
     }
   };
 

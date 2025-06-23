@@ -66,17 +66,17 @@ const handleAuth = (req: Request, token: any) => {
   // }
 
   // Xử lý quyền truy cập dựa trên role
-  if (isAdmin) {
-    // Admin chỉ được phép truy cập các trang /admin/*
-    if (!isAdminRoute(path)) {
-      return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, req.url));
-    }
-  } else {
-    // Người dùng không phải admin không được phép truy cập các trang /admin/*
-    if (isAdminRoute(path)) {
-      return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
-    }
-  }
+  // if (isAdmin) {
+  //   // Admin chỉ được phép truy cập các trang /admin/*
+  //   if (!isAdminRoute(path)) {
+  //     return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, req.url));
+  //   }
+  // } else {
+  //   // Người dùng không phải admin không được phép truy cập các trang /admin/*
+  //   if (isAdminRoute(path)) {
+  //     return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
+  //   }
+  // }
 
   // Cho phép truy cập nếu không vi phạm quy tắc nào
   return null;

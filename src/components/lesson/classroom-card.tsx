@@ -190,6 +190,7 @@ function ClassroomCard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: delay + 0.4 }}
           className="text-base text-gray-600 line-clamp-3 flex-grow"
+          title={description}
         >
           {description}
         </motion.p>

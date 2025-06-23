@@ -77,29 +77,30 @@ function DeleteSectionContentModal() {
   const { isOpen, onClose, type, data } = useModal();
 
   const { mutate: deleteSectionContent, isPending } = useDeleteSectionContent();
-  const {activeLesson} = useLessonStore()
+  const { activeLesson } = useLessonStore();
 
   const handleConfirm = React.useCallback(() => {
-
-   
-   
-
-    deleteSectionContent({
-      sectionIds: Number(activeLesson.sectionId),
-      sectionContentIds: data?.sectionContentIds
-    }, {
-      onError: (error) => {
-        console.error("Lỗi khi xóa:", error);
-        showToast.error(error.message || "Có lỗi xảy ra khi xóa section content!");
+    deleteSectionContent(
+      {
+        sectionIds: Number(activeLesson.sectionId),
+        sectionContentIds: data?.sectionContentIds
       },
-      onSuccess: () => {
-        showToast.success("Xóa section content thành công!");
-        if (data?.onSuccess) {
-          data.onSuccess();
+      {
+        onError: (error) => {
+          console.error("Lỗi khi xóa:", error);
+          showToast.error(
+            error.message || "Có lỗi xảy ra khi xóa section content!"
+          );
+        },
+        onSuccess: () => {
+          showToast.success("Xóa section content thành công!");
+          if (data?.onSuccess) {
+            data.onSuccess();
+          }
+          onClose();
         }
-        onClose();
       }
-    });
+    );
   }, [data, deleteSectionContent, onClose, activeLesson.sectionId]);
 
   if (!isOpen || type !== "deleteSectionContent") return null;
@@ -175,24 +176,35 @@ function DeleteSectionContentModal() {
               </motion.div>
               <div className="text-center space-y-2 flex flex-col justify-center items-center">
                 <p className="text-2xl font-medium">
-                  Bạn có muốn xóa {data?.sectionContents?.length} section content này không?
+                  Bạn có muốn xóa{" "}
+                  {data?.sectionContents &&
+                  data?.sectionContents.length > 0 &&
+                  Array.isArray(data?.sectionContents)
+                    ? data?.sectionContents?.length
+                    : "1"}{" "}
+                  section content này không?
                 </p>
-               <div>
-               <ScrollArea className="w-[500px] ">
-                <div className="flex gap-2 pb-4">
-                  {data?.sectionContents?.map((sectionContent: any) => (
-                    <p key={sectionContent.sc_id} className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0">
-                      <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">
-                        {sectionContent.title}
-                      </span>
-                    </p>
-                  ))}
+                <div>
+                  <ScrollArea className="w-[500px] ">
+                    <div className="flex gap-2 pb-4">
+                      {data?.sectionContents &&
+                        data?.sectionContents.length > 0 &&
+                        Array.isArray(data?.sectionContents) &&
+                        data?.sectionContents?.map((sectionContent: any) => (
+                          <p
+                            key={sectionContent.sc_id}
+                            className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0"
+                          >
+                            <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">
+                              {sectionContent.title}
+                            </span>
+                          </p>
+                        ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                  </ScrollArea>
                 </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-               </div>
-                <div className="flex flex-wrap gap-2">
-                </div>
+                <div className="flex flex-wrap gap-2"></div>
               </div>
               <div className="flex gap-20">
                 <motion.div

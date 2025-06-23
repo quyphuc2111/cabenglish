@@ -23,7 +23,7 @@ export function ProgressStats({ onOpen, t, courseData, classroomData }: Progress
   const [selectedAge, setSelectedAge] = useState<string | null>(null);
   const [previousPage, setPreviousPage] = useState(0);
 
-  const ITEMS_PER_PAGE = 2;
+  const ITEMS_PER_PAGE = 3;
   const totalPages = Math.ceil(classroomData.length / ITEMS_PER_PAGE);
 
   const currentPageData = useMemo(() => {
@@ -33,7 +33,7 @@ export function ProgressStats({ onOpen, t, courseData, classroomData }: Progress
   const chartData = useMemo(() => {
     if (!selectedAge) return currentPageData.map(item => ({
       name: item.classname,
-      progress: formatProgress(item.progress)
+      progress: Number(formatProgress(item.progress))
     }));
 
     const selectedAgeData = currentPageData.find(item => item.classname === selectedAge);
@@ -46,7 +46,7 @@ export function ProgressStats({ onOpen, t, courseData, classroomData }: Progress
 
     return classLessons.map(lesson => ({
       name: lesson.unitName,
-      progress: formatProgress(lesson.progress || 0)
+      progress: Number(formatProgress(lesson.progress || 0))
     }));
   }, [selectedAge, currentPageData, courseData]);
 
@@ -122,7 +122,7 @@ export function ProgressStats({ onOpen, t, courseData, classroomData }: Progress
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="w-full lg:w-1/2 pr-4 mb-8 lg:mb-0 relative"
+      className="w-full lg:w-1/2 pr-4 mb-8 lg:mb-0 relative pt-20"
     >
       <div 
         className="flex items-center gap-5 justify-center mb-2"
@@ -173,10 +173,10 @@ export function ProgressStats({ onOpen, t, courseData, classroomData }: Progress
         </motion.button>
       </div>
 
-      <div className="relative h-[280px] overflow-hidden">
+      <div className="relative ">
         <AnimatePresence mode="wait" initial={false}>
           <div className="absolute w-full" key={currentPage}>
-            {currentPageData.slice(0, ITEMS_PER_PAGE).map((item, index) => (
+            {currentPageData.map((item, index) => (
               <motion.div
                 key={`${item.classname}-${item.class_id}-${index}`}
                 initial={{ opacity: 0, x: currentPage > previousPage ? 100 : -100 }}

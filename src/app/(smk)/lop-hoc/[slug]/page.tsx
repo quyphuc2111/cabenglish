@@ -23,7 +23,7 @@ export async function generateMetadata(
   if (!session) return {};
 
   const { slug } = await params;
-  const classname = decodeURIComponent(slug).replace(/-/g, " ");
+  const classname = decodeURIComponent(slug);
 
   // Lấy thông tin lớp học
   const { data: classrooms } = await getAllClassroomDataByUserId({
@@ -54,9 +54,8 @@ async function Page({ params, searchParams }: PageProps) {
 
   if (!session) redirect("/signin");
 
-  const classname = decodeURIComponent(slug).replace(/-/g, " ");
+  const classname = decodeURIComponent(slug);
 
-  // Kiểm tra classroom tồn tại
   const { data: classrooms } = await getAllClassroomDataByUserId({
     userId: session.user.userId
   });
@@ -69,9 +68,11 @@ async function Page({ params, searchParams }: PageProps) {
     return redirect("/lop-hoc");
   }
 
-  // Lấy và lọc lesson data
+  console.log("session.user.mode", session.user.mode)
+
   const lessonData = await getAllLessonDataByUserId({
-    userId: session.user.userId as string
+    userId: session.user.userId as string,
+    mode: session.user.mode
   });
 
   const filteredLessons = (
@@ -82,16 +83,18 @@ async function Page({ params, searchParams }: PageProps) {
       classname.toLowerCase()
   );
 
-  const filterService = await FilterService.fetchFilterData(
-    session.user.userId as string
-  );
+  // const filterService = await FilterService.fetchFilterData(
+  //   session.user.userId as string
+  // );
+
+
 
   return (
     <ClassroomChildClient
       slug={slug}
       lessonData={filteredLessons}
-      initialFilterData={filterService.initialFilterData}
-      fetchFilterData={filterService.fetchFilterData}
+      // initialFilterData={filterService.initialFilterData}
+      // fetchFilterData={filterService.fetchFilterData}
     />
   );
 }

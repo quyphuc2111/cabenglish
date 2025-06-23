@@ -19,6 +19,7 @@ async function LessonTeachingPage() {
     <LessonTeachingClient
       teachingLessons={lessonService.teachingLessons}
       upcomingLessons={lessonService.upcomingLessons}
+      classroomData={lessonService.classroomData}
     />
   );
 }
