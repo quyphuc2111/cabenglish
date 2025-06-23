@@ -10,7 +10,7 @@ interface UserInfoParams {
     language: string;
     theme: string;
     mode: string;
-    isFirstLogin: boolean;
+    isFirstLogin?: boolean;
   };
 }
 

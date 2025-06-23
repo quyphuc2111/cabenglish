@@ -8,6 +8,7 @@ import ResetSchoolYearModal from "@/components/modal/reset-schoolyear-modal";
 import ChangeTeachingModeModal from "@/components/modal/change-teaching-mode-modal";
 import CompleteLessonModal from "@/components/modal/complete-lesson-modal";
 import NotificationModal from "@/components/modal/notification-modal";
+import LogoutModal from "@/components/modal/logout-modal";
 
 export const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -30,6 +31,7 @@ export const ModalProvider = () => {
       <ChangeTeachingModeModal />
       <CompleteLessonModal />
       <NotificationModal />
+      <LogoutModal />
       {/* <CoinHistory /> */}
     </>
   );

@@ -47,6 +47,7 @@ export type ModalType =
   | "exportUnits"
   | "exportLessons"
   | "importLessons"
+  | "logout"
   ;
 
 export interface ModalData {
