@@ -12,14 +12,20 @@ import { ToastContainer } from "react-toastify";
 import { AdminSidebar } from "./admin-sidebar";
 import AdminModalProvider from "@/providers/admin-modal-provider";
 import Navbar from "../admin/navbar";
+import { useSession } from "next-auth/react";
 
 export default function AdminPanelLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  const currentTheme = useUserTheme();
+  const session = useSession();
+  const currentTheme = session.data?.user.theme;
   const sidebar = useStore(useSidebarToggle, (state) => state);
+
+  
+  console.log("currentThemecurrentTheme", currentTheme);
+  console.log("sessionsession", session);
 
   const themeClasses = {
     "theme-gold": "bg-theme-gold-primary",
@@ -37,8 +43,9 @@ export default function AdminPanelLayout({
 
   if (!sidebar) return null;
 
+
   return (
-    <div className={themeClasses[currentTheme]}>
+    <div className={themeClasses[currentTheme ?? "theme-red"]}>
       <AdminSidebar />
       {/* p-3 xl:p-[40px] 2xl:p-[60px] */}
       <main

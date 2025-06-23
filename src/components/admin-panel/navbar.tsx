@@ -4,13 +4,12 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { navbarAnimations } from "@/constants/animation-variants";
 import { useModal } from "@/hooks/useModalStore";
-import { useUserTheme, useUserMode } from "@/store/useUserStore";
+import { useUserMode } from "@/store/useUserStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { NavbarControls } from "./navbar-com/NavbarControls";
 import { LogoDecorations } from "./navbar-com/LogoDecorations";
-// import { logout as apiLogout } from "@/hooks/client/userApi"; // Replaced by server action
 import { signOut, useSession } from "next-auth/react";
-import { logoutAction } from "@/actions/authAction"; // Import the server action
+import { logoutAction } from "@/actions/authAction"; 
 import axios from "axios";
 
 interface NavbarProps {
@@ -20,67 +19,19 @@ interface NavbarProps {
 
 export function Navbar({ title, type }: NavbarProps) {
   const { t } = useTranslation("", "common");
-  const currentTheme = useUserTheme() ?? "theme-gold";
+  const { data: session } = useSession();
+  const currentTheme = session?.user.theme ?? "theme-red";
   const { onOpen } = useModal();
   const router = useRouter();
-  const currentTeachingMode = useUserMode() ?? "defaultMode";
+  const sessionMode = session?.user.mode;
+  const currentTeachingMode = sessionMode === "default" ? "defaultMode" : "freeMode";
 
   const handleChangeTheme = () => {
     onOpen("changeTheme");
   };
 
   const handleLogout = async () => {
-    console.log("Initiating logout...");
-    try {
-      // Call the server action to handle backend API logout
-      const result = await logoutAction();
-      if (!result.success) {
-        // Log the error from the server action, but proceed with client-side logout anyway
-        console.error("Server action logout failed:", result.message);
-        // Optionally: Show a notification to the user here
-      } else {
-        console.log("Server action logout successful.");
-      }
-    } catch (error) {
-      // Catch errors during the server action call itself
-      console.error("Error calling logout action:", error);
-      // Optionally: Show a notification to the user here
-    }
-
-    // Call the logout-default API to clear Moodle cookies
-    try {
-      console.log("Calling logout-default API to clear Moodle cookies...");
-      const apiUrl = process.env.NEXT_PUBLIC_BKT_ACCOUNT_API_URL || "";
-      const response = await axios.post(
-        `${apiUrl}/api/Moodle/logout-default`,
-        {},
-        {
-          withCredentials: true // Important to include cookies in the request
-        }
-      );
-
-      if (response.data.success) {
-        console.log("Moodle logout successful:", response.data.message);
-      } else {
-        console.error("Moodle logout failed:", response.data.message);
-      }
-    } catch (error) {
-      console.error("Error calling logout-default API:", error);
-      // Continue with logout process regardless of Moodle logout result
-    }
-
-    try {
-      // Perform client-side sign out regardless of server action outcome
-      console.log("Performing client-side signOut...");
-      await signOut({ redirect: false }); // Prevent default redirect
-      console.log("Client-side signOut successful.");
-    } catch (error) {
-      console.error("Next-auth signOut failed:", error);
-      // Optionally: Show a notification to the user here
-    }
-
-    router.push("/signin-v2");
-    router.refresh();
+    onOpen("logout");
   };
 
   return (

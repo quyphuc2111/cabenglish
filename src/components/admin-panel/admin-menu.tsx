@@ -17,8 +17,6 @@ import {
   TooltipProvider
 } from "@/components/ui/tooltip";
 import Image from "next/image";
-// import { useTeachingModeStore } from "@/store/useTeachingModeStore";
-import { useUserMode, useUserStore } from "@/store/useUserStore";
 
 interface MenuProps {
   isOpen: boolean | undefined;

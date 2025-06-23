@@ -49,16 +49,19 @@ export function useMenuList(
   // lấy session từ next-auth
   const session = useSession();
 
+  console.log("123session", session);
+
   useEffect(() => {
+    const userId = session.data?.user?.userId || "";
     const fetchClassrooms = async () => {
-      const userId = session.data?.user.userId || "";
+      console.log("123userId", userId);
       const response = await getAllClassroomDataByUserId({ userId });
       if (response.data) {
         setClassrooms(response.data);
       }
     };
     fetchClassrooms();
-  }, [pathname]);
+  }, [pathname, session]);
 
   return [
     {

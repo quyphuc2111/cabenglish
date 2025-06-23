@@ -59,15 +59,15 @@ const userData = {
 };
 
 export function ContentLayout({ title, type, children }: ContentLayoutProps) {
-  const { user, setUser } = useUserStore();
+  // const { user, setUser } = useUserStore();
 
-  useEffect(() => {
-    if (!user) {
-      setUser({
-        ...userData
-      });
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!user) {
+  //     setUser({
+  //       ...userData
+  //     });
+  //   }
+  // }, []);
 
   return (
     <>

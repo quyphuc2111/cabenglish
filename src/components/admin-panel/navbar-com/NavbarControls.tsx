@@ -7,7 +7,7 @@ import { LogoutButton } from "./LogoutButton";
 
 interface NavbarControlsProps {
   t: (key: string) => string;
-  currentTeachingMode: string;
+  currentTeachingMode: string | undefined;
   onChangeTheme: () => void;
   onLogout: () => void;
 }
