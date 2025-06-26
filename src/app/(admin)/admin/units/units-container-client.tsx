@@ -10,12 +10,12 @@ import { useUnitByClassId } from "@/hooks/use-units";
 import { toast } from "react-toastify";
 import { UnitByClassCombobox } from "@/components/admin/combobox/unitbyclass-combobox";
 import { Plus, Download, Upload } from "lucide-react";
+import { useLessonStore } from "@/store/use-lesson-store";
 
 interface UnitRow {
   unitId: number;
 }
 
-// Thêm interface cho ActionButtons
 interface ActionButtonsProps {
   onDelete?: () => void;
   onExport: () => void;
@@ -67,14 +67,13 @@ function UnitsContainerClient() {
   const { data, isLoading } = useUnitByClassId(selectedClassId);
   const columns = useUnitsColumns();
   const { onOpen } = useModal();
+  const { activateClass } = useLessonStore();
 
-  // Xử lý dữ liệu đã được lọc
   const filteredData = React.useMemo(() => {
     if (!data?.data) return [];
     
     let filtered = [...data.data];
     
-    // Lọc theo unitId nếu đã chọn
     if (selectedUnitId) {
       filtered = filtered.filter(
         unit => unit.unitId === Number(selectedUnitId)
@@ -105,8 +104,9 @@ function UnitsContainerClient() {
 
   const handleSelectClassroom = React.useCallback((value: string) => {
     setSelectedClassId(value);
-    // Reset selectedUnitId khi đổi lớp học
     setSelectedUnitId("");
+
+    activateClass(value)
     
     if (value) {
       toast.success(
@@ -124,12 +124,9 @@ function UnitsContainerClient() {
     setSelectedUnitId(value);
   }, []);
 
-  // Hàm filter cho search
   const filterUnits = React.useCallback((data: any[], filter: string) => {
     if (!filter) return data;
 
-    console.log(data);
-    
     return data.filter((item) => 
       item.unitName.toLowerCase().includes(filter.toLowerCase())
     );
@@ -141,7 +138,7 @@ function UnitsContainerClient() {
       selectedIds.includes(unit.unitId.toString())
     );
     
-    onOpen("deleteUnit", {
+    onOpen("deleteUnits", {
       unitIds: selectedIds,
       units: selectedUnits,
       onSuccess: () => setRowSelection({})
@@ -175,8 +172,8 @@ function UnitsContainerClient() {
           <ActionButtons
             rowSelection={rowSelection}
             onDelete={handleDeleteUnits}
-            onExport={() => onOpen("exportUnits")}
-            onImport={() => onOpen("importUnits")}
+            onExport={() => onOpen("exportUnits", { selectedClassId })}
+            onImport={() => onOpen("importUnits", { selectedClassId })}
             onCreate={handleCreateNotitype}
             isEnabled={!!selectedClassId}
           />

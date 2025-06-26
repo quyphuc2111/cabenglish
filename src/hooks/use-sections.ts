@@ -9,19 +9,21 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SectionAdminType } from "@/types/section";
 
 interface SectionParams {
-  sectionName: string;
-  iconUrl: string;
-  estimateTime: string;
-  order: number;
+  sectionName?: string;
+  iconUrl?: string;
+  estimateTime?: string;
+  order?: number;
   lessonId: number;
-  sectionId: number;
-  sectionData: SectionAdminType
+  sectionId?: number;
+  sectionData?: SectionAdminType;
+  sectionIds?: string[];
 }
 
 interface SectionResponse {
   success: boolean;
   data?: any;
   error?: string;
+  message?: string;
 }
 
 export const useGetSingleSection = (sectionId: string | null) => {
@@ -50,6 +52,10 @@ export function useCreateSection() {
         throw new Error("Không tìm thấy thông tin lesson");
       }
 
+      if (!params.sectionData || !Array.isArray(params.sectionData)) {
+        throw new Error("Dữ liệu section không hợp lệ");
+      }
+
       const response = await createSection({
         sectionData: params.sectionData,
         lessonId: params.lessonId
@@ -64,24 +70,15 @@ export function useCreateSection() {
 
     onSuccess: async (response, variables) => {
       console.log('Mutation success with lessonId:', variables.lessonId);
+      console.log('Response data:', response);
       
-      // Lấy data hiện tại từ cache
-      const previousData = queryClient.getQueryData<any>(["sections", variables.lessonId]);
-      console.log('Previous cache:', previousData);
-
-      if (previousData) {
-        // Cập nhật cache với data mới
-        const updatedData = {
-          ...previousData,
-          data: [...previousData.data, ...variables.sectionData]
-        };
-
-        // Set cache mới
-        queryClient.setQueryData(["sections", variables.lessonId], updatedData);
-      }
-
-      // Sau đó mới invalidate để trigger refetch
+      // Invalidate để refetch data mới từ server
       await queryClient.invalidateQueries({
+        queryKey: ["sections", variables.lessonId]
+      });
+      
+      // Đảm bảo refetch để có data mới nhất
+      await queryClient.refetchQueries({
         queryKey: ["sections", variables.lessonId]
       });
     },
@@ -96,7 +93,7 @@ export function useUpdateSection() {
   const queryClient = useQueryClient();
 
   return useMutation<SectionResponse, Error, SectionParams>({
-    mutationFn: async (params: SectionParams) => {
+    mutationFn: async (params: SectionParams): Promise<SectionResponse> => {
       
       if (!params.sectionData) {
         throw new Error("Không tìm thấy thông tin sectionData");
@@ -116,17 +113,18 @@ export function useUpdateSection() {
         sectionData: params.sectionData
       });
 
-      if (!response.success) {
-        throw new Error(response.error || "Có lỗi xảy ra khi cập nhật section");
-      }
-
-      return response;
+      return {
+        success: response.success || false,
+        data: response.data,
+        error: response.error,
+        message: response.message
+      };
     },
 
-    onSuccess: (_, variables) => {
+    onSuccess: async (_, variables) => {
       // Invalidate các queries liên quan
-      queryClient.invalidateQueries({
-        queryKey: ["sections-by-lesson-id", variables.lessonId]
+      await queryClient.invalidateQueries({
+        queryKey: ["sections", variables.lessonId]
       });
     },
 
@@ -140,13 +138,17 @@ export function useGetSectionByLessonId(lessonId: number) {
   return useQuery({
     queryKey: ["sections", lessonId],
     queryFn: async () => {
+      if (!lessonId || lessonId <= 0) {
+        return { data: [] };
+      }
+      
       const response = await getSectionAdminDataByLessonId({ lessonId });
       if (response.error) {
         throw new Error(response.error);
       }
       return response;
     },
-    enabled: !!lessonId
+    enabled: !!lessonId && lessonId > 0
   });
 }
 
@@ -154,8 +156,8 @@ export function useDeleteSection() {
   const queryClient = useQueryClient();
 
   return useMutation<SectionResponse, Error, SectionParams>({
-    mutationFn: async (params: SectionParams) => {
-      if (!params.sectionIds) {
+    mutationFn: async (params: SectionParams): Promise<SectionResponse> => {
+      if (!params.sectionIds || !Array.isArray(params.sectionIds)) {
         throw new Error("Không tìm thấy thông tin sectionIds");
       }
 
@@ -163,13 +165,27 @@ export function useDeleteSection() {
         throw new Error("Không tìm thấy thông tin lessonId");
       }
       
-      const response = await deleteSectionAdminData({ sectionIds: params.sectionIds, lessonId: params.lessonId });
+      // Convert string IDs to numbers
+      const sectionIds = params.sectionIds.map((id: string) => parseInt(id)).filter((id: number) => !isNaN(id));
+      
+      if (sectionIds.length === 0) {
+        throw new Error("Không có section hợp lệ để xóa");
+      }
+      
+      const response = await deleteSectionAdminData({ 
+        sectionIds: sectionIds, 
+        lessonId: params.lessonId 
+      });
 
-      return response;
+      return {
+        success: true,
+        data: response,
+        error: undefined
+      };
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["sections-by-lesson-id", variables.lessonId]
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["sections", variables.lessonId]
       });
     },
     onError: (error) => {

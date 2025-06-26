@@ -2,8 +2,6 @@
 
 import React from "react";
 import * as Sentry from "@sentry/nextjs";
-import { ClassroomCombobox } from "@/components/admin/combobox/classroom-combobox";
-import { useClassroomColumns } from "@/components/admin/table/classroom-table/columns";
 import { GenericTable } from "@/components/admin/table/common/generic-table";
 import { Button } from "@/components/ui/button";
 import { useSchoolWeek } from "@/hooks/use-schoolweek";

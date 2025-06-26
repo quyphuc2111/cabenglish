@@ -34,6 +34,8 @@ export async function getAllUnitsAdminDataByClassId(
   }
 }
 
+
+
 export async function createUnitAdminDataByClassId({
   unitData,
   classId
@@ -65,8 +67,42 @@ export async function createUnitAdminDataByClassId({
   }
 }
 
+export async function updateUnitAdminDataByClassId({
+  unitId,
+  unitData,
+  classId
+}: {
+  unitId: number;
+  unitData: Units;
+  classId: number;
+}): Promise<UnitsResponse> {
+  try {
+    const data = await serverFetch(`/api/Unit/class/${classId}/unit/${unitId}`, {
+      method: "PUT",
+      data: unitData
+    });
+
+    if (!Array.isArray(data)) {
+      throw new Error("Dữ liệu không đúng định dạng");
+    }
+
+    return {
+      data,
+      error: undefined
+    };
+  } catch (error) {
+    console.error("Lỗi khi cập nhật unit:", error);
+    return {
+      data: [],
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi cập nhật unit"
+    };
+  }
+}
+
 export async function deleteUnitsByClassId(classId: number, unitIds: number[]) {
   try {
+    console.log("deleteUnitsByClassId called with:", { classId, unitIds });
     const response = await serverFetch(`/api/Unit/class/${classId}`, {
       method: "DELETE",
       data: unitIds
@@ -75,6 +111,7 @@ export async function deleteUnitsByClassId(classId: number, unitIds: number[]) {
     return response;
   } catch (error) {
     console.error("Lỗi khi xóa unit:", error);
+    console.error("Failed with classId:", classId, "unitIds:", unitIds);
     throw error;
   }
 }
