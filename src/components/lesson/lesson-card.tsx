@@ -137,9 +137,9 @@ function LessonCard({
 
   const cardClasses = useMemo(() => 
     cn(
-      "px-3 py-4 bg-white rounded-2xl flex flex-col gap-2 shadow-course-inset border relative overflow-hidden",
-      isLocked ? "opacity-60 cursor-not-allowed bg-[#d9d9d9]" : "cursor-pointer",
-      horizontal && "flex-row gap-5",
+      "px-2 sm:px-3 py-3 sm:py-4 bg-white rounded-xl sm:rounded-2xl flex flex-col gap-2 sm:gap-3 shadow-course-inset border relative overflow-hidden transition-all duration-200",
+      isLocked ? "opacity-60 cursor-not-allowed bg-[#d9d9d9]" : "cursor-pointer hover:shadow-lg",
+      horizontal && "flex-col sm:flex-row gap-3 sm:gap-5",
       className
     ),
     [isLocked, horizontal, className]
@@ -173,7 +173,7 @@ function LessonCard({
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: delay + 0.2 }}
-          className={`text-lg font-bold `}
+          className="text-base sm:text-lg font-bold line-clamp-2"
         >
           {unitName}
         </motion.h2>
@@ -211,9 +211,9 @@ function LessonCard({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: delay + 0.3 }}
-          className="text-[#736E6E] text-sm flex justify-between"
+          className="text-[#736E6E] text-xs sm:text-sm flex justify-between gap-2"
         >
-          <span className="course-week">{`Tuần học ${schoolWeek}`}</span>
+          <span className="course-week">{`Tuần học ${String(schoolWeek)}`}</span>
           <span className="course-category">{classRoomName}</span>
         </motion.div>
 
