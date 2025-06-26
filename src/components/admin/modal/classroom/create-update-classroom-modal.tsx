@@ -30,7 +30,6 @@ import {
 } from "@/lib/validations/classroom";
 import { useClassroomForm } from "@/hooks/client/form/useClassroomForm";
 
-
 const formAnimation = {
   hidden: { opacity: 0, y: 20 },
   visible: (custom: number) => ({
@@ -44,6 +43,28 @@ const formAnimation = {
   })
 };
 
+// Shimmer Loading Components
+const InputSkeleton = () => (
+  <div className="animate-pulse">
+    <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+    <div className="h-14 bg-gray-200 rounded-md"></div>
+  </div>
+);
+
+const TextareaSkeleton = () => (
+  <div className="animate-pulse">
+    <div className="h-4 bg-gray-200 rounded w-16 mb-2"></div>
+    <div className="h-[250px] bg-gray-200 rounded-md"></div>
+  </div>
+);
+
+const ImageUploaderSkeleton = () => (
+  <div className="animate-pulse">
+    <div className="h-4 bg-gray-200 rounded w-20 mb-2"></div>
+    <div className="h-80 bg-gray-200 rounded-lg border-2 border-dashed border-gray-300"></div>
+  </div>
+);
+
 function CreateUpdateClassroomModal() {
   const { isOpen, onClose, type, data } = useModal();
   const formType = data?.formType;
@@ -53,15 +74,35 @@ function CreateUpdateClassroomModal() {
   const { form, handleSubmit, isPending } = useClassroomForm(formType as "create" | "update", classroomId as string);
 
   const handleClose = () => {
-    form.reset();
+    form.reset({
+      classname: "",
+      description: "",
+      imageurl: ""
+    });
     onClose();
   };
 
   React.useEffect(() => {
     if (formType === "update" && classroomData) {
       form.reset(classroomData);
+    } else if (formType === "create") {
+      form.reset({
+        classname: "",
+        description: "",
+        imageurl: ""
+      });
     }
   }, [classroomData, formType, form]);
+
+  React.useEffect(() => {
+    if (!isOpen && type === "createUpdateClassroom") {
+      form.reset({
+        classname: "",
+        description: "",
+        imageurl: ""
+      });
+    }
+  }, [isOpen, type, form]);
 
   const onSubmit = async (values: ClassroomFormValues) => {
     const success = await handleSubmit(values);
@@ -70,6 +111,9 @@ function CreateUpdateClassroomModal() {
       handleClose();
     }
   };
+
+  // Show loading state for update mode
+  const isShowingSkeleton = formType === "update" && isLoadingClassroom;
 
   return (
     <AnimatePresence>
@@ -116,28 +160,32 @@ function CreateUpdateClassroomModal() {
                       variants={formAnimation}
                       custom={1}
                     >
-                      <FormField
-                        control={form.control}
-                        name="classname"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-lg font-medium">
-                              Tên lớp học
-                            </FormLabel>
-                            <FormControl>
-                              <motion.div whileTap={{ scale: 0.995 }}>
-                                <Input
-                                  disabled={isPending}
-                                  placeholder="Nhập tên lớp học..."
-                                  className="text-base p-6"
-                                  {...field}
-                                />
-                              </motion.div>
-                            </FormControl>
-                            <FormMessage className="text-base" />
-                          </FormItem>
-                        )}
-                      />
+                      {isShowingSkeleton ? (
+                        <InputSkeleton />
+                      ) : (
+                        <FormField
+                          control={form.control}
+                          name="classname"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-lg font-medium">
+                                Tên lớp học
+                              </FormLabel>
+                              <FormControl>
+                                <motion.div whileTap={{ scale: 0.995 }}>
+                                  <Input
+                                    disabled={isPending}
+                                    placeholder="Nhập tên lớp học..."
+                                    className="text-base p-6"
+                                    {...field}
+                                  />
+                                </motion.div>
+                              </FormControl>
+                              <FormMessage className="text-base" />
+                            </FormItem>
+                          )}
+                        />
+                      )}
                     </motion.div>
 
                     <motion.div
@@ -146,28 +194,32 @@ function CreateUpdateClassroomModal() {
                       variants={formAnimation}
                       custom={2}
                     >
-                      <FormField
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-lg font-medium">
-                              Mô tả
-                            </FormLabel>
-                            <FormControl>
-                              <motion.div whileTap={{ scale: 0.995 }}>
-                                <Textarea
-                                  disabled={isPending}
-                                  placeholder="Nhập mô tả lớp học..."
-                                  className="resize-none text-base min-h-[250px] p-6"
-                                  {...field}
-                                />
-                              </motion.div>
-                            </FormControl>
-                            <FormMessage className="text-base" />
-                          </FormItem>
-                        )}
-                      />
+                      {isShowingSkeleton ? (
+                        <TextareaSkeleton />
+                      ) : (
+                        <FormField
+                          control={form.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-lg font-medium">
+                                Mô tả
+                              </FormLabel>
+                              <FormControl>
+                                <motion.div whileTap={{ scale: 0.995 }}>
+                                  <Textarea
+                                    disabled={isPending}
+                                    placeholder="Nhập mô tả lớp học..."
+                                    className="resize-none text-base min-h-[250px] p-6"
+                                    {...field}
+                                  />
+                                </motion.div>
+                              </FormControl>
+                              <FormMessage className="text-base" />
+                            </FormItem>
+                          )}
+                        />
+                      )}
                     </motion.div>
                   </div>
 
@@ -177,25 +229,29 @@ function CreateUpdateClassroomModal() {
                     variants={formAnimation}
                     custom={3}
                   >
-                    <FormField
-                      control={form.control}
-                      name="imageurl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-lg font-medium">
-                            Hình ảnh
-                          </FormLabel>
-                          <FormControl>
-                            <ImageUploader
-                              value={field.value}
-                              disabled={isPending}
-                              onChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormMessage className="text-base" />
-                        </FormItem>
-                      )}
-                    />
+                    {isShowingSkeleton ? (
+                      <ImageUploaderSkeleton />
+                    ) : (
+                      <FormField
+                        control={form.control}
+                        name="imageurl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-lg font-medium">
+                              Hình ảnh
+                            </FormLabel>
+                            <FormControl>
+                              <ImageUploader
+                                value={field.value}
+                                disabled={isPending}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-base" />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                   </motion.div>
                 </div>
 
@@ -204,14 +260,14 @@ function CreateUpdateClassroomModal() {
                     type="button"
                     variant="outline"
                     onClick={handleClose}
-                    disabled={isPending}
+                    disabled={isPending || isShowingSkeleton}
                   >
                     Hủy
                   </Button>
                   
                   <Button
                     type="submit"
-                    disabled={isPending }
+                    disabled={isPending || isShowingSkeleton}
                     className="bg-blue-500/90 hover:bg-blue-500"
                   >
                     {isPending 

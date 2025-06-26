@@ -29,6 +29,8 @@ import ExportLessonModal from "@/components/admin/modal/lessons/export-lesson-mo
 import ExportSectionModal from "@/components/admin/modal/sections/export-section-modal";
 import ImportSectionContentModal from "@/components/admin/modal/section-content/import-section-content-modal";
 import ExportSectionContentModal from "@/components/admin/modal/section-content/export-section-content-modal";
+import ImportUnitsModal from "@/components/admin/modal/units/import-units-modal";
+import ExportUnitsModal from "@/components/admin/modal/units/export-units-modal";
 function AdminModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -62,6 +64,8 @@ function AdminModalProvider() {
       {/* units */}
       <CreateUpdateUnitsModal />
       <DeleteUnitsModal />
+      <ImportUnitsModal />
+      <ExportUnitsModal />
 
       {/* lesson */}
       <CreateUpdateLessonModal />

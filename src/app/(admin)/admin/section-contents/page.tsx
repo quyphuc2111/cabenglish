@@ -4,6 +4,8 @@ import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query
 import { getAllSchoolWeekAdminData } from '@/actions/schoolWeekAction';
 import SectionContentContainerClient from './section-content-container-client';
 
+export const dynamic = 'force-dynamic';
+
 const breadcrumbItems = [
   {
     title: "Quản lý section contents",

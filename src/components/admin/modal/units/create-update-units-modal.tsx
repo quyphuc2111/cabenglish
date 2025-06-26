@@ -92,13 +92,14 @@ function CreateUpdateUnitsModal() {
   //   });
   // }, [classroomId, data]);
 
-  const { data: unitData, isLoading } = useGetSingleNotiType(classId);
+  const unitDataFromModal = data?.unitData;
+  
   const { mutate: createUnits, isPending: isCreating } =
     useCreateUnitByClassId(classroomId);
   const { mutate: updateUnits, isPending: isUpdating } =
     useUpdateUnitByClassId(classId);
 
-  const isPending = isCreating || isUpdating || isLoading;
+  const isPending = isCreating || isUpdating;
 
   const form = useForm<UnitsFormValues>({
     resolver: zodResolver(unitsFormSchema),
@@ -119,15 +120,15 @@ function CreateUpdateUnitsModal() {
 
   // Cập nhật form khi có dữ liệu
   React.useEffect(() => {
-    if (formType === "update" && unitData) {
+    if (formType === "update" && unitDataFromModal) {
       form.reset({
-        unitName: unitData.unitName,
-        order: unitData.order,
-        unitId: unitData.unitId,
-        progress: unitData.progress
+        unitName: unitDataFromModal.unitName,
+        order: unitDataFromModal.order,
+        unitId: unitDataFromModal.unitId,
+        progress: unitDataFromModal.progress
       });
     }
-  }, [unitData, formType, form]);
+  }, [unitDataFromModal, formType, form]);
 
   // Kiểm tra xem form có giá trị hợp lệ không
   const isFormValid = React.useMemo(() => {
@@ -143,6 +144,8 @@ function CreateUpdateUnitsModal() {
         toast.error("Không tìm thấy thông tin lớp học!");
         return;
       }
+
+      console.log("unit tao moi", values);
 
       try {
         if (formType === "create") {

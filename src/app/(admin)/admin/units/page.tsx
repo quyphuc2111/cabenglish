@@ -4,6 +4,8 @@ import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query
 import { getAllNotiTypeAdminData } from '@/actions/notificationAction';
 import UnitsContainerClient from './units-container-client';
 
+export const dynamic = 'force-dynamic';
+
 const breadcrumbItems = [
   {
     title: "Quản lý Unit",

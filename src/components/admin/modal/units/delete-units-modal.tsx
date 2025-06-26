@@ -79,20 +79,22 @@ function DeleteUnitsModal() {
 
   const {activeLesson} = useLessonStore()
 
+  console.log("activeLesson", activeLesson)
+
   const { mutate: deleteUnits, isPending } = useDeleteUnits(Number(activeLesson.classId));
 
   const handleConfirm = React.useCallback(() => {
    
-
-    deleteUnits(data?.unitIds, {
+    deleteUnits(data?.unitIds || [], {
       onError: (error) => {
         console.error("Lỗi khi xóa:", error);
         showToast.error(error.message || "Có lỗi xảy ra khi xóa unit!");
       },
       onSuccess: () => {
-        showToast.success("Xóa unit thành công!");
         if (data?.onSuccess) {
           data.onSuccess();
+        } else {
+          showToast.success("Xóa unit thành công!");
         }
         onClose();
       }

@@ -13,8 +13,7 @@ export async function createSchoolWeek(values: SchoolWeekFormValues) {
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi tạo tuần học333",
-      // error: error instanceof Error ? error.message : "Có lỗi xảy ra khi tạo tuần học333"
+      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi tạo tuần học",
     };
   }
 } 

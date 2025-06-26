@@ -101,6 +101,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     image: z
       .instanceof(File)
       .refine((file) => file.size !== 0, "Vui lòng tải lên một hình ảnh")
+      .refine((file) => file.size <= 50 * 1024 * 1024, "File quá lớn. Kích thước tối đa cho phép là 50MB")
       .optional(),
   });
 
@@ -112,6 +113,13 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   const onDrop = React.useCallback(
     async (acceptedFiles: File[]) => {
       if (!acceptedFiles[0]) return;
+
+      // Validation file size (50MB)
+      const maxSize = 50 * 1024 * 1024;
+      if (acceptedFiles[0].size > maxSize) {
+        showToast.error('File quá lớn! Kích thước tối đa cho phép là 50MB.');
+        return;
+      }
 
       setIsUploading(true);
       try {
@@ -164,8 +172,19 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     useDropzone({
       onDrop,
       maxFiles: 1,
-      maxSize: 1000000,
-      accept: { "image/png": [], "image/jpg": [], "image/jpeg": [] },
+      maxSize: 50 * 1024 * 1024,
+      accept: { 
+        "image/png": [], 
+        "image/jpg": [], 
+        "image/jpeg": [], 
+        "image/gif": [],
+        "image/webp": [],
+        "image/svg+xml": [],
+        "image/bmp": [],
+        "image/tiff": [],
+        "image/ico": [],
+        "image/avif": []
+      },
       disabled: disabled,
     });
 
@@ -198,14 +217,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       <Tabs defaultValue="upload" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="upload">
-            <motion.span whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              Tải ảnh lên
-            </motion.span>
+            Tải ảnh lên
           </TabsTrigger>
           <TabsTrigger value="url">
-            <motion.span whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              Nhập URL
-            </motion.span>
+            Nhập URL
           </TabsTrigger>
         </TabsList>
 
@@ -271,12 +286,17 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                           </AnimatePresence>
                           <Input {...getInputProps()} type="file" />
                           {!isUploading && (
-                            <motion.p 
+                            <motion.div
                               variants={fadeIn}
-                              className="text-sm text-gray-500"
+                              className="text-center"
                             >
-                              {isDragActive ? "Thả ảnh vào đây!" : "Nhấp vào đây hoặc kéo thả ảnh để tải lên"}
-                            </motion.p>
+                              <p className="text-sm text-gray-500">
+                                {isDragActive ? "Thả ảnh vào đây!" : "Nhấp vào đây hoặc kéo thả ảnh để tải lên"}
+                              </p>
+                              <p className="text-xs text-gray-400 mt-1">
+                                Hỗ trợ: PNG, JPG, JPEG, GIF, WEBP, SVG (tối đa 50MB)
+                              </p>
+                            </motion.div>
                           )}
                         </motion.div>
                       </div>
@@ -290,9 +310,20 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                           variants={fadeIn}
                         >
                           <FormMessage>
-                            <p className="text-sm text-red-500">
-                              Ảnh phải nhỏ hơn 1MB và có định dạng png, jpg hoặc jpeg
-                            </p>
+                            {fileRejections.map((rejection, index) => (
+                              <div key={index} className="text-sm text-red-500 space-y-1">
+                                {rejection.errors.map((error, errorIndex) => (
+                                  <p key={errorIndex}>
+                                    {error.code === 'file-too-large' 
+                                      ? `File quá lớn. Kích thước tối đa cho phép là 50MB.`
+                                      : error.code === 'file-invalid-type'
+                                      ? `Định dạng file không hợp lệ. Vui lòng chọn file ảnh (png, jpg, jpeg, gif, webp, svg, bmp, tiff, ico, avif).`
+                                      : error.message
+                                    }
+                                  </p>
+                                ))}
+                              </div>
+                            ))}
                           </FormMessage>
                         </motion.div>
                       )}
@@ -319,19 +350,14 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                   disabled={disabled}
                 />
               </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <Button 
+                type="button"
+                onClick={handleUrlSubmit}
+                disabled={disabled || !imageUrl}
               >
-                <Button 
-                  type="button"
-                  onClick={handleUrlSubmit}
-                  disabled={disabled || !imageUrl}
-                >
-                  <LinkIcon className="h-4 w-4 mr-2" />
-                  Thêm
-                </Button>
-              </motion.div>
+                <LinkIcon className="h-4 w-4 mr-2" />
+                Thêm
+              </Button>
             </div>
             <AnimatePresence>
               {preview && (
@@ -378,12 +404,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               }}
               disabled={disabled}
             >
-              <motion.span
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Xóa ảnh
-              </motion.span>
+              Xóa ảnh
             </Button>
           </motion.div>
         )}

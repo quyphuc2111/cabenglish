@@ -4,6 +4,8 @@ import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query
 import { getAllSchoolWeekAdminData } from '@/actions/schoolWeekAction';
 import NotiContainerClient from './noti-container-client';
 
+export const dynamic = 'force-dynamic';
+
 const breadcrumbItems = [
   {
     title: "Quản lý thông báo",

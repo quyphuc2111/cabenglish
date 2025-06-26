@@ -38,18 +38,17 @@ export const ActionCell = memo(function ActionCell({ row, table }: ActionCellPro
 
     onOpen("createUpdateUnits", {
       formType: "update",
-      classroomId: selectedClassId
+      classroomId: selectedClassId,
+      unitData: unit
     });
-  }, [selectedClassId, onOpen]);
+  }, [selectedClassId, unit, onOpen]);
 
   const handleDelete = useCallback(() => {
     onOpen("deleteUnits", {
       unitIds: [unit.unitId],
-      onSuccess: () => {
-        toast.success("Xóa unit thành công!");
-      }
+      units: [unit]
     });
-  }, [unit.unitId, onOpen]);
+  }, [unit.unitId, unit, onOpen]);
 
   return (
     <div className="flex gap-2 ">

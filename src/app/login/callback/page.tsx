@@ -1,12 +1,12 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import toast from "react-hot-toast";
 import { signInWithGoogleToken } from "@/lib/auth-helpers";
 import axios from "axios";
 
-export default function LoginCallbackPage() {
+function LoginCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(true);
@@ -169,5 +169,31 @@ export default function LoginCallbackPage() {
         `}</style>
       </div>
     </div>
+  );
+}
+
+// Loading fallback component
+function LoadingFallback() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)"
+      }}
+    >
+      <div style={{ color: "#4a6fa5", fontSize: "18px" }}>Đang tải...</div>
+    </div>
+  );
+}
+
+export default function LoginCallbackPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <LoginCallbackContent />
+    </Suspense>
   );
 }

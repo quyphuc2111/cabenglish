@@ -4,6 +4,8 @@ import NotificationTypesContainerClient from './notification-types-container-cli
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { getAllNotiTypeAdminData } from '@/actions/notificationAction';
 
+export const dynamic = 'force-dynamic';
+
 const breadcrumbItems = [
   {
     title: "Quản lý danh mục",

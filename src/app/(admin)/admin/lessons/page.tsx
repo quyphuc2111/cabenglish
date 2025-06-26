@@ -3,6 +3,8 @@ import { AdminContentLayout } from '@/components/admin-panel/admin-content-layou
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import LessonsContainerClient from './lessons-container-client';
 
+export const dynamic = 'force-dynamic';
+
 const breadcrumbItems = [
   {
     title: "Quản lý Unit",

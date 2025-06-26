@@ -10,6 +10,7 @@ import {
   SelectValue
 } from "../ui/select";
 import { Loading } from "@/components/common/loading";
+import { useSession } from "next-auth/react";
 
 interface Classroom {
   id: string;
@@ -51,12 +52,14 @@ function FilterFacet({
   fetchFilterData,
   onFilterChange
 }: FilterFacetProps) {
+
+  const {data: session} = useSession();
   const [isPending, startTransition] = useTransition();
   const [filterData, setFilterData] = useState<FilterData>(initialFilterData);
   const [filters, setFilters] = useState<FilterValues>({
     classId: '',
     unitId: '',
-    userId: 'user2',
+    userId: session?.user?.userId || '',
     weekId: ''
   });
 

@@ -43,6 +43,7 @@ export type ModalType =
   | "exportSectionContent"
   | "deleteNoti"
   | "deleteUnit"
+  | "deleteUnits"
   | "importUnits"
   | "exportUnits"
   | "exportLessons"
@@ -92,6 +93,12 @@ export interface ModalData {
     ntId: number;
   };
   unit?: {
+    unitId: number;
+    unitName: string;
+    order: number;
+    progress: number;
+  };
+  unitData?: {
     unitId: number;
     unitName: string;
     order: number;

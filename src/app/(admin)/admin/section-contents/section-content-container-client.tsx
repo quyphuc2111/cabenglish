@@ -15,7 +15,6 @@ import { SectionsCombobox } from "@/components/admin/combobox/sections-combox";
 import { useGetSectionContentBySectionId } from "@/hooks/useSectionContent";
 import { useSectionContentColumns } from "@/components/admin/table/secton-content/columns";
 
-// Xử lý lỗi
 const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
   Sentry.captureException(error, {
     tags: { component, operation },
@@ -97,7 +96,6 @@ function SectionContentContainerClient() {
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
   >({});
-  // const [selectedClassId, setSelectedClassId] = React.useState<string>("");
   const {
     activeLesson,
     activateClass,
@@ -110,10 +108,15 @@ function SectionContentContainerClient() {
   const columns = useSectionContentColumns();
   const { onOpen } = useModal();
 
+  React.useEffect(() => {
+    activateLesson("")
+    activateUnit("")
+    activateClass("")
+  }, []);
+
   const { data: sectionContentData, isLoading: sectionContentLoading, error: sectionContentError } =
     useGetSectionContentBySectionId(Number(activeLesson.sectionId));
 
-  // Xử lý lỗi data fetching
   React.useEffect(() => {
     if (sectionContentError) {
       handleError(sectionContentError, "SectionContentContainerClient", "data_fetching");
@@ -142,29 +145,8 @@ function SectionContentContainerClient() {
 
     setRowSelection({});
   };
-
-  // const filteredData = React.useMemo(() => {
-  //   if (!data?.data) return [];
-
-  //   let filtered = [...data.data];
-  //   if (!selectedWeekId) return filtered;
-
-  //   return filtered.filter((week) => week.swId === Number(selectedWeekId));
-  // }, [data?.data, selectedWeekId]);
-
-  // const filterSchoolWeeks = React.useCallback((schoolWeek: any, searchQuery: string) => {
-  //   if (!searchQuery) return true;
-  //   const searchTerm = searchQuery.toLowerCase().trim();
-  //   console.log("searchTermsearchTerm", searchTerm);
-  //   return (
-  //     // schoolWeek.swId.toString().includes(searchTerm) ||
-  //     schoolWeek.value.toLowerCase().includes(searchTerm)
-  //   );
-  // }, []);
-
   const handleSelectClassroom = React.useCallback((value: string) => {
     activateClass(value);
-    // Reset selectedUnitId khi đổi lớp học
     activateUnit("");
     activateLesson("");
 

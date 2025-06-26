@@ -5,6 +5,8 @@ import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query
 import { getAllClassroomAdminData } from '@/actions/classroomAction';
 import * as Sentry from "@sentry/nextjs";
 
+export const dynamic = 'force-dynamic';
+
 const breadcrumbItems = [
   {
     title: "Quản lý danh mục",

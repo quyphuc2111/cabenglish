@@ -69,7 +69,8 @@ export function UnitByClassCombobox({
   }, [value, onSelect]);
 
   // Reset giá trị
-  const handleReset = React.useCallback(() => {
+  const handleReset = React.useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     setValue("");
     onSelect("");
     setOpen(false);
@@ -99,35 +100,34 @@ export function UnitByClassCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn("w-[300px] justify-between", buttonClassName)}
-          disabled={units.length === 0}
-        >
-          <span className="truncate">
-            {selectedUnit ? selectedUnit.unitName : placeholder}
-          </span>
-          <div className="flex items-center gap-2">
-            {value && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-4 w-4 p-0 hover:bg-transparent"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleReset();
-                }}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            )}
+      <div className="flex items-center gap-2 relative">
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className={cn("w-[300px] justify-between pr-8", buttonClassName)}
+            disabled={units.length === 0}
+          >
+            <span className="truncate">
+              {selectedUnit ? selectedUnit.unitName : placeholder}
+            </span>
             <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-          </div>
-        </Button>
-      </PopoverTrigger>
+          </Button>
+        </PopoverTrigger>
+        
+        {value && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 absolute right-1 top-1/2 -translate-y-1/2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full z-10"
+            onClick={handleReset}
+          >
+            <X className="h-3 w-3 text-muted-foreground hover:text-red-500" />
+          </Button>
+        )}
+      </div>
+      
       <PopoverContent className="w-[300px] p-0">
         <Command>
           <CommandInput 

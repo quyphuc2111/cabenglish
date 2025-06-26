@@ -13,16 +13,16 @@ import { UnitByClassCombobox } from "@/components/admin/combobox/unitbyclass-com
 import { showToast } from "@/utils/toast-config";
 // import { useUnitByClassId } from "@/hooks/use-units";
 import { LessonCombobox } from "@/components/admin/combobox/lesson-combobox";
-import { useGetSectionByLessonId } from "@/hooks/use-sections";
+import { useGetSectionByLessonId, useDeleteSection } from "@/hooks/use-sections";
 import { useLessonStore } from '@/store/use-lesson-store';
 
-// Xử lý lỗi
 const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
   Sentry.captureException(error, {
     tags: { component, operation },
     extra
   });
 };
+
 interface ActionButtonsProps {
   rowSelection: Record<string, boolean>;
   onDelete: () => void;
@@ -88,86 +88,26 @@ const ActionButtons = ({
   </>
 );
 
-// const fakeData = [
-//   {
-//     sectionId: 1,
-//     iconUrl: "string",
-//     sectionName: "string",
-//     estimateTime: "string",
-//     progress: 0.5,
-//     isLocked: true,
-//     order: 1
-//   },
-//   {
-//     sectionId: 2,
-//     iconUrl: "string",
-//     sectionName: "string",
-//     estimateTime: "string",
-//     progress: 1,
-//     isLocked: true,
-//     order: 2
-//   },
-//   {
-//     sectionId: 3,
-//     iconUrl: "string",
-//     sectionName: "string",
-//     estimateTime: "string",
-//     progress: 0,
-//     isLocked: true,
-//     order: 3
-//   },
-//   {
-//     sectionId: 4,
-//     iconUrl: "string",
-//     sectionName: "string",
-//     estimateTime: "string",
-//     progress: 0.5,
-//     isLocked: true,
-//     order: 1
-//   },
-//   {
-//     sectionId: 5,
-//     iconUrl: "string",
-//     sectionName: "string",
-//     estimateTime: "string",
-//     progress: 0.2,
-//     isLocked: true,
-//     order: 2
-//   },
-//   {
-//     sectionId: 6,
-//     iconUrl: "string",
-//     sectionName: "string",
-//     estimateTime: "string",
-//     progress: 0.8,
-//     isLocked: true,
-//     order: 3
-//   }
-// ];
-
 function SectionsContainerClient() {
-  // const [selectedWeekId, setSelectedWeekId] = React.useState<string | null>(
-  //   null
-  // );
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
   >({});
-  // const [selectedClassId, setSelectedClassId] = React.useState<string>("");
-  // const [selectedUnitId, setSelectedUnitId] = React.useState<string>("");
   const { activeLesson, activateLesson, activateUnit, activateClass } = useLessonStore();
 
   const columns = useSectionColumns();
   const { onOpen } = useModal();
 
-  // const { data, isLoading, error } = useSchoolWeek();
-
-  // const { data: unitData, isLoading: unitLoading } =
-  //   useUnitByClassId(activeLesson.classId);
+  React.useEffect(() => {
+    activateLesson("")
+    activateUnit("")
+    activateClass("")
+  }, []);
 
   const { data: sectionData, isLoading: sectionLoading, error: sectionError } =
     useGetSectionByLessonId(Number(activeLesson.lessonId));
+    
+  const { mutate: deleteSection, isPending: isDeleting } = useDeleteSection();
 
-  // Xử lý lỗi data fetching
   React.useEffect(() => {
     if (sectionError) {
       handleError(sectionError, "SectionsContainerClient", "data_fetching");
@@ -184,38 +124,40 @@ function SectionsContainerClient() {
 
   const handleDeleteSection = () => {
     const selectedIds = Object.keys(rowSelection);
-    const selectedSections = sectionData?.data?.filter((section) =>
-      selectedIds.includes(section.sectionId.toString())
+    
+    if (selectedIds.length === 0) {
+      showToast.error("Vui lòng chọn ít nhất một section để xóa!");
+      return;
+    }
+
+    if (!activeLesson.lessonId) {
+      showToast.error("Không tìm thấy thông tin bài học!");
+      return;
+    }
+
+    const lessonIdNumber = Number(activeLesson.lessonId);
+    if (isNaN(lessonIdNumber) || lessonIdNumber <= 0) {
+      showToast.error("ID bài học không hợp lệ!");
+      return;
+    }
+
+    deleteSection(
+      {
+        sectionIds: selectedIds,
+        lessonId: lessonIdNumber
+      },
+      {
+        onSuccess: () => {
+          showToast.success(`Đã xóa ${selectedIds.length} section thành công!`);
+          setRowSelection({});
+        },
+        onError: (error: Error) => {
+          console.error("Delete section error:", error);
+          showToast.error(error.message || "Có lỗi xảy ra khi xóa section!");
+        }
+      }
     );
-
-    handleModalOpen("deleteSection", {
-      sectionIds: selectedIds,
-      sections: selectedSections,
-      onSuccess: () => setRowSelection({})
-    });
-
-    setRowSelection({});
   };
-
-  // const filteredData = React.useMemo(() => {
-  //   if (!data?.data) return [];
-
-  //   let filtered = [...data.data];
-  //   if (!selectedWeekId) return filtered;
-
-  //   return filtered.filter((week) => week.swId === Number(selectedWeekId));
-  // }, [data?.data, selectedWeekId]);
-
-  // const filterSchoolWeeks = React.useCallback((schoolWeek: any, searchQuery: string) => {
-  //   if (!searchQuery) return true;
-  //   const searchTerm = searchQuery.toLowerCase().trim();
-  //   console.log("searchTermsearchTerm", searchTerm);
-  //   return (
-  //     // schoolWeek.swId.toString().includes(searchTerm) ||
-  //     schoolWeek.value.toLowerCase().includes(searchTerm)
-  //   );
-  // }, []);
-
   const handleSelectClassroom = React.useCallback((value: string) => {
     activateClass(value);
     activateUnit("");
@@ -228,7 +170,7 @@ function SectionsContainerClient() {
         </div>
       );
     }
-  }, []);
+  }, [activateClass, activateUnit, activateLesson]);
 
   const handleSelectUnit = React.useCallback((value: string) => {
     activateUnit(value);
@@ -241,7 +183,7 @@ function SectionsContainerClient() {
         </div>
       );
     }
-  }, []);
+  }, [activateUnit, activateLesson]);
 
   const handleSelectLesson = React.useCallback((value: string) => {
     activateLesson(value);
@@ -257,6 +199,24 @@ function SectionsContainerClient() {
       );
     }
   }, [activateLesson]);
+
+  const handleCreateSection = () => {
+    if (!activeLesson.lessonId || activeLesson.lessonId === "") {
+      showToast.error("Vui lòng chọn bài học trước khi tạo section!");
+      return;
+    }
+
+    const lessonIdNumber = Number(activeLesson.lessonId);
+    if (isNaN(lessonIdNumber) || lessonIdNumber <= 0) {
+      showToast.error("ID bài học không hợp lệ!");
+      return;
+    }
+
+    handleModalOpen("createUpdateSection", {
+      formType: "create",
+      lessonIds: lessonIdNumber
+    });
+  };
 
   const searchComponent = (
     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-wrap">
@@ -285,12 +245,16 @@ function SectionsContainerClient() {
     </div>
   );
 
+  const getSafeRowId = (row: any) => {
+    return row?.sectionId?.toString() || `temp-${Math.random()}`;
+  };
+
   return (
     <div className="bg-white rounded-lg p-10 h-full">
       <GenericTable
         data={sectionData?.data || []}
         columns={columns}
-        isLoading={sectionLoading}
+        isLoading={sectionLoading || isDeleting}
         searchComponent={searchComponent}
         actionButtons={
           <ActionButtons
@@ -298,12 +262,7 @@ function SectionsContainerClient() {
             onDelete={handleDeleteSection}
             onExport={() => handleModalOpen("exportSection")}
             onImport={() => handleModalOpen("importSection")}
-            onCreate={() =>
-              handleModalOpen("createUpdateSection", {
-                formType: "create",
-                lessonIds: Number(activeLesson.lessonId)
-              })
-            }
+            onCreate={handleCreateSection}
             selectedUnitId={activeLesson.unitId}
             selectedClassId={activeLesson.classId}
             selectedLessonId={activeLesson.lessonId}
@@ -311,7 +270,7 @@ function SectionsContainerClient() {
         }
         // filterFunction={filterSchoolWeeks}
         enableRowSelection={true}
-        getRowId={(row) => row.sectionId.toString()}
+        getRowId={getSafeRowId}
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
       />
