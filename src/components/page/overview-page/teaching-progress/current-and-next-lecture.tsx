@@ -81,35 +81,35 @@ function CurrentAndNextLecture({
     });
 
   return (
-    <div className="relative w-1/2 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 opacity-90 rounded-3xl" />
+    <div className="relative w-full xl:w-1/2 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 opacity-90 rounded-xl sm:rounded-2xl lg:rounded-3xl" />
       <div className="absolute inset-0 bg-[url('/assets/bg-pattern.svg')] opacity-5" />
 
-      <div className="relative z-10 p-6 lg:p-8">
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-            <div className="w-full sm:w-auto min-w-[280px]">
+      <div className="relative z-10 p-4 sm:p-6 lg:p-8">
+        <div className="mb-6 lg:mb-8">
+          <div className="flex flex-col gap-4 mb-4 sm:mb-6">
+            <div className="w-full">
               <Select
                 value={selectedClassroom}
                 onValueChange={setSelectedClassroom}
               >
-                <SelectTrigger className="w-full bg-white/80 backdrop-blur-sm border-2 border-purple-200 hover:border-purple-300 rounded-xl h-12 px-4">
+                <SelectTrigger className="w-full bg-white/80 backdrop-blur-sm border-2 border-purple-200 hover:border-purple-300 rounded-lg sm:rounded-xl h-10 sm:h-12 px-3 sm:px-4 text-sm sm:text-base">
                   <SelectValue placeholder="🏫 Chọn lớp học" />
                 </SelectTrigger>
                 <SelectContent className="bg-white/95 backdrop-blur-sm border-purple-200">
                   <SelectGroup>
-                    <SelectItem value="all" className="text-gray-600">
+                    <SelectItem value="all" className="text-gray-600 text-sm sm:text-base">
                       📚 Tất cả lớp học
                     </SelectItem>
                     {classroomData.map((classroom) => (
                       <SelectItem
                         key={classroom.class_id}
                         value={classroom.class_id}
-                        className="py-3"
+                        className="py-2 sm:py-3"
                       >
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" />
-                          {classroom.classname}
+                          <span className="text-sm sm:text-base">{classroom.classname}</span>
                         </div>
                       </SelectItem>
                     ))}
@@ -120,27 +120,27 @@ function CurrentAndNextLecture({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
                 <Image
                   src="/book_light.png"
                   alt="book_light"
-                  width={20}
-                  height={20}
-                  className="brightness-0 invert"
+                  width={16}
+                  height={16}
+                  className="brightness-0 invert sm:w-5 sm:h-5"
                 />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800">
                   {t("lectureBeingTaught")}
                 </h3>
-                <p className="text-sm text-gray-600">Bài giảng hiện tại</p>
+                <p className="text-xs sm:text-sm text-gray-600">Bài giảng hiện tại</p>
               </div>
             </div>
 
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 shadow-lg">
               {filteredCourseData.length > 0 ? (
                 <div className="relative">
                   <Swiper
@@ -178,22 +178,22 @@ function CurrentAndNextLecture({
                   </Swiper>
 
                   {filteredCourseData.length > 1 && (
-                    <div className="flex items-center justify-center gap-3 mt-4">
+                    <div className="flex items-center justify-center gap-2 sm:gap-3 mt-3 sm:mt-4">
                       <Button
                         variant="outline"
                         size="sm"
-                        className="w-10 h-10 rounded-full bg-white/80 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/80 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
                         onClick={() => currentSwiper?.slidePrev()}
                       >
-                        <ChevronLeft className="w-4 h-4" />
+                        <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
-                      <div className="flex gap-2">
+                      <div className="flex gap-1 sm:gap-2">
                         {Array.from({ length: filteredCourseData.length }).map(
                           (_, idx) => (
                             <div
                               key={idx}
                               className={cn(
-                                "w-2 h-2 rounded-full cursor-pointer transition-all duration-300",
+                                "w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full cursor-pointer transition-all duration-300",
                                 currentSlideIndex === idx
                                   ? "bg-purple-500 scale-125"
                                   : "bg-purple-300 hover:bg-purple-400"
@@ -209,29 +209,30 @@ function CurrentAndNextLecture({
                       <Button
                         variant="outline"
                         size="sm"
-                        className="w-10 h-10 rounded-full bg-white/80 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/80 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
                         onClick={() => currentSwiper?.slideNext()}
                       >
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center gap-4 py-12">
-                  <div className="w-20 h-20 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
+                <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 py-8 sm:py-12">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
                     <Image
                       src="/assets/image/no_course.png"
                       alt="no-course"
-                      width={40}
-                      height={40}
+                      width={32}
+                      height={32}
+                      className="sm:w-10 sm:h-10"
                     />
                   </div>
                   <div className="text-center">
-                    <p className="text-gray-600 font-medium">
+                    <p className="text-gray-600 font-medium text-sm sm:text-base">
                       Hiện tại chưa có bài học nào!
                     </p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">
                       Hãy bắt đầu một bài học mới
                     </p>
                   </div>
@@ -240,26 +241,26 @@ function CurrentAndNextLecture({
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
                 <Image
                   src="/person_rank.png"
                   alt="person_rank"
-                  width={20}
-                  height={20}
-                  className="brightness-0 invert"
+                  width={16}
+                  height={16}
+                  className="brightness-0 invert sm:w-5 sm:h-5"
                 />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800">
                   {t("nextLecture")}
                 </h3>
-                <p className="text-sm text-gray-600">Bài giảng sắp tới</p>
+                <p className="text-xs sm:text-sm text-gray-600">Bài giảng sắp tới</p>
               </div>
             </div>
 
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 shadow-lg">
               {nextLectureData.length > 0 ? (
                 <div className="relative">
                   <Swiper
@@ -294,23 +295,23 @@ function CurrentAndNextLecture({
                   </Swiper>
 
                   {nextLectureData.length > 1 && (
-                    <div className="flex items-center justify-center gap-3 mt-4">
+                    <div className="flex items-center justify-center gap-2 sm:gap-3 mt-3 sm:mt-4">
                       <Button
                         variant="outline"
                         size="sm"
-                        className="w-10 h-10 rounded-full bg-white/80 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/80 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
                         onClick={() => nextSwiper?.slidePrev()}
                       >
-                        <ChevronLeft className="w-4 h-4" />
+                        <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
-                      <div className="flex gap-2">
+                      <div className="flex gap-1 sm:gap-2">
                         {Array.from({
                           length: Math.min(nextLectureData.length, 3)
                         }).map((_, idx) => (
                           <div
                             key={idx}
                             className={cn(
-                              "w-2 h-2 rounded-full cursor-pointer transition-all duration-300",
+                              "w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full cursor-pointer transition-all duration-300",
                               nextSlideIndex === idx
                                 ? "bg-blue-500 scale-125"
                                 : "bg-blue-300 hover:bg-blue-400"
@@ -325,29 +326,30 @@ function CurrentAndNextLecture({
                       <Button
                         variant="outline"
                         size="sm"
-                        className="w-10 h-10 rounded-full bg-white/80 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/80 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
                         onClick={() => nextSwiper?.slideNext()}
                       >
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center gap-4 py-12">
-                  <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
+                <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 py-8 sm:py-12">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
                     <Image
                       src="/person_rank.png"
                       alt="person_rank"
-                      width={40}
-                      height={40}
+                      width={32}
+                      height={32}
+                      className="sm:w-10 sm:h-10"
                     />
                   </div>
                   <div className="text-center">
-                    <p className="text-gray-600 font-medium">
+                    <p className="text-gray-600 font-medium text-sm sm:text-base">
                       Chưa có bài học tiếp theo!
                     </p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">
                       Tất cả bài học đã hoàn thành
                     </p>
                   </div>

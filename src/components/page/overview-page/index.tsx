@@ -43,6 +43,7 @@ function OverviewPage({
 }: OverviewPageProps) {
   const { onOpen } = useModal();
   const { data: session } = useSession();
+  const currentTheme = session?.user.theme;
 
   useEffect(() => {
     if (session && session.user.isFirstLogin) {
@@ -57,7 +58,7 @@ function OverviewPage({
         initialFilterData={initialFilterData}
         fetchFilterData={fetchFilterData}
       />
-      <TeachingProgress courseData={courseData} classroomData={classroomData} />
+      <TeachingProgress courseData={courseData} classroomData={classroomData}  currentTheme={currentTheme}/>
     </div>
   );
 }

@@ -88,7 +88,7 @@ function ClassroomClient({
             }
           </p>
         </div>
-        <div className="bg-white py-10 px-5 rounded-2xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="bg-white py-10 px-5 rounded-2xl grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
           {classroomData.map((classroomItem, index) => {
             const isSelected = selectedClassroomName && 
               classroomItem.classname.toLowerCase() === selectedClassroomName.toLowerCase();
