@@ -47,21 +47,25 @@ function LessonClient({
   const { mutate: updateSectionContentLocked } =
     useUpdateSectionContentLocked();
 
-  const [selectedSection, setSelectedSection] = useState<number | null>(() => {
-    const sectionParam = searchParams.get("section");
-    if (!sectionParam) return null;
-
-    const sectionId = Number(sectionParam);
-    const selectedSection = sectionData?.find((s) => s.sectionId === sectionId);
-
-    if (selectedSection?.isLocked) {
-      showToast.error("Bạn cần hoàn thành các phần học trước!");
-      return null;
-    }
-    return sectionId;
-  });
-
+  const [selectedSection, setSelectedSection] = useState<number | null>(null);
   const [sectionContentLoading, setSectionContentLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const sectionParam = searchParams.get("section");
+    if (sectionParam && sectionData) {
+      const sectionId = Number(sectionParam);
+      const selectedSection = sectionData.find((s) => s.sectionId === sectionId);
+
+      if (selectedSection?.isLocked) {
+        showToast.error("Bạn cần hoàn thành các phần học trước!");
+        setSelectedSection(null);
+      } else {
+        setSelectedSection(sectionId);
+      }
+    }
+  }, [searchParams, sectionData]);
 
   useEffect(() => {
     if (selectedSection && !sectionContentData) {
@@ -99,7 +103,17 @@ function LessonClient({
     }
   }, [router, selectedSection])
 
-  // Loading state cho toàn bộ lesson
+  if (!mounted) {
+    return (
+      <div className="bg-[url('/assets/bg_classroom.webp')] w-screen h-screen bg-no-repeat bg-cover bg-left relative overflow-hidden pb-10 flex items-center justify-center">
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl p-8 flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-pink-500" />
+          <p className="text-lg font-semibold text-gray-700">Đang khởi tạo...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="bg-[url('/assets/bg_classroom.webp')] w-screen h-screen bg-no-repeat bg-cover bg-left relative overflow-hidden pb-10 flex items-center justify-center">
@@ -111,7 +125,7 @@ function LessonClient({
     );
   }
 
-  // Error state
+    // Error state
   if (error) {
     return (
       <div className="bg-[url('/assets/bg_classroom.webp')] w-screen h-screen bg-no-repeat bg-cover bg-left relative overflow-hidden pb-10 flex items-center justify-center">

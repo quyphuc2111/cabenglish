@@ -43,8 +43,6 @@ function CurrentAndNextLecture({
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
   const [nextSlideIndex, setNextSlideIndex] = useState<number>(0);
 
-  console.log("courseDatacourseData", courseData);
-
   const handleLessonClick = async (lessonId: number) => {
     router.push(`/lesson/${lessonId}`);
   };
@@ -56,8 +54,6 @@ function CurrentAndNextLecture({
       return course.classId === selectedClassroom;
     });
   };
-
-  console.log("getFilteredDataByClassroom(courseData)", getFilteredDataByClassroom(courseData));
 
   const filteredCourseData = getFilteredDataByClassroom(courseData)
     .filter(
@@ -85,7 +81,7 @@ function CurrentAndNextLecture({
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 opacity-90 rounded-xl sm:rounded-2xl lg:rounded-3xl" />
       <div className="absolute inset-0 bg-[url('/assets/bg-pattern.svg')] opacity-5" />
 
-      <div className="relative z-10 p-4 sm:p-6 lg:p-8">
+      <div className="relative z-10 p-4 sm:p-6">
         <div className="mb-6 lg:mb-8">
           <div className="flex flex-col gap-4 mb-4 sm:mb-6">
             <div className="w-full">
@@ -133,14 +129,14 @@ function CurrentAndNextLecture({
                 />
               </div>
               <div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-800">
+                <h3 className="text-md font-bold text-gray-800">
                   {t("lectureBeingTaught")}
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-600">Bài giảng hiện tại</p>
               </div>
             </div>
 
-            <div className="bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 shadow-lg">
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 border border-white/20 shadow-lg">
               {filteredCourseData.length > 0 ? (
                 <div className="relative">
                   <Swiper
@@ -253,14 +249,14 @@ function CurrentAndNextLecture({
                 />
               </div>
               <div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-800">
+                <h3 className="text-md font-bold text-gray-800">
                   {t("nextLecture")}
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-600">Bài giảng sắp tới</p>
               </div>
             </div>
 
-            <div className="bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 shadow-lg">
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 border border-white/20 shadow-lg">
               {nextLectureData.length > 0 ? (
                 <div className="relative">
                   <Swiper

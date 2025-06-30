@@ -237,7 +237,7 @@
 .book-swiper {
     width: 100%;
     max-width: 1200px;
-    height: 500px;
+    height: 650px;
     margin: 0 auto;
     padding: 50px 0;
 }
@@ -296,43 +296,7 @@
 }
 
 
-/* doi ngu chuyen gia */
-
-.expert-swiper {
-    width: 100%;
-    max-width: 1200px;
-    height: 550px;
-    padding: 50px 0;
-}
-
-.expert-swiper .swiper-slide {
-    width: 400px;
-    height: 450px;
-    position: relative;
-    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.expert-swiper .swiper-slide-active {
-    transform: translateY(-20px) scale(1.05);
-}
-
-.expert-swiper .swiper-slide::after {
-    content: '';
-    position: absolute;
-    bottom: -15px;
-    left: 0;
-    right: 0;
-    height: 20px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.15);
-    filter: blur(10px);
-    transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.expert-swiper .swiper-slide-active::after {
-    transform: translateY(20px) scale(1.05);
-    opacity: 0.3;
-}
+/* doi ngu chuyen gia - removed old styles to avoid conflicts with responsive design */
 
 .translate-x-full {
     transform: translateX(100%);

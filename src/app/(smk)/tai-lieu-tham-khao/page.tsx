@@ -77,7 +77,7 @@ function TaiLieuThamKhaoPage() {
               height: 40,
               alt: "replay_icon"
             }}
-            wrapperClassName="border-[#63a079]/50 w-full sm:w-[15vw]"
+            wrapperClassName="border-[#63a079]/50 w-full sm:w-[20vw]"
           />
           <Select defaultValue="1">
             <SelectTrigger className="w-[220px]">
