@@ -8,7 +8,7 @@ import {
 } from "@/actions/lockedAction";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface ProgressSectionContent {
     userId: string;
@@ -212,4 +212,15 @@ export const useAutoUnlockNextLesson = (lessonData: any[]) => {
     return {
         checkAndUnlockNextLesson
     };
+};
+
+// Thêm một hook để handle lesson data updates
+export const useLessonDataUpdate = () => {
+  const [updateTrigger, setUpdateTrigger] = useState(0);
+
+  const triggerUpdate = useCallback(() => {
+    setUpdateTrigger(prev => prev + 1);
+  }, []);
+
+  return { updateTrigger, triggerUpdate };
 };

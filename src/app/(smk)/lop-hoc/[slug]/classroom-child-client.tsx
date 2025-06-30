@@ -25,11 +25,50 @@ function ClassroomChildClient({
   const [selectedWeek, setSelectedWeek] = React.useState<string>("");
   const [selectedUnit, setSelectedUnit] = React.useState<string>("");
   
+  // State để track lesson updates
+  const [localLessonData, setLocalLessonData] = React.useState<LessonType[]>(lessonData);
+  
+  // State để track lessons đang being removed (khi unlike)
+  const [removingLessons, setRemovingLessons] = React.useState<Set<number>>(new Set());
+  
   const formattedSlug = formatSlug(slug);
   const router = useRouter();
 
-  // Sử dụng hook để tự động mở khóa bài học tiếp theo
-  const { checkAndUnlockNextLesson } = useAutoUnlockNextLesson(lessonData);
+  const { checkAndUnlockNextLesson } = useAutoUnlockNextLesson(localLessonData);
+
+  // Cập nhật callback để nhận đúng params: lessonId và newLikeCount (0 hoặc 1)
+  const updateLessonLike = React.useCallback((lessonId: number, newLikeCount: number) => {
+    // Ensure like count is only 0 or 1
+    const sanitizedLikeCount = newLikeCount > 0 ? 1 : 0;
+    
+    // If unliking (newLikeCount = 0), add to removing set for fadeout animation
+    if (sanitizedLikeCount === 0) {
+      setRemovingLessons(prev => new Set([...prev, lessonId]));
+      
+      // Remove from removing set after animation completes
+      setTimeout(() => {
+        setRemovingLessons(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(lessonId);
+          return newSet;
+        });
+      }, 800); // Match animation duration
+    }
+    
+    // Update local lesson data
+    setLocalLessonData(prevData => 
+      prevData.map(lesson => 
+        lesson.lessonId === lessonId 
+          ? { ...lesson, numLiked: sanitizedLikeCount }
+          : lesson
+      )
+    );
+  }, []);
+
+  // Update local data khi props thay đổi
+  React.useEffect(() => {
+    setLocalLessonData(lessonData);
+  }, [lessonData]);
 
   const formatTitle = (slug: string) => {
     return decodeURIComponent(slug)
@@ -70,7 +109,7 @@ function ClassroomChildClient({
   }, [lessonData]);
 
   const filterLessons = React.useCallback(() => {
-    let filtered = lessonData;
+    let filtered = localLessonData;
 
     if (debouncedSearchQuery.trim()) {
       filtered = filtered.filter(lesson =>
@@ -91,12 +130,16 @@ function ClassroomChildClient({
       );
     }
 
+    // Filter out lessons that are currently being removed (fadeout animation)
+    // This creates smooth transition as they disappear from list
+    filtered = filtered.filter(lesson => !removingLessons.has(lesson.lessonId));
+
     setFilteredLessons(filtered);
-  }, [lessonData, debouncedSearchQuery, selectedWeek, selectedUnit]);
+  }, [localLessonData, debouncedSearchQuery, selectedWeek, selectedUnit, removingLessons]);
 
   React.useEffect(() => {
     filterLessons();
-  }, [debouncedSearchQuery, selectedWeek, selectedUnit, lessonData]);
+  }, [debouncedSearchQuery, selectedWeek, selectedUnit, localLessonData, removingLessons]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -117,7 +160,10 @@ function ClassroomChildClient({
     setSelectedUnit("");
   };
 
-console.log("123321_lessonData", lessonData)
+  // Debug info - có thể remove sau
+  console.log("ClassroomChildClient - lessonData:", lessonData);
+  console.log("ClassroomChildClient - localLessonData:", localLessonData);
+  console.log("ClassroomChildClient - removingLessons:", Array.from(removingLessons));
 
   return (
     <BreadcrumbLayout title={formatTitle(formattedSlug)}>
@@ -188,8 +234,17 @@ console.log("123321_lessonData", lessonData)
             </div>
 
             {/* Results Count - Compact */}
-            <div className="text-xs text-gray-500 text-center sm:text-left">
-              {filteredLessons.length}/{lessonData.length} bài học
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span className="text-center sm:text-left">
+                {filteredLessons.length}/{localLessonData.length} bài học
+              </span>
+              
+              {/* Removing indicator */}
+              {removingLessons.size > 0 && (
+                <span className="text-orange-500 animate-pulse">
+                  Đang cập nhật {removingLessons.size} bài học...
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -209,6 +264,8 @@ console.log("123321_lessonData", lessonData)
               <LessonCard
                 {...lessonItemData}
                 onClick={() => handleLessonClick(lessonItem.lessonId)}
+                onLikeUpdate={(lessonId, newLikeCount) => updateLessonLike(lessonId, newLikeCount)}
+                removingLessons={removingLessons}
               />
             );
           }}

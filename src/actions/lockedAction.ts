@@ -14,7 +14,7 @@ interface LockedResponse {
 
 export async function initializeLocked({
   userId,
-  mode = "default" || "free"
+  mode = "default" || "free" 
 }: InitializeLockedParams): Promise<LockedResponse> {
   if (!userId) {
     return {

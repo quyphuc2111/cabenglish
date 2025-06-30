@@ -68,7 +68,9 @@ export const TabsContainer = ({
 }: TabsContainerProps) => {
   const router = useRouter();
   const { onOpen, onClose: onCloseModal } = useModal();
-  const [lastToastTime, setLastToastTime] = useState<number>(0);
+  
+  // Sử dụng useRef thay vì Date.now() để tránh hydration mismatch
+  const lastToastTimeRef = useRef<number>(0);
   const [currentContentIndex, setCurrentContentIndex] = useState(0);
   const [iframeLoading, setIframeLoading] = useState(true);
   const [lastSCItem, setLastSCItem] = useState<SectionContentType | undefined>();
@@ -93,8 +95,8 @@ export const TabsContainer = ({
 
   const handleContentClick = (content: SectionContentType, index: number) => {
     if (isContentLocked(content)) {
-      const currentTime = Date.now();
-      if (currentTime - lastToastTime > 3000) {
+      const currentTime = performance.now();
+      if (currentTime - lastToastTimeRef.current > 3000) {
         toast.warning("Hãy hoàn thành phần học trước", {
           position: "top-right",
           autoClose: 3000,
@@ -102,7 +104,7 @@ export const TabsContainer = ({
           closeOnClick: true,
           pauseOnHover: true
         });
-        setLastToastTime(currentTime);
+        lastToastTimeRef.current = currentTime;
       }
     } else {
       setCurrentContentIndex(index);

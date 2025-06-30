@@ -12,14 +12,8 @@ import { Upload } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import * as XLSX from 'xlsx';
-import { useCreateClassroom } from "@/hooks/use-classrooms";
 import { showToast } from "@/utils/toast-config";
-import { ClassroomFormValues } from "@/lib/validations/classroom";
-import { useCreateSection } from "@/hooks/use-sections";
-import { SectionFormValues } from "@/lib/validations/section";
 import { useLessonStore } from "@/store/use-lesson-store";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 import { useCreateSectionContent } from "@/hooks/useSectionContent";
 
 // Định nghĩa các tùy chọn import
@@ -62,11 +56,8 @@ function ImportSectionContentModal() {
   const [previewData, setPreviewData] = React.useState<PreviewData | null>(null);
   
   const { activeLesson } = useLessonStore();
-//   const { mutate: createSection, isPending: isCreating } = useCreateSection();
 
   const { mutate: createSectionContent, isPending: isCreating } = useCreateSectionContent();
-  const router = useRouter();
-  const queryClient = useQueryClient();
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -203,13 +194,11 @@ function ImportSectionContentModal() {
         icon_url: item["Hình ảnh"],
         sc_id: 0,
       }));
-    //   const formattedValues = {
-    //     sectionContentData: [values],
-    //     sectionIds: activeLesson.sectionId
-    // };
+
       const importData = {
         sectionContentData: sectionListData,
-        sectionIds: activeLesson.lessonId,
+        sectionIds: Number(activeLesson.sectionId),
+        sectionContentIds: [], // Thêm field bắt buộc cho create
       }
 
       // console.log("Số hàng dữ liệu:", filteredRows.length);
@@ -218,7 +207,14 @@ function ImportSectionContentModal() {
       if (importOption === "create") {
         createSectionContent(importData, {
           onSuccess: (data) => {
-            showToast.success(`Import dữ liệu thành công! ${data.message}`);
+            showToast.success(
+              <div className="flex flex-col gap-1">
+                <p className="font-medium">Import dữ liệu thành công!</p>
+                <p className="text-sm text-gray-600">
+                  Đã thêm {sectionListData.length} section content mới.
+                </p>
+              </div>
+            );
             if (data.success) {
               handleClose();
             }

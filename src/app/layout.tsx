@@ -77,9 +77,9 @@ export default async function RootLayout({
     //   </body>
     // </html>
     <html lang="vi" suppressHydrationWarning>
-      <Script
+      {/* <Script
         src="https://lms.bkt.net.vn/h5p/h5plib/v127/joubel/core/js/h5p-resizer.js"
-      />
+      /> */}
       <body className={`${inter.className} font-poppins`}>
         <Providers translations={translations}>
           {children}

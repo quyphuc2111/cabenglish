@@ -207,7 +207,7 @@ export function ProgressStats({ onOpen, t, courseData, classroomData, currentThe
                 width={24} 
                 height={24} 
                 alt="student_logo" 
-                className="brightness-0 invert relative z-10"
+                className="relative z-10"
               />
             </div>
             <div>
@@ -330,7 +330,7 @@ export function ProgressStats({ onOpen, t, courseData, classroomData, currentThe
             </div>
           </div>
           <div className="text-center sm:text-left">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">
+            <h2 className="text-xl sm:text-2xl  font-bold">
               {t("statisticsOfTeachingProgress")}
             </h2>
             <p className="text-sm sm:text-base text-white/80 mt-1">

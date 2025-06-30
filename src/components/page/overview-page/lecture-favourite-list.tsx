@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { useTranslation } from "@/hooks/useTranslation";
 import FilterFacet from "@/components/common/filter-facet";
@@ -11,25 +11,59 @@ interface LectureFavouriteListProps {
   courseData: any[];
   initialFilterData: any;
   fetchFilterData: ({classId, unitId, userId}: {classId?: string, unitId?: string, userId?: string}) => Promise<any>;
+  onDataRefetch?: () => Promise<void>;
 }
 
 export function LectureFavouriteList({
   courseData,
   initialFilterData,
-  fetchFilterData
+  fetchFilterData,
+  onDataRefetch
 }: LectureFavouriteListProps) {
   const [isMounted, setIsMounted] = useState(false);
+  
+  // Sử dụng cùng format với FilterFacet
   const [filterValues, setFilterValues] = useState({
     classId: '',
     unitId: '',
-    schoolWeekId: '',
-    userId: ''
+    userId: '',
+    weekId: '' // Sử dụng weekId để match với FilterFacet
   });
+
+  // State để track những lesson đang trong quá trình removing
+  const [removingLessons, setRemovingLessons] = useState<Set<number>>(new Set());
+  
   const { t } = useTranslation("", "common");
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Debug khi courseData thay đổi - clear removing lessons khi data update
+  useEffect(() => {
+    // Clear removing lessons khi data update (sau khi refetch hoàn tất)
+    setRemovingLessons(new Set());
+  }, [courseData]);
+
+  // Callback để trigger fadeout và refetch data từ server
+  const handleLikeUpdate = useCallback(async (lessonId: number, newLikeCount: number) => {
+    // Nếu unlike (newLikeCount = 0), thêm vào removing list và trigger fadeout
+    if (newLikeCount === 0) {
+      setRemovingLessons(prev => new Set([...prev, lessonId]));
+      
+      // Delay để animation fadeout có thời gian chạy
+      setTimeout(async () => {
+        if (onDataRefetch) {
+          await onDataRefetch();
+        }
+      }, 800); // 800ms để animation fadeout hoàn thành
+    } else {
+      // Nếu like, refetch ngay lập tức
+      if (onDataRefetch) {
+        await onDataRefetch();
+      }
+    }
+  }, [onDataRefetch]);
 
   if (!isMounted) {
     return null;
@@ -37,15 +71,18 @@ export function LectureFavouriteList({
 
   const filteredLessonData = courseData.filter((item) => {
     const matchesLocked = !item.isLocked;
-    const matchesProgress = item.numLiked > 0;
+    const matchesProgress = item.numLiked > 0 || removingLessons.has(item.lessonId); // Include removing lessons
     const matchesClass = !filterValues.classId || item.classId === Number(filterValues.classId);
     const matchesUnit = !filterValues.unitId || item.unitId === Number(filterValues.unitId);
-    const matchesSchoolWeek = !filterValues.schoolWeekId || item.schoolWeekId === Number(filterValues.schoolWeekId);
-    // const matchesUser = !filterValues.userId || item.userId === filterValues.userId;
-    // console.log("item", item)
+    
+    // Thử nhiều cách so sánh school week
+    const matchesSchoolWeek = !filterValues.weekId || 
+      item.schoolWeekId === Number(filterValues.weekId) ||
+      String(item.schoolWeekId) === filterValues.weekId ||
+      item.schoolWeek === Number(filterValues.weekId) ||
+      String(item.schoolWeek) === filterValues.weekId;
 
-    // matchesProgress &&&& matchesUser
-    return  matchesClass && matchesUnit  && matchesLocked && matchesSchoolWeek && matchesProgress;
+    return matchesClass && matchesUnit && matchesLocked && matchesSchoolWeek && matchesProgress;
   });
 
   const handleFilterChange = (newFilterValues: typeof filterValues) => {
@@ -97,7 +134,11 @@ export function LectureFavouriteList({
 
         <div className="relative pt-3 md:pt-5">
           {filteredLessonData.length > 0 ? (
-            <CourseCarousel courseData={filteredLessonData} />
+            <CourseCarousel 
+              courseData={filteredLessonData} 
+              onLikeUpdate={handleLikeUpdate}
+              removingLessons={removingLessons}
+            />
           ) : (
             <div className="flex justify-center items-center min-h-[280px] h-full flex-col gap-12">
               <p className="text-lg md:text-2xl text-[#736E6E] font-medium">

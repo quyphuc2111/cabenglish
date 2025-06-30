@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 
 import "swiper/css";
 import "swiper/css/navigation";
+import { useRouter } from "next/navigation";
 
 // Mock data đã được loại bỏ - sử dụng data thực từ service
 
@@ -35,10 +36,7 @@ function LessonTeachingClient({ teachingLessons, upcomingLessons, classroomData 
   const [nextSwiper, setNextSwiper] = useState<any>(null);
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
   const [nextSlideIndex, setNextSlideIndex] = useState<number>(0);
-
-  console.log("LessonTeachingClient - teachingLessons:", teachingLessons);
-  console.log("LessonTeachingClient - upcomingLessons:", upcomingLessons);
-  console.log("LessonTeachingClient - classroomData:", classroomData);
+  const router = useRouter();
 
   // Filter data theo classroom được chọn
   const getFilteredDataByClassroom = (data: any[]) => {
@@ -108,9 +106,9 @@ function LessonTeachingClient({ teachingLessons, upcomingLessons, classroomData 
                 <Image
                   src="/assets/gif/book_animate.gif"
                   alt="book_animate"
-                  width={20}
-                  height={20}
-                  className="brightness-0 invert"
+                  width={40}
+                  height={40}
+                 
                 />
               </div>
               <div>
@@ -172,6 +170,7 @@ function LessonTeachingClient({ teachingLessons, upcomingLessons, classroomData 
                           <LessonCard
                             {...customLesson}
                             className="transform hover:scale-[1.02] transition-all duration-300"
+                            onClick={() => !lesson.isLocked && router.push(`/lesson/${lesson.lessonId}`)}
                           />
                         </SwiperSlide>
                       );
@@ -249,9 +248,9 @@ function LessonTeachingClient({ teachingLessons, upcomingLessons, classroomData 
                 <Image
                   src="/assets/gif/book_animate.gif"
                   alt="book_animate"
-                  width={20}
-                  height={20}
-                  className="brightness-0 invert"
+                  width={40}
+                  height={40}
+                 
                 />
               </div>
               <div>
@@ -313,6 +312,7 @@ function LessonTeachingClient({ teachingLessons, upcomingLessons, classroomData 
                           <LessonCard
                             {...customLesson}
                             className="transform hover:scale-[1.02] transition-all duration-300 opacity-80"
+                            onClick={() => !lesson.isLocked && router.push(`/lesson/${lesson.lessonId}`)}
                           />
                         </SwiperSlide>
                       );

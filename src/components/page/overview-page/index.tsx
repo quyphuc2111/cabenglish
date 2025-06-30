@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { ClassroomType } from "@/types/classroom";
 import { useModal } from "@/hooks/useModalStore";
 import { useSession } from "next-auth/react";
+import { DashboardClientService } from "@/services/dashboard.client.service";
 
 const LectureFavouriteList = dynamic(
   () =>
@@ -36,7 +37,7 @@ interface OverviewPageProps {
 }
 
 function OverviewPage({
-  courseData,
+  courseData: initialCourseData,
   initialFilterData,
   fetchFilterData,
   classroomData
@@ -44,6 +45,10 @@ function OverviewPage({
   const { onOpen } = useModal();
   const { data: session } = useSession();
   const currentTheme = session?.user.theme;
+  
+  // State để quản lý course data có thể refetch
+  const [courseData, setCourseData] = useState(initialCourseData);
+  const [isRefetching, setIsRefetching] = useState(false);
 
   useEffect(() => {
     if (session && session.user.isFirstLogin) {
@@ -51,14 +56,41 @@ function OverviewPage({
     }
   }, [session]);
 
+  // Function để refetch course data từ server
+  const refetchCourseData = useCallback(async () => {
+    if (!session?.user?.userId || isRefetching) {
+      return;
+    }
+    
+    try {
+      setIsRefetching(true);
+      
+      const dashboardData = await DashboardClientService.fetchDashboardData(
+        session.user.userId,
+        session.user.mode as "default" | "free"
+      );
+      
+      setCourseData(dashboardData.courseData);
+    } catch (error) {
+      console.error("❌ Error refetching course data:", error);
+    } finally {
+      setIsRefetching(false);
+    }
+  }, [session?.user?.userId, session?.user?.mode, isRefetching, courseData]);
+
   return (
     <div>
       <LectureFavouriteList
         courseData={courseData}
         initialFilterData={initialFilterData}
         fetchFilterData={fetchFilterData}
+        onDataRefetch={refetchCourseData}
       />
-      <TeachingProgress courseData={courseData} classroomData={classroomData}  currentTheme={currentTheme}/>
+      <TeachingProgress 
+        courseData={courseData} 
+        classroomData={classroomData}  
+        currentTheme={currentTheme}
+      />
     </div>
   );
 }
