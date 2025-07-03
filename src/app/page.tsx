@@ -32,6 +32,28 @@ const staggerChildren = {
   }
 };
 
+const address = [
+  {
+    city: "Hà Nội",
+    address:
+      "Liền kề C39 Embassy Garden, Đ. Hoàng Minh Thảo, Khu đô thị Tây Hồ Tây, Bắc Từ Liêm, Hà Nội"
+  },
+  {
+    city: "Thanh Hóa",
+    address:
+      "Số 15 Ngô Thì Nhậm, Phường Ngọc Trạo, TP Thanh Hóa, Tỉnh Thanh Hóa"
+  },
+  {
+    city: "Đà Nẵng",
+    address:
+      "22/35 Thúc Tề, Phường Hòa Khê, Q.Thanh Khê, TP Đà Nẵng"
+  },
+  {
+    city: "Bình Định",
+    address: "49 Trần Anh Tông, TP Quy Nhơn, Tỉnh Bình Định"
+  }
+]
+
 export default function HomePage() {
   const { t } = useTranslation("", "common");
   const router = useRouter();
@@ -140,14 +162,14 @@ export default function HomePage() {
         <footer className="bg-[#005b94] text-white">
           <div className="py-6 md:py-20 border-t border-border/40 container">
             <motion.div
-              className="md:grid md:grid-cols-4 border-b border-gray-50 py-10"
+              className="flex flex-col gap-8 md:gap-0 md:grid md:grid-cols-4 border-b border-gray-50 py-10"
               variants={staggerChildren}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
             >
               <motion.div className="col-span-1" variants={fadeInUp}>
-                <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-5 items-center text-center md:items-start md:text-left">
                   <Image
                     src={logo}
                     width={150}
@@ -163,70 +185,57 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div className="col-span-2" variants={fadeInUp}>
-                <div className="md:flex md:flex-wrap">
-                  {[
-                    {
-                      city: "Hà Nội",
-                      address:
-                        "Liền kề C39 Embassy Garden, Đ. Hoàng Minh Thảo, Khu đô thị Tây Hồ Tây, Bắc Từ Liêm, Hà Nội"
-                    },
-                    {
-                      city: "Thanh Hóa",
-                      address:
-                        "Số 15 Ngô Thì Nhậm, Phường Ngọc Trạo, TP Thanh Hóa, Tỉnh Thanh Hóa"
-                    },
-                    {
-                      city: "Đà Nẵng",
-                      address:
-                        "22/35 Thúc Tề, Phường Hòa Khê, Q.Thanh Khê, TP Đà Nẵng"
-                    },
-                    {
-                      city: "Bình Định",
-                      address: "49 Trần Anh Tông, TP Quy Nhơn, Tỉnh Bình Định"
-                    }
-                  ].map((location, index) => (
+                <h2 className="text-xl font-semibold mb-4 text-center md:text-left">Trụ sở</h2>
+                <div className="flex flex-col md:flex-row md:flex-wrap">
+                  {address.map((location, index) => (
                     <motion.div
                       key={location.city}
-                      className="md:w-1/2 p-2"
+                      className="mb-6 md:mb-0 md:w-1/2 p-2"
                       variants={fadeInUp}
                     >
                       <Badge className="mb-2 bg-green-600">
                         {location.city}
                       </Badge>
-                      <div className="grid grid-cols-4">
-                        <MapPinIcon className="w-8 h-8 col-span-1" />
-                        <p className="col-span-3 -ml-8">{location.address}</p>
+                      <div className="flex items-start mt-2">
+                        <MapPinIcon className="w-5 h-5 flex-shrink-0 mr-2 mt-0.5" />
+                        <p className="text-sm">{location.address}</p>
                       </div>
                     </motion.div>
                   ))}
                 </div>
               </motion.div>
 
-              <motion.div className="col-span-1 md:px-5" variants={fadeInUp}>
-                <h2 className="text-xl font-semibold mb-2">Hotline</h2>
-                <ul className="flex flex-col gap-2">
+              <motion.div className="col-span-1" variants={fadeInUp}>
+                <h2 className="text-xl font-semibold mb-4 text-center md:text-left">Hotline</h2>
+                <ul className="flex flex-col gap-4">
                   <li>
-                    Điện thoại:{" "}
-                    <a href="tel:02437525253" className="hover:underline">
-                      0243 752 5253
-                    </a>
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1">
+                      <span className="font-medium text-center sm:text-left">Điện thoại:</span>
+                      <a href="tel:02437525253" className="hover:underline font-semibold text-center sm:ml-2 text-white">
+                        0243 752 5253
+                      </a>
+                    </div>
                   </li>
                   <li>
-                    Kỹ thuật (24/7):{" "}
-                    <a href="tel:0337218868" className="hover:underline">
-                      033 721 8868
-                    </a>
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1">
+                      <span className="font-medium text-center sm:text-left">Kỹ thuật (24/7):</span>
+                      <a href="tel:0337218868" className="hover:underline font-semibold text-center sm:ml-2 text-white">
+                        033 721 8868
+                      </a>
+                    </div>
                   </li>
                   <li>
-                    Kinh doanh:{" "}
-                    <a href="tel:0868179599" className="hover:underline">
-                      086 817 9599
-                    </a>
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1">
+                      <span className="font-medium text-center sm:text-left">Kinh doanh:</span>
+                      <a href="tel:0868179599" className="hover:underline font-semibold text-center sm:ml-2 text-white">
+                        086 817 9599
+                      </a>
+                    </div>
                   </li>
                 </ul>
               </motion.div>
             </motion.div>
-            <p className="text-sm mt-3 text-center">
+            <p className="text-sm mt-6 text-center">
               Copyright © {new Date().getFullYear()} BKT Company | All Rights
               Reserved
             </p>

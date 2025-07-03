@@ -47,21 +47,28 @@ export function useMenuList(
   const [classrooms, setClassrooms] = useState<ClassroomType[]>([]);
 
   // lấy session từ next-auth
-  const session = useSession();
-
-  console.log("123session", session);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    const userId = session.data?.user?.userId || "";
     const fetchClassrooms = async () => {
-      console.log("123userId", userId);
-      const response = await getAllClassroomDataByUserId({ userId });
-      if (response.data) {
-        setClassrooms(response.data);
+      // Only proceed if session is authenticated
+      if (status !== "authenticated" || !session?.user?.userId) {
+        return;
+      }
+
+      const userId = session.user.userId;
+      try {
+        const response = await getAllClassroomDataByUserId({ userId });
+        if (response.data) {
+          setClassrooms(response.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch classrooms:", error);
       }
     };
+    
     fetchClassrooms();
-  }, [pathname, session]);
+  }, [pathname, session, status]);
 
   return [
     {

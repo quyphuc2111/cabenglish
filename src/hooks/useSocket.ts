@@ -21,8 +21,8 @@ export const useSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [retryTimeoutId, setRetryTimeoutId] = useState<NodeJS.Timeout | null>(null);
-  const session = useSession();
-  const token = session?.data?.accessToken;
+  const { data: session } = useSession();
+  const token = session?.accessToken;
 
   const connect = useCallback(() => {
     if (retryTimeoutId) {

@@ -4,25 +4,25 @@ import { motion } from "framer-motion";
 
 const StatisticalData = [
   {
-    icon: <CalendarRange className="w-10 h-10" />,
+    icon: <CalendarRange className="w-8 h-8 sm:w-10 sm:h-10" />,
     text: "10+",
     desc: "Năm kinh nghiệm",
     color: "from-green-400 to-green-600"
   },
   {
-    icon: <Sparkle className="w-10 h-10" />,
+    icon: <Sparkle className="w-8 h-8 sm:w-10 sm:h-10" />,
     text: "98%",
     desc: "Giáo viên hài lòng",
     color: "from-blue-400 to-blue-600"
   },
   {
-    icon: <GraduationCap className="w-10 h-10" />,
+    icon: <GraduationCap className="w-8 h-8 sm:w-10 sm:h-10" />,
     text: "90K+",
     desc: "Giáo viên sử dụng",
     color: "from-purple-400 to-purple-600"
   },
   {
-    icon: <User2 className="w-10 h-10" />,
+    icon: <User2 className="w-8 h-8 sm:w-10 sm:h-10" />,
     text: "100+",
     desc: "Nhân sự tận tâm",
     color: "from-pink-400 to-pink-600"
@@ -67,19 +67,19 @@ function StatisticalSection() {
 
   return (
     <motion.div 
-      className="container py-20"
+      className="container py-10 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8"
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.3 }}
     >
-      <motion.div className="flex flex-col md:flex-row gap-8 justify-between">
+      <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
         {StatisticalData.map((item, index) => (
           <motion.div
             key={index}
             variants={itemVariants}
             whileHover={{ 
-              scale: 1.05,
+              scale: 1.03,
               transition: { duration: 0.2 }
             }}
             className="relative group"
@@ -91,24 +91,24 @@ function StatisticalSection() {
                    '--tw-gradient-to': item.color.split(' ')[2]
                  }} />
             
-            <div className="relative bg-white dark:bg-gray-900 px-8 py-10 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 transition-all duration-300 hover:shadow-2xl">
-              <div className="flex gap-6 items-center">
+            <div className="relative bg-white dark:bg-gray-900 px-6 py-6 sm:py-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 transition-all duration-300 hover:shadow-2xl">
+              <div className="flex gap-4 sm:gap-6 items-center justify-between">
                 <motion.div
                   whileHover={{ rotate: 360 }}
                   transition={{ duration: 0.5 }}
-                  className={`p-3 rounded-lg bg-gradient-to-r ${item.color} text-white`}
+                  className={`p-2 sm:p-3 rounded-lg bg-gradient-to-r ${item.color} text-white`}
                 >
                   {item.icon}
                 </motion.div>
                 
-                <div className="flex flex-col items-end gap-2">
+                <div className="flex flex-col items-end gap-1 sm:gap-2">
                   <motion.p 
-                    className={`font-bold text-3xl bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}
+                    className={`font-bold text-2xl sm:text-3xl bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}
                     variants={numberAnimation}
                   >
                     {item.text}
                   </motion.p>
-                  <p className="text-gray-600 dark:text-gray-400 font-medium">
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 font-medium">
                     {item.desc}
                   </p>
                 </div>

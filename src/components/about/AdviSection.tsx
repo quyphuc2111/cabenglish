@@ -9,9 +9,9 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 function AdviSection() {
   const isMobile = useMediaQuery('(max-width: 640px)');
   return (
-    <div className="relative w-full h-[470px] ">
+    <div className="relative w-full h-[470px]">
      <div className="absolute left-4 right-0 ">
-     <BackgroundSVG width={isMobile ? 375 : 1440} height={isMobile ? 150 : 462} />
+     <BackgroundSVG width="100%" height={isMobile ? 150 : 462} />
      </div>
       <div className="container flex absolute top-0 md:left-1/2 transform md:-translate-x-1/2 items-center justify-between md:w-1/2 ">
         <div className="md:max-w-[520px] flex flex-col gap-5">

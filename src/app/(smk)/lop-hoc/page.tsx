@@ -23,8 +23,13 @@ async function ClassroomPage({ searchParams }: PageProps) {
     redirect("/signin");
   }
 
+  if (!session.user || !session.user.userId) {
+    console.error("User ID is missing from session", session);
+    redirect("/signin");
+  }
+
   const classroomData = await getAllClassroomDataByUserId({
-    userId: session.user.userId
+    userId: session.user.userId 
   });
 
   console.log("classroomData", classroomData);

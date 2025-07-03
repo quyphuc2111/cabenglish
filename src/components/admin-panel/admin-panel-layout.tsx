@@ -19,13 +19,9 @@ export default function AdminPanelLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = useSession();
-  const currentTheme = session.data?.user.theme;
+  const { data: session } = useSession();
+  const currentTheme = session?.user.theme;
   const sidebar = useStore(useSidebarToggle, (state) => state);
-
-  
-  console.log("currentThemecurrentTheme", currentTheme);
-  console.log("sessionsession", session);
 
   const themeClasses = {
     "theme-gold": "bg-theme-gold-primary",
