@@ -116,7 +116,7 @@ function FilterFacet({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-1/2">
+    <div className="flex flex-col sm:flex-row gap-4 w-full ">
       {isPending && <Loading />}
       
       <div className="w-full sm:w-1/3">

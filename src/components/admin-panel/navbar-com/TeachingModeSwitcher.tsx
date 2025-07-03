@@ -17,7 +17,7 @@ export function TeachingModeSwitcher({
   
   return (
     <motion.div
-      className="border border-gray-200 rounded-lg flex items-center justify-between
+      className="border border-gray-200 rounded-lg flex items-center justify-center md:justify-between
         bg-white w-full h-10 sm:h-12 md:h-14 xl:h-12
         px-3 sm:px-4 md:px-5
         shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
@@ -32,7 +32,7 @@ export function TeachingModeSwitcher({
             width={32}
             height={24}
             alt="bkt_logo"
-            className="object-contain w-full h-full sm:w-8 sm:h-6 md:w-10 md:h-8
+            className="object-contain  h-full sm:w-8 sm:h-6 md:w-10 md:h-8
               flex-shrink-0 hover:opacity-90 transition-opacity"
             quality={100}
             priority

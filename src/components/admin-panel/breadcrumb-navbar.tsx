@@ -11,6 +11,7 @@ import { useUserTheme, useUserMode } from "@/store/useUserStore";
 import i18next from "i18next";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSession } from "next-auth/react";
+import { NavbarControls } from "./navbar-com/NavbarControls";
 // import { useTeachingModeStore } from "@/store/useTeachingModeStore";
 
 interface BreadcrumbNavbarProps {
@@ -56,37 +57,13 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
     setIsChecked((prev) => !prev);
   };
 
-  const handleContainerClick = (e: React.MouseEvent) => {
-    // Chỉ xử lý click khi không click vào Switch
-    if (!(e.target as HTMLElement).closest(".switch-component")) {
-      handleClick();
-    }
-  };
-
   const handleChangeTheme = () => {
     onOpen("changeTheme");
   };
 
-  const handleLanguageChange = () => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const currentLang = searchParams.get("lang");
 
-    // Toggle ngôn ngữ
-    const newLang = currentLang === "en" ? "vi" : "en";
-
-    // Cập nhật URL với query parameter mới
-    const currentPath = window.location.pathname;
-    const newUrl = `${currentPath}?lang=${newLang}`;
-
-    // Thay đổi ngôn ngữ trong i18next
-    i18next.changeLanguage(newLang);
-
-    // Hard reload trang để áp dụng ngôn ngữ mới
-    // window.location.href = newUrl;
-    router.push(newUrl);
-    router.refresh();
-
-    setIsChecked(!isChecked);
+  const handleLogout = async () => {
+    onOpen("logout");
   };
 
   return (
@@ -96,10 +73,10 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
       initial="hidden"
       animate="visible"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row gap-5 md:gap-0 items-start md:items-center justify-between">
         <SheetMenu />
         <motion.div
-          className={`w-4/6 3xl:w-2/3 max-h-24 h-24 ${foregroundThemeClasses[currentTheme]} rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
+          className={`w-full md:w-4/6 3xl:w-2/3 max-h-24 h-24 ${foregroundThemeClasses[currentTheme]} rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
           variants={navbarAnimations.item}
         >
           <motion.div
@@ -392,169 +369,12 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
           </div>
         </motion.div>
 
-        <motion.div
-          className="grid grid-cols-2 gap-2 sm:gap-3 
-            w-full md:w-auto items-center"
-          variants={navbarAnimations.item}
-        >
-          {/* Language Switcher */}
-          <motion.div
-            className="relative flex items-center w-full"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleContainerClick}
-          >
-            <div
-              className="flex items-center justify-between w-full
-              bg-white px-3 sm:px-4 md:px-5 
-              h-10 sm:h-12 md:h-14 xl:h-12
-              shadow-sm hover:shadow-md transition-all duration-200 
-              border border-gray-200 rounded-lg"
-            >
-              <Image
-                src={
-                  isChecked
-                    ? "/assets/image/navbar/american_flag.webp"
-                    : "/assets/image/navbar/vietnam_flag.webp"
-                }
-                width={28}
-                height={28}
-                alt={isChecked ? "american_flag" : "vietnam_flag"}
-                className="rounded-sm w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 
-                  object-contain flex-shrink-0"
-                priority
-                quality={90}
-                placeholder="blur"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
-              />
-              <Switch
-                id="change_language"
-                className="data-[state=checked]:bg-blue-600 scale-75 sm:scale-90 md:scale-100"
-                checked={isChecked}
-                onCheckedChange={handleLanguageChange}
-              />
-            </div>
-          </motion.div>
-
-          {/* Theme Switcher */}
-          <motion.div
-            className="border border-gray-200 rounded-lg flex items-center justify-between
-              bg-white w-full h-10 sm:h-12 md:h-14 xl:h-12
-              px-3 sm:px-4 md:px-5 
-              shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleChangeTheme}
-          >
-            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap">
-              <Image
-                src="/assets/image/navbar/color.webp"
-                width={24}
-                height={24}
-                alt="color_icon"
-                className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 
-                  object-contain flex-shrink-0 hover:opacity-90 transition-opacity"
-                priority
-                quality={90}
-                placeholder="blur"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
-              />
-              <p
-                className="font-medium text-gray-700 text-sm 
-                whitespace-nowrap overflow-hidden text-ellipsis"
-              >
-                {t("changeTheme")}
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Teaching Mode Selector */}
-          <motion.div
-            className="border border-gray-200 rounded-lg flex items-center justify-between
-              bg-white w-full h-10 sm:h-12 md:h-14 xl:h-12
-              px-3 sm:px-4 md:px-5
-              shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => router.push("/che-do-giang-day")}
-          >
-            {currentTeachingMode === "defaultMode" ? (
-              <div className="flex items-center gap-2 sm:gap-3 flex-nowrap">
-                <Image
-                  src="/assets/image/modal/bkt_logo.webp"
-                  width={32}
-                  height={24}
-                  alt="bkt_logo"
-                  className="object-contain w-full h-full sm:w-8 sm:h-6 md:w-10 md:h-8
-                    flex-shrink-0 hover:opacity-90 transition-opacity"
-                  quality={100}
-                  priority
-                  placeholder="blur"
-                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
-                />
-                <p
-                  className="font-medium text-gray-700 text-sm
-                  whitespace-nowrap overflow-hidden text-ellipsis"
-                >
-                  {t("defaultMode")}
-                </p>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap">
-                <Image
-                  src="/assets/image/modal/freemode.webp"
-                  width={28}
-                  height={24}
-                  alt="freemode"
-                  className="object-contain w-6 h-5 sm:w-7 sm:h-6 md:w-9 md:h-8
-                    flex-shrink-0 hover:opacity-90 transition-opacity"
-                  priority
-                  placeholder="blur"
-                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
-                />
-                <p
-                  className="font-medium text-gray-700 text-sm
-                  whitespace-nowrap overflow-hidden text-ellipsis"
-                >
-                  {t("freeMode")}
-                </p>
-              </div>
-            )}
-          </motion.div>
-
-          <motion.div
-            className="border border-gray-200 rounded-lg flex items-center justify-between
-              bg-[#E25762]/90 w-full h-10 sm:h-12 md:h-14 xl:h-12
-              px-3 sm:px-4 md:px-5 
-              shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
-              hover:bg-[#E25762]"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => onOpen("logout")}
-          >
-            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap w-full justify-center">
-              <Image
-                src="/assets/image/navbar/logout_icon.webp"
-                width={24}
-                height={24}
-                alt="logout_icon"
-                className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7
-                  object-contain flex-shrink-0 
-                  group-hover:rotate-12 transition-all duration-300"
-                priority
-                quality={90}
-              />
-              <p
-                className="font-medium group-hover:text-red-500 text-white
-                text-sm md:text-base
-                whitespace-nowrap overflow-hidden text-ellipsis
-                transition-colors duration-200"
-              >
-                Đăng xuất
-              </p>
-            </div>
-          </motion.div>
-        </motion.div>
+        <NavbarControls
+          t={t}
+          currentTeachingMode={currentTeachingMode}
+          onChangeTheme={handleChangeTheme}
+          onLogout={handleLogout}
+        />
       </div>
     </motion.header>
   );
