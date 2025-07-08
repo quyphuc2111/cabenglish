@@ -10,7 +10,7 @@ interface ThemeSwitcherProps {
 export function ThemeSwitcher({ onChangeTheme, t }: ThemeSwitcherProps) {
   return (
     <motion.div
-      className="border border-gray-200 rounded-lg flex items-center justify-between
+      className="border border-gray-200 rounded-lg flex items-center justify-end
         bg-white w-full h-10 sm:h-12 md:h-14 xl:h-12
         px-3 sm:px-4 md:px-5 
         shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
