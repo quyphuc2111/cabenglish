@@ -108,7 +108,7 @@ function LogoutModal() {
 
     // Đóng modal trước khi redirect
     onClose();
-    router.push("/signin-v2");
+    router.push("/");
     router.refresh();
   }
 
