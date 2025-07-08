@@ -9,9 +9,12 @@ import ChangeTeachingModeModal from "@/components/modal/change-teaching-mode-mod
 import CompleteLessonModal from "@/components/modal/complete-lesson-modal";
 import NotificationModal from "@/components/modal/notification-modal";
 import LogoutModal from "@/components/modal/logout-modal";
+import ExpertDetailModal from "@/components/modal/expert-detail-modal";
+import { useModal } from "@/hooks/useModalStore";
 
 export const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
+  const { isOpen, type, data, onClose } = useModal();
 
   useEffect(() => {
     setIsMounted(true);
@@ -32,6 +35,11 @@ export const ModalProvider = () => {
       <CompleteLessonModal />
       <NotificationModal />
       <LogoutModal />
+      <ExpertDetailModal
+        isOpen={isOpen && type === "expertDetail"}
+        onClose={onClose}
+        expert={data?.expert || null}
+      />
       {/* <CoinHistory /> */}
     </>
   );
