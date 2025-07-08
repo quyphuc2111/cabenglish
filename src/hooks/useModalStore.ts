@@ -30,7 +30,7 @@ export type ModalType =
   | "deleteSection"
   | "createUpdateSectionContent"
   | "deleteSectionContent"
-
+  | "expertDetail"
   | "exportNotiType"
   | "importNotiType"
   | "importNoti"
@@ -106,6 +106,19 @@ export interface ModalData {
   };
   unitId?: number;
   lessonId?: number;
+  expert?: {
+    id: number;
+    name: string;
+    image: string;
+    title: string;
+    specialty: string;
+    experience: string;
+    location: string;
+    description: {
+      icon: string;
+      title: string;
+    }[];
+  };
   onSuccess?: () => void;
 }
 
