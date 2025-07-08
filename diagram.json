@@ -1,0 +1,1597 @@
+{
+  "tables": [
+    {
+      "id": 0,
+      "name": "classroom",
+      "x": -864.2554057207417,
+      "y": -466.227664700333,
+      "fields": [
+        {
+          "name": "class_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": true,
+          "increment": true,
+          "comment": "",
+          "id": 0,
+          "unsigned": false
+        },
+        {
+          "name": "classname",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "Tên lớp học",
+          "id": 1,
+          "size": 255
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "Mô tả cho lớp học",
+          "id": 2,
+          "size": 65535
+        },
+        {
+          "name": "numliked",
+          "type": "SMALLINT",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "Số lượt like",
+          "id": 3,
+          "size": "",
+          "values": [],
+          "unsigned": true
+        },
+        {
+          "name": "imageurl",
+          "type": "TEXT",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "Đường dẫn hình ảnh đại diện của lớp",
+          "id": 4,
+          "size": 65535
+        }
+      ],
+      "comment": "",
+      "indices": [],
+      "color": "#175e7a",
+      "key": 1736503586269
+    },
+    {
+      "id": 1,
+      "name": "lesson",
+      "x": 152.4108596130451,
+      "y": -537.3418435538115,
+      "fields": [
+        {
+          "name": "lesson_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": true,
+          "increment": true,
+          "comment": "",
+          "id": 0
+        },
+        {
+          "name": "lesson_name",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": 255
+        },
+        {
+          "name": "imageurl",
+          "type": "TEXT",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 2,
+          "size": 65535
+        },
+        {
+          "name": "numliked",
+          "type": "SMALLINT",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 3,
+          "size": "",
+          "values": [],
+          "unsigned": true
+        },
+        {
+          "name": "order",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 4,
+          "size": "",
+          "values": []
+        }
+      ],
+      "comment": "",
+      "indices": [],
+      "color": "#175e7a",
+      "key": 1736504177811
+    },
+    {
+      "id": 2,
+      "name": "unit",
+      "x": -861.8733323962158,
+      "y": -634.6576347809262,
+      "fields": [
+        {
+          "name": "unit_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": true,
+          "increment": true,
+          "comment": "",
+          "id": 0
+        },
+        {
+          "name": "unit_name",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": 255
+        }
+      ],
+      "comment": "",
+      "indices": [],
+      "color": "#175e7a",
+      "key": 1736505076083
+    },
+    {
+      "id": 3,
+      "name": "schoolweek",
+      "x": -857.5870748326961,
+      "y": -193.45677376312517,
+      "fields": [
+        {
+          "name": "sw_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": true,
+          "increment": true,
+          "comment": "",
+          "id": 0
+        },
+        {
+          "name": "value",
+          "type": "TINYINT",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": "",
+          "values": [],
+          "unsigned": true
+        }
+      ],
+      "comment": "",
+      "indices": [],
+      "color": "#175e7a",
+      "key": 1736505227885
+    },
+    {
+      "id": 4,
+      "name": "section",
+      "x": -177.82511266349997,
+      "y": 21.052943278805017,
+      "fields": [
+        {
+          "name": "section_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": true,
+          "increment": true,
+          "comment": "",
+          "id": 0
+        },
+        {
+          "name": "icon_url",
+          "type": "TEXT",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "Đường dẫn icon (của section)",
+          "id": 1,
+          "size": 65535
+        },
+        {
+          "name": "section_name",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "tên section",
+          "id": 2,
+          "size": 255
+        },
+        {
+          "name": "estimate_time",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "thời gian dự kiến hoàn thành section",
+          "id": 3,
+          "size": 255
+        }
+      ],
+      "comment": "",
+      "indices": [],
+      "color": "#6360f7",
+      "key": 1737101243088
+    },
+    {
+      "id": 5,
+      "name": "section_content",
+      "x": -173.56626072660106,
+      "y": 358.7845509331594,
+      "fields": [
+        {
+          "name": "sc_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": true,
+          "increment": true,
+          "comment": "",
+          "id": 0
+        },
+        {
+          "name": "icon_url",
+          "type": "TEXT",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": 65535
+        },
+        {
+          "name": "title",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 2,
+          "size": 255
+        },
+        {
+          "name": "iframe_url",
+          "type": "TEXT",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 3,
+          "size": 65535
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": false,
+          "increment": false,
+          "comment": "",
+          "id": 4,
+          "size": 65535
+        }
+      ],
+      "comment": "",
+      "indices": [],
+      "color": "#175e7a",
+      "key": 1737103656096
+    },
+    {
+      "id": 6,
+      "name": "lesson_section",
+      "x": 414.58180089779415,
+      "y": -217.08728670869914,
+      "fields": [
+        {
+          "name": "ls_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": true,
+          "increment": true,
+          "comment": "",
+          "id": 0
+        },
+        {
+          "name": "lesson_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "section_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 2,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "order",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 3,
+          "size": "",
+          "values": []
+        }
+      ],
+      "comment": "",
+      "indices": [],
+      "color": "#175e7a",
+      "key": 1737103876445
+    },
+    {
+      "id": 7,
+      "name": "section_content_link",
+      "x": 307.6421773641784,
+      "y": 140.10522428866545,
+      "fields": [
+        {
+          "name": "scl_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": true,
+          "increment": true,
+          "comment": "",
+          "id": 0
+        },
+        {
+          "name": "section_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "sc_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 2,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "order",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 3,
+          "size": "",
+          "values": []
+        }
+      ],
+      "comment": "",
+      "indices": [],
+      "color": "#175e7a",
+      "key": 1737104132092
+    },
+    {
+      "id": 8,
+      "name": "lesson_link",
+      "x": -311.51718245536915,
+      "y": -330.24813220362574,
+      "fields": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": true,
+          "increment": true,
+          "comment": "",
+          "id": 0
+        },
+        {
+          "name": "lesson_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "unit_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 2,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "sw_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 3,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "class_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 4,
+          "size": "",
+          "values": []
+        }
+      ],
+      "comment": "",
+      "indices": [],
+      "color": "#f03c3c",
+      "key": 1737341301260
+    },
+    {
+      "id": 9,
+      "name": "user",
+      "x": -1987.4636192067096,
+      "y": -163.0475428566112,
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 0,
+          "size": 255
+        },
+        {
+          "name": "email",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": 255
+        },
+        {
+          "name": "language",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "ngôn ngữ",
+          "id": 2,
+          "size": 255
+        },
+        {
+          "name": "theme",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "chủ đề website",
+          "id": 3,
+          "size": 255
+        },
+        {
+          "name": "mode",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "chế độ giảng dạy",
+          "id": 4,
+          "size": 255
+        }
+      ],
+      "comment": "",
+      "indices": [],
+      "color": "#175e7a",
+      "key": 1737347338524
+    },
+    {
+      "id": 10,
+      "name": "user_unit_progress",
+      "x": -1440.2972595946094,
+      "y": -662.2220030278371,
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 0,
+          "size": 255
+        },
+        {
+          "name": "unit_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "progress",
+          "type": "DOUBLE",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 2
+        }
+      ],
+      "comment": "",
+      "indices": [
+        {
+          "id": 0,
+          "name": "user_unit_progress_index_0",
+          "unique": false,
+          "fields": [
+            "user_id"
+          ]
+        }
+      ],
+      "color": "#175e7a",
+      "key": 1738831058673
+    },
+    {
+      "id": 11,
+      "name": "user_lesson_progress",
+      "x": -1436.064729812051,
+      "y": -445.87287621385696,
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 0,
+          "size": 255
+        },
+        {
+          "name": "lesson_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "progress",
+          "type": "DOUBLE",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 2
+        }
+      ],
+      "comment": "",
+      "indices": [
+        {
+          "id": 0,
+          "name": "user_lesson_progress_index_0",
+          "unique": false,
+          "fields": [
+            "user_id"
+          ]
+        }
+      ],
+      "color": "#175e7a",
+      "key": 1738831264573
+    },
+    {
+      "id": 12,
+      "name": "user_section_progress",
+      "x": -1440.0888592685321,
+      "y": -237.72831269323603,
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 0,
+          "size": 255
+        },
+        {
+          "name": "section_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "progress",
+          "type": "DOUBLE",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 2
+        }
+      ],
+      "comment": "",
+      "indices": [
+        {
+          "id": 0,
+          "name": "user_section_progress_index_0",
+          "unique": false,
+          "fields": [
+            "user_id"
+          ]
+        }
+      ],
+      "color": "#175e7a",
+      "key": 1738831503544
+    },
+    {
+      "id": 13,
+      "name": "user_classroom_progress",
+      "x": -1444.3385503150814,
+      "y": -874.037590056756,
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 0,
+          "size": 255
+        },
+        {
+          "name": "class_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "progress",
+          "type": "DOUBLE",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 2
+        }
+      ],
+      "comment": "",
+      "indices": [
+        {
+          "id": 0,
+          "name": "user_classroom_progress_index_0",
+          "unique": false,
+          "fields": [
+            "user_id"
+          ]
+        }
+      ],
+      "color": "#175e7a",
+      "key": 1738831687367
+    },
+    {
+      "id": 14,
+      "name": "user_lesson_locked",
+      "x": -1441.2213055281077,
+      "y": 13.357073605635264,
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 0,
+          "size": 255
+        },
+        {
+          "name": "lesson_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "isLocked",
+          "type": "BOOLEAN",
+          "default": "true",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 2,
+          "size": "",
+          "values": []
+        }
+      ],
+      "comment": "",
+      "indices": [
+        {
+          "id": 0,
+          "name": "user_lesson_progress_index_0",
+          "unique": false,
+          "fields": [
+            "user_id"
+          ]
+        }
+      ],
+      "color": "#175e7a",
+      "key": 1738831264573
+    },
+    {
+      "id": 15,
+      "name": "user_section_locked",
+      "x": -1438.616921327859,
+      "y": 237.76855624357415,
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 0,
+          "size": 255
+        },
+        {
+          "name": "section_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "isLocked",
+          "type": "BOOLEAN",
+          "default": "true",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 2,
+          "size": "",
+          "values": []
+        }
+      ],
+      "comment": "",
+      "indices": [
+        {
+          "id": 0,
+          "name": "user_lesson_progress_index_0",
+          "unique": false,
+          "fields": [
+            "user_id"
+          ]
+        }
+      ],
+      "color": "#175e7a",
+      "key": 1738831264573
+    },
+    {
+      "id": 16,
+      "name": "user_section_content_locked",
+      "x": -1437.8238420971168,
+      "y": 440.97303127341814,
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 0,
+          "size": 255
+        },
+        {
+          "name": "sc_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": "",
+          "values": []
+        },
+        {
+          "name": "isLocked",
+          "type": "BOOLEAN",
+          "default": "true",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 2,
+          "size": "",
+          "values": []
+        }
+      ],
+      "comment": "",
+      "indices": [
+        {
+          "id": 0,
+          "name": "user_lesson_progress_index_0",
+          "unique": false,
+          "fields": [
+            "user_id"
+          ]
+        }
+      ],
+      "color": "#175e7a",
+      "key": 1738831264573
+    },
+    {
+      "name": "notifications",
+      "comment": "",
+      "color": "#175e7a",
+      "fields": [
+        {
+          "name": "notification_id",
+          "type": "INTEGER",
+          "comment": "",
+          "unique": true,
+          "increment": true,
+          "notNull": true,
+          "primary": true,
+          "default": "",
+          "check": "",
+          "id": 0
+        },
+        {
+          "name": "nt_id",
+          "type": "INTEGER",
+          "comment": "",
+          "unique": false,
+          "increment": false,
+          "notNull": true,
+          "primary": false,
+          "default": "",
+          "size": "",
+          "check": "",
+          "id": 1,
+          "values": []
+        },
+        {
+          "name": "title",
+          "type": "CHAR",
+          "comment": "",
+          "unique": false,
+          "increment": false,
+          "notNull": true,
+          "primary": false,
+          "default": "",
+          "size": 255,
+          "check": "",
+          "id": 2
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "comment": "",
+          "unique": false,
+          "increment": false,
+          "notNull": true,
+          "primary": false,
+          "default": "",
+          "check": "",
+          "id": 3
+        },
+        {
+          "name": "content_html",
+          "type": "LONGTEXT",
+          "comment": "",
+          "unique": false,
+          "increment": false,
+          "notNull": true,
+          "primary": false,
+          "default": "",
+          "check": "",
+          "id": 4
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "comment": "",
+          "unique": false,
+          "increment": false,
+          "notNull": true,
+          "primary": false,
+          "default": "CURRENT_TIMESTAMP",
+          "check": "",
+          "id": 5
+        }
+      ],
+      "indices": [],
+      "id": 17,
+      "x": -889.4643750000005,
+      "y": 832.9731250000002
+    },
+    {
+      "name": "user_notifications",
+      "comment": "",
+      "color": "#175e7a",
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "CHAR",
+          "comment": "",
+          "unique": false,
+          "increment": false,
+          "notNull": true,
+          "primary": false,
+          "default": "",
+          "check": "",
+          "id": 0,
+          "size": 255
+        },
+        {
+          "name": "notification_id",
+          "type": "INTEGER",
+          "comment": "",
+          "unique": false,
+          "increment": false,
+          "notNull": true,
+          "primary": false,
+          "default": "",
+          "check": "",
+          "id": 1
+        },
+        {
+          "name": "is_read",
+          "type": "BOOLEAN",
+          "comment": "",
+          "unique": false,
+          "increment": false,
+          "notNull": true,
+          "primary": false,
+          "default": "",
+          "size": "",
+          "check": "",
+          "id": 2,
+          "values": []
+        },
+        {
+          "name": "read_at",
+          "type": "TIMESTAMP",
+          "comment": "",
+          "unique": false,
+          "increment": false,
+          "notNull": true,
+          "primary": false,
+          "default": "",
+          "check": "",
+          "id": 3
+        }
+      ],
+      "indices": [],
+      "id": 18,
+      "x": -1323.780673783647,
+      "y": 838.5642686739781
+    },
+    {
+      "id": 19,
+      "name": "noti_type",
+      "x": -451.07958926568585,
+      "y": 815.9420643711118,
+      "fields": [
+        {
+          "name": "nt_id",
+          "type": "INTEGER",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": true,
+          "increment": true,
+          "comment": "",
+          "id": 0
+        },
+        {
+          "name": "value",
+          "type": "CHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": 255
+        }
+      ],
+      "comment": "",
+      "indices": [],
+      "color": "#175e7a",
+      "key": 1738923457187
+    }
+  ],
+  "relationships": [
+    {
+      "startTableId": 6,
+      "startFieldId": 1,
+      "endTableId": 1,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "lesson_section_lesson_id_fk",
+      "id": 0
+    },
+    {
+      "startTableId": 6,
+      "startFieldId": 2,
+      "endTableId": 4,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "lesson_section_section_id_fk",
+      "id": 1
+    },
+    {
+      "startTableId": 7,
+      "startFieldId": 1,
+      "endTableId": 4,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "section_content_link_section_id_fk",
+      "id": 2
+    },
+    {
+      "startTableId": 7,
+      "startFieldId": 2,
+      "endTableId": 5,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "section_content_link_sc_id_fk",
+      "id": 3
+    },
+    {
+      "startTableId": 8,
+      "startFieldId": 1,
+      "endTableId": 1,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "lesson_link_lesson_id_fk",
+      "id": 4
+    },
+    {
+      "startTableId": 8,
+      "startFieldId": 2,
+      "endTableId": 2,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "lesson_link_unit_id_fk",
+      "id": 5
+    },
+    {
+      "startTableId": 8,
+      "startFieldId": 3,
+      "endTableId": 3,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "lesson_link_sw_id_fk",
+      "id": 6
+    },
+    {
+      "startTableId": 8,
+      "startFieldId": 4,
+      "endTableId": 0,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "lesson_link_class_id_fk",
+      "id": 7
+    },
+    {
+      "startTableId": 10,
+      "startFieldId": 0,
+      "endTableId": 9,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_unit_progress_user_id_fk",
+      "id": 8
+    },
+    {
+      "startTableId": 10,
+      "startFieldId": 1,
+      "endTableId": 2,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_unit_progress_unit_id_fk",
+      "id": 9
+    },
+    {
+      "startTableId": 11,
+      "startFieldId": 0,
+      "endTableId": 9,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_lesson_progress_user_id_fk",
+      "id": 10
+    },
+    {
+      "startTableId": 11,
+      "startFieldId": 1,
+      "endTableId": 1,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_lesson_progress_lesson_id_fk",
+      "id": 11
+    },
+    {
+      "startTableId": 12,
+      "startFieldId": 0,
+      "endTableId": 9,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_section_progress_user_id_fk",
+      "id": 12
+    },
+    {
+      "startTableId": 14,
+      "startFieldId": 0,
+      "endTableId": 9,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_lesson_progress_user_id_fk",
+      "id": 13
+    },
+    {
+      "startTableId": 14,
+      "startFieldId": 1,
+      "endTableId": 1,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_lesson_progress_lesson_id_fk",
+      "id": 14
+    },
+    {
+      "startTableId": 13,
+      "startFieldId": 0,
+      "endTableId": 9,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_classroom_progress_user_id_fk",
+      "id": 15
+    },
+    {
+      "startTableId": 15,
+      "startFieldId": 0,
+      "endTableId": 9,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_section_locked_user_id_fk",
+      "id": 16
+    },
+    {
+      "startTableId": 13,
+      "startFieldId": 1,
+      "endTableId": 0,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_classroom_progress_class_id_fk",
+      "id": 17
+    },
+    {
+      "startTableId": 15,
+      "startFieldId": 1,
+      "endTableId": 4,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_section_locked_section_id_fk",
+      "id": 18
+    },
+    {
+      "startTableId": 12,
+      "startFieldId": 1,
+      "endTableId": 4,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_section_progress_section_id_fk",
+      "id": 19
+    },
+    {
+      "startTableId": 16,
+      "startFieldId": 0,
+      "endTableId": 9,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_section_content_locked_user_id_fk",
+      "id": 20
+    },
+    {
+      "startTableId": 16,
+      "startFieldId": 1,
+      "endTableId": 5,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_section_content_locked_sc_id_fk",
+      "id": 21
+    },
+    {
+      "name": "user_notifications_notification_id_fk",
+      "startTableId": 1,
+      "endTableId": 0,
+      "endFieldId": 0,
+      "startFieldId": 2,
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "cardinality": "many_to_one",
+      "id": 22
+    },
+    {
+      "startTableId": 17,
+      "startFieldId": 1,
+      "endTableId": 19,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "notifications_nt_id_fk",
+      "id": 23
+    },
+    {
+      "startTableId": 18,
+      "startFieldId": 0,
+      "endTableId": 9,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_notifications_user_id_fk",
+      "id": 24
+    },
+    {
+      "startTableId": 18,
+      "startFieldId": 1,
+      "endTableId": 17,
+      "endFieldId": 0,
+      "cardinality": "many_to_one",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_notifications_notification_id_fk",
+      "id": 25
+    }
+  ],
+  "notes": [],
+  "subjectAreas": [
+    {
+      "id": 0,
+      "name": "Thông báo",
+      "x": -1367.530975701377,
+      "y": 765.2288639149789,
+      "width": 1295.8266250000006,
+      "height": 371.5976250000002,
+      "color": "#ff4f81"
+    },
+    {
+      "id": 1,
+      "name": "Tiến độ",
+      "x": -1586.6110828240837,
+      "y": -925.6337575931484,
+      "width": 605.756731953516,
+      "height": 871.6987118355474,
+      "color": "#7c4af0"
+    },
+    {
+      "id": 2,
+      "name": "Khóa bài học, section, section content",
+      "x": -1486.8868845640159,
+      "y": -23.441394207705628,
+      "width": 524.0427470267755,
+      "height": 643.8356161008301,
+      "color": "#f03c3c"
+    }
+  ],
+  "database": "mysql",
+  "title": "Smart Kids 2025 Web + Mobile App (Giáo viên giảng dạy)"
+}

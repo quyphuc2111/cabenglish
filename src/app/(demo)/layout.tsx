@@ -1,9 +1,20 @@
-import AdminPanelLayout from "@/components/admin-panel/admin-panel-layout";
+import { getNotificationListByUserId } from "@/actions/notificationAction";
+import ClientPanelLayout from "@/components/admin-panel/client-panel-layout";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
-export default function DemoLayout({
+export default async function ClientLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  return <AdminPanelLayout>{children}</AdminPanelLayout>;
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    redirect("/signin");
+  }
+  const userId = session.user.userId as string;
+  const notificationList = await getNotificationListByUserId({userId});
+
+  return <ClientPanelLayout notificationList={notificationList.data || []}>{children}</ClientPanelLayout>;
 }

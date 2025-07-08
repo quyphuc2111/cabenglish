@@ -13,14 +13,14 @@ function AvatarUser({avatarUrl, name, sidebar}: any) {
   }
 
   return (
-    <div className='flex flex-col items-center gap-3 text-white cursor-pointer' onClick={handleAvatarClick}>
+    <div className='flex flex-col items-center gap-3 text-white cursor-pointer mt-6' onClick={handleAvatarClick}>
         <div className='relative avatar-container'>
             <div className='bg-white rounded-full p-1'>
             <Image src={"https://static.edupia.vn/images/avata_system/55.png"} alt="avatar-user" width={80} height={80} />
             </div>
-            <Badge className='bg-[#1ACAEF] rounded-full absolute bottom-0 left-1/2 transform -translate-x-1/2 w-14'>Lớp 5</Badge>
+            <Badge className='bg-[#1ACAEF] rounded-full absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 text-center flex items-center justify-center' >{name || 'Bê Ka Tê'}</Badge>
         </div>
-        {sidebar?.isOpen && <div className="ml-2 text-lg font-semibold">{name || 'Bê Ka Tê'}</div> }
+        {/* {sidebar?.isOpen && <div className="ml-2 text-lg font-semibold">{name || 'Bê Ka Tê'}</div> } */}
     </div>
   )
 }

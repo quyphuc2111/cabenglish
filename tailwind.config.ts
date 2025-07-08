@@ -6,7 +6,8 @@ const config = {
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}"
+    "./src/**/*.{ts,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}"
   ],
   prefix: "",
   theme: {
@@ -19,9 +20,9 @@ const config = {
     },
     extend: {
       colors: {
-        'light-blue': '#c9d6ff',
-        'gradient-start': '#e2e2e2',
-        'gradient-end': '#c9d6ff',
+        "light-blue": "#c9d6ff",
+        "gradient-start": "#e2e2e2",
+        "gradient-end": "#c9d6ff",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -55,7 +56,27 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))"
         },
-        'cyan': '#00949c'
+        cyan: "#00949c",
+        "theme-gold": {
+          primary: "#ECC98D",
+          secondary: "#f5e6d3",
+          foreground: "rgba(236, 201, 141, 0.54)"
+        },
+        "theme-blue": {
+          primary: "#A7C6F5",
+          secondary: "#e6f0ff",
+          foreground: "rgba(167, 198, 245, 0.54)"
+        },
+        "theme-pink": {
+          primary: "#ea69ae",
+          secondary: "#fce4f3",
+          foreground: "rgba(246, 72, 165, 0.54)"
+        },
+        "theme-red": {
+          primary: "#E25762",
+          secondary: "#ffe6e8",
+          foreground: "rgba(226, 87, 98, 0.54)"
+        }
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -80,34 +101,39 @@ const config = {
           to: { height: "0" }
         },
         slideRight: {
-          '0%': { transform: 'translateX(-100%)' },
-          '100%': { transform: 'translateX(0)' },
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(0)" }
         },
         slideLeft: {
-          '0%': { transform: 'translateX(0)' },
-          '100%': { transform: 'translateX(-100%)' },
-        },
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-100%)" }
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "collapsible-down": "collapsible-down 0.2s ease-out",
         "collapsible-up": "collapsible-up 0.2s ease-out",
-        slideRight: 'slideRight 1s ease-out forwards',
-        slideLeft: 'slideLeft 1s ease-out forwards',
+        slideRight: "slideRight 1s ease-out forwards",
+        slideLeft: "slideLeft 1s ease-out forwards"
       },
       fontFamily: {
-        poppins: ['Poppins', 'sans-serif'],
+        poppins: ["Poppins", "sans-serif"]
       },
       boxShadow: {
-        'course-inset': 'inset 0 -4px 0 rgba(1, 84, 136, 0.1)',
+        "course-inset": "inset 0 -4px 0 rgba(1, 84, 136, 0.1)"
       },
       backgroundImage: {
-        'player-texture': "url('/src/assets/player_background.png')"
+        "player-texture": "url('/src/assets/player_background.png')",
+        "menu-texture": "url('/menu-icon/pattern.png')"
+      },
+      screens: {
+        "3xl": "1920px",
+        "4xl": "2560px"
       }
     }
   },
-  plugins: [require("tailwindcss-animate")]
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")]
 } satisfies Config;
 
 export default config;
