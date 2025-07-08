@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { MapPinIcon } from "lucide-react";
@@ -17,6 +18,7 @@ import AdviSection from "@/components/about/AdviSection";
 import { useInView } from "react-intersection-observer";
 import { motion } from "framer-motion";
 import Head from "next/head";
+import { useSession } from "next-auth/react";
 
 // Animation variants
 const fadeInUp = {
@@ -72,6 +74,9 @@ export default function HomePage() {
     triggerOnce: true
   });
 
+  const { data: session } = useSession();
+  console.log("sessionsession", session)
+
   return (
     <>
       <Head>
@@ -114,13 +119,23 @@ export default function HomePage() {
               />
             </Link>
             <nav className="ml-auto flex items-center gap-2">
-              <Button
-                onClick={() => router.push("/signin-v2")}
-                className="bg-green-600 hover:bg-green-700 transition-colors duration-300"
-                variant="default"
-              >
-                Đăng nhập
-              </Button>
+              {session ? (
+                <Button
+                  onClick={() => router.push("/tong-quan")}
+                  className="bg-green-600 hover:bg-green-700 transition-colors duration-300"
+                  variant="default"
+                >
+                  Đi tới trang tổng quan
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => router.push("/signin-v2")}
+                  className="bg-green-600 hover:bg-green-700 transition-colors duration-300"
+                  variant="default"
+                >
+                  Đăng nhập
+                </Button>
+              )}
             </nav>
           </div>
         </header>

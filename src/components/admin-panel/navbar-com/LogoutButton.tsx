@@ -4,21 +4,22 @@ import { motion } from "framer-motion";
 
 interface LogoutButtonProps {
   onLogout: () => void;
+  t: (key: string) => string;
 }
 
-export function LogoutButton({ onLogout }: LogoutButtonProps) {
+export function LogoutButton({ onLogout, t }: LogoutButtonProps) {
   return (
     <motion.div
-      className="border border-gray-200 rounded-lg flex items-center justify-between
+      className="border border-gray-200 rounded-lg flex items-center justify-end
         bg-[#E25762]/90 w-full h-10 sm:h-12 md:h-14 xl:h-12
-        px-3 sm:px-4 md:px-5 
+        px-3 sm:px-4 md:pr-3 
         shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
         hover:bg-[#E25762]"
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onLogout}
     >
-      <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap w-full justify-center">
+      <div className="flex items-center gap-2 sm:gap-1 md:gap-2 flex-nowrap w-full justify-end">
         <Image
           src="/assets/image/navbar/logout_icon.webp"
           width={24}
@@ -31,11 +32,11 @@ export function LogoutButton({ onLogout }: LogoutButtonProps) {
         />
         <p
           className="font-medium group-hover:text-red-500 text-white
-            text-sm md:text-base
+            text-sm md:text-sm
             whitespace-nowrap overflow-hidden text-ellipsis
             transition-colors duration-200"
         >
-          Đăng xuất
+          {t("logout")}
         </p>
       </div>
     </motion.div>

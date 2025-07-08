@@ -11,6 +11,7 @@ import { LogoDecorations } from "./navbar-com/LogoDecorations";
 import { signOut, useSession } from "next-auth/react";
 import { logoutAction } from "@/actions/authAction"; 
 import axios from "axios";
+import { updateUserInfo as updateUserInfoAction } from "@/actions/userAction";
 
 interface NavbarProps {
   title: string;
@@ -34,6 +35,27 @@ export function Navbar({ title, type }: NavbarProps) {
     onOpen("logout");
   };
 
+  const updateUserInfo = async ({ language }: { language: string }) => {
+    if (!session?.user.userId) return { success: false, error: "Không có thông tin người dùng" };
+
+    try {
+      const userInfo = await updateUserInfoAction({
+        userId: session.user.userId,
+        userInfo: {
+          mode: session.user.mode || "",
+          email: session.user.email || "",
+          language: language,
+          theme: session.user.theme || ""
+        }
+      });
+      
+      return { success: true, data: userInfo };
+    } catch (error) {
+      console.error("Lỗi khi cập nhật thông tin người dùng:", error);
+      return { success: false, error: "Lỗi khi cập nhật thông tin người dùng" };
+    }
+  };
+
   return (
     <motion.header
       className="z-10 w-full max-w-[1920px] mx-auto "
@@ -49,6 +71,7 @@ export function Navbar({ title, type }: NavbarProps) {
           currentTeachingMode={currentTeachingMode}
           onChangeTheme={handleChangeTheme}
           onLogout={handleLogout}
+          updateUserInfo={updateUserInfo}
         />
       </div>
     </motion.header>

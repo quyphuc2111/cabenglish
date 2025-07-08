@@ -6,6 +6,7 @@ import { initReactI18next, useTranslation as useTranslationOrg } from 'react-i18
 import resourcesToBackend from 'i18next-resources-to-backend'
 import LanguageDetector from 'i18next-browser-languagedetector'
 import { getOptions } from '@/locales/i18next.config'
+import { useSession } from 'next-auth/react'
 
 const runsOnServerSide = typeof window === 'undefined'
 
@@ -21,7 +22,7 @@ i18next
     lng: 'vi',
     fallbackLng: 'vi',
     detection: {
-      order: ['querystring','path', 'htmlTag', 'cookie', 'navigator'],
+      order: ['querystring', 'path', 'htmlTag', 'cookie', 'navigator'],
       lookupQuerystring: 'lang',
     },
     preload: runsOnServerSide ? ['vi', 'en'] : []
@@ -30,13 +31,19 @@ i18next
 export function useTranslation(lng: string, ns: string, options: any = {}) {
   const ret = useTranslationOrg(ns, options)
   const { i18n } = ret
+  const { data: session } = useSession()
 
   useEffect(() => {
     if (runsOnServerSide) return
-    if (i18n.resolvedLanguage === lng) return
 
-    i18n.changeLanguage(lng)
-  }, [lng, i18n])
+    // Ưu tiên ngôn ngữ từ session nếu có
+    const sessionLang = session?.user?.language
+    const languageToUse = sessionLang || lng || 'vi'
+    
+    if (i18n.resolvedLanguage === languageToUse) return
+
+    i18n.changeLanguage(languageToUse)
+  }, [lng, i18n, session?.user?.language])
 
   return ret
 }
