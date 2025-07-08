@@ -1,6 +1,7 @@
 import { withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import i18NextConfig from "@/locales/i18next.config";
+import { getToken } from "next-auth/jwt";
 
 // Các constants
 const ROUTES = {
@@ -31,13 +32,23 @@ const DEFAULT_LANDING_PAGES: Record<RoleType, string> = {
 const isAdminRoute = (path: string) => path.startsWith(ROUTES.ADMIN);
 
 // Xử lý ngôn ngữ
-const handleLocale = (request: Request) => {
+const handleLocale = async (request: NextRequest) => {
   const url = new URL(request.url);
   const { pathname, searchParams } = url;
-
-  const lang = searchParams.get("lang");
+  
+  // Lấy thông tin từ session
+  const token = await getToken({ req: request as any });
+  const sessionLanguage = token?.user?.language as string | undefined;
+  
+  // Thứ tự ưu tiên: 1. URL query, 2. Session language, 3. Default locale
+  let lang = searchParams.get("lang");
   const validLocales = i18NextConfig.i18n.locales;
   const defaultLocale = i18NextConfig.i18n.defaultLocale;
+  
+  if (!lang && sessionLanguage && validLocales.includes(sessionLanguage)) {
+    lang = sessionLanguage;
+  }
+  
   const locale = lang && validLocales.includes(lang) ? lang : defaultLocale;
 
   // Tạo URL mới và copy tất cả searchParams gốc
@@ -53,7 +64,7 @@ const handleLocale = (request: Request) => {
 };
 
 // Xử lý phân quyền và chuyển hướng
-const handleAuth = (req: Request, token: any) => {
+const handleAuth = (req: NextRequest, token: any) => {
   const path = new URL(req.url).pathname;
   const isAdmin = token?.role === ROLES.ADMIN;
   const isTeacher = token?.role === ROLES.TEACHER;
@@ -83,7 +94,7 @@ const handleAuth = (req: Request, token: any) => {
 };
 
 export default withAuth(
-  function middleware(req) {
+  async function middleware(req) {
     try {
       const token = req.nextauth.token;
       const path = new URL(req.url).pathname;
@@ -92,8 +103,6 @@ export default withAuth(
       if (path === ROUTES.LANDING_PAGE || path === ROUTES.LOGIN_CALLBACK) {
         return null;
       }
-
-      
 
       // Kiểm tra nếu không có token (chưa đăng nhập), chuyển hướng về trang login
       if (!token) {
@@ -106,10 +115,10 @@ export default withAuth(
       }
 
       // Xử lý ngôn ngữ
-      const localeUrl = handleLocale(req);
+      const localeUrl = await handleLocale(req as unknown as NextRequest);
 
       // Xử lý phân quyền
-      const authRedirect = handleAuth(req, token);
+      const authRedirect = handleAuth(req as unknown as NextRequest, token);
       if (authRedirect) return authRedirect;
 
       return NextResponse.rewrite(localeUrl);
