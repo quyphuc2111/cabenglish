@@ -64,5 +64,7 @@
   "lesson": "lesson",
   "taughtLessonNumber": "Number of lessons being taught",
   "referenceMaterial": "Reference material",
-  "expertTeam": "Expert team"
+  "expertTeam": "Expert team",
+  "logout": "Logout",
+  "homepage": "Homepage"
 }
