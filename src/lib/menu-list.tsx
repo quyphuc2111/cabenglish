@@ -106,7 +106,7 @@ export function useMenuList(
       groupLabel: "",
       menus: [
         {
-          href: "/tien-trinh-giang-day",
+          href: "/tien-trinh-giang-day/bai-giang-hoan-thanh",
           label: t("teachingProgress"),
           active: pathname.includes("/tien-trinh-giang-day"),
           icon: SquarePen,

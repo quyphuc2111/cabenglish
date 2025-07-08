@@ -17,6 +17,22 @@ import OptimizeImage from "@/components/common/optimize-image";
 import { useUpdateSectionLockedFromLocked } from "@/hooks/client/useLesson";
 import { Button } from "../ui/button";
 
+// Định nghĩa interface cho H5P global
+interface H5PInstance {
+  fullScreen?: (element: Element, instance: any) => void;
+  exitFullScreen?: () => void;
+  instances?: any[];
+  isFullscreen?: boolean;
+  canHasFullScreen?: boolean;
+}
+
+// Mở rộng Window interface để TypeScript biết về H5P
+declare global {
+  interface Window {
+    H5P?: H5PInstance;
+  }
+}
+
 interface TabsContainerProps {
   sectionContents: SectionContentType[];
   sectionName: string;
@@ -76,6 +92,15 @@ export const TabsContainer = ({
   const [lastSCItem, setLastSCItem] = useState<SectionContentType | undefined>();
   const [localUnlockedContents, setLocalUnlockedContents] = useState<Set<number>>(new Set());
   const iframeRef = useRef<HTMLIFrameElement | null>(null); 
+  const [iframeSize, setIframeSize] = useState({ 
+    width: 0, 
+    height: 0, 
+    containerWidth: 0,
+    containerHeight: 0,
+    viewportWidth: 0,
+    viewportHeight: 0
+  });
+  const iframeContainerRef = useRef<HTMLDivElement | null>(null);
 
   const { mutate: updateSectionLocked } = useUpdateSectionLockedFromLocked();
 
@@ -185,14 +210,97 @@ export const TabsContainer = ({
 
   const handleFullScreen = () => {
     if (iframeRef.current) {
-      if (iframeRef.current.requestFullscreen) {
-        iframeRef.current.requestFullscreen();
+      try {
+        // Phương pháp 1: Thêm tham số để hiển thị nút fullscreen của H5P
+        const currentSrc = iframeRef.current.src;
+        
+        // Phương pháp 2: Giả lập click vào nút fullscreen của H5P
+        // Cố gắng tìm và click vào nút fullscreen
+        try {
+          const fullscreenButton = iframeRef.current.contentDocument?.querySelector('.h5p-fullscreen, .h5p-enable-fullscreen');
+          if (fullscreenButton) {
+            (fullscreenButton as HTMLElement).click();
+            return;
+          }
+        } catch (e) {
+          // Bỏ qua lỗi khi truy cập cross-origin iframe
+          console.log("Không thể truy cập nút fullscreen trong iframe", e);
+        }
+        
+        // Phương pháp 3: Sử dụng API fullscreen tiêu chuẩn của trình duyệt
+        if (iframeRef.current.requestFullscreen) {
+          iframeRef.current.requestFullscreen();
+        } else if ((iframeRef.current as any).webkitRequestFullscreen) {
+          (iframeRef.current as any).webkitRequestFullscreen(); // Safari
+        } else if ((iframeRef.current as any).msRequestFullscreen) {
+          (iframeRef.current as any).msRequestFullscreen(); // IE11
+        }
+      } catch (error) {
+        console.error("Lỗi khi chuyển sang chế độ toàn màn hình:", error);
+        
+        // Fallback cuối cùng: Thử mở tab mới với nội dung iframe
+        try {
+          const iframeSrc = iframeRef.current.src;
+          if (iframeSrc) {
+            window.open(iframeSrc, '_blank');
+          }
+        } catch (e) {
+          console.error("Không thể mở tab mới:", e);
+        }
       }
     }
   }
 
+  const updateIframeSize = () => {
+    if (iframeRef.current) {
+      const { offsetWidth, offsetHeight, clientWidth, clientHeight } = iframeRef.current;
+      let containerWidth = 0;
+      let containerHeight = 0;
+
+      if (iframeContainerRef.current) {
+        containerWidth = iframeContainerRef.current.offsetWidth;
+        containerHeight = iframeContainerRef.current.offsetHeight;
+      }
+
+      setIframeSize({
+        width: offsetWidth || clientWidth,
+        height: offsetHeight || clientHeight,
+        containerWidth,
+        containerHeight,
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight
+      });
+    }
+  };
+
+  // Theo dõi kích thước iframe khi nó được tải hoặc khi content thay đổi
+  useEffect(() => {
+    updateIframeSize();
+    const observer = new ResizeObserver(updateIframeSize);
+    
+    if (iframeRef.current) {
+      observer.observe(iframeRef.current);
+    }
+    
+    window.addEventListener('resize', updateIframeSize);
+    
+    return () => {
+      if (iframeRef.current) {
+        observer.unobserve(iframeRef.current);
+      }
+      window.removeEventListener('resize', updateIframeSize);
+    };
+  }, [currentContentIndex, iframeLoading]);
+
+  
+
   return (
-    <Tabs
+    <>
+    <div className="fixed -top-20 left-0 bg-black/80 text-white p-2 z-50 text-sm rounded-br-md">
+  <div>Viewport: {iframeSize.viewportWidth}x{iframeSize.viewportHeight}px</div>
+  <div>Container: {iframeSize.containerWidth}x{iframeSize.containerHeight}px</div>
+  <div>Iframe: {iframeSize.width}x{iframeSize.height}px</div>
+</div> <Tabs
       value={currentContentIndex.toString()}
       className="w-full h-full flex flex-col"
     >
@@ -309,7 +417,10 @@ export const TabsContainer = ({
               className="bg-white rounded-md h-full flex flex-col overflow-hidden"
             >
               {/* Iframe Container với responsive height */}
-              <div className="relative flex-1 min-h-0 bg-gray-50">
+              <div 
+                ref={iframeContainerRef}
+                className="relative flex-1 min-h-0 bg-gray-50"
+              >
                 {content.iframe_url.startsWith("http") ? (
                   <div className="w-full h-full min-h-[400px] max-h-[70vh] relative">
                     {iframeLoading && (
@@ -432,6 +543,24 @@ export const TabsContainer = ({
             </motion.div>
           </TabsContent>
         ))}
-    </Tabs>
+    </Tabs></>
+   
   );
 };
+
+
+{/* <div class="d-flex justify-content-end mb-3">
+</div>
+
+<iframe
+    src="https://lms.bkt.net.vn/h5p/embed.php?url=https%3A%2F%2Flms.bkt.net.vn%2Fpluginfile.php%2F46425%2Fmod_h5pactivity%2Fpackage%2F0%2Fdrag-and-drop-1275.h5p&amp;component=mod_h5pactivity"
+    name="h5player"
+    width="1761"
+    height="1146"
+    allowfullscreen="allowfullscreen"
+    class="h5p-player w-100 border-0"
+    style="height: 0px;"
+    id="6867a73e47f826867a73e47f851-h5player"
+></iframe><script src="https://lms.bkt.net.vn/h5p/h5plib/v127/joubel/core/js/h5p-resizer.js"></script> */}
+
+
