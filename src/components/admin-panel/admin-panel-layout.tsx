@@ -41,13 +41,13 @@ export default function AdminPanelLayout({
 
 
   return (
-    <div className={themeClasses[currentTheme ?? "theme-red"]}>
+    <div className={themeClasses["theme-red"]}>
       <AdminSidebar />
       {/* p-3 xl:p-[40px] 2xl:p-[60px] */}
       <main
         className={cn(
           `min-h-screen transition-[margin-left] ease-in-out duration-300 
-           flex-1 h-full ${themeSecondaryClasses[currentTheme]} lg:rounded-l-[48px] 
+           flex-1 h-full ${themeSecondaryClasses["theme-red"]} lg:rounded-l-[48px] 
            overflow-y-hidden `,
           sidebar?.isOpen === false ? "lg:ml-[100px]" : "lg:ml-72"
         )}
