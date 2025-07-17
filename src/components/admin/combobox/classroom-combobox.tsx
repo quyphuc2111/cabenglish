@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/popover";
 import { useClassrooms } from "@/hooks/use-classrooms";
 import { Skeleton } from "@/components/ui/skeleton";
+import { fuzzySearch } from "@/lib/utils";
 
 interface ClassroomComboboxProps {
   onSelect: (value: string) => void;
@@ -35,17 +36,23 @@ export function ClassroomCombobox({
 }: ClassroomComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(defaultValue || "");
+  const [searchValue, setSearchValue] = React.useState("");
 
   const { data, isLoading } = useClassrooms();
 
-  // Kiểm tra và đảm bảo data.data là một mảng
   const classrooms = React.useMemo(() => {
     return Array.isArray(data?.data) ? data.data : [];
   }, [data?.data]);
 
-  // Thêm hàm để nhóm các lớp học
   const groupedClassrooms = React.useMemo(() => {
-    const groups = classrooms.reduce((acc, classroom) => {
+    // Lọc classrooms dựa trên search value
+    const filteredClassrooms = searchValue 
+      ? classrooms.filter(classroom => 
+          fuzzySearch(searchValue, classroom.classname)
+        )
+      : classrooms;
+
+    const groups = filteredClassrooms.reduce((acc, classroom) => {
       const name = classroom.classname;
       if (!acc[name]) {
         acc[name] = {
@@ -61,7 +68,7 @@ export function ClassroomCombobox({
     }, {} as Record<string, { classname: string; count: number; items: typeof classrooms }>);
 
     return Object.values(groups);
-  }, [classrooms]);
+  }, [classrooms, searchValue]);
 
   const handleSelect = React.useCallback(
     (currentValue: string) => {
@@ -73,13 +80,17 @@ export function ClassroomCombobox({
     [value, onSelect]
   );
 
-  // Reset giá trị
   const handleReset = React.useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     setValue("");
     onSelect("");
     setOpen(false);
+    setSearchValue("");
   }, [onSelect]);
+
+  const handleSearchChange = React.useCallback((search: string) => {
+    setSearchValue(search);
+  }, []);
 
   if (isLoading) return <Skeleton className="w-[300px] h-10" />;
 
@@ -117,22 +128,26 @@ export function ClassroomCombobox({
       </div>
       
       <PopoverContent className="w-[300px] p-0">
-        <Command>
-          <CommandInput placeholder={placeholder} className="h-9" />
+        <Command shouldFilter={false}>
+          <CommandInput 
+            placeholder={placeholder} 
+            className="h-9" 
+            value={searchValue}
+            onValueChange={handleSearchChange}
+          />
           <CommandList>
-            <CommandEmpty>Không tìm thấy lớp học.</CommandEmpty>
+            <CommandEmpty>
+              {searchValue ? `Không tìm thấy lớp học cho "${searchValue}"` : "Không tìm thấy lớp học."}
+            </CommandEmpty>
             <CommandGroup>
               {groupedClassrooms.map((group) => (
                 <CommandItem
                   key={group.classname}
                   value={group.classname}
                   onSelect={(value) => {
-                    // Nếu chỉ có 1 lớp trong nhóm, chọn luôn
                     if (group.items.length === 1) {
                       handleSelect(group.items[0].class_id.toString());
                     } else {
-                      // Nếu có nhiều lớp, mở rộng để hiển thị chi tiết
-                      // TODO: Thêm logic để xử lý trường hợp nhiều lớp
                       handleSelect(group.items[0].class_id.toString());
                     }
                   }}

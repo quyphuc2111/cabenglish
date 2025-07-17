@@ -152,13 +152,14 @@ function ClassroomCard({
           className="relative w-full aspect-[16/9]"
         >
           <Image
-            src={`/modal/course1.png`}
+            src={imageurl}
             alt={classname}
             fill
             className={cn(
               "rounded-xl object-cover",
               isLocked && "opacity-50"
             )}
+            unoptimized
           />
 
           {isLocked  && (

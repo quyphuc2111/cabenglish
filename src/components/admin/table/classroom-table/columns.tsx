@@ -1,8 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { useCallback, useMemo } from "react";
-import OptimizeImage from "@/components/common/optimize-image";
+import { useMemo } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Tooltip,
@@ -10,8 +9,8 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
-import { useModal } from "@/hooks/useModalStore";
 import { ActionCell } from "./action-cell";
+import { ImageUrlCell } from "./image-url-cell";
 
 export type Classroom = {
   id: string;
@@ -91,40 +90,7 @@ export function useClassroomColumns() {
       ),
       cell: ({ row }) => {
         const imageUrl = row.original.imageurl;
-        return (
-          <TooltipProvider>
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <div className="flex items-center space-x-2 px-4">
-                  <a 
-                    href={imageUrl}
-                    target="_blank"
-                    rel="noopener noreferrer" 
-                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline truncate max-w-[450px] w-full"
-                  >
-                    {imageUrl}
-                  </a>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent 
-                side="top" 
-                align="start"
-                className="p-0 border-0 -translate-y-2"
-              >
-                <div className="overflow-hidden rounded-lg border border-gray-200">
-                  <OptimizeImage
-                    src={imageUrl}
-                    width={300}
-                    height={200}
-                    alt="Preview"
-                    className="w-full h-auto"
-                    unoptimized={true}
-                  />
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        );
+        return <ImageUrlCell imageUrl={imageUrl} />;
       }
     },
     {
@@ -139,7 +105,7 @@ export function useClassroomColumns() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="px-4 py-2">
-                  <div className="line-clamp-2 text-sm text-gray-600 max-w-[300px] cursor-pointer hover:text-gray-900 transition-colors">
+                  <div className="text-sm text-gray-600 cursor-pointer hover:text-gray-900 transition-colors max-w-[300px] truncate ">
                     {description}
                   </div>
                 </div>

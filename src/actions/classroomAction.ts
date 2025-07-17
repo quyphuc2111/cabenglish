@@ -3,6 +3,7 @@
 import { serverFetch } from "@/lib/api";
 import { ClassroomType } from "@/types/classroom";
 import { User } from "next-auth";
+import { initializeProgress } from "./progressAction";
 
 export interface ClassroomResponse {
   data: ClassroomType[];
@@ -23,6 +24,7 @@ export async function getAllClassroomDataByUserId({ userId }: { userId: any }) {
   }
 
   try {
+    await initializeProgress(userId)
     const data = await serverFetch(`/api/Classroom/user/${userId}`);
 
     if (!Array.isArray(data)) {

@@ -26,7 +26,10 @@ const nextConfig = {
     minimumCacheTTL: 60
   },
   experimental: {
-    optimizeCss: false
+    optimizeCss: false,
+    serverActions: {
+      bodySizeLimit: "100mb" 
+    }
   },
   typescript: {
     ignoreBuildErrors: true

@@ -49,6 +49,7 @@ export type ModalType =
   | "exportLessons"
   | "importLessons"
   | "logout"
+  | "errorDetails"
   ;
 
 export interface ModalData {
@@ -120,6 +121,8 @@ export interface ModalData {
     }[];
   };
   onSuccess?: () => void;
+  error?: Error | null;
+  errorTitle?: string;
 }
 
 

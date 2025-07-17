@@ -169,7 +169,7 @@ function CreateUpdateClassroomModal() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="text-lg font-medium">
-                                Tên lớp học
+                                Tên lớp học <span className="text-red-500">*</span>
                               </FormLabel>
                               <FormControl>
                                 <motion.div whileTap={{ scale: 0.995 }}>
@@ -203,7 +203,7 @@ function CreateUpdateClassroomModal() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="text-lg font-medium">
-                                Mô tả
+                                Mô tả <span className="text-red-500">*</span>
                               </FormLabel>
                               <FormControl>
                                 <motion.div whileTap={{ scale: 0.995 }}>
@@ -238,7 +238,7 @@ function CreateUpdateClassroomModal() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-lg font-medium">
-                              Hình ảnh
+                              Hình ảnh <span className="text-red-500">*</span>
                             </FormLabel>
                             <FormControl>
                               <ImageUploader

@@ -172,7 +172,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     useDropzone({
       onDrop,
       maxFiles: 1,
-      maxSize: 50 * 1024 * 1024,
+      maxSize: 100 * 1024 * 1024,
       accept: { 
         "image/png": [], 
         "image/jpg": [], 

@@ -27,16 +27,16 @@ interface GenericTableProps<T> {
   getRowId?: (row: T) => string;
 }
 
-// Tách SearchAndActions thành component riêng
+// Tách SearchAndActions thành component riêng với responsive design
 const SearchAndActions = ({ searchComponent, actionButtons }: { searchComponent: React.ReactNode, actionButtons: React.ReactNode }) => (
-  <div className="flex justify-between">
+  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
     {searchComponent && (
-      <div onClick={(e) => e.stopPropagation()}>
+      <div className="flex-1 sm:flex-none sm:min-w-0 sm:max-w-md" onClick={(e) => e.stopPropagation()}>
         {searchComponent}
       </div>
     )}
     {actionButtons && (
-      <div className="flex gap-5">
+      <div className="flex flex-wrap gap-2 sm:gap-3 justify-start sm:justify-end">
         {actionButtons}
       </div>
     )}
@@ -154,4 +154,4 @@ export function GenericTable<T>({
       />
     </div>
   );
-} 
+}
