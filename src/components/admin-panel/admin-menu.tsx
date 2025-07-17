@@ -119,15 +119,15 @@ export function AdminMenu({ isOpen, disabled }: MenuProps) {
                       <TooltipProvider disableHoverableContent>
                         <Tooltip delayDuration={100}>
                           <TooltipTrigger asChild>
-                            <Button
-                              variant={active ? "secondary" : "ghost"}
-                              className={cn(
-                                "w-full justify-start h-20 mb-1",
-                                disabled && "opacity-50 cursor-not-allowed"
-                              )}
-                              disabled={disabled}
-                              asChild={!disabled}
-                            >
+                                                          <Button
+                                variant={active ? "secondary" : "ghost"}
+                                className={cn(
+                                  "w-full justify-start h-20 mb-1",
+                                  disabled && "opacity-50 cursor-not-allowed"
+                                )}
+                                disabled={disabled}
+                                asChild={!disabled}
+                              >
                               {!disabled ? (
                                 <Link
                                   href={href}
