@@ -76,31 +76,3 @@ export default async function RootLayout({
   );
   
 }
-
-
-
-// <iframe
-//     src="https://lms.bkt.net.vn/h5p/embed.php?url=https%3A%2F%2Flms.bkt.net.vn%2Fpluginfile.php%2F46968%2Fmod_h5pactivity%2Fpackage%2F0%2Fflashcards-2573.h5p&amp;component=mod_h5pactivity"
-//     name="h5player"
-//     width="1761"
-//     height="806"
-//     allowfullscreen="allowfullscreen"
-//     class="h5p-player w-100 border-0"
-//     style="height: 0px;"
-//     id="6867981562c886867981562c8b1-h5player"
-// ></iframe><script src="https://lms.bkt.net.vn/h5p/h5plib/v127/joubel/core/js/h5p-resizer.js"></script>
-
-
-{/* <div class="d-flex justify-content-end mb-3">
-</div>
-
-<iframe
-    src="https://lms.bkt.net.vn/h5p/embed.php?url=https%3A%2F%2Flms.bkt.net.vn%2Fpluginfile.php%2F46958%2Fmod_h5pactivity%2Fpackage%2F0%2Finteractive-video-2559.h5p&amp;component=mod_h5pactivity"
-    name="h5player"
-    width="1761"
-    height="1052"
-    allowfullscreen="allowfullscreen"
-    class="h5p-player w-100 border-0"
-    style="height: 0px;"
-    id="686798f33f8f6686798f33f8f91-h5player"
-></iframe><script src="https://lms.bkt.net.vn/h5p/h5plib/v127/joubel/core/js/h5p-resizer.js"></script> */}
