@@ -118,7 +118,8 @@ const config = {
         slideLeft: "slideLeft 1s ease-out forwards"
       },
       fontFamily: {
-        poppins: ["Poppins", "sans-serif"]
+        inter: ["var(--font-inter)", "Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+        poppins: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"]
       },
       boxShadow: {
         "course-inset": "inset 0 -4px 0 rgba(1, 84, 136, 0.1)"

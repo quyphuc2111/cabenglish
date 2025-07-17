@@ -5,7 +5,13 @@ import { Inter } from "next/font/google";
 
 import initTranslations from "@/locales/i18n";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin", "latin-ext"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-inter",
+  display: "swap",
+  preload: true,
+});
 
 import "react-toastify/dist/ReactToastify.css";
 import "../app/globals.css";
@@ -66,7 +72,7 @@ export default async function RootLayout({
       {/* <Script
         src="https://lms.bkt.net.vn/h5p/h5plib/v127/joubel/core/js/h5p-resizer.js"
       /> */}
-      <body className={`${inter.className} font-poppins`}>
+      <body className={`${inter.className} ${inter.variable} font-inter`}>
         <Providers translations={translations}>
           {children}
           {/* <CookieSetter /> */}
