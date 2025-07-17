@@ -27,7 +27,7 @@ function Navbar({ breadcrumb }: NavbarProps) {
           <Breadcrumb>
             <BreadcrumbList className="text-base">
               <BreadcrumbItem>
-                <BreadcrumbLink href="/admin" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <BreadcrumbLink href="/admin/dashboard" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
                   <HomeIcon className="h-5 w-5" />
                   <span>Trang chủ</span>
                 </BreadcrumbLink>

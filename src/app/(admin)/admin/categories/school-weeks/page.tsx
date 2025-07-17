@@ -13,7 +13,7 @@ const breadcrumbItems = [
   },
   {
     title: "Quản lý tuần học",
-    link: ""
+    link: "/admin/categories/school-weeks"
   }
 ];
 async function AdminSchoolWeeksPage() {
