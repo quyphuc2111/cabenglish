@@ -127,9 +127,6 @@ function CreateUpdateLessonModal() {
 
   const selectSchoolWeek = formatSelect(schoolWeekData?.data, "swId", "value");
 
-  console.log("selectSchoolWeek", selectSchoolWeek);
-  console.log("schoolWeekData?.data", schoolWeekData?.data);
-
   const { data: lessonData, isLoading } = useGetSingleLesson(
     lessonId,
     activeLesson.classId,

@@ -50,6 +50,7 @@ export type ModalType =
   | "importLessons"
   | "logout"
   | "errorDetails"
+  | "exportNotiType"
   ;
 
 export interface ModalData {

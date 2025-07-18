@@ -21,6 +21,7 @@ interface FullDataViewModalProps {
   onPageChange: (page: number) => void;
   isLoading?: boolean;
   requiredColumns?: string[];
+  duplicateRows?: number[];
   className?: string;
 }
 
@@ -36,6 +37,7 @@ export function FullDataViewModal({
   onPageChange,
   isLoading = false,
   requiredColumns = [],
+  duplicateRows = [],
   className = ''
 }: FullDataViewModalProps) {
   const totalPages = Math.ceil(totalRows / pageSize);
@@ -61,6 +63,19 @@ export function FullDataViewModal({
             </div>
           ) : headers.length > 0 && rows.length > 0 ? (
             <>
+              {/* Legend for duplicate rows */}
+              {duplicateRows.length > 0 && (
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-orange-500">⚠️</span>
+                    <span className="font-medium text-orange-700">Chú thích:</span>
+                    <span className="text-orange-600">
+                      Các dòng được đánh dấu màu cam là dữ liệu đã tồn tại trong hệ thống
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {/* Pagination Controls Top */}
               <PaginationControls
                 currentPage={currentPage}
@@ -80,6 +95,9 @@ export function FullDataViewModal({
                       <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12 sm:w-16">
                         #
                       </th>
+                      <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px] sm:min-w-[100px]">
+                        Trạng thái
+                      </th>
                       {headers.map((header, index) => (
                         <th
                           key={index}
@@ -98,10 +116,41 @@ export function FullDataViewModal({
                   <tbody className="bg-white divide-y divide-gray-200">
                     {rows.map((row, rowIndex) => {
                       const actualRowNumber = (currentPage - 1) * pageSize + rowIndex + 1;
+                      const globalRowIndex = (currentPage - 1) * pageSize + rowIndex;
+                      const isDuplicateRow = duplicateRows.includes(globalRowIndex);
+                      
                       return (
-                        <tr key={rowIndex} className="hover:bg-gray-50">
-                          <td className="px-2 sm:px-3 py-2 text-xs text-gray-400 font-medium">
-                            {actualRowNumber}
+                        <tr key={rowIndex} className={`hover:bg-gray-50 ${
+                          isDuplicateRow ? 'bg-orange-50 border-l-4 border-orange-400' : ''
+                        }`}>
+                          <td className={`px-2 sm:px-3 py-2 text-xs font-medium ${
+                            isDuplicateRow ? 'text-orange-600' : 'text-gray-400'
+                          }`}>
+                            <div className="flex items-center gap-1">
+                              {actualRowNumber}
+                              {isDuplicateRow && (
+                                <span className="text-orange-500 text-xs" title="Dữ liệu trùng lặp">
+                                  ⚠️
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className={`px-2 sm:px-3 py-2 text-xs font-medium ${
+                            isDuplicateRow ? 'bg-orange-50 text-orange-700' : 'text-green-600'
+                          }`}>
+                            <div className="flex items-center gap-1">
+                              {isDuplicateRow ? (
+                                <>
+                                  <span className="text-orange-500">⚠️</span>
+                                  <span className="font-semibold">Trùng lặp</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="text-green-500">✓</span>
+                                  <span className="font-semibold">Hợp lệ</span>
+                                </>
+                              )}
+                            </div>
                           </td>
                           {headers.map((header, cellIndex) => {
                             const cellValue = row[cellIndex];
@@ -112,7 +161,9 @@ export function FullDataViewModal({
                               <td
                                 key={cellIndex}
                                 className={`px-2 sm:px-3 py-2 text-xs max-w-[120px] sm:max-w-[200px] ${
-                                  isEmpty && isRequired 
+                                  isDuplicateRow
+                                    ? 'bg-orange-50 text-orange-700'
+                                    : isEmpty && isRequired 
                                     ? 'bg-red-50 text-red-600 border-l-2 border-red-300' 
                                     : isEmpty 
                                     ? 'text-gray-400 bg-gray-50' 
@@ -125,7 +176,12 @@ export function FullDataViewModal({
                                       {isRequired ? 'Thiếu dữ liệu bắt buộc' : 'Trống'}
                                     </span>
                                   ) : (
-                                    cellValue.toString()
+                                    <span className={isDuplicateRow ? 'font-medium' : ''}>
+                                      {cellValue.toString()}
+                                      {isDuplicateRow && header === 'Loại thông báo' && (
+                                        <span className="ml-1 text-orange-500 text-xs">(Trùng lặp)</span>
+                                      )}
+                                    </span>
                                   )}
                                 </div>
                               </td>
@@ -159,4 +215,4 @@ export function FullDataViewModal({
       </DialogContent>
     </Dialog>
   );
-} 
+}

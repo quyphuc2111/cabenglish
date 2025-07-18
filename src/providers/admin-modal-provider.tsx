@@ -33,6 +33,7 @@ import ImportUnitsModal from "@/components/admin/modal/units/import-units-modal"
 import ExportUnitsModal from "@/components/admin/modal/units/export-units-modal";
 import { ErrorDetailsModal } from "@/components/common/error-details-modal";
 import { useModal } from "@/hooks/useModalStore";
+import ExportNotiTypeModal from "@/components/admin/modal/notitype/export-notitype-modal";
 
 function AdminModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
@@ -64,6 +65,7 @@ function AdminModalProvider() {
       <CreateUpdateNotiTypeModal />
       <DeleteNotiTypeModal />
       <ImportNotiTypeModal />
+      <ExportNotiTypeModal />
 
       {/* units */}
       <CreateUpdateUnitsModal />

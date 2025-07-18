@@ -27,8 +27,9 @@ const nextConfig = {
   },
   experimental: {
     optimizeCss: false,
+    serverComponentsExternalPackages: ['rimraf'],
     serverActions: {
-      bodySizeLimit: "100mb" 
+      bodySizeLimit: "100mb"
     }
   },
   typescript: {
