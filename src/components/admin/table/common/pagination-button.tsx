@@ -108,9 +108,9 @@ export function PaginationButton({
   const endItem = Math.min(currentPage * pageSize, totalItems);
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2 w-1/3">
-        <p className="text-sm text-gray-600">Hiển thị</p>
+    <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-2 lg:gap-0">
+      <div className="flex items-center gap-2 w-full md:w-auto lg:w-1/3 justify-center md:justify-start">
+        <p className="text-sm text-gray-600 hidden xl:block">Hiển thị</p>
         <Select
           value={pageSize.toString()}
           onValueChange={handlePageSizeChange}
@@ -126,21 +126,21 @@ export function PaginationButton({
             ))}
           </SelectContent>
         </Select>
-        <p className="text-sm text-gray-600">mục mỗi trang</p>
+        <p className="text-sm text-gray-600 hidden xl:block">mục mỗi trang</p>
       </div>
 
-      <div className="w-1/3 flex flex-col justify-center items-center gap-2">
+      <div className="w-full md:w-auto lg:w-1/3 flex flex-col justify-center items-center gap-2">
         <Pagination>
           <PaginationContent className="flex items-center gap-1">
-            <PaginationItem>
+            <PaginationItem className="hidden lg:block">
               <Button
                 variant="outline"
                 size="icon"
-                className="h-9 w-9"
+                className="h-8 w-8 lg:h-9 lg:w-9"
                 onClick={() => onPageChange(1)}
                 disabled={currentPage === 1}
               >
-                <ChevronsLeft className="h-4 w-4" />
+                <ChevronsLeft className="h-3 w-3 lg:h-4 lg:w-4" />
               </Button>
             </PaginationItem>
 
@@ -148,11 +148,11 @@ export function PaginationButton({
               <Button
                 variant="outline"
                 size="icon"
-                className="h-9 w-9"
+                className="h-8 w-8 md:h-9 md:w-9"
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-3 w-3 md:h-4 md:w-4" />
               </Button>
             </PaginationItem>
 
@@ -171,13 +171,13 @@ export function PaginationButton({
                 );
 
                 return (
-                  <PaginationItem key={`ellipsis-${index}`}>
+                  <PaginationItem key={`ellipsis-${index}`} className="hidden md:block">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button 
                           variant="outline" 
                           size="icon" 
-                          className="h-9 w-9 min-w-[2.25rem]"
+                          className="h-8 w-8 md:h-9 md:w-9 min-w-[2rem] md:min-w-[2.25rem]"
                         >
                           <PaginationEllipsis />
                         </Button>
@@ -198,12 +198,36 @@ export function PaginationButton({
                 );
               }
 
+              let className = '';
+              
+              const showOnMobile = 
+                page === 1 || 
+                page === totalPages || 
+                page === currentPage || 
+                (typeof page === 'number' && Math.abs(page - currentPage) <= 1);
+              
+              const showOnTablet = 
+                page === 1 || 
+                page === totalPages || 
+                page === currentPage || 
+                (typeof page === 'number' && Math.abs(page - currentPage) <= 2);
+
+              if (!showOnMobile) {
+                className = 'hidden sm:block';
+              }
+              if (!showOnTablet && showOnMobile) {
+                className = 'sm:hidden md:block';
+              }
+
               return (
-                <PaginationItem key={page}>
+                <PaginationItem 
+                  key={page} 
+                  className={className}
+                >
                   <Button
                     variant={currentPage === page ? "default" : "outline"}
                     size="icon"
-                    className="h-9 w-9 min-w-[2.25rem]"
+                    className="h-8 w-8 md:h-9 md:w-9 min-w-[2rem] md:min-w-[2.25rem] text-xs md:text-sm"
                     onClick={() => onPageChange(page as number)}
                   >
                     <span className="select-none">{page}</span>
@@ -216,47 +240,56 @@ export function PaginationButton({
               <Button
                 variant="outline"
                 size="icon"
-                className="h-9 w-9"
+                className="h-8 w-8 md:h-9 md:w-9"
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages || totalPages === 0}
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3 w-3 md:h-4 md:w-4" />
               </Button>
             </PaginationItem>
 
-            <PaginationItem>
+            <PaginationItem className="hidden lg:block">
               <Button
                 variant="outline"
                 size="icon"
-                className="h-9 w-9"
+                className="h-8 w-8 lg:h-9 lg:w-9"
                 onClick={() => onPageChange(totalPages)}
                 disabled={currentPage === totalPages || totalPages === 0}
               >
-                <ChevronsRight className="h-4 w-4" />
+                <ChevronsRight className="h-3 w-3 lg:h-4 lg:w-4" />
               </Button>
             </PaginationItem>
           </PaginationContent>
         </Pagination>
       </div>
 
-      <div className="w-1/3 flex flex-col items-end justify-center gap-2">
-        <div className="flex items-center gap-2 ml-2">
+      <div className="w-full md:w-auto lg:w-1/3 flex flex-col items-center md:items-end justify-center gap-2">
+        <div className="flex items-center gap-2">
           <Input
             value={pageInput}
             onChange={handlePageInputChange}
             onKeyDown={handlePageInputKeyDown}
             placeholder="Nhập trang..."
-            className="w-[130px] h-9 text-center"
+            className="w-[100px] md:w-[120px] lg:w-[130px] h-8 md:h-9 text-center text-sm"
             type="text"
             maxLength={String(totalPages).length}
           />
-          <span className="text-sm text-muted-foreground whitespace-nowrap">
+          <span className="text-xs md:text-sm text-muted-foreground whitespace-nowrap">
             / {totalPages}
           </span>
         </div>
-        <p className="text-sm text-gray-600">
+        <p className="text-xs md:text-sm text-gray-600 text-center md:text-right">
           {totalItems > 0 
-            ? `Hiển thị ${startItem}-${endItem} trong tổng số ${totalItems} mục`
+            ? (
+                <>
+                  <span className="hidden xl:inline">
+                    Hiển thị {startItem}-{endItem} trong tổng số {totalItems} mục
+                  </span>
+                  <span className="xl:hidden">
+                    {startItem}-{endItem} / {totalItems}
+                  </span>
+                </>
+              )
             : 'Không có dữ liệu'
           }
         </p>

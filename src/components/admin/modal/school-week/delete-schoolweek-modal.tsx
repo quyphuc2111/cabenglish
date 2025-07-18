@@ -175,7 +175,8 @@ function DeleteSchoolWeekModal() {
                 </p>
                <div>
                <ScrollArea className="w-[500px] ">
-                <div className="flex gap-2 pb-4">
+                <div className={`flex gap-2 pb-4 justify-center ${data?.schoolWeeks?.length > 1 ? 'flex-wrap' : ''}`} >
+
                   {data?.schoolWeeks?.map((week: any) => (
                     <p key={week.swId} className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0">
                       <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">

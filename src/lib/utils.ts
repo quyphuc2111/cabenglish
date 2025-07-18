@@ -41,7 +41,7 @@ export const formatSelect = (arrayData: any[], keyLabel: string, keyValue: strin
   if(!arrayData || arrayData.length === 0) return ;
   
   return arrayData.map((item) => ({
-    label: item[keyLabel],
+    label: item[keyValue],
     value: item[keyValue]
   }));
 };

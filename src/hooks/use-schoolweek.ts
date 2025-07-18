@@ -81,7 +81,7 @@ export const useUpdateSchoolWeek = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["school-weeks"] });
       queryClient.invalidateQueries({
-        queryKey: ["school-week", variables.swId]
+        queryKey: ["school-week", variables.swId.toString()]
       });
     }
   });
