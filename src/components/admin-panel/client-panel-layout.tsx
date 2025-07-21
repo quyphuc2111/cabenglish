@@ -63,7 +63,20 @@ export default function ClientPanelLayout({
         {children}
       </main>
        {/* <ModalProvider /> */}
-       <ToastContainer />
+       <ToastContainer
+         position="top-right"
+         autoClose={3000}
+         hideProgressBar={false}
+         newestOnTop={false}
+         closeOnClick
+         rtl={false}
+         pauseOnFocusLoss
+         draggable
+         pauseOnHover
+         theme="light"
+         enableMultiContainer={false}
+         containerId="client-toast-container"
+       />
     </div>
   );
 }

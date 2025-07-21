@@ -96,38 +96,38 @@ export function useUnitsColumns() {
           );
         }
       },
-      {
-        accessorKey: "progress",
-        header: () => (
-          <div className="font-semibold text-gray-900">Tiến độ</div>
-        ),
-        cell: ({ row }) => {
-          const progress = formatProgress(row.original.progress) || 0;
-          return (
-            <div className="flex items-center gap-3 w-[200px]">
-              <Progress 
-                value={Number(progress)} 
-                className={`h-2 ${
-                  Number(progress) < 30 
-                    ? "bg-red-500" 
-                    : Number(progress) < 70 
-                    ? "bg-yellow-500" 
-                    : "bg-green-500"
-                }`}
-              />
-              <span className={`text-sm font-medium ${
-                Number(progress) < 30 
-                  ? "text-red-500" 
-                  : Number(progress) < 70 
-                  ? "text-yellow-500" 
-                  : "text-green-500"
-              }`}>
-                {progress}%
-              </span>
-            </div>
-          );
-        }
-      },
+      // {
+      //   accessorKey: "progress",
+      //   header: () => (
+      //     <div className="font-semibold text-gray-900">Tiến độ</div>
+      //   ),
+      //   cell: ({ row }) => {
+      //     const progress = formatProgress(row.original.progress) || 0;
+      //     return (
+      //       <div className="flex items-center gap-3 w-[200px]">
+      //         <Progress 
+      //           value={Number(progress)} 
+      //           className={`h-2 ${
+      //             Number(progress) < 30 
+      //               ? "bg-red-500" 
+      //               : Number(progress) < 70 
+      //               ? "bg-yellow-500" 
+      //               : "bg-green-500"
+      //           }`}
+      //         />
+      //         <span className={`text-sm font-medium ${
+      //           Number(progress) < 30 
+      //             ? "text-red-500" 
+      //             : Number(progress) < 70 
+      //             ? "text-yellow-500" 
+      //             : "text-green-500"
+      //         }`}>
+      //           {progress}%
+      //         </span>
+      //       </div>
+      //     );
+      //   }
+      // },
       {
         id: "actions",
         cell: ActionCell,

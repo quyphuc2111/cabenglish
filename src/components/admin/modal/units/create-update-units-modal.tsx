@@ -23,20 +23,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import { BadgePlus, Pencil } from "lucide-react";
-import {
-  useCreateNotiType,
-  useGetSingleNotiType,
-  useUpdateNotiType
-} from "@/hooks/use-notitype";
-import {
-  notiTypeFormSchema,
-  NotiTypeFormValues
-} from "@/lib/validations/notitype";
 import { unitsFormSchema, UnitsFormValues } from "@/lib/validations/units";
 import {
   useCreateUnitByClassId,
   useUpdateUnitByClassId
 } from "@/hooks/use-units";
+import { useUnitsValidation } from "@/hooks/use-units-validation";
 
 // Tách animation configs ra riêng
 const ANIMATIONS = {
@@ -83,15 +75,6 @@ function CreateUpdateUnitsModal() {
     return id;
   }, [data?.classroomId]);
 
-  // Thêm log để debug
-  // React.useEffect(() => {
-  //   console.log('Modal Data:', {
-  //     classroomId,
-  //     rawData: data,
-  //     type: typeof classroomId
-  //   });
-  // }, [classroomId, data]);
-
   const unitDataFromModal = data?.unitData;
   
   const { mutate: createUnits, isPending: isCreating } =
@@ -100,6 +83,17 @@ function CreateUpdateUnitsModal() {
     useUpdateUnitByClassId(classId);
 
   const isPending = isCreating || isUpdating;
+
+  // Hook validation để kiểm tra trùng lặp
+  const {
+    validateField,
+    validateUnit,
+    suggestNextOrder,
+    isLoading: isValidationLoading
+  } = useUnitsValidation(
+    classroomId,
+    formType === "update" ? unitDataFromModal?.unitId : null
+  );
 
   const form = useForm<UnitsFormValues>({
     resolver: zodResolver(unitsFormSchema),
@@ -112,11 +106,45 @@ function CreateUpdateUnitsModal() {
     mode: "onChange"
   });
 
+  // Cập nhật order mặc định khi tạo mới (chỉ khi modal đã mở và có suggestNextOrder)
+  React.useEffect(() => {
+    if (isOpen && type === "createUpdateUnits" && formType === "create" && !isValidationLoading && suggestNextOrder > 0) {
+      // Chỉ set nếu order hiện tại là 0 hoặc khác với suggestNextOrder
+      const currentOrder = form.getValues("order");
+      if (currentOrder === 0 || currentOrder !== suggestNextOrder) {
+        form.setValue("order", suggestNextOrder);
+      }
+    }
+  }, [isOpen, type, formType, suggestNextOrder, isValidationLoading, form]);
+
   // Reset form và đóng modal
   const handleClose = React.useCallback(() => {
-    form.reset();
+    form.reset({
+      unitName: "",
+      order: 0,
+      unitId: 0,
+      progress: 0
+    });
+    form.clearErrors();
     onClose();
   }, [form, onClose]);
+
+  // Reset form khi modal mở
+  React.useEffect(() => {
+    if (isOpen && type === "createUpdateUnits") {
+      if (formType === "create") {
+        // Reset form về trạng thái ban đầu cho tạo mới
+        form.reset({
+          unitName: "",
+          order: !isValidationLoading && suggestNextOrder > 0 ? suggestNextOrder : 0,
+          unitId: 0,
+          progress: 0
+        });
+        form.clearErrors();
+      }
+      // Với formType === "update", form sẽ được cập nhật trong useEffect khác
+    }
+  }, [isOpen, type, formType, form, suggestNextOrder, isValidationLoading]);
 
   // Cập nhật form khi có dữ liệu
   React.useEffect(() => {
@@ -142,6 +170,25 @@ function CreateUpdateUnitsModal() {
     async (values: UnitsFormValues) => {
       if (!classroomId) {
         toast.error("Không tìm thấy thông tin lớp học!");
+        return;
+      }
+
+      // Kiểm tra validation trước khi submit
+      const validationResult = validateUnit(values);
+      if (!validationResult.isValid) {
+        if (validationResult.errors.unitName) {
+          form.setError("unitName", {
+            type: "manual",
+            message: validationResult.errors.unitName
+          });
+        }
+        if (validationResult.errors.order) {
+          form.setError("order", {
+            type: "manual",
+            message: validationResult.errors.order
+          });
+        }
+        toast.error("Vui lòng kiểm tra lại thông tin!");
         return;
       }
 
@@ -200,7 +247,7 @@ function CreateUpdateUnitsModal() {
         );
       }
     },
-    [formType, createUnits, updateUnits, handleClose, classroomId]
+    [formType, createUnits, updateUnits, handleClose, classroomId, validateUnit, form]
   );
 
   // Không render nếu không phải modal schoolweek
@@ -274,8 +321,21 @@ function CreateUpdateUnitsModal() {
                                 onChange={(e) => {
                                   const value = e.target.value;
                                   field.onChange(value);
+                                  
+                                  // Validation real-time
+                                  if (value.trim()) {
+                                    const error = validateField("unitName", value);
+                                    if (error) {
+                                      form.setError("unitName", {
+                                        type: "manual",
+                                        message: error
+                                      });
+                                    } else {
+                                      form.clearErrors("unitName");
+                                    }
+                                  }
                                 }}
-                                disabled={isPending}
+                                disabled={isPending || isValidationLoading}
                                 placeholder="Nhập tên unit..."
                                 className="text-base p-6"
                               />
@@ -306,10 +366,24 @@ function CreateUpdateUnitsModal() {
                                 {...field}
                                 onChange={(e) => {
                                   const value = parseInt(e.target.value);
-                                  field.onChange(isNaN(value) ? 0 : value);
+                                  const finalValue = isNaN(value) ? 0 : value;
+                                  field.onChange(finalValue);
+                                  
+                                  // Validation real-time
+                                  if (finalValue > 0) {
+                                    const error = validateField("order", finalValue);
+                                    if (error) {
+                                      form.setError("order", {
+                                        type: "manual",
+                                        message: error
+                                      });
+                                    } else {
+                                      form.clearErrors("order");
+                                    }
+                                  }
                                 }}
-                                disabled={isPending}
-                                placeholder="Nhập thứ tự unit..."
+                                disabled={isPending || isValidationLoading}
+                                placeholder={`Nhập thứ tự unit... (Gợi ý: ${suggestNextOrder})`}
                                 className="text-base p-6"
                                 type="number"
                                 min={1}

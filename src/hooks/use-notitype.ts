@@ -95,7 +95,7 @@ export const useDeleteMultipleNotiTypes = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (ntIds: string[]) => {
+    mutationFn: async (ntIds: number[]) => {
       // Xóa từng loại thông báo một cách tuần tự
       const deletePromises = ntIds.map(id => 
         deleteNotiTypeAdminData({ ntId: parseInt(id) })
@@ -116,7 +116,6 @@ export const useDeleteMultipleNotiTypes = () => {
     }
   });
 };
-
 
 // Cache cho dữ liệu notitype để tránh gọi API nhiều lần
 let notiTypeCache: any[] | null = null;

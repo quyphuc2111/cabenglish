@@ -57,19 +57,19 @@ function ExportUnitsModal() {
 
         // Định nghĩa columns
         worksheet.columns = [
-          { header: 'ID Unit', key: 'unitId', width: 15 },
+          // { header: 'ID Unit', key: 'unitId', width: 15 },
           { header: 'Tên Unit', key: 'unitName', width: 50 },
           { header: 'Thứ tự', key: 'order', width: 15 },
-          { header: 'Tiến độ', key: 'progress', width: 15 },
+          // { header: 'Tiến độ', key: 'progress', width: 15 },
         ];
 
         // Thêm dữ liệu
         unitsData?.data.forEach((unit: Units) => {
           worksheet.addRow({
-            unitId: unit.unitId,
+            // unitId: unit.unitId,
             unitName: unit.unitName,
             order: unit.order,
-            progress: unit.progress
+            // progress: unit.progress
           });
         });
 
@@ -148,7 +148,7 @@ function ExportUnitsModal() {
           className="mt-4"
         >
           {/* Thông tin lớp học */}
-          <div className="bg-blue-50 p-4 rounded-lg mb-4 border border-blue-100">
+          {/* <div className="bg-blue-50 p-4 rounded-lg mb-4 border border-blue-100">
             <h4 className="text-sm font-medium text-blue-700 mb-2">
               Thông tin xuất dữ liệu
             </h4>
@@ -164,7 +164,7 @@ function ExportUnitsModal() {
                 <p className="text-amber-600">Vui lòng chọn lớp học trước khi xuất dữ liệu</p>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* Export Options */}
           <div className="bg-gray-50 p-4 rounded-lg">

@@ -178,7 +178,7 @@ function DeleteUnitsModal() {
                 </p>
                <div>
                <ScrollArea className="w-[500px] ">
-                <div className="flex gap-2 pb-4">
+                <div className={`flex gap-2 pb-4 ${data?.unitIds?.length > 1 ? "": "justify-center" }`}>
                   {data?.units?.map((unit: any) => (
                     <p key={unit.unitId} className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0">
                       <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">

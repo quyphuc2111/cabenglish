@@ -36,7 +36,7 @@ const SearchAndActions = ({ searchComponent, actionButtons }: { searchComponent:
       </div>
     )}
     {actionButtons && (
-      <div className="flex flex-wrap gap-2 sm:gap-3 justify-start sm:justify-end">
+      <div className="flex flex-wrap gap-2 sm:gap-3 justify-start sm:justify-center">
         {actionButtons}
       </div>
     )}

@@ -2,12 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
-import { Footer } from "@/components/admin-panel/footer";
-import { Sidebar } from "@/components/admin-panel/sidebar";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
-import Image from "next/image";
-import { ModalProvider } from "@/providers/modal-provider";
-import { useUserTheme } from "@/store/useUserStore";
 import { ToastContainer } from "react-toastify";
 import { AdminSidebar } from "./admin-sidebar";
 import { MobileAdminMenu } from "./mobile-admin-menu";
@@ -58,7 +53,20 @@ export default function AdminPanelLayout({
       </main>
       {/* <ModalProvider /> */}
       <AdminModalProvider />
-      <ToastContainer />
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        limit={3}
+        containerId="admin-toast-container"
+      />
     </div>
   );
 }

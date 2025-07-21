@@ -124,6 +124,7 @@ export interface ModalData {
   onSuccess?: () => void;
   error?: Error | null;
   errorTitle?: string;
+  selectedClassId?: number | string;
 }
 
 
