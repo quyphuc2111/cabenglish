@@ -87,24 +87,27 @@ function SchoolWeekContainerClient() {
     });
   };
 
+
+
   const filteredData = React.useMemo(() => {
     if (!data?.data) return [];
     
     let filtered = [...data.data];
-    if (!selectedWeekId) return filtered;
-
-    return filtered.filter(week => week.swId === Number(selectedWeekId));
+    
+    // Lọc theo tuần học được chọn
+    if (selectedWeekId) {
+      filtered = filtered.filter(week => week.swId === Number(selectedWeekId));
+    }
+    
+    // Mặc định sắp xếp từ thấp đến cao theo giá trị tuần học
+    filtered.sort((a, b) => {
+      const valueA = parseInt(a.value) || 0;
+      const valueB = parseInt(b.value) || 0;
+      return valueA - valueB;
+    });
+    
+    return filtered;
   }, [data?.data, selectedWeekId]);
-
-  // const filterSchoolWeeks = React.useCallback((schoolWeek: any, searchQuery: string) => {
-  //   if (!searchQuery) return true;
-  //   const searchTerm = searchQuery.toLowerCase().trim();
-  //   console.log("searchTermsearchTerm", searchTerm);
-  //   return (
-  //     // schoolWeek.swId.toString().includes(searchTerm) ||
-  //     schoolWeek.value.toLowerCase().includes(searchTerm)
-  //   );
-  // }, []);
 
   return (
     <div className="bg-white rounded-lg p-10 h-full">

@@ -2,8 +2,6 @@
 
 import { Navbar } from "@/components/admin-panel/navbar";
 import { ScrollArea } from "../ui/scroll-area";
-import { useUserStore } from "@/store/useUserStore";
-import { useEffect } from "react";
 
 interface ContentLayoutProps {
   title: string;
@@ -11,71 +9,18 @@ interface ContentLayoutProps {
   type?: string;
 }
 
-const userData = {
-  user_id: "1",
-  email: "test@gmail.com",
-  language: "vi",
-  theme: "theme-red",
-  mode: "defaultMode",
-  progress: {
-    units: [
-      {
-        unit_id: 1
-      },
-      {
-        unit_id: 2
-      }
-    ],
-    lessons: [
-      {
-        lesson_id: 1
-      },
-      {
-        lesson_id: 2
-      }
-    ],
-    sections: [
-      {
-        section_id: 1
-      },
-      {
-        section_id: 2
-      }
-    ],
-    classrooms: [
-      {
-        class_id: 1
-      },
-      {
-        class_id: 2
-      }
-    ]
-  },
-  locked: {
-    sections: [1, 2],
-    section_contents: [1, 2],
-    lessons: [1, 2]
-  }
-};
-
 export function ContentLayout({ title, type, children }: ContentLayoutProps) {
-  // const { user, setUser } = useUserStore();
-
-  // useEffect(() => {
-  //   if (!user) {
-  //     setUser({
-  //       ...userData
-  //     });
-  //   }
-  // }, []);
 
   return (
     <>
-      <div className="2xl:px-8 mt-5 ">
+      <div className="px-4 sm:px-6 md:px-8 2xl:px-8 mt-5 mt-safe-top">
         <Navbar title={title} type={type} />
       </div>
-      <ScrollArea className="h-5/6 2xl:px-[40px] mt-7">
-        <div className="lg:pt-2 lg:pb-12">{children}</div>
+      <ScrollArea 
+        className="h-[calc(100vh-150px-env(safe-area-inset-top)-env(safe-area-inset-bottom))] sm:h-[calc(100vh-170px-env(safe-area-inset-top)-env(safe-area-inset-bottom))] md:h-[calc(100vh-170px-env(safe-area-inset-top)-env(safe-area-inset-bottom))] px-4 sm:px-6 md:px-8 2xl:px-[40px] mt-2 md:mt-7 pb-safe-bottom overscroll-contain"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
+        <div className="py-2 sm:py-3 lg:pt-2 lg:pb-12 px-safe-left pr-safe-right">{children}</div>
       </ScrollArea>
     </>
   );

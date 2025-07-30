@@ -50,7 +50,7 @@ function CreateUpdateSchoolWeekModal() {
 
   const form = useForm<SchoolWeekFormValues>({
     resolver: zodResolver(schoolWeekFormSchema),
-    defaultValues: { value: 0, swId: 0 },
+    defaultValues: { value: 1, swId: 1 },
     mode: "onChange"
   });
 
@@ -64,7 +64,7 @@ function CreateUpdateSchoolWeekModal() {
   
 
   const handleClose = React.useCallback(() => {
-    form.reset();
+    form.reset({ value: 1, swId: 1 });
     onClose();
   }, [form, onClose]);
 
@@ -75,37 +75,51 @@ function CreateUpdateSchoolWeekModal() {
     }
   }, [schoolWeekData, formType, form]);
 
-  const isFormValid = form.watch("value") > 0;
+  const isFormValid = form.watch("value") >= 1 && form.watch("value") <= 52;
 
   const handleSubmit = React.useCallback(async (values: SchoolWeekFormValues) => {
     try {
-      const action = formType === "create" 
-        ? () => schoolWeekExists 
-          ? showToast.error("Tuần học đã tồn tại") 
-          : createSchoolWeek(values, {
-              onSuccess: () => {
-                showToast.success("Tạo tuần học thành công");
-                handleClose();
-              },
-              onError: (error: Error) => {
-                showToast.error(error.message || "Có lỗi xảy ra khi tạo tuần học 123");
-              }
-            })
-        : () => updateSchoolWeek({ 
-            swId: swId as number,
-            data: values
-          }, {
-            onSuccess: () => {
-              showToast.success("Cập nhật tuần học thành công");
-              handleClose();
-            }
-          });
-
-      await action();
+      if (formType === "create") {
+        if (schoolWeekExists) {
+          showToast.error("Tuần học đã tồn tại");
+          return;
+        }
+        createSchoolWeek(values, {
+          onSuccess: () => {
+            showToast.success("Tạo tuần học thành công");
+            handleClose();
+          },
+          onError: (error: Error) => {
+            showToast.error(error.message || "Có lỗi xảy ra khi tạo tuần học");
+          }
+        });
+      } else {
+        // Kiểm tra trùng lặp khi cập nhật
+        const currentData = Array.isArray(schoolWeekData) ? schoolWeekData[0] : schoolWeekData;
+        const isValueChanged = currentData?.value !== values.value;
+        
+        if (isValueChanged && schoolWeekExists) {
+          showToast.error("Tuần học đã tồn tại, không thể cập nhật");
+          return;
+        }
+        
+        updateSchoolWeek({ 
+          swId: swId as number,
+          data: values
+        }, {
+          onSuccess: () => {
+            showToast.success("Cập nhật tuần học thành công");
+            handleClose();
+          },
+          onError: (error: Error) => {
+            showToast.error(error.message || "Có lỗi xảy ra khi cập nhật tuần học");
+          }
+        });
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra!");
     }
-  }, [formType, swId, createSchoolWeek, updateSchoolWeek, handleClose, schoolWeekExists]);
+  }, [formType, swId, createSchoolWeek, updateSchoolWeek, handleClose, schoolWeekExists, schoolWeekData]);
 
   if (!isOpen || type !== "createUpdateSchoolWeek") return null;
 
@@ -138,10 +152,14 @@ function CreateUpdateSchoolWeekModal() {
                           {...field}
                           type="number"
                           min={1}
+                          max={52}
                           disabled={isPending}
-                          placeholder="Nhập tuần học..."
+                          placeholder="Nhập tuần học (1-52)..."
                           className="text-base p-6"
-                          onChange={e => field.onChange(Math.max(0, parseInt(e.target.value) || 0))}
+                          onChange={e => {
+                            const value = parseInt(e.target.value) || 0;
+                            field.onChange(value);
+                          }}
                         />
                       </FormControl>
                       <FormMessage className="text-base" />

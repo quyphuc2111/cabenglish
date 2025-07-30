@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, X } from "lucide-react"
 import { deburr, trim, toLower } from 'lodash'
 
 import { cn } from "@/lib/utils"
@@ -41,19 +41,45 @@ export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần
     if (!searchQuery) return schoolWeeks;
     
     const normalizeText = (text: string) => {
-      return deburr(toLower(text));
+      return deburr(toLower(trim(text)));
     };
     
-    const normalizedQuery = trim(
-      normalizeText(searchQuery).replace(/(tuan|tuan)\s*/g, '')
-    );
+    const normalizedQuery = normalizeText(searchQuery);
     
     return schoolWeeks.filter((week) => {
       const weekValue = week.value.toString();
-      const weekLabel = normalizeText(`tuan ${weekValue}`);
+      const weekLabel = normalizeText(`tuần ${weekValue}`);
+      const weekLabelNoAccent = normalizeText(`tuan ${weekValue}`);
       
-      return weekValue.includes(normalizedQuery) || 
-             weekLabel.includes(normalizedQuery);
+      // Tìm kiếm theo số tuần
+      if (weekValue.includes(normalizedQuery)) {
+        return true;
+      }
+      
+      // Tìm kiếm theo "tuần + số" (có dấu)
+      if (weekLabel.includes(normalizedQuery)) {
+        return true;
+      }
+      
+      // Tìm kiếm theo "tuan + số" (không dấu)
+      if (weekLabelNoAccent.includes(normalizedQuery)) {
+        return true;
+      }
+      
+      // Tìm kiếm chỉ từ "tuần" hoặc "tuan"
+      if ((normalizedQuery === 'tuần' || normalizedQuery === 'tuan') && weekValue) {
+        return true;
+      }
+      
+      // Tìm kiếm partial match với "tuan" hoặc "tuần"
+      if (normalizedQuery.startsWith('tuan') || normalizedQuery.startsWith('tuần')) {
+        const numberPart = normalizedQuery.replace(/^(tuan|tuần)\s*/, '');
+        if (numberPart && weekValue.includes(numberPart)) {
+          return true;
+        }
+      }
+      
+      return false;
     });
   }, [schoolWeeks, searchQuery]);
 
@@ -61,6 +87,12 @@ export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần
     setValue(currentValue === value ? "" : currentValue);
     setOpen(false);
     onSelect(currentValue === value ? "" : currentValue);
+  }
+
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setValue("");
+    onSelect("");
   }
 
   const getDisplayText = React.useCallback((selectedValue: string) => {
@@ -80,10 +112,18 @@ export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[300px] justify-between"
+          className="w-[300px] justify-between relative"
         >
           {value ? getDisplayText(value) : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <div className="flex items-center gap-1">
+            {value && (
+              <X 
+                className="h-4 w-4 shrink-0 opacity-50 hover:opacity-100 cursor-pointer" 
+                onClick={handleClear}
+              />
+            )}
+            <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+          </div>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">

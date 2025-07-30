@@ -66,7 +66,6 @@ function LogoutModal() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    console.log("Initiating logout...");
     try {
       const result = await logoutAction();
       if (!result.success) {
@@ -79,7 +78,6 @@ function LogoutModal() {
     }
 
     try {
-      console.log("Calling logout-default API to clear Moodle cookies...");
       const apiUrl = process.env.NEXT_PUBLIC_BKT_ACCOUNT_API_URL || "";
       const response = await axios.post(
         `${apiUrl}/api/Moodle/logout-default`,

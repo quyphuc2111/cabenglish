@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { ModalData, ModalType, useModal } from "@/hooks/useModalStore";
 import { useNotiType } from "@/hooks/use-notitype";
 import { useNotiTypeColumns } from "@/components/admin/table/notitype/columns";
-import { type NotiType } from "@/components/admin/table/notitype/columns";
 import { NotiTypeCombobox } from "@/components/admin/combobox/notitype-combobox";
 
 // Xử lý lỗi

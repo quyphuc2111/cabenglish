@@ -41,7 +41,6 @@ export function useMenuList(
   pathname: string,
   currentTeachingMode: string
 ): Group[] {
-  // console.log("first", currentTeachingMode)
 
   const { t } = useTranslation("", "common");
   const [classrooms, setClassrooms] = useState<ClassroomType[]>([]);

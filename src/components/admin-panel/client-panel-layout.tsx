@@ -4,9 +4,6 @@ import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
 import { Sidebar } from "@/components/admin-panel/sidebar";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
-import Image from "next/image";
-import { ModalProvider } from "@/providers/modal-provider";
-import { useUserTheme } from "@/store/useUserStore";
 import { ToastContainer } from 'react-toastify';
 import { useQuery } from "@tanstack/react-query";
 import { getNotificationListByUserId } from "@/actions/notificationAction";
@@ -63,7 +60,20 @@ export default function ClientPanelLayout({
         {children}
       </main>
        {/* <ModalProvider /> */}
-       <ToastContainer />
+       <ToastContainer
+         position="top-right"
+         autoClose={3000}
+         hideProgressBar={false}
+         newestOnTop={false}
+         closeOnClick
+         rtl={false}
+         pauseOnFocusLoss
+         draggable
+         pauseOnHover
+         theme="light"
+         limit={3}
+         containerId="client-toast-container"
+       />
     </div>
   );
 }

@@ -30,20 +30,37 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
   const [currentSlide, setCurrentSlide] = useState(1);
   const [visibleItems, setVisibleItems] = useState(courseData);
   
+  // Thêm breakpoint cho màn hình siêu nhỏ (mobile nhỏ)
+  const isExtraSmall = useMediaQuery('(max-width: 480px)');
   const isMobile = useMediaQuery('(max-width: 640px)');
+  const isSmallTablet = useMediaQuery('(max-width: 768px)');
   const isTablet = useMediaQuery('(max-width: 1024px)');
   const isLargeScreen = useMediaQuery('(min-width: 1536px)');
   const router = useRouter();
 
-  const slidesPerView = isMobile 
-    ? 1.2 
+  // Điều chỉnh slidesPerView cho từng kích thước màn hình - hiển thị gần như full 1 slide trên mobile
+  const slidesPerView = isExtraSmall
+    ? 1.01 // Hiển thị gần như đầy đủ 1 card cho màn hình rất nhỏ
+    : isMobile 
+    ? 1.05  // Điều chỉnh để hiển thị gần như full 1 card
+    : isSmallTablet
+    ? 1.6  // Thêm breakpoint cho màn hình tablet nhỏ
     : isTablet 
-    ? 2.2 
+    ? 2.5  // Điều chỉnh từ 2.2 lên 2.5
     : isLargeScreen 
     ? 4 
     : 3;
 
   const effectiveSlidesPerView = Math.floor(slidesPerView);
+
+  // Điều chỉnh spaceBetween cho từng kích thước màn hình
+  const getSpaceBetween = () => {
+    if (isExtraSmall) return 6;  // Giảm khoảng cách cho màn hình rất nhỏ
+    if (isMobile) return 8;     // Giảm khoảng cách cho mobile
+    if (isSmallTablet) return 12; // Khoảng cách cho tablet nhỏ
+    if (isTablet) return 16;     // Giữ nguyên cho tablet
+    return 20;                   // Mặc định cho màn hình lớn
+  };
 
   // Update visible items khi courseData thay đổi
   useEffect(() => {
@@ -152,9 +169,42 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
             transform: translateY(-8px) scale(1.1);
           }
         }
+        
+        /* Thêm CSS cho responsive swiper */
+        .course-swiper {
+          width: 100%;
+          height: auto;
+          margin: 0 auto;
+          overflow: visible;
+        }
+        
+        /* Cải thiện hiển thị nút điều hướng trên mobile */
+        @media (max-width: 640px) {
+          .swiper-pagination-bullet {
+            width: 4px;
+            height: 4px;
+            margin: 0 2px;
+          }
+          
+          .swiper-container {
+            padding: 0 1px;
+            overflow: hidden;
+          }
+
+          .swiper-slide {
+            overflow: visible;
+          }
+        }
+
+        /* Thêm wrapper style để ngăn overflow */
+        .carousel-wrapper {
+          overflow: hidden;
+          width: 100%;
+          position: relative;
+        }
       `}</style>
 
-      <div className={cn("relative group", className)}>
+      <div className={cn("relative group w-full carousel-wrapper", className)}>
         {/* Show loading when updating, hide swiper */}
         {removingLessons && removingLessons.size > 0 ? (
           /* Beautiful Loading Center Display */
@@ -253,73 +303,89 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
         ) : (
           /* Normal Swiper Display */
           <>
-            <Swiper
-              onSwiper={setSwiper}
-              modules={[Navigation, Pagination]}
-              spaceBetween={isMobile ? 12 : isTablet ? 16 : 20}
-              slidesPerView={slidesPerView}
-              centeredSlides={isMobile ? true : false}
-              loop={false}
-              slideToClickedSlide={true}
-              watchSlidesProgress={true}
-              observer={true}
-              observeParents={true}
-              observeSlideChildren={true}
-              resizeObserver={true}
-              updateOnWindowResize={true}
-              pagination={{
-                clickable: true,
-                el: '.swiper-pagination',
-                dynamicBullets: isMobile ? true : false,
-              }}
-              onSlideChange={(swiper) => {
-                setIsBeginning(swiper.isBeginning);
-                setIsEnd(swiper.isEnd);
-                setCurrentSlide(getCurrentPage(swiper.activeIndex));
-              }}
-              className="course-swiper pb-12"
-            >
-              <AnimatePresence>
-                {visibleItems.map((course, index) => {
-                  const customCourse = {
-                    ...course,
-                    classRoomName: course.className,
-                  };
+            {/* Cải thiện container với padding phù hợp cho từng thiết bị */}
+            <div className={cn(
+              "swiper-container w-full",
+              isExtraSmall ? "px-0 mx-0" : isMobile ? "px-0.5 mx-0.5" : "px-0" // Giảm padding đối với mobile
+            )}>
+              <Swiper
+                onSwiper={setSwiper}
+                modules={[Navigation, Pagination]}
+                spaceBetween={getSpaceBetween()}
+                slidesPerView={slidesPerView}
+                centeredSlides={false}
+                loop={false}
+                slideToClickedSlide={true}
+                watchSlidesProgress={true}
+                observer={true}
+                observeParents={true}
+                observeSlideChildren={true}
+                resizeObserver={true}
+                updateOnWindowResize={true}
+                pagination={{
+                  clickable: true,
+                  el: '.swiper-pagination',
+                  dynamicBullets: isMobile ? true : false,
+                }}
+                onSlideChange={(swiper) => {
+                  setIsBeginning(swiper.isBeginning);
+                  setIsEnd(swiper.isEnd);
+                  setCurrentSlide(getCurrentPage(swiper.activeIndex));
+                }}
+                className="course-swiper pb-8 sm:pb-10" // Giảm padding-bottom trên mobile
+              >
+                <AnimatePresence>
+                  {visibleItems.map((course, index) => {
+                    const customCourse = {
+                      ...course,
+                      classRoomName: course.className,
+                    };
 
-                  const isRemoving = removingLessons?.has(course.lessonId) || false;
+                    const isRemoving = removingLessons?.has(course.lessonId) || false;
 
-                  return (
-                    <SwiperSlide 
-                      key={`lesson-${course.lessonId}`}
-                      className="transition-all duration-300 ease-in-out"
-                    >
-                      <motion.div
-                        variants={itemVariants}
-                        initial="hidden"
-                        animate="visible"
-                        exit="exit"
-                        className="h-full"
+                    return (
+                      <SwiperSlide 
+                        key={`lesson-${course.lessonId}`}
+                        className="transition-all duration-300 ease-in-out pb-1.5 w-full" // Giảm padding-bottom
                       >
-                        <LessonCard 
-                          {...customCourse} 
-                          onClick={() => router.push(`/lesson/${customCourse.lessonId}`)}
-                          onLikeUpdate={onLikeUpdate}
-                          removingLessons={removingLessons}
-                          delay={0}
-                        />
-                      </motion.div>
-                    </SwiperSlide>
-                  );
-                })}
-              </AnimatePresence>
-            </Swiper>
+                        <div className={cn(
+                          "px-0.5", // Thêm padding nhỏ cho card
+                          isExtraSmall && "transform scale-[0.98]" // Thu nhỏ một chút cho màn hình rất nhỏ
+                        )}>
+                          <motion.div
+                            variants={itemVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            className="h-full"
+                          >
+                            <LessonCard 
+                              {...customCourse} 
+                              onClick={() => router.push(`/lesson/${customCourse.lessonId}`)}
+                              onLikeUpdate={onLikeUpdate}
+                              removingLessons={removingLessons}
+                              delay={0}
+                            />
+                          </motion.div>
+                        </div>
+                      </SwiperSlide>
+                    );
+                  })}
+                </AnimatePresence>
+              </Swiper>
 
-            {/* Enhanced Navigation */}
+              {/* Điểm phân trang cho mobile */}
+              {isMobile && visibleItems.length > effectiveSlidesPerView && (
+                <div className="swiper-pagination flex justify-center mt-1"></div>
+              )}
+            </div>
+
+            {/* Enhanced Navigation - hiển thị trên tablet và desktop */}
             {!isMobile && visibleItems.length > effectiveSlidesPerView && (
-              <div className="flex items-center justify-center gap-4 mt-6">
+              <div className="flex items-center justify-center gap-4 mt-4 sm:mt-6">
                 <Button
                   variant="outline"
-                  size="xl"
+                  size={isSmallTablet ? "default" : "xl"}
                   className={cn(
                     "rounded-full bg-white hover:bg-gray-50 transition-all duration-300 disabled:opacity-50",
                     "border-2 border-gray-200 hover:border-gray-300 hover:shadow-md",
@@ -329,16 +395,19 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
                   onClick={() => swiper?.slidePrev()}
                   disabled={isBeginning}
                 >
-                  <ChevronLeft className="h-6 w-6 text-gray-700" />
+                  <ChevronLeft className={cn(
+                    isSmallTablet ? "h-5 w-5" : "h-6 w-6",
+                    "text-gray-700"
+                  )} />
                 </Button>
 
-                <div className="min-w-[100px] text-center font-medium text-gray-600 bg-gray-50 px-4 py-2 rounded-full">
+                <div className="min-w-[80px] sm:min-w-[100px] text-center font-medium text-gray-600 bg-gray-50 px-3 py-1 sm:px-4 sm:py-2 rounded-full text-sm">
                   {currentSlide} / {totalPages}
                 </div>
 
                 <Button
                   variant="outline"
-                  size="xl" 
+                  size={isSmallTablet ? "default" : "xl"}
                   className={cn(
                     "rounded-full bg-white hover:bg-gray-50 transition-all duration-300 disabled:opacity-50",
                     "border-2 border-gray-200 hover:border-gray-300 hover:shadow-md",
@@ -348,7 +417,10 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
                   onClick={() => swiper?.slideNext()}
                   disabled={isEnd}
                 >
-                  <ChevronRight className="h-6 w-6 text-gray-700" />
+                  <ChevronRight className={cn(
+                    isSmallTablet ? "h-5 w-5" : "h-6 w-6",
+                    "text-gray-700"
+                  )} />
                 </Button>
               </div>
             )}

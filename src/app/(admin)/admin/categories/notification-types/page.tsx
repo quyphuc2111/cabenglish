@@ -13,7 +13,7 @@ const breadcrumbItems = [
   },
   {
     title: "Quản lý loại thông báo",
-    link: ""
+    link: "/admin/categories/notification-types"
   }
 ];
 

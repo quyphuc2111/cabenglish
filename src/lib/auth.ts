@@ -98,8 +98,6 @@ export const authOptions: NextAuthOptions = {
             throw new Error("API_URL is not defined");
           }
 
-          console.log("api url", ACC_DOMAIN);
-
           const loginResponse = await axios.post(
             `${ACC_DOMAIN}/api/Account/login`,
             {

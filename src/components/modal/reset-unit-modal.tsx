@@ -10,6 +10,7 @@ import { resetLessonProgress } from "@/actions/resetLessonAction";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { switchModeAction } from "@/actions/lockedAction";
 
 // Thêm các animation variants
 const modalVariants = {
@@ -73,7 +74,12 @@ function ResetUnitModal() {
       
       setIsLoading(true);
       const result = await resetLessonProgress(session.user.userId, data.lessonIds);
+      const switchMode = await switchModeAction({
+        userId: session.user.userId,
+        mode: session.user.mode,
+      })
       
+
       if (result.success) {
         toast.success("Đã khởi tạo lại tiến trình thành công!", {
           position: "top-right",

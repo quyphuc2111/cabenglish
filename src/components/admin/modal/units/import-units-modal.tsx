@@ -9,35 +9,36 @@ import {
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Upload } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import * as XLSX from 'xlsx';
 import { showToast } from "@/utils/toast-config";
 import { UnitsFormValues } from "@/lib/validations/units";
-import { useCreateManyUnitsByClassId } from "@/hooks/use-units";
+import { useCreateManyUnitsByClassId, useUnitByClassId } from "@/hooks/use-units";
+import { ExcelPreviewTable } from "@/components/common/excel-preview-table";
+import { FullDataViewModal } from "@/components/common/full-data-view-modal";
+import { FileUploadZone } from "@/components/common/file-upload-zone";
+import { LoadingSpinner } from "@/components/common/loading-spinner";
+import { ImportOptionsSelector } from "@/components/common/import-options-selector";
+import { ValidationError } from "@/components/common/validation-error";
 
 // Định nghĩa các tùy chọn import
-type ImportOption = {
-  id: string;
-  title: string;
-  description: string;
-};
-
-const importOptions: ImportOption[] = [
+const importOptions = [
   {
     id: "create",
     title: "Tạo mới dữ liệu",
-    description: "Chỉ thêm các bản ghi mới, bỏ qua nếu đã tồn tại"
+    description: "Chỉ thêm các bản ghi mới, bỏ qua nếu đã tồn tại",
+    available: true
   },
   {
     id: "override",
-    title: "Ghi đè dữ liệu (Đang phát triển)",
-    description: "Cập nhật dữ liệu nếu đã tồn tại, tạo mới nếu chưa có"
+    title: "Ghi đè dữ liệu",
+    description: "Cập nhật dữ liệu nếu đã tồn tại, tạo mới nếu chưa có",
+    comingSoon: true
   },
   {
     id: "replace",
-    title: "Thay thế toàn bộ (Đang phát triển)", 
-    description: "Xóa dữ liệu cũ và thay thế bằng dữ liệu mới"
+    title: "Thay thế toàn bộ",
+    description: "Xóa dữ liệu cũ và thay thế bằng dữ liệu mới",
+    comingSoon: true
   }
 ];
 
@@ -47,36 +48,62 @@ type PreviewData = {
   rows: any[][];
 };
 
+type FullDataView = {
+  headers: string[];
+  rows: any[][];
+  totalRows: number;
+  currentPage: number;
+  pageSize: number;
+  duplicateRows?: number[];
+};
+
 function ImportUnitsModal() {
   const { isOpen, onClose, type, data } = useModal();
   const [file, setFile] = React.useState<File | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
   const [importOption, setImportOption] = React.useState<string>("create");
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [previewData, setPreviewData] = React.useState<PreviewData | null>(null);
+  const [totalRows, setTotalRows] = React.useState<number>(0);
+  const [isProcessing, setIsProcessing] = React.useState(false);
+  const [showFullData, setShowFullData] = React.useState(false);
+  const [fullData, setFullData] = React.useState<FullDataView | null>(null);
+  const [rawJsonData, setRawJsonData] = React.useState<any[][]>([]);
+  const [validationError, setValidationError] = React.useState<string | null>(null);
+  const [duplicateRows, setDuplicateRows] = React.useState<number[]>([]);
+  const [isCheckingDuplicates, setIsCheckingDuplicates] = React.useState(false);
   
   const selectedClassId = data?.selectedClassId || data?.classroomId;
   
   const { mutate: createManyUnits, isPending: isCreating } = useCreateManyUnitsByClassId(
     selectedClassId ? Number(selectedClassId) : null
   );
+  
+  // Lấy dữ liệu units hiện có để kiểm tra trùng lặp
+  const { data: existingUnitsData } = useUnitByClassId(selectedClassId || "");
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (selectedFile: File | null) => {
     try {
-    const selectedFile = event.target.files?.[0];
-      if (!selectedFile) return;
-
-      // Kiểm tra định dạng file
-      if (!selectedFile.name.endsWith('.xlsx') && !selectedFile.name.endsWith('.xls')) {
-        showToast.error("Vui lòng chọn file Excel (.xlsx hoặc .xls)");
+      if (!selectedFile) {
+        setFile(null);
+        setPreviewData(null);
+        setFullData(null);
+        setRawJsonData([]);
+        setTotalRows(0);
+        setValidationError(null);
+        setIsProcessing(false);
+        setDuplicateRows([]);
+        setIsCheckingDuplicates(false);
         return;
       }
 
-      // Kiểm tra kích thước
-      if (selectedFile.size > 5 * 1024 * 1024) {
-        showToast.error("Kích thước file không được vượt quá 5MB");
-        return;
-      }
+      setPreviewData(null);
+      setFullData(null);
+      setRawJsonData([]);
+      setTotalRows(0);
+      setValidationError(null);
+      setIsProcessing(false);
+      setDuplicateRows([]);
+      setIsCheckingDuplicates(false);
 
       // Tạo bản sao của file để tránh vấn đề permission
       const fileClone = new File([selectedFile], selectedFile.name, {
@@ -84,6 +111,8 @@ function ImportUnitsModal() {
       });
       
       setFile(fileClone);
+      
+      await new Promise(resolve => setTimeout(resolve, 50));
       await generatePreview(fileClone);
       
     } catch (error) {
@@ -96,36 +125,26 @@ function ImportUnitsModal() {
           </p>
         </div>
       );
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      setFile(null);
+      setPreviewData(null);
+      setTotalRows(0);
+      setRawJsonData([]);
+      setFullData(null);
+      setIsProcessing(false);
+      setValidationError(null);
+      setDuplicateRows([]);
+      setIsCheckingDuplicates(false);
     }
   };
 
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
+
+
+  const isOptionAvailable = (optionId: string) => {
+    const option = importOptions.find(opt => opt.id === optionId);
+    return option?.available === true;
   };
 
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const droppedFile = event.dataTransfer.files?.[0];
-    if (droppedFile) {
-      if (!droppedFile.name.endsWith('.xlsx') && !droppedFile.name.endsWith('.xls')) {
-        showToast.error("Vui lòng chọn file Excel (.xlsx hoặc .xls)");
-        return;
-      }
-      if (droppedFile.size > 5 * 1024 * 1024) {
-        showToast.error("Kích thước file không được vượt quá 5MB");
-        return;
-      }
-      setFile(droppedFile);
-      generatePreview(droppedFile);
-    }
-  };
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleUpload = async () => {
     if (!file) {
@@ -178,7 +197,7 @@ function ImportUnitsModal() {
       );
 
       // Kiểm tra các cột bắt buộc cho units
-      const requiredColumns = ['Tên Unit', 'Thứ tự', 'Tiến độ'];
+      const requiredColumns = ['Tên Unit', 'Thứ tự'];
       const missingColumns = requiredColumns.filter(col => !headers.includes(col));
       
       if (missingColumns.length > 0) {
@@ -199,7 +218,7 @@ function ImportUnitsModal() {
         unitId: 0, // API sẽ tự sinh
         unitName: item["Tên Unit"],
         order: Number(item["Thứ tự"]) || 0,
-        progress: Number(item["Tiến độ"]) || 0,
+        progress: 0,
       }));
 
       // Validate dữ liệu
@@ -210,9 +229,6 @@ function ImportUnitsModal() {
       if (invalidRows.length > 0) {
         throw new Error(`Có ${invalidRows.length} dòng dữ liệu không hợp lệ. Vui lòng kiểm tra lại.`);
       }
-
-      console.log("Số hàng dữ liệu:", filteredRows.length);
-      console.log("Dữ liệu đã format:", unitsListData);
 
       if (importOption === "create") {
         createManyUnits(unitsListData, {
@@ -270,15 +286,64 @@ function ImportUnitsModal() {
     setFile(null);
     setImportOption("create"); 
     setPreviewData(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    setTotalRows(0);
+    setIsProcessing(false);
+    setShowFullData(false);
+    setFullData(null);
+    setRawJsonData([]);
+    setValidationError(null);
+    setDuplicateRows([]);
+    setIsCheckingDuplicates(false);
     onClose();
   };
 
-  // Kiểm tra xem option có available không
-  const isOptionAvailable = (optionId: string) => {
-    return optionId === "create";
+  const generateFullDataView = async (page: number = 1, pageSize: number = 50) => {
+    if (!rawJsonData.length) return;
+    
+    try {
+      setIsProcessing(true);
+      
+      const headers = rawJsonData[0] as string[];
+      const allRows = rawJsonData.slice(1) as any[][];
+      
+      const validRows = allRows.filter(row => 
+        row.some(cell => cell !== null && cell !== undefined && cell !== '')
+      );
+      
+      const totalRows = validRows.length;
+      const startIndex = (page - 1) * pageSize;
+      const endIndex = Math.min(startIndex + pageSize, totalRows);
+      const pageRows = validRows.slice(startIndex, endIndex);
+      
+      setFullData({
+        headers,
+        rows: pageRows,
+        totalRows,
+        currentPage: page,
+        pageSize,
+        duplicateRows
+      });
+      
+    } catch (error) {
+      console.error("Lỗi khi tạo full data view:", error);
+      showToast.error("Không thể tạo view dữ liệu đầy đủ");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleShowFullData = async () => {
+    if (!rawJsonData.length) {
+      showToast.error("Chưa có dữ liệu để hiển thị");
+      return;
+    }
+    setShowFullData(true);
+    await generateFullDataView(1, 50);
+  };
+
+  const handlePageChange = async (newPage: number) => {
+    if (!fullData) return;
+    await generateFullDataView(newPage, fullData.pageSize);
   };
 
   const handleDownloadTemplate = () => {
@@ -289,9 +354,58 @@ function ImportUnitsModal() {
     a.click();
   };
 
+  // Hàm kiểm tra dữ liệu trùng lặp
+  const checkDuplicateData = async (validRows: any[][], headers: string[]) => {
+    try {
+      setIsCheckingDuplicates(true);
+      
+      if (!existingUnitsData?.data || !Array.isArray(existingUnitsData.data)) {
+        setDuplicateRows([]);
+        return;
+      }
+      
+      const existingUnits = existingUnitsData.data;
+      const duplicates: number[] = [];
+      
+      // Tìm index của các cột cần kiểm tra
+      const unitNameIndex = headers.indexOf('Tên Unit');
+      const orderIndex = headers.indexOf('Thứ tự');
+      
+      if (unitNameIndex === -1 || orderIndex === -1) {
+        setDuplicateRows([]);
+        return;
+      }
+      
+      validRows.forEach((row, index) => {
+        const unitName = row[unitNameIndex]?.toString().trim();
+        const order = Number(row[orderIndex]);
+        
+        // Kiểm tra trùng tên unit hoặc thứ tự
+        const isDuplicate = existingUnits.some(existingUnit => 
+          existingUnit.unitName?.toLowerCase() === unitName?.toLowerCase() ||
+          existingUnit.order === order
+        );
+        
+        if (isDuplicate) {
+          duplicates.push(index);
+        }
+      });
+      
+      setDuplicateRows(duplicates);
+      
+    } catch (error) {
+      console.error('Lỗi khi kiểm tra dữ liệu trùng lặp:', error);
+      setDuplicateRows([]);
+    } finally {
+      setIsCheckingDuplicates(false);
+    }
+  };
+
   // Thêm hàm generatePreview
   const generatePreview = async (file: File) => {
     try {
+      setIsProcessing(true);
+      
       // Đọc file dưới dạng ArrayBuffer
       const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
         const reader = new FileReader();
@@ -313,13 +427,41 @@ function ImportUnitsModal() {
         throw new Error("Không thể đọc dữ liệu từ file Excel");
       }
 
+      // Lưu raw data để sử dụng cho full view
+      setRawJsonData(jsonData as any[][]);
+      
+      const headers = jsonData[0] as string[];
+      const allRows = jsonData.slice(1) as any[][];
+      
+      // Kiểm tra các cột bắt buộc cho units
+      const requiredColumns = ['Tên Unit', 'Thứ tự'];
+      const missingColumns = requiredColumns.filter(col => !headers.includes(col));
+      
+      if (missingColumns.length > 0) {
+        throw new Error(`File Excel thiếu các cột bắt buộc: ${missingColumns.join(', ')}. Vui lòng sử dụng template mẫu.`);
+      }
+      
+      // Lọc bỏ các hàng trống
+      const validRows = allRows.filter(row => 
+        row.some(cell => cell !== null && cell !== undefined && cell !== '')
+      );
+      
+      setTotalRows(validRows.length);
+      
       setPreviewData({
-        headers: jsonData[0] as string[],
-        rows: jsonData.slice(1, 6) as any[][] // Chỉ lấy 5 dòng đầu để preview
+        headers,
+        rows: validRows.slice(0, 5) // Chỉ lấy 5 dòng đầu để preview
       });
+      
+      // Kiểm tra dữ liệu trùng lặp
+      await checkDuplicateData(validRows, headers);
+      
     } catch (error) {
       console.error("Lỗi khi đọc file Excel:", error);
       showToast.error("Không thể đọc file Excel");
+      setValidationError(error instanceof Error ? error.message : "Không thể đọc file Excel");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -337,7 +479,7 @@ function ImportUnitsModal() {
               transition={{ duration: 0.3 }}
             >
               <Upload className="w-6 h-6 text-blue-500" />
-              <span className="text-xl font-medium">Import Dữ Liệu Units</span>
+              <span className="text-xl font-medium">Nhập Dữ Liệu Units</span>
             </motion.div>
           </DialogTitle>
         </DialogHeader>
@@ -351,87 +493,26 @@ function ImportUnitsModal() {
           <div className="grid grid-cols-2 gap-6">
             {/* Cột trái: Upload và Options */}
             <div className="space-y-6">
-              {/* Drop zone */}
-              <div
-                className={`border-2 border-dashed rounded-lg p-6 text-center
-                  ${file ? 'border-green-400 bg-green-50' : 'border-gray-300 hover:border-blue-400'}
-                  transition-colors duration-200 cursor-pointer`}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept=".xlsx,.xls"
-                  className="hidden"
-                />
-                
-                <div className="flex flex-col items-center gap-3">
-                  <Upload className={`w-10 h-10 ${file ? 'text-green-500' : 'text-gray-400'}`} />
-                  {file ? (
-                    <>
-                      <p className="text-green-600 font-medium">{file.name}</p>
-                      <p className="text-sm text-gray-500">
-                        {(file.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="font-medium">Kéo thả file hoặc click để chọn</p>
-                      <p className="text-sm text-gray-500">
-                        Hỗ trợ file Excel (.xlsx, .xls) - Tối đa 5MB
-                      </p>
-                    </>
-                  )}
-                </div>
-              </div>
+              {/* File Upload Zone */}
+              <FileUploadZone
+                file={file}
+                onFileChange={handleFileChange}
+                acceptedTypes={['.xlsx', '.xls']}
+                maxSize={5}
+                title="Kéo thả file hoặc click để chọn"
+                subtitle="Hỗ trợ file Excel (.xlsx, .xls) - Tối đa 5MB"
+                isLoading={isProcessing}
+              />
+
+           
 
               {/* Import Options */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
-                  Tùy chọn import
-                </h3>
-                <RadioGroup
-                  value={importOption}
-                  onValueChange={setImportOption}
-                  className="space-y-2"
-                >
-                  {importOptions.map((option) => (
-                    <div
-                      key={option.id}
-                      className={`flex items-center space-x-3 rounded-lg border p-3 
-                        ${!isOptionAvailable(option.id) ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
-                        ${importOption === option.id && isOptionAvailable(option.id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
-                        transition-colors duration-200`}
-                    >
-                      <RadioGroupItem
-                        value={option.id}
-                        id={option.id}
-                        className="text-blue-500"
-                        disabled={!isOptionAvailable(option.id)}
-                      />
-                      <Label
-                        htmlFor={option.id}
-                        className={`flex-1 ${!isOptionAvailable(option.id) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                      >
-                        <div className="font-medium flex items-center gap-2">
-                          {option.title}
-                          {!isOptionAvailable(option.id) && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">
-                              Sắp ra mắt
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {option.description}
-                        </div>
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </div>
+              <ImportOptionsSelector
+                options={importOptions}
+                value={importOption}
+                onChange={setImportOption}
+                title="Chọn phương thức import"
+              />
             </div>
 
             {/* Cột phải: Hướng dẫn và Preview */}
@@ -444,10 +525,10 @@ function ImportUnitsModal() {
                 </h4>
                 <ul className="text-sm text-blue-600 space-y-2 list-disc list-inside mb-4">
                   <li>Sử dụng template mẫu để đảm bảo dữ liệu được import chính xác</li>
-                  <li>Các cột bắt buộc: Tên Unit, Thứ tự, Tiến độ</li>
-                  <li>Tiến độ phải là số từ 0 đến 1 (0 = 0%, 1 = 100%)</li>
+                  <li>Các cột bắt buộc: Tên Unit, Thứ tự</li>
                   <li>Không thay đổi tên và thứ tự các cột trong template</li>
                   <li>Dữ liệu trong file Excel phải đúng định dạng quy định</li>
+                  <li>Các ô trống trong cột bắt buộc sẽ được đánh dấu màu đỏ</li>
                 </ul>
                 <Button 
                   variant="link" 
@@ -462,48 +543,85 @@ function ImportUnitsModal() {
               {/* Preview Data */}
               {file && (
                 <div className="bg-white p-4 rounded-lg border">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                    <i className="fas fa-eye text-blue-500"></i>
                     Xem trước dữ liệu
                   </h4>
-                  {previewData ? (
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            {previewData.headers.map((header, index) => (
-                              <th
-                                key={index}
-                                className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                              >
-                                {header}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {previewData.rows.map((row, rowIndex) => (
-                            <tr key={rowIndex}>
-                              {row.map((cell, cellIndex) => (
-                                <td
-                                  key={cellIndex}
-                                  className="px-3 py-2 text-xs text-gray-500 truncate max-w-[200px]"
-                                >
-                                  {cell?.toString() || ''}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                      <p className="text-xs text-gray-500 mt-2">
-                        * Chỉ hiển thị 5 dòng đầu tiên
-                      </p>
-                    </div>
+                  
+                  {validationError ? (
+                    <ValidationError
+                      error={validationError}
+                      title="File Excel không hợp lệ"
+                      suggestions={
+                        validationError.includes('thiếu các cột') ? [
+                          'Tải template mẫu và sử dụng đúng tên cột',
+                          'Đảm bảo file có đầy đủ cột: "Tên Unit", "Thứ tự"',
+                          'Không thay đổi tên header trong template',
+                          'Kiểm tra lại định dạng file Excel (.xlsx, .xls)'
+                        ] : [
+                          'Kiểm tra lại format file Excel',
+                          'Đảm bảo file không bị lỗi hoặc corrupt',
+                          'Thử mở file bằng Excel để kiểm tra'
+                        ]
+                      }
+                    />
                   ) : (
-                    <div className="text-sm text-gray-500 flex items-center justify-center py-4">
-                      <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2" />
-                      Đang tải dữ liệu...
-                    </div>
+                    <>
+                      {/* Hiển thị trạng thái kiểm tra dữ liệu trùng lặp */}
+                      {totalRows > 0 && (
+                        <div className="mb-4">
+                          {isCheckingDuplicates ? (
+                            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                              <div className="flex items-center gap-2 text-blue-700">
+                                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                <span className="text-sm font-medium">Đang kiểm tra dữ liệu trùng lặp...</span>
+                              </div>
+                            </div>
+                          ) : duplicateRows.length > 0 ? (
+                            <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                              <div className="flex items-center gap-2 text-orange-700">
+                                <i className="fas fa-exclamation-triangle text-orange-500"></i>
+                                <span className="text-sm font-medium">
+                                  Phát hiện {duplicateRows.length} dòng dữ liệu trùng lặp
+                                </span>
+                              </div>
+                              <p className="text-xs text-orange-600 mt-1">
+                                Các dòng trùng lặp sẽ được đánh dấu màu cam trong bảng xem trước
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                              <div className="flex items-center gap-2 text-green-700">
+                                <i className="fas fa-check-circle text-green-500"></i>
+                                <span className="text-sm font-medium">Không có dữ liệu trùng lặp - Sẵn sàng import</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      {isProcessing ? (
+                        <LoadingSpinner 
+                          text="Đang xử lý dữ liệu..." 
+                          className="py-8"
+                        />
+                      ) : previewData ? (
+                        <ExcelPreviewTable
+                          headers={previewData.headers}
+                          rows={previewData.rows}
+                          requiredColumns={['Tên Unit', 'Thứ tự']}
+                          maxRows={5}
+                          totalRows={totalRows}
+                          onViewAll={totalRows > 5 ? handleShowFullData : undefined}
+                          showRowNumbers={true}
+                          duplicateRows={duplicateRows.slice(0, 5)} // Chỉ hiển thị duplicates trong 5 dòng đầu
+                        />
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          Không có dữ liệu để hiển thị
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
@@ -522,21 +640,38 @@ function ImportUnitsModal() {
             </Button>
             <Button
               onClick={handleUpload}
-              disabled={!file || isUploading || !isOptionAvailable(importOption) || isCreating || !selectedClassId}
+              disabled={!file || isUploading || !isOptionAvailable(importOption) || isCreating || !selectedClassId || !!validationError || duplicateRows.length > 0 || isCheckingDuplicates}
               className="bg-blue-500 hover:bg-blue-600"
             >
               {isUploading || isCreating ? (
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Đang xử lý...</span>
+                  <LoadingSpinner size="sm" className="mr-2" />
+                  <span>Đang import...</span>
                 </div>
               ) : (
-                "Import"
+                "Nhập dữ liệu"
               )}
             </Button>
           </div>
         </motion.div>
       </DialogContent>
+
+      {/* Full Data View Modal */}
+      {showFullData && fullData && (
+        <FullDataViewModal
+          isOpen={showFullData}
+          onClose={() => setShowFullData(false)}
+          title="Toàn bộ dữ liệu Units"
+          headers={fullData.headers}
+          rows={fullData.rows}
+          totalRows={fullData.totalRows}
+          currentPage={fullData.currentPage}
+          pageSize={fullData.pageSize}
+          onPageChange={handlePageChange}
+          requiredColumns={['Tên Unit', 'Thứ tự']}
+          duplicateRows={fullData.duplicateRows || []}
+        />
+      )}
     </Dialog>
   );
 }

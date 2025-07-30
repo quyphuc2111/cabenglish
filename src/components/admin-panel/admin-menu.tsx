@@ -74,7 +74,7 @@ export function AdminMenu({ isOpen, disabled }: MenuProps) {
       initial="hidden"
       animate="visible"
     >
-      <ScrollArea className="h-[80vh] w-full pr-2">
+      <ScrollArea className="h-[80vh] w-full">
         <motion.ul className="flex flex-col items-start space-y-1 px-2">
           {menuList.map(({ groupLabel, menus }, index) => (
             <motion.li
@@ -119,15 +119,15 @@ export function AdminMenu({ isOpen, disabled }: MenuProps) {
                       <TooltipProvider disableHoverableContent>
                         <Tooltip delayDuration={100}>
                           <TooltipTrigger asChild>
-                            <Button
-                              variant={active ? "secondary" : "ghost"}
-                              className={cn(
-                                "w-full justify-start h-20 mb-1",
-                                disabled && "opacity-50 cursor-not-allowed"
-                              )}
-                              disabled={disabled}
-                              asChild={!disabled}
-                            >
+                                                          <Button
+                                variant={active ? "secondary" : "ghost"}
+                                className={cn(
+                                  "w-full justify-start h-20 mb-1",
+                                  disabled && "opacity-50 cursor-not-allowed"
+                                )}
+                                disabled={disabled}
+                                asChild={!disabled}
+                              >
                               {!disabled ? (
                                 <Link
                                   href={href}

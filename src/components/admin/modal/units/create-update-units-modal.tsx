@@ -23,20 +23,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import { BadgePlus, Pencil } from "lucide-react";
-import {
-  useCreateNotiType,
-  useGetSingleNotiType,
-  useUpdateNotiType
-} from "@/hooks/use-notitype";
-import {
-  notiTypeFormSchema,
-  NotiTypeFormValues
-} from "@/lib/validations/notitype";
 import { unitsFormSchema, UnitsFormValues } from "@/lib/validations/units";
 import {
   useCreateUnitByClassId,
   useUpdateUnitByClassId
 } from "@/hooks/use-units";
+import { useUnitsValidation } from "@/hooks/use-units-validation";
 
 // Tách animation configs ra riêng
 const ANIMATIONS = {
@@ -83,15 +75,6 @@ function CreateUpdateUnitsModal() {
     return id;
   }, [data?.classroomId]);
 
-  // Thêm log để debug
-  // React.useEffect(() => {
-  //   console.log('Modal Data:', {
-  //     classroomId,
-  //     rawData: data,
-  //     type: typeof classroomId
-  //   });
-  // }, [classroomId, data]);
-
   const unitDataFromModal = data?.unitData;
   
   const { mutate: createUnits, isPending: isCreating } =
@@ -100,6 +83,17 @@ function CreateUpdateUnitsModal() {
     useUpdateUnitByClassId(classId);
 
   const isPending = isCreating || isUpdating;
+
+  // Hook validation để kiểm tra trùng lặp
+  const {
+    validateField,
+    validateUnit,
+    suggestNextOrder,
+    isLoading: isValidationLoading
+  } = useUnitsValidation(
+    classroomId,
+    formType === "update" ? unitDataFromModal?.unitId : null
+  );
 
   const form = useForm<UnitsFormValues>({
     resolver: zodResolver(unitsFormSchema),
@@ -112,11 +106,45 @@ function CreateUpdateUnitsModal() {
     mode: "onChange"
   });
 
+  // Cập nhật order mặc định khi tạo mới (chỉ khi modal đã mở và có suggestNextOrder)
+  React.useEffect(() => {
+    if (isOpen && type === "createUpdateUnits" && formType === "create" && !isValidationLoading && suggestNextOrder > 0) {
+      // Chỉ set nếu order hiện tại là 0 hoặc khác với suggestNextOrder
+      const currentOrder = form.getValues("order");
+      if (currentOrder === 0 || currentOrder !== suggestNextOrder) {
+        form.setValue("order", suggestNextOrder);
+      }
+    }
+  }, [isOpen, type, formType, suggestNextOrder, isValidationLoading, form]);
+
   // Reset form và đóng modal
   const handleClose = React.useCallback(() => {
-    form.reset();
+    form.reset({
+      unitName: "",
+      order: 0,
+      unitId: 0,
+      progress: 0
+    });
+    form.clearErrors();
     onClose();
   }, [form, onClose]);
+
+  // Reset form khi modal mở
+  React.useEffect(() => {
+    if (isOpen && type === "createUpdateUnits") {
+      if (formType === "create") {
+        // Reset form về trạng thái ban đầu cho tạo mới
+        form.reset({
+          unitName: "",
+          order: !isValidationLoading && suggestNextOrder > 0 ? suggestNextOrder : 0,
+          unitId: 0,
+          progress: 0
+        });
+        form.clearErrors();
+      }
+      // Với formType === "update", form sẽ được cập nhật trong useEffect khác
+    }
+  }, [isOpen, type, formType, form, suggestNextOrder, isValidationLoading]);
 
   // Cập nhật form khi có dữ liệu
   React.useEffect(() => {
@@ -145,7 +173,24 @@ function CreateUpdateUnitsModal() {
         return;
       }
 
-      console.log("unit tao moi", values);
+      // Kiểm tra validation trước khi submit
+      const validationResult = validateUnit(values);
+      if (!validationResult.isValid) {
+        if (validationResult.errors.unitName) {
+          form.setError("unitName", {
+            type: "manual",
+            message: validationResult.errors.unitName
+          });
+        }
+        if (validationResult.errors.order) {
+          form.setError("order", {
+            type: "manual",
+            message: validationResult.errors.order
+          });
+        }
+        toast.error("Vui lòng kiểm tra lại thông tin!");
+        return;
+      }
 
       try {
         if (formType === "create") {
@@ -200,7 +245,7 @@ function CreateUpdateUnitsModal() {
         );
       }
     },
-    [formType, createUnits, updateUnits, handleClose, classroomId]
+    [formType, createUnits, updateUnits, handleClose, classroomId, validateUnit, form]
   );
 
   // Không render nếu không phải modal schoolweek
@@ -228,21 +273,34 @@ function CreateUpdateUnitsModal() {
     <AnimatePresence>
       {isOpen && type === "createUpdateUnits" && (
         <Dialog open={true} onOpenChange={handleClose}>
-          <DialogContent className="sm:max-w-[1100px] !rounded-3xl overflow-hidden">
-            <DialogHeader>
+          <DialogContent className="sm:max-w-[1100px] !rounded-3xl overflow-hidden shadow-2xl border-0">
+            <DialogHeader className="pb-6 border-b border-gray-100">
               <DialogTitle>
                 <motion.div
                   className="flex items-center gap-5 w-full"
                   {...ANIMATIONS.title}
                 >
-                  {formType === "create" ? (
-                    <BadgePlus className="w-7 h-7" />
-                  ) : (
-                    <Pencil className="w-7 h-7" />
-                  )}
-                  <p className="text-2xl font-medium">
-                    {formType === "create" ? "Thêm mới unit" : "Cập nhật unit"}
-                  </p>
+                  <div className={`p-3 rounded-xl ${
+                    formType === "create" 
+                      ? "bg-green-100 text-green-600" 
+                      : "bg-blue-100 text-blue-600"
+                  }`}>
+                    {formType === "create" ? (
+                      <BadgePlus className="w-7 h-7" />
+                    ) : (
+                      <Pencil className="w-7 h-7" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {formType === "create" ? "Thêm mới unit" : "Cập nhật unit"}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {formType === "create" 
+                        ? "Tạo unit mới cho lớp học" 
+                        : "Chỉnh sửa thông tin unit"}
+                    </p>
+                  </div>
                 </motion.div>
               </DialogTitle>
             </DialogHeader>
@@ -263,26 +321,71 @@ function CreateUpdateUnitsModal() {
                       <FormField
                         control={form.control}
                         name="unitName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-lg font-medium">
-                              Nhập tên unit
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  field.onChange(value);
-                                }}
-                                disabled={isPending}
-                                placeholder="Nhập tên unit..."
-                                className="text-base p-6"
-                              />
-                            </FormControl>
-                            <FormMessage className="text-base" />
-                          </FormItem>
-                        )}
+                        render={({ field }) => {
+                          const currentLength = field.value?.length || 0;
+                          const maxLength = 100;
+                          const isNearLimit = currentLength > maxLength * 0.8;
+                          
+                          return (
+                            <FormItem>
+                              <FormLabel className="text-lg font-medium">
+                                Tên unit
+                              </FormLabel>
+                              <FormControl>
+                                <div className="space-y-2">
+                                  <Input
+                                    {...field}
+                                    onChange={(e) => {
+                                      const value = e.target.value;
+                                      field.onChange(value);
+                                      
+                                      // Validation real-time
+                                      if (value.trim()) {
+                                        const error = validateField("unitName", value);
+                                        if (error) {
+                                          form.setError("unitName", {
+                                            type: "manual",
+                                            message: error
+                                          });
+                                        } else {
+                                          form.clearErrors("unitName");
+                                        }
+                                      }
+                                      
+                                      // Validation cho độ dài ký tự
+                                      if (value.length > maxLength) {
+                                        form.setError("unitName", {
+                                          type: "manual",
+                                          message: `Tên unit không được vượt quá ${maxLength} ký tự`
+                                        });
+                                      } else if (value.length <= maxLength && form.formState.errors.unitName?.message?.includes("không được vượt quá")) {
+                                        form.clearErrors("unitName");
+                                      }
+                                    }}
+                                    disabled={isPending || isValidationLoading}
+                                    placeholder="Nhập tên unit..."
+                                    className="text-base p-6 border-2 border-gray-200 focus:border-blue-400 rounded-lg transition-colors"
+                                  />
+                                  <div className="flex justify-between items-center text-xs">
+                                    <span className="text-gray-500">
+                                      Tối đa {maxLength} ký tự
+                                    </span>
+                                    <span className={`font-medium ${
+                                      isNearLimit 
+                                        ? currentLength >= maxLength 
+                                          ? "text-red-500" 
+                                          : "text-orange-500"
+                                        : "text-gray-400"
+                                    }`}>
+                                      {currentLength}/{maxLength}
+                                    </span>
+                                  </div>
+                                </div>
+                              </FormControl>
+                              <FormMessage className="text-base" />
+                            </FormItem>
+                          );
+                        }}
                       />
                     </motion.div>
                   </div>
@@ -299,21 +402,45 @@ function CreateUpdateUnitsModal() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-lg font-medium">
-                              Nhập thứ tự unit
+                              Thứ tự unit
                             </FormLabel>
                             <FormControl>
-                              <Input
-                                {...field}
-                                onChange={(e) => {
-                                  const value = parseInt(e.target.value);
-                                  field.onChange(isNaN(value) ? 0 : value);
-                                }}
-                                disabled={isPending}
-                                placeholder="Nhập thứ tự unit..."
-                                className="text-base p-6"
-                                type="number"
-                                min={1}
-                              />
+                              <div className="space-y-3">
+                                <Input
+                                  {...field}
+                                  onChange={(e) => {
+                                    const value = parseInt(e.target.value);
+                                    const finalValue = isNaN(value) ? 0 : value;
+                                    field.onChange(finalValue);
+                                    
+                                    // Validation real-time
+                                    if (finalValue > 0) {
+                                      const error = validateField("order", finalValue);
+                                      if (error) {
+                                        form.setError("order", {
+                                          type: "manual",
+                                          message: error
+                                        });
+                                      } else {
+                                        form.clearErrors("order");
+                                      }
+                                    }
+                                  }}
+                                  disabled={isPending || isValidationLoading}
+                                  placeholder={`Nhập thứ tự unit...`}
+                                  className="text-base p-6 border-2 border-gray-200 focus:border-blue-400 rounded-lg transition-colors"
+                                  type="number"
+                                  min={1}
+                                />
+                                {formType === "create" && suggestNextOrder > 0 && (
+                                  <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                                    <p className="text-sm text-blue-700 font-medium">
+                                      💡 Hệ thống gợi ý thứ tự tiếp theo: <span className="font-bold text-blue-800">{suggestNextOrder}</span>
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
                             </FormControl>
                             <FormMessage className="text-base" />
                           </FormItem>
@@ -323,12 +450,19 @@ function CreateUpdateUnitsModal() {
                   </div>
                 </div>
 
-                <motion.div className="flex justify-end gap-4 pt-2">
+                <motion.div 
+                  className="flex justify-end gap-4 pt-6 border-t border-gray-100"
+                  variants={ANIMATIONS.form}
+                  initial="hidden"
+                  animate="visible"
+                  custom={3}
+                >
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleClose}
                     disabled={isPending}
+                    className="px-8 py-3 text-base font-medium border-2 hover:bg-gray-50 transition-colors"
                   >
                     Hủy
                   </Button>
@@ -341,7 +475,7 @@ function CreateUpdateUnitsModal() {
                         ? !isFormValid
                         : !form.formState.isValid)
                     }
-                    className="bg-blue-500"
+                    className="px-8 py-3 text-base font-medium bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-200"
                   >
                     {isPending
                       ? `Đang ${formType === "create" ? "tạo" : "cập nhật"}...`

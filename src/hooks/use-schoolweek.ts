@@ -81,7 +81,7 @@ export const useUpdateSchoolWeek = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["school-weeks"] });
       queryClient.invalidateQueries({
-        queryKey: ["school-week", variables.swId]
+        queryKey: ["school-week", variables.swId.toString()]
       });
     }
   });
@@ -91,7 +91,16 @@ export const useDeleteSchoolWeek = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (swId: string) => deleteSchoolWeekAdminData({ swId: swId }),
+    mutationFn: async (swId: string) => {
+      const result = await deleteSchoolWeekAdminData({ swId: swId });
+      
+      // Kiểm tra nếu có lỗi từ server action
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      
+      return result;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["school-weeks"] });
     }

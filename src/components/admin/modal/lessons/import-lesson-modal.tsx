@@ -204,9 +204,6 @@ function ImportLessonModal() {
         classId: activeLesson.classId
       }
 
-      // console.log("Số hàng dữ liệu:", filteredRows.length);
-      // console.log("Dữ liệu đã format:", importData);
-
       if (importOption === "create") {
       
         createLesson(importData, {

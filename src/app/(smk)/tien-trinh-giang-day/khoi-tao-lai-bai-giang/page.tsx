@@ -21,135 +21,15 @@ import { cn, formatProgress } from "@/lib/utils";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCards } from "swiper/modules";
 
-import "swiper/css";
-import "swiper/css/effect-cards";
+
 import { LessonService } from "@/services/lesson.service";
 import { useSession } from "next-auth/react";
 import { LessonType } from "@/types/lesson";
 import { resetLessonProgress } from "@/actions/resetLessonAction";
+import { useRouter } from "next/navigation";
 
-// const courseData = [
-//   {
-//     courseTitle: "Unit 1 - Bài học: Từ vựng1",
-//     courseImage: "/modal/course1.png",
-//     courseWeek: "Tuần học 1",
-//     courseCategory: "3 - 4 tuổi",
-//     courseName: "Bảng chữ cái tiếng anh",
-//     courseProgress: 100,
-//     courseLike: 668,
-//     courseStatus: "started"
-//   },
-//   {
-//     courseTitle: "Unit 2 - Bài học: Chào hỏi2",
-//     courseImage: "/modal/course2.png",
-//     courseWeek: "Tuần học 2",
-//     courseCategory: "3 - 4 tuổi",
-//     courseName: "Giới thiệu bản thân",
-//     courseProgress: 100,
-//     courseLike: 568,
-//     courseStatus: "started"
-//   },
-//   {
-//     courseTitle: "Unit 3 - Bài học: Màu sắc3",
-//     courseImage: "/modal/course3.png",
-//     courseWeek: "Tuần học 3",
-//     courseCategory: "3 - 4 tuổi",
-//     courseName: "Khám phá các màu sắc",
-//     courseProgress: 100,
-//     courseLike: 86,
-//     courseStatus: "started"
-//   },
-//   {
-//     courseTitle: "Unit 4 - Bài học: Từ vựng4",
-//     courseImage: "/modal/course4.png",
-//     courseWeek: "Tuần học 1",
-//     courseCategory: "3 - 4 tuổi",
-//     courseName: "Bảng chữ cái tiếng anh",
-//     courseProgress: 100,
-//     courseLike: 638,
-//     courseStatus: "started"
-//   },
-//   {
-//     courseTitle: "Unit 1 - Bài học: Từ vựng5",
-//     courseImage: "/modal/course1.png",
-//     courseWeek: "Tuần học 1",
-//     courseCategory: "3 - 4 tuổi",
-//     courseName: "Bảng chữ cái tiếng anh",
-//     courseProgress: 100,
-//     courseLike: 668,
-//     courseStatus: "started"
-//   },
-//   {
-//     courseTitle: "Unit 2 - Bài học: Chào hỏi6",
-//     courseImage: "/modal/course2.png",
-//     courseWeek: "Tuần học 2",
-//     courseCategory: "3 - 4 tuổi",
-//     courseName: "Giới thiệu bản thân",
-//     courseProgress: 100,
-//     courseLike: 568,
-//     courseStatus: "started"
-//   },
-//   {
-//     courseTitle: "Unit 3 - Bài học: Màu sắc7",
-//     courseImage: "/modal/course3.png",
-//     courseWeek: "Tuần học 3",
-//     courseCategory: "3 - 4 tuổi",
-//     courseName: "Khám phá các màu sắc",
-//     courseProgress: 100,
-//     courseLike: 86,
-//     courseStatus: "started"
-//   },
-//   {
-//     courseTitle: "Unit 4 - Bài học: Từ vựng8",
-//     courseImage: "/modal/course4.png",
-//     courseWeek: "Tuần học 1",
-//     courseCategory: "3 - 4 tuổi",
-//     courseName: "Bảng chữ cái tiếng anh",
-//     courseProgress: 100,
-//     courseLike: 638,
-//     courseStatus: "started"
-//   },
-//   {
-//     courseTitle: "Unit 1 - Bài học: Từ vựng9",
-//     courseImage: "/modal/course1.png",
-//     courseWeek: "Tuần học 1",
-//     courseCategory: "3 - 4 tuổi",
-//     courseName: "Bảng chữ cái tiếng anh",
-//     courseProgress: 100,
-//     courseLike: 668,
-//     courseStatus: "started"
-//   },
-//   {
-//     courseTitle: "Unit 2 - Bài học: Chào hỏi10",
-//     courseImage: "/modal/course2.png",
-//     courseWeek: "Tuần học 2",
-//     courseCategory: "3 - 4 tuổi",
-//     courseName: "Giới thiệu bản thân",
-//     courseProgress: 100,
-//     courseLike: 568,
-//     courseStatus: "started"
-//   },
-//   {
-//     courseTitle: "Unit 3 - Bài học: Màu sắc11",
-//     courseImage: "/modal/course3.png",
-//     courseWeek: "Tuần học 3",
-//     courseCategory: "3 - 4 tuổi",
-//     courseName: "Khám phá các màu sắc",
-//     courseProgress: 100,
-//     courseLike: 86,
-//     courseStatus: "started"
-//   },
-//   {
-//     courseTitle: "Unit 4 - Bài học: Từ vựng12",
-//     courseImage: "/modal/course4.png",
-//     courseWeek: "Tuần học 1",
-//     courseCategory: "3 - 4 tuổi",
-//     courseName: "Bảng chữ cái tiếng anh",
-//     courseProgress: 100,
-//     courseLike: 638,
-//     courseStatus: "started"
-//   }
-// ];
+import "swiper/css";
+import "swiper/css/effect-cards";
 
 function KhoiTaoLaiBaiGiangPage() {
   const [selectedCourses, setSelectedCourses] = useState<any[]>([]);
@@ -157,9 +37,8 @@ function KhoiTaoLaiBaiGiangPage() {
   const [isResetting, setIsResetting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const {data: session} = useSession();
-
-  console.log("sessionKhoiTao", session);
+  const { data: session } = useSession();
+  const router = useRouter();
 
   const handleSelectCourse = (course: any) => {
     setSelectedCourses((prev) => {
@@ -167,7 +46,9 @@ function KhoiTaoLaiBaiGiangPage() {
         (item) => item.id === course.id || item.lessonId === course.lessonId
       );
       if (isSelected) {
-        return prev.filter((item) => item.id !== course.id && item.lessonId !== course.lessonId);
+        return prev.filter(
+          (item) => item.id !== course.id && item.lessonId !== course.lessonId
+        );
       }
       return [...prev, course];
     });
@@ -183,43 +64,44 @@ function KhoiTaoLaiBaiGiangPage() {
 
   const handleResetProgress = async () => {
     if (!session?.user?.userId || selectedCourses.length === 0) {
-      alert('Vui lòng chọn ít nhất một bài giảng để khởi tạo lại!');
+      alert("Vui lòng chọn ít nhất một bài giảng để khởi tạo lại!");
       return;
     }
 
     setIsResetting(true);
-    
+
     try {
       // Extract lesson IDs from selected courses
-      const lessonIds = selectedCourses.map(course => 
-        parseInt(course.lessonId) || parseInt(course.id)
-      ).filter(id => !isNaN(id));
+      const lessonIds = selectedCourses
+        .map((course) => parseInt(course.lessonId) || parseInt(course.id))
+        .filter((id) => !isNaN(id));
 
       if (lessonIds.length === 0) {
-        alert('Không thể lấy ID của các bài giảng đã chọn!');
+        alert("Không thể lấy ID của các bài giảng đã chọn!");
         return;
       }
 
-      console.log('Resetting lessons:', lessonIds);
-      
       const result = await resetLessonProgress(session.user.userId, lessonIds);
-      
+
       if (result.success) {
-        alert(`Đã khởi tạo lại thành công ${selectedCourses.length} bài giảng!`);
-        
+        alert(
+          `Đã khởi tạo lại thành công ${selectedCourses.length} bài giảng!`
+        );
+
         // Clear selections after successful reset
         setSelectedCourses([]);
-        
+
         // Refresh lesson data
-        const lessonService = await LessonService.lessonCompleteData(session.user.userId);
+        const lessonService = await LessonService.lessonCompleteData(
+          session.user.userId
+        );
         setLessonData(mappingCourseData(lessonService.completeLessons));
-        
       } else {
-        alert(result.error || 'Có lỗi xảy ra khi khởi tạo lại tiến trình!');
+        alert(result.error || "Có lỗi xảy ra khi khởi tạo lại tiến trình!");
       }
     } catch (error) {
-      console.error('Reset progress error:', error);
-      alert('Có lỗi xảy ra khi khởi tạo lại tiến trình!');
+      console.error("Reset progress error:", error);
+      alert("Có lỗi xảy ra khi khởi tạo lại tiến trình!");
     } finally {
       setIsResetting(false);
     }
@@ -238,7 +120,7 @@ function KhoiTaoLaiBaiGiangPage() {
       courseName: course.lessonName,
       courseStatus: course.progress === 1 ? "started" : "not_started"
     }));
-  }
+  };
 
   useEffect(() => {
     const fetchLessonData = async () => {
@@ -249,8 +131,10 @@ function KhoiTaoLaiBaiGiangPage() {
 
       try {
         setIsLoading(true);
-        const lessonService = await LessonService.lessonCompleteData(session.user.userId);
-        console.log("lessonService.completeLessons", lessonService.completeLessons);
+        const lessonService = await LessonService.lessonCompleteData(
+          session.user.userId
+        );
+      
         setLessonData(mappingCourseData(lessonService.completeLessons));
       } catch (error) {
         console.error("Error fetching lesson data:", error);
@@ -262,8 +146,6 @@ function KhoiTaoLaiBaiGiangPage() {
 
     fetchLessonData();
   }, [session]);
-
-
 
   return (
     <ContentLayout title="KhoiTaoLaiBaiGiang">
@@ -284,7 +166,10 @@ function KhoiTaoLaiBaiGiangPage() {
           <div className="w-full lg:w-1/3 flex flex-col gap-6">
             {/* Back Icon với container đẹp */}
             <div className="flex justify-start">
-              <div className="group relative p-2 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 cursor-pointer">
+              <div
+                className="group relative p-2 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 cursor-pointer"
+                onClick={() => router.back()}
+              >
                 <BackIcon width={28} height={28} />
               </div>
             </div>
@@ -319,7 +204,7 @@ function KhoiTaoLaiBaiGiangPage() {
                         </div>
                         <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-30"></div>
                       </div>
-                      
+
                       {/* Text với styling đẹp */}
                       <div className="space-y-1">
                         <p className="text-base font-medium text-gray-700">
@@ -329,12 +214,18 @@ function KhoiTaoLaiBaiGiangPage() {
                           Hãy chọn bài giảng từ danh sách bên phải để xem trước
                         </p>
                       </div>
-                      
+
                       {/* Decorative dots */}
                       <div className="flex gap-1.5 mt-2">
                         <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"></div>
-                        <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                        <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                        <div
+                          className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "0.1s" }}
+                        ></div>
+                        <div
+                          className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "0.2s" }}
+                        ></div>
                       </div>
                     </div>
                   )}
@@ -352,11 +243,11 @@ function KhoiTaoLaiBaiGiangPage() {
 
               {/* Action button với enhanced styling */}
               <div className="space-y-2 max-w-sm mx-auto w-full">
-                <Button 
+                <Button
                   className={cn(
                     "w-full h-12 rounded-xl font-medium transition-all duration-300 shadow-md relative overflow-hidden",
                     selectedCourses.length === 0 || isResetting
-                      ? "bg-gray-200 text-gray-500 cursor-not-allowed hover:bg-gray-200" 
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed hover:bg-gray-200"
                       : "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200 hover:shadow-lg"
                   )}
                   disabled={selectedCourses.length === 0 || isResetting}
@@ -364,32 +255,53 @@ function KhoiTaoLaiBaiGiangPage() {
                 >
                   <div className="flex items-center justify-center gap-2">
                     {isResetting ? (
-                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="w-4 h-4 animate-spin"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                       </svg>
                     ) : (
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                     )}
                     <span>
-                      {isResetting 
+                      {isResetting
                         ? `Đang khởi tạo lại... (${selectedCourses.length})`
-                        : `Khởi tạo lại bài giảng (${selectedCourses.length})`
-                      }
+                        : `Khởi tạo lại bài giảng (${selectedCourses.length})`}
                     </span>
                   </div>
                 </Button>
 
                 {/* Helper text */}
                 <p className="text-xs text-gray-500 text-center">
-                  {isResetting 
+                  {isResetting
                     ? "Đang xử lý, vui lòng chờ..."
-                    : selectedCourses.length === 0 
-                      ? "Vui lòng chọn ít nhất một bài giảng để tiếp tục"
-                      : `Đã chọn ${selectedCourses.length} bài giảng để khởi tạo lại`
-                  }
+                    : selectedCourses.length === 0
+                    ? "Vui lòng chọn ít nhất một bài giảng để tiếp tục"
+                    : `Đã chọn ${selectedCourses.length} bài giảng để khởi tạo lại`}
                 </p>
               </div>
             </div>
@@ -410,7 +322,7 @@ function KhoiTaoLaiBaiGiangPage() {
                         Chọn danh sách bài giảng
                       </h3>
                     </div>
-                    
+
                     <Select defaultValue="1">
                       <SelectTrigger className="w-full sm:w-[320px] h-10 bg-white border-0 rounded-lg shadow-sm hover:shadow-md transition-all">
                         <SelectValue placeholder="Chọn danh sách..." />
@@ -511,23 +423,55 @@ function KhoiTaoLaiBaiGiangPage() {
                       {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-12 text-center">
                           <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
-                            <svg className="w-8 h-8 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <svg
+                              className="w-8 h-8 text-blue-500 animate-spin"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
                             </svg>
                           </div>
-                          <p className="text-gray-600 font-medium">Đang tải danh sách bài giảng...</p>
-                          <p className="text-sm text-gray-400 mt-1">Vui lòng chờ trong giây lát</p>
+                          <p className="text-gray-600 font-medium">
+                            Đang tải danh sách bài giảng...
+                          </p>
+                          <p className="text-sm text-gray-400 mt-1">
+                            Vui lòng chờ trong giây lát
+                          </p>
                         </div>
                       ) : lessonData.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-12 text-center">
                           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                            <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            <svg
+                              className="w-8 h-8 text-gray-400"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                clipRule="evenodd"
+                              />
                             </svg>
                           </div>
-                          <p className="text-gray-600 font-medium">Chưa có bài giảng nào được hoàn thành</p>
-                          <p className="text-sm text-gray-400 mt-1">Hãy hoàn thành một số bài giảng trước để có thể khởi tạo lại</p>
+                          <p className="text-gray-600 font-medium">
+                            Chưa có bài giảng nào được hoàn thành
+                          </p>
+                          <p className="text-sm text-gray-400 mt-1">
+                            Hãy hoàn thành một số bài giảng trước để có thể khởi
+                            tạo lại
+                          </p>
                         </div>
                       ) : (
                         lessonData.map((courseItem, index) => (
@@ -537,7 +481,8 @@ function KhoiTaoLaiBaiGiangPage() {
                               "group relative cursor-pointer rounded-xl border-2 transition-all duration-300 hover:scale-[1.01] hover:-translate-y-0.5",
                               selectedCourses.some(
                                 (item) =>
-                                  item.id === courseItem.id || item.lessonId === courseItem.lessonId
+                                  item.id === courseItem.id ||
+                                  item.lessonId === courseItem.lessonId
                               )
                                 ? "border-emerald-400 bg-gradient-to-r from-emerald-50 to-teal-50 shadow-lg shadow-emerald-200/30"
                                 : "border-gray-200 bg-white hover:border-emerald-200 hover:shadow-md"
@@ -550,7 +495,8 @@ function KhoiTaoLaiBaiGiangPage() {
                                 "absolute top-3 left-3 z-[5] w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-300",
                                 selectedCourses.some(
                                   (item) =>
-                                    item.id === courseItem.id || item.lessonId === courseItem.lessonId
+                                    item.id === courseItem.id ||
+                                    item.lessonId === courseItem.lessonId
                                 )
                                   ? "bg-gradient-to-r from-emerald-500 to-teal-500 scale-100 shadow-sm"
                                   : "bg-gray-200 scale-90 group-hover:bg-emerald-200 group-hover:scale-100"
@@ -558,7 +504,8 @@ function KhoiTaoLaiBaiGiangPage() {
                             >
                               {selectedCourses.some(
                                 (item) =>
-                                  item.id === courseItem.id || item.lessonId === courseItem.lessonId
+                                  item.id === courseItem.id ||
+                                  item.lessonId === courseItem.lessonId
                               ) ? (
                                 <svg
                                   className="w-3.5 h-3.5 text-white"
@@ -579,13 +526,22 @@ function KhoiTaoLaiBaiGiangPage() {
                             {/* Selection Badge */}
                             {selectedCourses.some(
                               (item) =>
-                                item.id === courseItem.id || item.lessonId === courseItem.lessonId
+                                item.id === courseItem.id ||
+                                item.lessonId === courseItem.lessonId
                             ) && (
                               <div className="absolute top-3 right-3 z-[5]">
                                 <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-2 py-1 rounded-lg text-xs font-medium shadow-sm">
                                   <span className="flex items-center gap-1">
-                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    <svg
+                                      className="w-3 h-3"
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clipRule="evenodd"
+                                      />
                                     </svg>
                                     Đã chọn
                                   </span>
@@ -602,7 +558,8 @@ function KhoiTaoLaiBaiGiangPage() {
                                   "w-full border-0 shadow-none bg-transparent transition-all duration-300",
                                   selectedCourses.some(
                                     (item) =>
-                                      item.id === courseItem.id || item.lessonId === courseItem.lessonId
+                                      item.id === courseItem.id ||
+                                      item.lessonId === courseItem.lessonId
                                   )
                                     ? "opacity-100"
                                     : "group-hover:opacity-95"
@@ -613,7 +570,8 @@ function KhoiTaoLaiBaiGiangPage() {
                             {/* Subtle glow effect for selected items */}
                             {selectedCourses.some(
                               (item) =>
-                                item.id === courseItem.id || item.lessonId === courseItem.lessonId
+                                item.id === courseItem.id ||
+                                item.lessonId === courseItem.lessonId
                             ) && (
                               <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-400/5 via-emerald-400/10 to-teal-400/5"></div>
                             )}

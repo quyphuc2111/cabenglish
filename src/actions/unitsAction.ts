@@ -102,7 +102,6 @@ export async function updateUnitAdminDataByClassId({
 
 export async function deleteUnitsByClassId(classId: number, unitIds: number[]) {
   try {
-    console.log("deleteUnitsByClassId called with:", { classId, unitIds });
     const response = await serverFetch(`/api/Unit/class/${classId}`, {
       method: "DELETE",
       data: unitIds

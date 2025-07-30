@@ -7,8 +7,8 @@ export const dynamic = 'force-dynamic';
 
 const breadcrumbItems = [
   {
-    title: "Quản lý Unit",
-    link: "/admin/units"
+    title: "Quản lý bài học",
+    link: "/admin/lessons"
   }
 ];
 

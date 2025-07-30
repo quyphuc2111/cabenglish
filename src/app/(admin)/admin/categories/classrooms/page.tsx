@@ -14,7 +14,7 @@ const breadcrumbItems = [
   },
   {
     title: "Quản lý lớp học", 
-    link: ""
+    link: "/admin/categories/classrooms"
   }
 ];
 async function AdminClassroomPage() {

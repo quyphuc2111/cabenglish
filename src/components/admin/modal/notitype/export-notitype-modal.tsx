@@ -1,0 +1,208 @@
+import React from "react";
+import { useModal } from "@/hooks/useModalStore";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { Download } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import * as XLSX from 'xlsx';
+import { useSchoolWeek } from "@/hooks/use-schoolweek";
+import { SchoolWeekType } from "@/types/schoolweek";
+import { showToast } from "@/utils/toast-config";
+import { useNotiType } from "@/hooks/use-notitype";
+import { NotiType } from "@/types/notification";
+
+// Định nghĩa các tùy chọn export
+const exportOptions = [
+  {
+    id: "all",
+    title: "Xuất tất cả dữ liệu",
+    description: "Xuất toàn bộ danh sách lớp học"
+  },
+  {
+    id: "selected",
+    title: "Xuất dữ liệu đã chọn (Đang phát triển)",
+    description: "Chỉ xuất những lớp học được chọn"
+  },
+  {
+    id: "filtered",
+    title: "Xuất dữ liệu đã lọc (Đang phát triển)",
+    description: "Xuất dữ liệu theo bộ lọc hiện tại"
+  }
+];
+
+function ExportNotiTypeModal() {
+    const [isExporting, setIsExporting] = React.useState(false);
+    const [exportOption, setExportOption] = React.useState<string>("all");
+
+    const { isOpen, onClose, type } = useModal();
+    const { data: notiTypeData, isLoading, error } = useNotiType();
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      if (exportOption === "all" && notiTypeData) {
+        // Tạo dữ liệu xuất với các trường được chọn
+        const exportData = notiTypeData.data.map((notitype: NotiType) => ({
+          'Loại thông báo': notitype.value,
+        }));
+
+        // Tạo workbook và worksheet
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(exportData, {
+          header: ['Loại thông báo']
+        });
+
+        // Tạo style cho header
+        const headerStyle = {
+          fill: { fgColor: { rgb: "4472C4" } },
+          font: { color: { rgb: "FFFFFF" }, bold: true },
+        };
+
+        // Áp dụng style cho header
+        const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:C1');
+        for (let col = range.s.c; col <= range.e.c; col++) {
+          const cellRef = XLSX.utils.encode_cell({ r: 0, c: col });
+          ws[cellRef].s = headerStyle;
+        }
+
+        // Điều chỉnh độ rộng cột
+        const colWidths = [
+          { wch: 20 }, // Tuần học
+        ];
+        ws['!cols'] = colWidths;
+
+        // Thêm worksheet vào workbook
+        XLSX.utils.book_append_sheet(wb, ws, 'Danh sách loại thông báo');
+
+        // Xuất file Excel
+        XLSX.writeFile(wb, 'danh-sach-loai-thong-bao.xlsx');
+        
+        showToast.success("Xuất dữ liệu thành công!");
+        handleClose();
+      }
+    } catch (error) {
+      console.error("Export error:", error);
+      showToast.error("Có lỗi xảy ra khi xuất dữ liệu");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleClose = () => {
+    setExportOption("all");
+    onClose();
+  };
+
+  // Kiểm tra xem option có available không
+  const isOptionAvailable = (optionId: string) => {
+    return optionId === "all";
+  };
+
+  if (!isOpen || type !== "exportNotiType") return null;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[600px] !rounded-xl">
+        <DialogHeader>
+          <DialogTitle>
+            <motion.div
+              className="flex items-center gap-3"
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Download className="w-6 h-6 text-blue-500" />
+              <span className="text-xl font-medium">Xuất Dữ Liệu Loại Thông Báo</span>
+            </motion.div>
+          </DialogTitle>
+        </DialogHeader>
+
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
+          className="mt-4"
+        >
+          {/* Export Options */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="text-sm font-medium text-gray-700 mb-3">
+              Tùy chọn xuất dữ liệu
+            </h3>
+            <RadioGroup
+              value={exportOption}
+              onValueChange={setExportOption}
+              className="space-y-2"
+            >
+              {exportOptions.map((option) => (
+                <div
+                  key={option.id}
+                  className={`flex items-center space-x-3 rounded-lg border p-3 
+                    ${!isOptionAvailable(option.id) ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
+                    ${exportOption === option.id && isOptionAvailable(option.id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
+                    transition-colors duration-200`}
+                >
+                  <RadioGroupItem
+                    value={option.id}
+                    id={option.id}
+                    className="text-blue-500"
+                    disabled={!isOptionAvailable(option.id)}
+                  />
+                  <Label
+                    htmlFor={option.id}
+                    className={`flex-1 ${!isOptionAvailable(option.id) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    <div className="font-medium flex items-center gap-2">
+                      {option.title}
+                      {!isOptionAvailable(option.id) && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">
+                          Sắp ra mắt
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {option.description}
+                    </div>
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex justify-end gap-3 pt-4 mt-6 border-t">
+            <Button
+              variant="outline"
+              onClick={handleClose}
+              disabled={isExporting}
+              className="border-2"
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleExport}
+              disabled={isExporting || !isOptionAvailable(exportOption)}
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              {isExporting ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Đang xử lý...</span>
+                </div>
+              ) : (
+                "Xuất dữ liệu"
+              )}
+            </Button>
+          </div>
+        </motion.div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export default ExportNotiTypeModal;

@@ -118,7 +118,8 @@ const config = {
         slideLeft: "slideLeft 1s ease-out forwards"
       },
       fontFamily: {
-        poppins: ["Poppins", "sans-serif"]
+        inter: ["var(--font-inter)", "Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+        poppins: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"]
       },
       boxShadow: {
         "course-inset": "inset 0 -4px 0 rgba(1, 84, 136, 0.1)"
@@ -130,10 +131,16 @@ const config = {
       screens: {
         "3xl": "1920px",
         "4xl": "2560px"
+      },
+      spacing: {
+        'safe-top': 'env(safe-area-inset-top)',
+        'safe-bottom': 'env(safe-area-inset-bottom)',
+        'safe-left': 'env(safe-area-inset-left)',
+        'safe-right': 'env(safe-area-inset-right)'
       }
     }
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")]
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography"), require("@tailwindcss/line-clamp")]
 } satisfies Config;
 
 export default config;

@@ -129,7 +129,7 @@ function CompleteLessonModal() {
                 >
                   <Image src="/modal/ques_person.png" alt="person" width={80} height={80} />
                 </motion.div>
-                <p className="text-2xl font-medium">Bạn đã hoàn thành bài học này?</p>
+                <p className="text-2xl text-center font-medium">Bạn có chắc chắn đã hoàn thành tất cả nội dung của bài học này không?</p>
                 <div className="flex gap-20">
                   <Button 
                     onClick={data?.onConfirm}
