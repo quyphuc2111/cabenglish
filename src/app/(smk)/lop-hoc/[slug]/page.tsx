@@ -68,8 +68,6 @@ async function Page({ params, searchParams }: PageProps) {
     return redirect("/lop-hoc");
   }
 
-  console.log("session.user.mode", session.user.mode)
-
   const lessonData = await getAllLessonDataByUserId({
     userId: session.user.userId as string,
     mode: session.user.mode

@@ -128,6 +128,7 @@ function CourseCard({
         <Image
           src={courseImage}
           alt={courseTitle}
+          unoptimized
           fill
           className={cn(
             "rounded-xl object-cover",

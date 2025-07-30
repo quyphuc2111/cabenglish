@@ -4,20 +4,20 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Download } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import ExcelJS from 'exceljs';
-import { useSchoolWeek } from "@/hooks/use-schoolweek";
-import { SchoolWeekType } from "@/types/schoolweek";
+import * as XLSX from "xlsx";
 import { showToast } from "@/utils/toast-config";
 import { useLessonsByClassIdUnitId } from "@/hooks/use-lessons";
 import { LessonAdminType, LessonType } from "@/types/lesson";
 import { useLessonStore } from "@/store/use-lesson-store";
+import { getSwValueById } from "@/lib/utils";
+import { useSchoolWeek } from "@/hooks/use-schoolweek";
 
 // Định nghĩa các tùy chọn export
 const exportOptions = [
@@ -39,66 +39,62 @@ const exportOptions = [
 ];
 
 function ExportLessonModal() {
-    const [isExporting, setIsExporting] = React.useState(false);
-    const [exportOption, setExportOption] = React.useState<string>("all");
+  const [isExporting, setIsExporting] = React.useState(false);
+  const [exportOption, setExportOption] = React.useState<string>("all");
 
-    const { isOpen, onClose, type } = useModal();
-    const { activeLesson } = useLessonStore();
+  const { isOpen, onClose, type } = useModal();
+  const { activeLesson } = useLessonStore();
 
-    const { data: lessons, isLoading: isLoadingLessons } = useLessonsByClassIdUnitId(activeLesson.classId, activeLesson.unitId);
+  const { data: lessons, isLoading: isLoadingLessons } =
+    useLessonsByClassIdUnitId(activeLesson.classId, activeLesson.unitId);
+
+    const {data: schoolWeekData} = useSchoolWeek()
   const handleExport = async () => {
     try {
       setIsExporting(true);
       if (exportOption === "all" && lessons) {
-        // Tạo workbook mới
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Danh sách bài học');
+        // Chuẩn bị dữ liệu cho Excel
+        const headers = ["Tên bài học", "Hình ảnh", "Tuần học", "Thứ tự"];
+        
+        const data = lessons.data.map((lesson: LessonAdminType) => {
+          console.log("lesson", lesson);
+          const swValue = getSwValueById(schoolWeekData?.data || [], "swId", "value", lesson.schoolWeekID);
+          console.log("swValue", swValue);
+          
+          return [
+            lesson.lessonName || "",
+            lesson.imageUrl || "",
+            swValue ? `${swValue}` : "",
+            lesson.order || ""
+          ];
+        });
 
-        // Định nghĩa columns
-        worksheet.columns = [
-          { header: 'Tên bài học', key: 'lessonName', width: 50 },
-          { header: 'Hình ảnh', key: 'imageUrl', width: 50 },
-          { header: 'Tuần học', key: 'schoolWeekID', width: 20 },
-          { header: 'Thứ tự', key: 'order', width: 20 }
+        // Tạo workbook và worksheet
+        const workbook = XLSX.utils.book_new();
+        const worksheetData = [headers, ...data];
+        const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+        // Thiết lập độ rộng cột
+        const columnWidths = [
+          { wch: 50 }, // Tên bài học
+          { wch: 50 }, // Hình ảnh
+          { wch: 20 }, // Tuần học
+          { wch: 20 }  // Thứ tự
         ];
+        worksheet['!cols'] = columnWidths;
 
-        // Thêm dữ liệu
-        lessons.data.forEach((lesson: LessonAdminType) => {
-          worksheet.addRow({
-            lessonName: lesson.lessonName,
-            imageUrl: lesson.imageUrl,
-            schoolWeekID: lesson.schoolWeekID,
-            order: lesson.order
-          });
-        });
+        // Thêm worksheet vào workbook
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách bài học");
 
-        // Style cho header
-        worksheet.getRow(1).eachCell((cell) => {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: '4472C4' }
-          };
-          cell.font = {
-            bold: true,
-            color: { argb: 'FFFFFF' },
-            size: 12
-          };
-          cell.alignment = {
-            horizontal: 'center',
-            vertical: 'middle'
-          };
-        });
+        // Tạo tên file với timestamp
+        const timestamp = new Date()
+          .toISOString()
+          .slice(0, 19)
+          .replace(/:/g, "-");
+        const filename = `danh-sach-bai-hoc-${timestamp}.xlsx`;
 
-        // Tạo và tải xuống file
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'danh-sach-bai-hoc.xlsx';
-        a.click();
-        window.URL.revokeObjectURL(url);
+        // Xuất file
+        XLSX.writeFile(workbook, filename);
 
         showToast.success("Xuất dữ liệu thành công!");
         handleClose();
@@ -160,8 +156,16 @@ function ExportLessonModal() {
                 <div
                   key={option.id}
                   className={`flex items-center space-x-3 rounded-lg border p-3 
-                    ${!isOptionAvailable(option.id) ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
-                    ${exportOption === option.id && isOptionAvailable(option.id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
+                    ${
+                      !isOptionAvailable(option.id)
+                        ? "opacity-60 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }
+                    ${
+                      exportOption === option.id && isOptionAvailable(option.id)
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200"
+                    }
                     transition-colors duration-200`}
                 >
                   <RadioGroupItem
@@ -172,7 +176,11 @@ function ExportLessonModal() {
                   />
                   <Label
                     htmlFor={option.id}
-                    className={`flex-1 ${!isOptionAvailable(option.id) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                    className={`flex-1 ${
+                      !isOptionAvailable(option.id)
+                        ? "cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
                   >
                     <div className="font-medium flex items-center gap-2">
                       {option.title}

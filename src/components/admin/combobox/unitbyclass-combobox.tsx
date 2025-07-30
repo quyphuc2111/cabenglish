@@ -94,6 +94,7 @@ export function UnitByClassCombobox({
   const handleSelect = React.useCallback((currentValue: string) => {
     const newValue = currentValue === value ? "" : currentValue;
     setValue(newValue);
+    setSearchValue(""); // Clear search khi select
     setOpen(false);
     onSelect(newValue);
     onChange?.(newValue);
@@ -112,7 +113,23 @@ export function UnitByClassCombobox({
   // Xử lý thay đổi search value
   const handleSearchChange = React.useCallback((search: string) => {
     setSearchValue(search);
+    // Clear selection khi người dùng bắt đầu tìm kiếm
+    if (search.trim() && value) {
+      setValue("");
+      onSelect("");
+      onChange?.("");
+    }
+  }, [value, onSelect, onChange]);
+
+  // Xử lý khi popover đóng
+  const handleOpenChange = React.useCallback((isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setSearchValue(""); // Clear search khi đóng popover
+    }
   }, []);
+
+  const selectedUnit = units.find((unit) => unit.unitId === Number(value));
 
   // Hiển thị loading state
   if (isLoading) {
@@ -134,10 +151,8 @@ export function UnitByClassCombobox({
     );
   }
 
-  const selectedUnit = units.find((unit) => unit.unitId === Number(value));
-
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <div className="flex items-center gap-2 relative">
         <PopoverTrigger asChild>
           <Button

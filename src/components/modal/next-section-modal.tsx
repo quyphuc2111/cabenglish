@@ -6,12 +6,8 @@ import { useModal } from "@/hooks/useModalStore";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../ui/button";
-import { logoutAction } from "@/actions/authAction";
-import axios from "axios";
-import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
 
-// Thêm các animation variants
+// Animation variants
 const modalVariants = {
   hidden: {
     opacity: 0,
@@ -61,62 +57,12 @@ const buttonVariants = {
   }
 };
 
-function LogoutModal() {
-  const { isOpen, onClose, type } = useModal();
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    try {
-      const result = await logoutAction();
-      if (!result.success) {
-        console.error("Server action logout failed:", result.message);
-      } else {
-        console.log("Server action logout successful.");
-      }
-    } catch (error) {
-      console.error("Error calling logout action:", error);
-    }
-
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_BKT_ACCOUNT_API_URL || "";
-      const response = await axios.post(
-        `${apiUrl}/api/Moodle/logout-default`,
-        {},
-        {
-          withCredentials: true 
-        }
-      );
-
-      if (response.data.success) {
-        console.log("Moodle logout successful:", response.data.message);
-      } else {
-        console.error("Moodle logout failed:", response.data.message);
-      }
-    } catch (error) {
-      console.error("Error calling logout-default API:", error);
-    }
-
-    try {
-      console.log("Performing client-side signOut...");
-      await signOut({ redirect: false }); 
-      console.log("Client-side signOut successful.");
-    } catch (error) {
-      console.error("Next-auth signOut failed:", error);
-    }
-
-    // Đóng modal trước khi redirect
-    onClose();
-    router.push("/");
-    router.refresh();
-  }
-
-  const handleClose = () => {
-    onClose();
-  }
+function NextSectionModal() {
+  const { isOpen, onClose, type, data } = useModal();
 
   return (
     <AnimatePresence>
-      {isOpen && type === "logout" && (
+      {isOpen && type === "nextSection" && (
         <Dialog open={true} onOpenChange={onClose}>
           <motion.div
             variants={modalVariants}
@@ -179,51 +125,39 @@ function LogoutModal() {
                 >
                   <Image src="/modal/ques_person.png" alt="person" width={80} height={80} />
                 </motion.div>
-                <p className="text-2xl font-medium">Bạn có muốn đăng xuất không?</p>
+                <p className="text-2xl text-center font-medium">Bạn có muốn học phần tiếp theo không?</p>
                 <div className="flex gap-20">
-                  <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                    <Button className="bg-blue-500 hover:bg-blue-500/80 text-md text-white" size={"lg"} onClick={handleLogout}>
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
+                    <Button 
+                      onClick={() => {
+                        data?.onConfirm?.();
+                        onClose();
+                      }}
+                      className="bg-blue-500 hover:bg-blue-500/80 text-md text-white" 
+                      size={"lg"}
+                    >
                       Đồng ý
                     </Button>
                   </motion.div>
-                  <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                    <Button className="bg-red-500 hover:bg-red-500/80 text-md text-white" size="lg" onClick={handleClose}>
-                      Không
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
+                    <Button 
+                      onClick={onClose}
+                      variant="outline" 
+                      className="text-md border-gray-300 hover:bg-gray-50" 
+                      size={"lg"}
+                    >
+                      Hủy
                     </Button>
                   </motion.div>
                 </div>
-              </motion.div>
-
-              <motion.div 
-                className="flex items-center justify-between"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-              >
-                <motion.div
-                  animate={{
-                    rotate: [0, 10, -10, 0],
-                    transition: {
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }
-                  }}
-                >
-                  <Image src="/modal/orange.png" alt="orange" width={80} height={80} />
-                </motion.div>
-                <motion.div
-                  animate={{
-                    rotate: [0, -10, 10, 0],
-                    transition: {
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }
-                  }}
-                >
-                  <Image src="/modal/orange.png" alt="orange" width={80} height={80} />
-                </motion.div>
               </motion.div>
             </DialogContent>
           </motion.div>
@@ -233,4 +167,4 @@ function LogoutModal() {
   );
 }
 
-export default LogoutModal;
+export default NextSectionModal;

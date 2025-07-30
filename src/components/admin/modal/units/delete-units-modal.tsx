@@ -79,8 +79,6 @@ function DeleteUnitsModal() {
 
   const {activeLesson} = useLessonStore()
 
-  console.log("activeLesson", activeLesson)
-
   const { mutate: deleteUnits, isPending } = useDeleteUnits(Number(activeLesson.classId));
 
   const handleConfirm = React.useCallback(() => {

@@ -41,10 +41,17 @@ export const formatSelect = (arrayData: any[], keyLabel: string, keyValue: strin
   if(!arrayData || arrayData.length === 0) return ;
   
   return arrayData.map((item) => ({
-    label: item[keyValue],
+    label: item[keyLabel],
     value: item[keyValue]
   }));
 };
+
+export const getSwValueById = (arrayData: any[], keyId: string, keyValue: string, id: number) => {
+  if(!arrayData || arrayData.length === 0) return '';
+  if(!id) return '';
+  
+  return arrayData.find((item) => item[keyId] === id)?.[keyValue] || '';
+}
 
 /**
  * Kiểm tra và xác thực URL hình ảnh

@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useState } from "react";
-import { Menu, Home, Settings, LogOut, Globe, Palette } from "lucide-react";
+import { SettingsIcon, Home, Settings, LogOut, Globe, Palette } from "lucide-react";
 
 interface NavbarControlsProps {
   t: (key: string) => string;
@@ -198,7 +198,7 @@ export function NavbarControls({
  
             {/* Main FAB */}
             <motion.button
-              className={`w-14 h-14 rounded-lg ${themeClasses[currentTheme]} text-white shadow-lg flex items-center justify-center`}
+              className={`w-14 h-14 rounded-full ${themeClasses[currentTheme]} text-white shadow-lg flex items-center justify-center`}
               onClick={() => setIsOpen(!isOpen)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -207,7 +207,7 @@ export function NavbarControls({
               }}
               transition={{ duration: 0.2, ease: "easeOut" }}
             >
-              <Menu size={20} />
+              <SettingsIcon size={20} />
             </motion.button>
           </div>
       </div>

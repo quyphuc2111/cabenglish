@@ -67,18 +67,18 @@ const ProgressIndicator = ({ progress, delay }: { progress: number , delay: numb
       initial="hidden"
       animate="visible" 
       className={cn(
-        "bg-[#db8ab5]/50 rounded-tr-md px-2 py-1 h-full",
+        "bg-[#db8ab5]/50 rounded-tr-[4px] sm:rounded-tr-md px-1 sm:px-2 py-0.5 sm:py-1 h-full",
         progress === 0 && "bg-[#e25762]"
       )}
     >
       <div
         className={cn(
-          "flex items-center gap-2 justify-around",
+          "flex items-center gap-1 sm:gap-2 justify-around", 
           progress === 0 && "justify-center"
         )}
       >
         {progress === 0 ? (
-          <p className="text-center text-white">Chưa học</p>
+          <p className="text-center text-white text-[10px] sm:text-xs">Chưa học</p>
         ) : (
           [...Array(flowerCount)].map((_, index) => (
             <motion.div
@@ -91,8 +91,9 @@ const ProgressIndicator = ({ progress, delay }: { progress: number , delay: numb
               <Image
                 src="/flower.png"
                 alt="flower"
-                width={13}
-                height={19}
+                width={10}
+                height={10}
+                className="w-[8px] h-auto sm:w-[10px] md:w-[13px]"
               />
             </motion.div>
           ))
@@ -190,11 +191,11 @@ function LessonCard({
 
   const cardClasses = useMemo(() => 
     cn(
-      "lesson-card px-2 sm:px-3 py-3 sm:py-4 bg-white rounded-xl sm:rounded-2xl flex flex-col gap-2 sm:gap-3 shadow-course-inset border relative overflow-hidden",
+      "lesson-card px-1 sm:px-2 md:px-3 py-1.5 sm:py-2 md:py-4 bg-white rounded-lg sm:rounded-xl md:rounded-2xl flex flex-col gap-1 sm:gap-2 md:gap-3 shadow-course-inset border relative overflow-hidden w-full",
       "transition-all duration-300 ease-out",
       isLocked ? "opacity-60 cursor-not-allowed bg-[#d9d9d9]" : "cursor-pointer hover:shadow-lg",
-      horizontal && "flex-col sm:flex-row gap-3 sm:gap-5",
-      isRemoving && "lesson-card-removing pointer-events-none z-10", // Higher z-index khi removing
+      horizontal && "flex-col sm:flex-row gap-2 sm:gap-3 md:gap-5",
+      isRemoving && "lesson-card-removing pointer-events-none z-10", 
       className
     ),
     [isLocked, horizontal, className, isRemoving]
@@ -262,11 +263,6 @@ function LessonCard({
               toastId: toastId,
             }
           );
-          
-          // Sử dụng callback mechanism thay vì router.refresh() để mượt hơn
-          // setTimeout(() => {
-          //   router.refresh();
-          // }, 500);
         },
         onError: (error) => {
           setIsLiking(false);
@@ -324,7 +320,7 @@ function LessonCard({
             />
             
             {/* Simple fade out text - CSS animation */}
-            <div className="absolute inset-0 flex items-center justify-center text-gray-500 font-medium text-sm z-30">
+            <div className="absolute inset-0 flex items-center justify-center text-gray-500 font-medium text-xs z-30">
               <div className="removing-text-animation">
                 Đã bỏ thích
               </div>
@@ -368,26 +364,26 @@ function LessonCard({
         )}
       </AnimatePresence>
 
-      <div>
+      <div className="flex flex-col space-y-1">
         <motion.h2
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: delay + 0.2 }}
-          className="text-base sm:text-lg font-bold line-clamp-2"
+          className="text-xs sm:text-sm lg:text-base font-bold line-clamp-1 sm:line-clamp-2"
         >
           {unitName}
         </motion.h2>
 
         <motion.div
           variants={ANIMATIONS.imageVariants}
-          className="relative w-full aspect-[16/9] border border-gray-200 rounded-xl"
+          className="relative w-full aspect-[16/9] border border-gray-200 rounded-md sm:rounded-lg md:rounded-xl overflow-hidden"
         >
           <Image
             src={validateImageUrl(imageUrl)}
             alt={unitName}
             fill
             className={cn(
-              "rounded-xl object-cover",
+              "object-cover",
               isLocked && "opacity-50"
             )}
             unoptimized
@@ -398,23 +394,24 @@ function LessonCard({
             <Image 
               src="/assets/image/lock_course.png" 
               alt="locked"
-              width={40}
-              height={40}
+              width={25}
+              height={25}
+              className="w-[20px] h-[20px] sm:w-[30px] sm:h-[30px] md:w-[35px] md:h-[35px]"
             />
           </div>
         )}
         </motion.div>
       </div>
 
-      <div className={cn("flex flex-col", horizontal === true ? "flex-1" : "")}>
+      <div className={cn("flex flex-col", horizontal === true ? "flex-1" : "gap-1")}>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: delay + 0.3 }}
-          className="text-[#736E6E] text-xs sm:text-sm flex justify-between gap-2"
+          className="text-[#736E6E] text-[9px]  md:text-[14px] flex justify-between gap-1"
         >
-          <span className="course-week">{`Tuần học ${String(schoolWeek)}`}</span>
-          <span className="course-category">{classRoomName}</span>
+          <span className="course-week truncate">{`Tuần học ${String(schoolWeek)}`}</span>
+          <span className="course-category truncate">{classRoomName}</span>
         </motion.div>
 
         <motion.h2
@@ -422,7 +419,7 @@ function LessonCard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: delay + 0.4 }}
           className={cn(
-            "text-xl font-bold h-14 line-clamp-2",
+            "text-sm sm:text-base font-bold h-8 sm:h-10 md:h-12 line-clamp-2",
             horizontal === true ? "flex-1" : ""
           )}
         >
@@ -435,30 +432,31 @@ function LessonCard({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: delay + 0.5 }}
             className={cn(
-              "border-4",
+              "border border-gray-200 sm:border-2 md:border-4", // Giảm border size trên mobile
               progress == 0 ? "border-[#333333]/20" : "",
               progress > 0 && progress < 100 ? "border-[#e25762]/50" : "",
               progress == 1 ? "border-[#3EC474]" : "",
               horizontal ? "w-1/3" : "w-2/3",
-              "rounded-tr-lg p-1 flex justify-around items-center"
+              "rounded-tr-[4px] sm:rounded-tr-md p-0.5 sm:p-1 flex justify-around items-center"
             )}
           >
             <ProgressIndicator progress={Number(formatProgress(progress))} delay={delay} />
             {progress > 0 && progress < 1 && (
-              <p className="text-center px-2">{formatProgress(progress)}%</p>
+              <p className="text-center px-1 text-[9px] sm:text-xs">{formatProgress(progress)}%</p>
             )}
             {progress === 1 && (
               <motion.div
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: delay + 0.8 }}
-                className="ml-2"
+                className="ml-0.5 sm:ml-1 md:ml-2"
               >
                 <Image
                   src="/check_course.png"
                   alt="check"
-                  width={21}
-                  height={25}
+                  width={16}
+                  height={20}
+                  className="w-[12px] h-auto sm:w-[15px] md:w-[18px]"
                 />
               </motion.div>
             )}
@@ -469,7 +467,7 @@ function LessonCard({
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: delay + 0.9 }}
             className={cn(
-              "like-button relative flex items-center gap-1 p-2 rounded-lg transition-all duration-300 -m-2 group ",
+              "like-button relative flex items-center gap-0.5 sm:gap-1 p-1 sm:p-1.5 md:p-2 rounded-lg transition-all duration-300 -m-1 sm:-m-1.5 md:-m-2 group",
               isLiking 
                 ? "cursor-not-allowed opacity-50" 
                 : "hover:bg-pink-50 active:scale-95",
@@ -489,11 +487,11 @@ function LessonCard({
             )}></div>
             
             {/* Heart container */}
-            <div className="relative w-7 h-8 flex items-center justify-center">
+            <div className="relative w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex items-center justify-center">
               {isLiking ? (
                 // Loading animation với floating hearts
                 <div className="relative">
-                  <div className="w-6 h-6 border-2 border-pink-200 border-t-pink-500 rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 border-2 border-pink-200 border-t-pink-500 rounded-full animate-spin"></div>
                   {/* Floating mini hearts */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <motion.div
@@ -507,7 +505,7 @@ function LessonCard({
                         repeat: Infinity,
                         delay: 0 
                       }}
-                      className="absolute text-pink-400 text-xs"
+                      className="absolute text-pink-400 text-[10px]"
                     >
                       💖
                     </motion.div>
@@ -525,17 +523,18 @@ function LessonCard({
                     className="relative"
                   >
                     {/* SVG Heart thay vì Image */}
-                                         <svg
-                       width="24"
-                       height="24"
-                       viewBox="0 0 24 24"
-                       className={cn(
-                         "heart-svg transition-all duration-300",
-                         optimisticLikeCount > 0 
-                           ? "fill-red-500 text-red-500 drop-shadow-lg" 
-                           : "fill-none text-gray-400 hover:text-red-400 hover:fill-red-100"
-                       )}
-                     >
+                    <svg
+                      width="18" 
+                      height="18"
+                      viewBox="0 0 24 24"
+                      className={cn(
+                        "heart-svg transition-all duration-300",
+                        "w-[14px] h-[14px] sm:w-[16px] sm:h-[16px] md:w-[20px] md:h-[20px]", // Responsive size
+                        optimisticLikeCount > 0 
+                          ? "fill-red-500 text-red-500 drop-shadow-lg" 
+                          : "fill-none text-gray-400 hover:text-red-400 hover:fill-red-100"
+                      )}
+                    >
                       <path
                         stroke="currentColor"
                         strokeWidth="2"
@@ -571,7 +570,7 @@ function LessonCard({
                           repeat: Infinity,
                           delay: i * 0.2,
                         }}
-                        className="absolute text-xs"
+                        className="absolute text-[10px]"
                         style={{
                           left: `${20 + i * 15}%`,
                           top: '50%',
@@ -592,7 +591,7 @@ function LessonCard({
               animate={{ scale: [1, 1.3, 1] }}
               transition={{ duration: 0.3 }}
               className={cn(
-                "text-sm font-medium transition-all duration-300",
+                "text-[10px] sm:text-xs md:text-sm font-medium transition-all duration-300", // Responsive text size
                 isLiking 
                   ? "text-gray-400" 
                   : optimisticLikeCount > 0 
@@ -609,7 +608,7 @@ function LessonCard({
                 initial={{ scale: 0, rotate: 0 }}
                 animate={{ scale: [0, 1.5, 0], rotate: [0, 180, 360] }}
                 transition={{ duration: 0.8, delay: 0.1 }}
-                className="absolute -top-2 -right-2 text-xs"
+                className="absolute -top-1 -right-1 text-[10px]"
               >
                 ✨
               </motion.div>
@@ -643,7 +642,7 @@ function LessonCard({
                   }}
                   className="heart-particle absolute text-red-500 select-none"
                   style={{
-                    fontSize: `${10 + Math.random() * 6}px`,
+                    fontSize: `${6 + Math.random() * 4}px`, // Giảm font size
                     filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
                   }}
                 >
@@ -674,7 +673,7 @@ function LessonCard({
                   }}
                   className="absolute text-yellow-400 select-none"
                   style={{
-                    fontSize: '10px',
+                    fontSize: '6px', // Giảm font size
                   }}
                 >
                   ✨
@@ -822,6 +821,8 @@ const likeButtonStyles = `
   /* Enhanced card hover effects */
   .lesson-card {
     transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    box-sizing: border-box;
+    max-width: 100%;
   }
 
   .lesson-card:hover {
@@ -868,14 +869,14 @@ const likeButtonStyles = `
   }
 
   /* Mobile optimizations */
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     .like-button {
-      padding: 8px;
-      margin: -8px;
+      padding: 4px;
+      margin: -4px;
     }
     
     .floating-hearts {
-      transform: scale(0.8);
+      transform: scale(0.6);
     }
 
     .lesson-card:hover {
@@ -883,11 +884,48 @@ const likeButtonStyles = `
     }
 
     .sparkle-particle {
-      font-size: 8px;
+      font-size: 5px;
     }
 
     .heart-particle {
-      font-size: 6px;
+      font-size: 4px;
+    }
+  }
+
+  /* Thêm breakpoint cho màn hình siêu nhỏ */
+  @media (max-width: 480px) {
+    .lesson-card {
+      padding: 16px !important;
+      border-radius: 6px !important;
+    }
+    
+    .lesson-card h2 {
+      font-size: 11px !important;
+      line-height: 14px !important;
+      margin-bottom: 1px !important;
+    }
+    
+    .like-button {
+      padding: 3px !important;
+      margin: -3px !important;
+    }
+
+    /* Fix hiển thị xấu và bị che */
+    .lesson-card .course-week,
+    .lesson-card .course-category {
+      font-size: 8px !important;
+    }
+
+    .lesson-card .progress-flower img {
+      width: 8px !important;
+      height: auto !important;
+    }
+  }
+
+  /* Breakpoint cụ thể cho màn hình nhỏ nhưng lớn hơn siêu nhỏ */
+  @media (min-width: 481px) and (max-width: 640px) {
+    .lesson-card {
+      padding: 6px !important;
     }
   }
 
@@ -898,6 +936,26 @@ const likeButtonStyles = `
 
   .swiper-slide {
     transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    box-sizing: border-box;
+  }
+
+  /* Thêm utility class cho màn hình siêu nhỏ */
+  @media (min-width: 400px) {
+    .xs\\:text-xs {
+      font-size: 0.75rem;
+      line-height: 1rem;
+    }
+
+    .xs\\:text-\\[10px\\] {
+      font-size: 10px;
+    }
+  }
+
+  /* Tối ưu hóa hiển thị cho các loại màn hình */
+  .lesson-card {
+    width: 100% !important;
+    box-sizing: border-box;
+    overflow: hidden !important;
   }
 `;
 

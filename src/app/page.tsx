@@ -38,7 +38,7 @@ const address = [
   {
     city: "Hà Nội",
     address:
-      "Liền kề C39 Embassy Garden, Đ. Hoàng Minh Thảo, Khu đô thị Tây Hồ Tây, Bắc Từ Liêm, Hà Nội"
+      "LK C39 Embassy Garden, Đ. Hoàng Minh Thảo, Phường Xuân Đỉnh, TP. Hà Nội"
   },
   {
     city: "Thanh Hóa",
@@ -75,7 +75,6 @@ export default function HomePage() {
   });
 
   const { data: session } = useSession();
-  console.log("sessionsession", session)
 
   return (
     <>

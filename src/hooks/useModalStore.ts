@@ -12,6 +12,7 @@ export type ModalType =
   | "resetSchoolYear"
   | "changeTeachingModeModal"
   | "completeLesson"
+  | "nextSection"
   | "notification"
   | "createUpdateClassroom"
   | "deleteClassroom"

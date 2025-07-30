@@ -123,7 +123,7 @@ function ClassroomWrapper(props: ClassroomWrapperProps) {
           )}
           {...props}
         >
-          <div className="flex gap-20 absolute top-0 right-[8vw]">
+          <div className="flex gap-10 absolute top-0 right-[1vw] ">
             {[0, 1].map((i) => (
               <motion.div
                 key={i}

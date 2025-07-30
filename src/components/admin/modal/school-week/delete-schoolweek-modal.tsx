@@ -76,26 +76,46 @@ function DeleteSchoolWeekModal() {
 
   const { mutate: deleteSchoolWeek, isPending } = useDeleteSchoolWeek();
 
-  const handleConfirm = React.useCallback(() => {
+  const handleConfirm = React.useCallback(async () => {
     if (!data?.schoolWeekIds?.length) return;
 
-    Promise.all(
-      data.schoolWeekIds.map(id =>
-        deleteSchoolWeek(id, {
-          onError: (error) => {
-            showToast.error("Có lỗi xảy ra khi xóa tuần học!");
-            console.error(error);
-          },
-          onSuccess: () => {
-            showToast.success("Xóa tuần học thành công!");
-            if (data.onSuccess) {
-              data.onSuccess();
+    try {
+      // Tạo array các promise để xử lý đồng thời
+      const deletePromises = data.schoolWeekIds.map(id => 
+        new Promise((resolve, reject) => {
+          deleteSchoolWeek(id, {
+            onError: (error) => {
+              reject(error);
+            },
+            onSuccess: () => {
+              resolve(id);
             }
-            onClose();
-          }
+          });
         })
-      )
-    )
+      );
+
+      // Chờ tất cả các promise hoàn thành
+      await Promise.all(deletePromises);
+      
+      // Chỉ hiển thị toast success khi tất cả đều thành công
+      showToast.success(`Xóa ${data.schoolWeekIds.length} tuần học thành công!`);
+      
+      if (data.onSuccess) {
+        data.onSuccess();
+      }
+      onClose();
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      if (errorMessage.includes('foreign key constraint') || errorMessage.includes('Cannot delete or update a parent row')) {
+        showToast.error("Không thể xóa tuần học này vì đang được sử dụng trong các bài học. Vui lòng xóa các bài học liên quan trước.");
+      } else {
+        showToast.error("Có lỗi xảy ra khi xóa tuần học! Vui lòng kiểm tra lại.");
+      }
+      
+      console.error("Delete school week error:", error);
+    }
   }, [data, deleteSchoolWeek, onClose]);
 
   if (!isOpen || type !== "deleteSchoolWeek") return null;

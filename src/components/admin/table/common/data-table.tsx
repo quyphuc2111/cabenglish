@@ -100,6 +100,8 @@ export function DataTable<TData, TValue>({
   totalItems,
   table
 }: DataTableProps<TData, TValue>) {
+
+  
   return (
     <div className="w-full overflow-auto">
       <div className="rounded-md border min-w-[640px]">

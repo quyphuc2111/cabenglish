@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useUserMode, useUserStore } from "@/store/useUserStore";
 import { useSession } from "next-auth/react";
+import { resetAllSectionContent } from "@/actions/progressAction";
 // import { updateUserInfo } from "@/actions/userAction";
 
 const containerVariants = {
@@ -227,7 +228,14 @@ function TeachingModeClient({
         mode: newMode === "defaultMode" ? "default" : "free"
       });
 
-      if (result.success && switchModeResponse.success) {
+      const resetAllSectionContentResponse = await resetAllSectionContent({
+        userId: session?.user.userId
+      });
+
+      if (result.success && switchModeResponse.success && resetAllSectionContentResponse.success) {
+       
+
+
         await update({
           user: {
             ...session?.user,
@@ -235,6 +243,7 @@ function TeachingModeClient({
           }
         });
 
+       
         setModeActive(newMode);
 
         toast.success(
@@ -250,7 +259,6 @@ function TeachingModeClient({
           }
         );
 
-        // Đóng modal sau khi chuyển chế độ thành công
         onClose();
       } else {
         toast.error(result.error || "Có lỗi xảy ra khi chuyển chế độ");

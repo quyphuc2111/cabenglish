@@ -21,13 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "react-toastify";
 import { BadgePlus, Pencil } from "lucide-react";
-import { useGetSingleNotiType } from "@/hooks/use-notitype";
-import {
-  useCreateUnitByClassId,
-  useUpdateUnitByClassId
-} from "@/hooks/use-units";
 import {
   lessonsFormSchema,
   LessonsFormValues
@@ -35,7 +29,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { ImageUploader } from "@/components/ui/image-upload";
 import { useSchoolWeek } from "@/hooks/use-schoolweek";
-import { formatSelect } from "@/lib/utils";
+import { formatSelect, getSwValueById } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -51,6 +45,7 @@ import {
 } from "@/hooks/use-lessons";
 import { useLessonStore } from "@/store/use-lesson-store";
 import { showToast } from "@/utils/toast-config";
+import { useLessonsValidation } from "@/hooks/use-lessons-validation";
 
 // Cập nhật ANIMATIONS config
 const ANIMATIONS = {
@@ -100,22 +95,25 @@ function CreateUpdateLessonModal() {
   const { isOpen, onClose, type, data } = useModal();
   const formType = data?.formType;
   const lessonId = formType === "update" ? data?.lessonId : null;
-  // const schoolweek = formType === "update" ? data?.schoolweek : null;
-  // const unitId = data?.unitId;
 
   const {
-    // selectedClassId,
-    // selectedUnitId,
-    // setSelectedClassId,
-    // setSelectedUnitId
     activeLesson,
-    activateClass,
-    activateUnit
   } = useLessonStore();
+
+  // Hook validation để kiểm tra trùng lặp
+  const {
+    validateField,
+    validateLesson,
+    suggestNextOrder,
+    isLoading: isValidationLoading
+  } = useLessonsValidation(
+    activeLesson.classId,
+    activeLesson.unitId,
+    formType === "update" ? lessonId : null
+  );
 
   const classroomId = React.useMemo(() => {
     if (!data?.classroomId) {
-      // console.error("Missing classroomId:", data);
       return null;
     }
     const id = Number(data.classroomId);
@@ -133,9 +131,6 @@ function CreateUpdateLessonModal() {
     activeLesson.unitId
   );
 
-  // const { mutate:, isPending: isUpdating } =
-  //   useUpdateUnitByClassId(lessonId);
-
   const { mutate: createLesson, isPending: isCreating } =
     useCreateLessonByClassIdUnitId();
 
@@ -147,6 +142,7 @@ function CreateUpdateLessonModal() {
   const form = useForm<LessonsFormValues>({
     resolver: zodResolver(lessonsFormSchema),
     defaultValues: {
+      schoolweek: 0,
       schoolWeekID: 0,
       lessonId: 0,
       lessonName: "",
@@ -161,16 +157,24 @@ function CreateUpdateLessonModal() {
   // Reset form và đóng modal
   const handleClose = React.useCallback(() => {
     form.reset();
-    // setSelectedClassId(null);
-    // setSelectedUnitId(null);
     onClose();
   }, [form, onClose]);
 
-  // Thêm useEffect để reset form khi modal đóng
+  // Cập nhật order mặc định khi tạo mới (chỉ khi modal đã mở và có suggestNextOrder)
+  React.useEffect(() => {
+    if (isOpen && type === "createUpdateLessons" && formType === "create" && !isValidationLoading && suggestNextOrder > 0) {
+      // Chỉ set nếu order hiện tại là 0 hoặc khác với suggestNextOrder
+      const currentOrder = form.getValues("order");
+      if (currentOrder === 0 || currentOrder !== suggestNextOrder) {
+        form.setValue("order", suggestNextOrder);
+      }
+    }
+  }, [isOpen, type, formType, suggestNextOrder, isValidationLoading, form]);
+
   React.useEffect(() => {
     if (!isOpen) {
       form.reset({
-        schoolWeekID: 0,
+        schoolweek: 0,
         lessonId: 0,
         lessonName: "",
         imageUrl: "",
@@ -178,20 +182,35 @@ function CreateUpdateLessonModal() {
         order: 0,
         isActive: true
       });
+    } else if (isOpen && type === "createUpdateLessons" && formType === "create") {
+      // Reset form về trạng thái ban đầu cho tạo mới
+      form.reset({
+        schoolweek: 0,
+        lessonId: 0,
+        lessonName: "",
+        imageUrl: "",
+        numLiked: 0,
+        order: !isValidationLoading && suggestNextOrder > 0 ? suggestNextOrder : 0,
+        isActive: true
+      });
+      form.clearErrors();
     }
-  }, [isOpen, form]);
+  }, [isOpen, type, formType, form, suggestNextOrder, isValidationLoading]);
 
   // Cập nhật form khi có dữ liệu
   React.useEffect(() => {
     if (formType === "update" && lessonData) {
       // Đảm bảo chuyển đổi schoolweek thành number
-      const schoolweekValue = Number(lessonData.schoolWeekID);
+      const schoolweekId = Number(lessonData.schoolWeekID);
+
+      const schoolWeekValue = getSwValueById(selectSchoolWeek, 'label', 'value', schoolweekId);
 
       // Đặt giá trị form
       form.reset({
         lessonName: lessonData.lessonName || "",
         order: lessonData.order || 0,
-        schoolWeekID: schoolweekValue || 0,
+        schoolweek: schoolWeekValue || 0,
+        schoolWeekID: lessonData.schoolWeekID || 0,
         imageUrl: lessonData.imageUrl || "",
         numLiked: lessonData.numLiked || 0,
         isActive: lessonData.isActive ?? true,
@@ -205,16 +224,14 @@ function CreateUpdateLessonModal() {
   // Kiểm tra form hợp lệ
   const isFormValid = React.useMemo(() => {
     const lessonName = form.watch("lessonName");
-    const schoolweek = form.watch("schoolWeekID");
+    const schoolweek = form.watch("schoolweek");
     const order = form.watch("order");
     return (
       lessonName !== "" && schoolweek > 0 && order > 0 && classroomId !== null
-      // &&
-      // unitId !== null
     );
   }, [
     form.watch("lessonName"),
-    form.watch("schoolWeekID"),
+    form.watch("schoolweek"),
     form.watch("order"),
     classroomId
   ]);
@@ -231,6 +248,79 @@ function CreateUpdateLessonModal() {
         showToast.error("Không tìm thấy thông tin unit!");
         return;
       }
+
+      // Validation dữ liệu trước khi submit
+      const validationResult = lessonsFormSchema.safeParse(values);
+      if (!validationResult.success) {
+        const errors = validationResult.error.errors;
+        errors.forEach((error) => {
+          const fieldName = error.path[0] as keyof LessonAdminType;
+          form.setError(fieldName, {
+            type: "manual",
+            message: error.message
+          });
+        });
+        showToast.error("Vui lòng kiểm tra lại thông tin!");
+        return;
+      }
+
+      // Kiểm tra validation trước khi submit
+      const customValidationResult = validateLesson(values);
+      if (!customValidationResult.isValid) {
+        if (customValidationResult.errors.lessonName) {
+          form.setError("lessonName", {
+            type: "manual",
+            message: customValidationResult.errors.lessonName
+          });
+        }
+        if (customValidationResult.errors.order) {
+          form.setError("order", {
+            type: "manual",
+            message: customValidationResult.errors.order
+          });
+        }
+        showToast.error("Vui lòng kiểm tra lại thông tin!");
+        return;
+      }
+
+      // Validation bổ sung cho các trường bắt buộc
+      if (!values.lessonName?.trim()) {
+        form.setError("lessonName", {
+          type: "manual",
+          message: "Tên bài học không được để trống"
+        });
+        showToast.error("Vui lòng nhập tên bài học!");
+        return;
+      }
+
+      if (!values.schoolweek || values.schoolweek <= 0) {
+        form.setError("schoolweek", {
+          type: "manual",
+          message: "Vui lòng chọn tuần học"
+        });
+        showToast.error("Vui lòng chọn tuần học!");
+        return;
+      }
+
+      if (!values.order || values.order <= 0) {
+        form.setError("order", {
+          type: "manual",
+          message: "Thứ tự phải lớn hơn 0"
+        });
+        showToast.error("Vui lòng nhập thứ tự hợp lệ!");
+        return;
+      }
+
+      if (!values.imageUrl?.trim()) {
+        form.setError("imageUrl", {
+          type: "manual",
+          message: "Hình ảnh không được để trống"
+        });
+        showToast.error("Vui lòng chọn hình ảnh!");
+        return;
+      }
+
+      console.log("Dữ liệu admin", values)
 
       try {
         if (formType === "create") {
@@ -286,7 +376,7 @@ function CreateUpdateLessonModal() {
         );
       }
     },
-    [formType, createLesson, updateLesson, handleClose, activeLesson.classId, activeLesson.unitId]
+    [formType, createLesson, updateLesson, handleClose, activeLesson.classId, activeLesson.unitId, validateLesson, form]
   );
 
   // Không render nếu không phải modal schoolweek
@@ -315,7 +405,7 @@ function CreateUpdateLessonModal() {
         open={isOpen && type === "createUpdateLessons"}
         onOpenChange={handleClose}
       >
-        <DialogContent className="sm:max-w-[900px] !rounded-2xl overflow-hidden bg-gradient-to-br from-white via-white to-blue-50/30 p-0 max-h-[90vh]">
+        <DialogContent className="sm:max-w-[900px] !rounded-2xl overflow-y-auto bg-gradient-to-br from-white via-white to-blue-50/30 p-0 max-h-[90vh]">
           <motion.div
             variants={ANIMATIONS.modal}
             initial="hidden"
@@ -364,22 +454,71 @@ function CreateUpdateLessonModal() {
                     <FormField
                       control={form.control}
                       name="lessonName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-medium text-blue-700">
-                            Tên bài học
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              disabled={isPending}
-                              placeholder="Nhập tên bài học..."
-                              className="h-11 text-base border-2 focus-visible:ring-1 focus-visible:ring-blue-400 focus:border-blue-400"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        const currentLength = field.value?.length || 0;
+                        const maxLength = 100;
+                        const isNearLimit = currentLength > maxLength * 0.8;
+                        
+                        return (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium text-blue-700">
+                              Tên bài học
+                            </FormLabel>
+                            <FormControl>
+                              <div className="space-y-2">
+                                <Input
+                                  {...field}
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    field.onChange(value);
+                                    
+                                    // Validation real-time
+                                    if (value.trim()) {
+                                      const error = validateField("lessonName", value);
+                                      if (error) {
+                                        form.setError("lessonName", {
+                                          type: "manual",
+                                          message: error
+                                        });
+                                      } else {
+                                        form.clearErrors("lessonName");
+                                      }
+                                    }
+                                    
+                                    // Validation cho độ dài ký tự
+                                    if (value.length > maxLength) {
+                                      form.setError("lessonName", {
+                                        type: "manual",
+                                        message: `Tên bài học không được vượt quá ${maxLength} ký tự`
+                                      });
+                                    } else if (value.length <= maxLength && form.formState.errors.lessonName?.message?.includes("không được vượt quá")) {
+                                      form.clearErrors("lessonName");
+                                    }
+                                  }}
+                                  disabled={isPending || isValidationLoading}
+                                  placeholder="Nhập tên bài học..."
+                                  className="h-11 text-base border-2 focus-visible:ring-1 focus-visible:ring-blue-400 focus:border-blue-400"
+                                />
+                                <div className="flex justify-between items-center text-xs">
+                                  <span className="text-gray-500">
+                                    Tối đa {maxLength} ký tự
+                                  </span>
+                                  <span className={`font-medium ${
+                                    isNearLimit 
+                                      ? currentLength >= maxLength 
+                                        ? "text-red-500" 
+                                        : "text-orange-500"
+                                      : "text-gray-400"
+                                  }`}>
+                                    {currentLength}/{maxLength}
+                                  </span>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
                     />
                   </motion.div>
                   <motion.div
@@ -391,7 +530,7 @@ function CreateUpdateLessonModal() {
                   >
                     <FormField
                       control={form.control}
-                      name="schoolWeekID"
+                      name="schoolweek"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-medium text-emerald-700">
@@ -403,10 +542,23 @@ function CreateUpdateLessonModal() {
                               onValueChange={(value) => {
                                 const numValue = Number(value);
                                 field.onChange(numValue);
-                                form.setValue("schoolWeekID", numValue, {
-                                  shouldValidate: true,
-                                  shouldDirty: true
-                                });
+                                
+                                if (formType === "create") {
+                                  form.setValue("schoolweek", numValue, {
+                                    shouldValidate: true,
+                                    shouldDirty: true
+                                  });
+                                } else if (formType === "update") {
+                                  // Tìm item tương ứng để lấy label
+                                  const selectedItem = selectSchoolWeek?.find(item => item.value === numValue);
+                                  if (selectedItem) {
+                                    form.setValue("schoolWeekID", selectedItem.label, {
+                                      shouldValidate: true,
+                                      shouldDirty: true
+                                    });
+                                  }
+                                }
+
                               }}
                               value={field.value?.toString()}
                               defaultValue={field.value?.toString()}
@@ -425,7 +577,7 @@ function CreateUpdateLessonModal() {
                                     value={item.value.toString()}
                                     className="cursor-pointer"
                                   >
-                                    Tuần {item.label}
+                                    Tuần {item.value}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -455,18 +607,42 @@ function CreateUpdateLessonModal() {
                             Thứ tự
                           </FormLabel>
                           <FormControl>
-                            <Input
-                              {...field}
-                              onChange={(e) => {
-                                const value = parseInt(e.target.value);
-                                field.onChange(isNaN(value) ? 0 : value);
-                              }}
-                              type="number"
-                              min={1}
-                              disabled={isPending}
-                              placeholder="Nhập thứ tự..."
-                              className="h-11 text-base border-2 focus-visible:ring-1 focus-visible:ring-purple-400 focus:border-purple-400"
-                            />
+                            <div className="space-y-3">
+                              <Input
+                                {...field}
+                                onChange={(e) => {
+                                  const value = parseInt(e.target.value);
+                                  const finalValue = isNaN(value) ? 0 : value;
+                                  field.onChange(finalValue);
+                                  
+                                  // Validation real-time
+                                  if (finalValue > 0) {
+                                    const error = validateField("order", finalValue);
+                                    if (error) {
+                                      form.setError("order", {
+                                        type: "manual",
+                                        message: error
+                                      });
+                                    } else {
+                                      form.clearErrors("order");
+                                    }
+                                  }
+                                }}
+                                type="number"
+                                min={1}
+                                disabled={isPending || isValidationLoading}
+                                placeholder="Nhập thứ tự..."
+                                className="h-11 text-base border-2 focus-visible:ring-1 focus-visible:ring-purple-400 focus:border-purple-400"
+                              />
+                              {formType === "create" && suggestNextOrder > 0 && (
+                                <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                                  <p className="text-sm text-blue-700 font-medium">
+                                    💡 Hệ thống gợi ý thứ tự tiếp theo: <span className="font-bold text-blue-800">{suggestNextOrder}</span>
+                                  </p>
+                                </div>
+                              )}
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -535,7 +711,7 @@ function CreateUpdateLessonModal() {
                           Hình ảnh bài học
                         </FormLabel>
                         <FormControl>
-                          <div className="max-h-[200px] overflow-y-auto">
+                          <div className="">
                             <ImageUploader
                               value={field.value}
                               disabled={isPending}
@@ -571,7 +747,7 @@ function CreateUpdateLessonModal() {
                   >
                     <Button
                       type="submit"
-                      disabled={isPending || !isFormValid}
+                      disabled={isPending }
                       className={`
                         min-w-[120px]
                         ${

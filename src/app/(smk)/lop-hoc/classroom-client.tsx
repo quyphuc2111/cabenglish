@@ -73,28 +73,29 @@ function ClassroomClient({
 
   return (
     <BreadcrumbLayout title="Lớp học">
-      <div className="flex flex-col gap-5">
-        <div className="flex items-center gap-5">
+      <div className="flex flex-col gap-3 sm:gap-5 w-full max-w-full overflow-hidden">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-5 px-2 sm:px-0">
           <Image
             src="/book_multi.png"
             alt="chong_sach"
-            width={40}
-            height={40}
+            width={32}
+            height={32}
+            className="sm:w-[40px] sm:h-[40px]"
           />
-          <p className="text-[#555] text-[20px] font-bold">
+          <p className="text-[#555] text-base sm:text-lg md:text-[20px] font-bold truncate">
             {selectedClassroomName 
               ? `Đang chuyển đến lớp: ${selectedClassroomName}` 
               : "Danh sách lớp học"
             }
           </p>
         </div>
-        <div className="bg-white py-10 px-5 rounded-2xl grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
+        <div className="bg-white py-5 sm:py-8 md:py-10 px-3 sm:px-4 md:px-5 rounded-xl sm:rounded-2xl grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 w-full">
           {classroomData.map((classroomItem, index) => {
             const isSelected = selectedClassroomName && 
               classroomItem.classname.toLowerCase() === selectedClassroomName.toLowerCase();
             
             return (
-              <div key={index}>
+              <div key={index} className="w-full">
                 <ClassroomCard
                   class_id={classroomItem.class_id}
                   classname={classroomItem.classname}
@@ -103,7 +104,7 @@ function ClassroomClient({
                   imageurl={classroomItem.imageurl}
                   progress={classroomItem.progress}
                   order={classroomItem.order}
-                  className={`w-full ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
+                  className={`w-full h-full ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
                   onClick={() => handleClassroomClick(classroomItem.classname)}
                   onLikeClick={() => handleLikeClick(classroomItem.class_id)}
                   isLiked={likedClassrooms[classroomItem.class_id]}

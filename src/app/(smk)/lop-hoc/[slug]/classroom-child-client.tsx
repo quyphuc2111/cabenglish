@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { useAutoUnlockNextLesson } from "@/hooks/client/useLesson";
+import { useSelectLessonStore } from "@/store/useSelectLesson";
 
 function ClassroomChildClient({
   slug,
@@ -35,6 +36,7 @@ function ClassroomChildClient({
   const router = useRouter();
 
   const { checkAndUnlockNextLesson } = useAutoUnlockNextLesson(localLessonData);
+  const { setSelectedLesson } = useSelectLessonStore();
 
   // Cập nhật callback để nhận đúng params: lessonId và newLikeCount (0 hoặc 1)
   const updateLessonLike = React.useCallback((lessonId: number, newLikeCount: number) => {
@@ -78,6 +80,14 @@ function ClassroomChildClient({
   };
 
   const handleLessonClick = async (lessonId: number) => {
+    // Tìm lesson data từ localLessonData
+    const selectedLesson = localLessonData.find(lesson => lesson.lessonId === lessonId);
+    
+    if (selectedLesson) {
+      // Lưu lesson vào store
+      setSelectedLesson(selectedLesson);
+    }
+    
     router.push(`/lesson/${lessonId}`);
   };
 
@@ -105,7 +115,7 @@ function ClassroomChildClient({
     });
     return Array.from(unitMap.entries())
       .map(([id, name]) => ({ id, name }))
-      .sort((a, b) => Number(a.id) - Number(b.id));
+      .sort((a, b) => a.order - b.order);
   }, [lessonData]);
 
   const filterLessons = React.useCallback(() => {
@@ -130,9 +140,8 @@ function ClassroomChildClient({
       );
     }
 
-    // Filter out lessons that are currently being removed (fadeout animation)
-    // This creates smooth transition as they disappear from list
     filtered = filtered.filter(lesson => !removingLessons.has(lesson.lessonId));
+    filtered = filtered.sort((a, b) => a.lessonOrder - b.lessonOrder);  
 
     setFilteredLessons(filtered);
   }, [localLessonData, debouncedSearchQuery, selectedWeek, selectedUnit, removingLessons]);
@@ -160,19 +169,14 @@ function ClassroomChildClient({
     setSelectedUnit("");
   };
 
-  // Debug info - có thể remove sau
-  console.log("ClassroomChildClient - lessonData:", lessonData);
-  console.log("ClassroomChildClient - localLessonData:", localLessonData);
-  console.log("ClassroomChildClient - removingLessons:", Array.from(removingLessons));
-
   return (
     <BreadcrumbLayout title={formatTitle(formattedSlug)}>
       <ClassroomWrapper>
-        <div className="px-3 py-2 mb-4 transition-all duration-200 w-1/2">
+        <div className="px-3 py-2 mb-4 transition-all duration-200 w-5/6">
           <div className="flex flex-col gap-2">
             <div className="flex flex-col sm:flex-row gap-3 items-center">
               {/* Search Bar */}
-              <div className="relative flex-1 max-w-md">
+              <div className="relative flex-1 max-w-sm">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   type="text"
@@ -184,7 +188,7 @@ function ClassroomChildClient({
               </div>
 
               {/* Filter Controls */}
-              <div className="flex gap-2 w-full sm:w-auto">
+              <div className="flex gap-2 w-1/2">
                 {/* Week Filter */}
                 <div className="flex-1 sm:w-40">
                   <Select onValueChange={handleWeekChange} value={selectedWeek || "all"}>
@@ -256,7 +260,7 @@ function ClassroomChildClient({
             const lessonItemData = {
               ...lessonItem,
               classRoomName: lessonItem.className,
-              schoolWeek: lessonItem.schoolWeekId || 1,
+              schoolWeek: lessonItem.schoolWeek || 1,
               schoolWeekId: lessonItem.schoolWeekId || 1
             };
 

@@ -131,6 +131,12 @@ const config = {
       screens: {
         "3xl": "1920px",
         "4xl": "2560px"
+      },
+      spacing: {
+        'safe-top': 'env(safe-area-inset-top)',
+        'safe-bottom': 'env(safe-area-inset-bottom)',
+        'safe-left': 'env(safe-area-inset-left)',
+        'safe-right': 'env(safe-area-inset-right)'
       }
     }
   },

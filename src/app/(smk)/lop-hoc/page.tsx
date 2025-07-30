@@ -32,18 +32,13 @@ async function ClassroomPage({ searchParams }: PageProps) {
     userId: session.user.userId 
   });
 
-  console.log("classroomData", classroomData);
-
   // Lấy classroom name từ searchParams
   const resolvedSearchParams = await searchParams;
   const classroomName = resolvedSearchParams.classroom as string;
 
-  console.log("classroomName from searchParams", classroomName);
-
   // Nếu có classroom name trong searchParams, kiểm tra xem có tồn tại không
   if (classroomName) {
     const decodedClassroomName = decodeURIComponent(classroomName);
-    console.log("classroomName decoded", decodedClassroomName);
 
     // Kiểm tra xem classroom có tồn tại trong dữ liệu không
     const classroomExists = classroomData.data.some(

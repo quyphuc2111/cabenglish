@@ -294,7 +294,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                                 {isDragActive ? "Thả ảnh vào đây!" : "Nhấp vào đây hoặc kéo thả ảnh để tải lên"}
                               </p>
                               <p className="text-xs text-gray-400 mt-1">
-                                Hỗ trợ: PNG, JPG, JPEG, GIF, WEBP, SVG (tối đa 50MB)
+                                Hỗ trợ: PNG, JPG, JPEG, GIF (tối đa 100MB)
                               </p>
                             </motion.div>
                           )}
