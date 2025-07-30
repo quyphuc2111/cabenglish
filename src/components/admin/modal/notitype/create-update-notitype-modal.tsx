@@ -127,18 +127,50 @@ function CreateUpdateNotiTypeModal() {
     }
   }, [notiTypeData, formType, form]);
 
+  // Validation helpers
+  const getValidationError = React.useCallback((value: string) => {
+    if (!value || value.trim().length === 0) return "Tên loại thông báo không được để trống";
+    if (value.length > 100) return "Tên loại thông báo không được vượt quá 100 ký tự";
+    if (/^\s+$/.test(value)) return "Tên loại thông báo không được chỉ chứa khoảng trắng";
+    if (/\s{2,}/.test(value)) return "Không được có nhiều khoảng trắng liên tiếp";
+    if (/<[^>]*>|javascript:|data:|vbscript:|on\w+\s*=|\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}/i.test(value)) {
+      return "Tên loại thông báo chứa nội dung không an toàn";
+    }
+    if (/[<>"'&\\]/.test(value)) return "Tên loại thông báo chứa ký tự không được phép";
+    return null;
+  }, []);
+
   const isFormValid = React.useMemo(() => {
     const value = form.watch("value");
-    return value !== "" && value.trim().length > 0;
-  }, [form.watch("value")]);
+    return getValidationError(value) === null;
+  }, [form.watch("value"), getValidationError]);
 
   const onSubmit = React.useCallback(async (values: NotiTypeFormValues) => {
     try {
+      // Sanitize dữ liệu trước khi gửi
+      const sanitizedValue = values.value
+        .trim() // Loại bỏ khoảng trắng đầu cuối
+        .replace(/<[^>]*>|javascript:|data:|vbscript:|on\w+\s*=|\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}/gi, '') // Loại bỏ XSS
+        .replace(/[<>"'&\\]/g, '') // Loại bỏ ký tự đặc biệt
+        .replace(/\s{2,}/g, ' ') // Thay thế nhiều khoảng trắng
+        .substring(0, 100); // Cắt ngắn về 100 ký tự khi submit
+      
+      // Kiểm tra lại sau khi sanitize
+      if (!sanitizedValue || sanitizedValue.length === 0) {
+        toast.error('Tên loại thông báo không hợp lệ sau khi xử lý!');
+        return;
+      }
+      
+      const sanitizedValues = {
+        ...values,
+        value: sanitizedValue
+      };
+      
       const mutationFn = formType === "create" 
-        ? () => createNotiType(values)
+        ? () => createNotiType(sanitizedValues)
         : () => updateNotiType({ 
             ntId: ntId as number,
-            data: { value: values.value, ntId: values.ntId }
+            data: { value: sanitizedValues.value, ntId: sanitizedValues.ntId }
           });
 
       await mutationFn();
@@ -233,13 +265,20 @@ function CreateUpdateNotiTypeModal() {
                               <Input
                                 {...field}
                                 onChange={(e) => {
-                                  const value = e.target.value;
+                                  let value = e.target.value;
+                                 
                                   field.onChange(value);
+                                }}
+                                onBlur={(e) => {
+                                  // Trim khoảng trắng đầu và cuối khi blur
+                                  const trimmedValue = e.target.value.trim();
+                                  field.onChange(trimmedValue);
+                                  field.onBlur();
                                 }}
                                 disabled={isPending}
                                 placeholder="Nhập tên loại thông báo..."
                                 className="
-                                  text-base p-6 rounded-2xl border-2 
+                                  text-base p-6 pr-16 rounded-2xl border-2 
                                   bg-white/80 dark:bg-gray-800/80 
                                   backdrop-blur-sm
                                   border-gray-200 dark:border-gray-700
@@ -250,18 +289,35 @@ function CreateUpdateNotiTypeModal() {
                                   placeholder:text-gray-400
                                 "
                               />
-                              {isFormValid && (
-                                <motion.div
-                                  initial={{ scale: 0, opacity: 0 }}
-                                  animate={{ scale: 1, opacity: 1 }}
-                                  className="absolute right-4 top-1/2 transform -translate-y-1/2"
-                                >
-                                  <div className="w-2 h-2 bg-green-400 rounded-full shadow-lg"></div>
-                                </motion.div>
-                              )}
+                              {/* Character counter */}
+                              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                <span className={`text-xs font-medium ${
+                                  (field.value?.length || 0) > 100 
+                                    ? 'text-red-500' 
+                                    : (field.value?.length || 0) > 80 
+                                      ? 'text-amber-500' 
+                                      : 'text-gray-400'
+                                }`}>
+                                  {field.value?.length || 0}/100
+                                </span>
+                              </div>
+                            
                             </div>
                           </FormControl>
                           <FormMessage className="text-base text-red-500" />
+                          {/* Hiển thị lỗi validation real-time */}
+                          {(() => {
+                            const currentValue = form.watch("value");
+                            const validationError = getValidationError(currentValue || "");
+                            return validationError && !form.formState.errors.value ? (
+                              <p className="text-amber-600 dark:text-amber-400 text-sm mt-2 font-medium flex items-center gap-2">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                                {validationError}
+                              </p>
+                            ) : null;
+                          })()}
                         </FormItem>
                       )}
                     />

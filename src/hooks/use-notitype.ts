@@ -91,9 +91,77 @@ export const useDeleteNotiType = () => {
   });
 };
 
+export const useDeleteMultipleNotiTypes = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (ntIds: number[]) => {
+      // Xóa từng loại thông báo một cách tuần tự
+      const deletePromises = ntIds.map(id => 
+        deleteNotiTypeAdminData({ ntId: parseInt(id) })
+      );
+      
+      const results = await Promise.allSettled(deletePromises);
+      
+      // Kiểm tra xem có lỗi nào không
+      const failures = results.filter(result => result.status === 'rejected');
+      if (failures.length > 0) {
+        throw new Error(`Không thể xóa ${failures.length}/${ntIds.length} loại thông báo`);
+      }
+      
+      return results;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notitypes"] });
+    }
+  });
+};
+
+// Cache cho dữ liệu notitype để tránh gọi API nhiều lần
+let notiTypeCache: any[] | null = null;
+let cacheTimestamp: number = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 phút
 
 export async function checkNotiTypeExists(value: string | number) {
-  const response = await getAllNotiTypeAdminData();
-  if (!response.data) return false;
-  return response.data.some((notitype: any) => notitype.value === value);
+  const now = Date.now();
+  
+  // Kiểm tra cache còn hiệu lực không
+  if (!notiTypeCache || (now - cacheTimestamp) > CACHE_DURATION) {
+    const response = await getAllNotiTypeAdminData();
+    if (!response.data) return false;
+    notiTypeCache = response.data;
+    cacheTimestamp = now;
+  }
+  
+  return notiTypeCache.some((notitype: any) => notitype.value === value);
+}
+
+// Hàm batch validation để kiểm tra nhiều giá trị cùng lúc
+export async function checkMultipleNotiTypeExists(values: (string | number)[]): Promise<boolean[]> {
+  const now = Date.now();
+  
+  // Kiểm tra cache còn hiệu lực không
+  if (!notiTypeCache || (now - cacheTimestamp) > CACHE_DURATION) {
+    const response = await getAllNotiTypeAdminData();
+    if (!response.data) return values.map(() => false);
+    notiTypeCache = response.data;
+    cacheTimestamp = now;
+  }
+  
+  return values.map(value => {
+    // Chuyển đổi cả giá trị cần kiểm tra và giá trị trong cache về string để so sánh
+    const normalizedValue = String(value).trim();
+    const exists = notiTypeCache!.some((notitype: any) => {
+      const cacheValue = String(notitype.value).trim();
+      return cacheValue === normalizedValue;
+    });
+    
+    return exists;
+  });
+}
+
+// Hàm để clear cache khi cần
+export function clearNotiTypeCache() {
+  notiTypeCache = null;
+  cacheTimestamp = 0;
 }

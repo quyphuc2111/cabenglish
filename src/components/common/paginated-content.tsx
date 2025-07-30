@@ -20,6 +20,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { ScrollArea } from '../ui/scroll-area';
+import Image from 'next/image';
 
 interface PaginatedContentProps<T> {
   items: T[];
@@ -115,73 +116,92 @@ export function PaginatedContent<T>({
       
       {/* Content grid - responsive */}
       <ScrollArea className="pr-2 sm:pr-6 md:pr-10 mt-2">
-        <div className={getResponsiveGridColumns()}>
-          {currentItems.map((item, index) => (
-            <Fragment key={index}>{renderItem(item)}</Fragment>
-          ))}
-        </div>
+        {items.length === 0 ? (
+          <div className="flex flex-col items-center gap-10 h-full justify-center">
+            <h3 className="text-3xl text-[#736E6E]">
+              Hiện tại chưa có bài giảng nào!
+            </h3>
+            <div className="w-36 h-36">
+              <Image
+                src="/assets/image/no_course.png"
+                width={512}
+                height={512}
+                alt="no_course"
+                className="object-contain"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className={getResponsiveGridColumns()}>
+            {currentItems.map((item, index) => (
+              <Fragment key={index}>{renderItem(item)}</Fragment>
+            ))}
+          </div>
+        )}
       </ScrollArea>
     
-      <div className="mt-6 space-y-4">
-        
-        {/* Main pagination - căn giữa */}
-        <div className="flex justify-center">
-          <Pagination>
-            <PaginationContent className="gap-1 sm:gap-2">
-              <PaginationItem>
-                <PaginationPrevious 
-                  href="#" 
-                  onClick={prevPage} 
-                  className="text-xs sm:text-sm px-2 sm:px-3"
-                />
-              </PaginationItem>
-              {renderPageNumbers()}
-              <PaginationItem>
-                <PaginationNext 
-                  href="#" 
-                  onClick={nextPage} 
-                  className="text-xs sm:text-sm px-2 sm:px-3"
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-
-        {/* Bottom controls - flex layout cân đối */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-600">
+      {items.length > 0 && (
+        <div className="mt-6 space-y-4">
           
-          {/* Left: Items per page selector */}
-          <div className="flex items-center gap-3">
-            {itemInPage.length > 0 && (
-              <>
-                <span className="text-xs sm:text-sm">Hiển thị:</span>
-                <Select 
-                  value={selectedItemPerPage.toString()} 
-                  onValueChange={(value) => setSelectedItemPerPage(Number(value))}
-                >
-                  <SelectTrigger className="w-[70px] sm:w-[80px] h-8 text-xs sm:text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {itemInPage.map((number) => (
-                        <SelectItem key={number} value={number.toString()} className="text-xs sm:text-sm">
-                          {number}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </>
-            )}
+          {/* Main pagination - căn giữa */}
+          <div className="flex justify-center">
+            <Pagination>
+              <PaginationContent className="gap-1 sm:gap-2">
+                <PaginationItem>
+                  <PaginationPrevious 
+                    href="#" 
+                    onClick={prevPage} 
+                    className="text-xs sm:text-sm px-2 sm:px-3"
+                  />
+                </PaginationItem>
+                {renderPageNumbers()}
+                <PaginationItem>
+                  <PaginationNext 
+                    href="#" 
+                    onClick={nextPage} 
+                    className="text-xs sm:text-sm px-2 sm:px-3"
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
 
-          {/* Right: Items count info */}
-          <div className="text-xs sm:text-sm text-gray-500">
-            Hiển thị {startIndex + 1}-{Math.min(endIndex, items.length)} / {items.length} mục
+          {/* Bottom controls - flex layout cân đối */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-600">
+            
+            {/* Left: Items per page selector */}
+            <div className="flex items-center gap-3">
+              {itemInPage.length > 0 && (
+                <>
+                  <span className="text-xs sm:text-sm">Hiển thị:</span>
+                  <Select 
+                    value={selectedItemPerPage.toString()} 
+                    onValueChange={(value) => setSelectedItemPerPage(Number(value))}
+                  >
+                    <SelectTrigger className="w-[70px] sm:w-[80px] h-8 text-xs sm:text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {itemInPage.map((number) => (
+                          <SelectItem key={number} value={number.toString()} className="text-xs sm:text-sm">
+                            {number}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
+            </div>
+
+            {/* Right: Items count info */}
+            <div className="text-xs sm:text-sm text-gray-500">
+              Hiển thị {startIndex + 1}-{Math.min(endIndex, items.length)} / {items.length} mục
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
-} 
+}

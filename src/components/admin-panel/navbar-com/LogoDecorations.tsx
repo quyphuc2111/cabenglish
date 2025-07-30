@@ -19,8 +19,8 @@ const foregroundThemeClasses: Record<string, string> = {
 export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
   return (
     <motion.div
-      className={`w-full md:w-2/3 max-h-24 h-20 sm:h-24 ${foregroundThemeClasses[currentTheme]} 
-        rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
+      className={`w-full rounded-xl   md:w-2/3 max-h-24 h-20 sm:h-24 ${foregroundThemeClasses[currentTheme]} 
+        md:rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative `}
       variants={navbarAnimations.item}
     >
       <motion.div
@@ -38,11 +38,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
         />
       </motion.div>
 
-      <div
-        className="w-full md:w-3/4 bg-white absolute top-1/2 -translate-y-1/2 
-          left-0 md:left-10 rounded-xl p-2 sm:p-3 md:p-4 
-          px-3 sm:px-6 md:px-8 lg:px-12"
-      >
+      <div className="sm:w-full w-[85%] left-1/2 -translate-x-1/2 flex justify-center md:block  md:w-3/4 bg-white absolute top-1/2 -translate-y-1/2  sm:left-0 md:left-10 rounded-xl p-2 sm:p-3 md:p-4 px-3 sm:px-6 md:px-8 lg:px-12 md:translate-x-0">
         <div className="w-fit relative">
           <LogoSection />
 

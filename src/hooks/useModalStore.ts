@@ -12,6 +12,7 @@ export type ModalType =
   | "resetSchoolYear"
   | "changeTeachingModeModal"
   | "completeLesson"
+  | "nextSection"
   | "notification"
   | "createUpdateClassroom"
   | "deleteClassroom"
@@ -49,6 +50,8 @@ export type ModalType =
   | "exportLessons"
   | "importLessons"
   | "logout"
+  | "errorDetails"
+  | "exportNotiType"
   ;
 
 export interface ModalData {
@@ -120,6 +123,9 @@ export interface ModalData {
     }[];
   };
   onSuccess?: () => void;
+  error?: Error | null;
+  errorTitle?: string;
+  selectedClassId?: number | string;
 }
 
 

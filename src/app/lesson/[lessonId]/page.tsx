@@ -74,7 +74,6 @@ async function LessonPage({ params, searchParams }: PageProps) {
           userId: session.user.userId,
           sectionId
         });
-        console.log(sectionContentData);
       } catch (contentError) {
         console.error("Error loading section content:", contentError);
         // Không cần throw error ở đây vì có thể section content chưa được tạo

@@ -7,6 +7,7 @@ import { ActionCell } from "./action-cell";
 import { Badge } from "@/components/ui/badge";
 import { LessonAdminType } from "@/types/lesson";
 import ImagePreview from "./ImagePreview";
+import { useSchoolWeek } from "@/hooks/use-schoolweek";
 
 // Tách ImageCell ra thành component riêng và memoize nó
 const ImageCell = memo(({ imageUrl }: { imageUrl: string }) => (
@@ -16,6 +17,14 @@ const ImageCell = memo(({ imageUrl }: { imageUrl: string }) => (
 ImageCell.displayName = 'ImageCell';
 
 export function useLessonsColumns() {
+  const { data: schoolWeekData } = useSchoolWeek();
+
+  // Helper function để tìm school week value từ ID
+  const getSchoolWeekValue = (schoolWeekId: number) => {
+    if (!schoolWeekData?.data) return "N/A";
+    const schoolWeek = schoolWeekData.data.find(week => week.swId === schoolWeekId);
+    return schoolWeek ? `Tuần ${schoolWeek.value}` : "N/A";
+  };
 
   const columns = useMemo<ColumnDef<LessonAdminType>[]>(
     () => [
@@ -87,14 +96,15 @@ export function useLessonsColumns() {
           <div className="font-semibold text-gray-900 px-2 lg:px-4">Tuần học</div>
         ),
         cell: ({ row }) => {
-          const schoolweek = row.original.schoolWeekID;
+          const schoolWeekValue = getSchoolWeekValue(row.original.schoolWeekID);
+
           return (
             <div className="px-2 lg:px-4">
               <Badge 
                 variant="secondary"
                 className="bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium px-2 lg:px-4 py-1 lg:py-1.5 transition-all duration-200 transform hover:scale-105 min-w-[60px] lg:min-w-[80px] text-center text-xs lg:text-sm"
               >
-                Tuần {schoolweek}
+                {schoolWeekValue}
               </Badge>
             </div>
           );
@@ -107,22 +117,22 @@ export function useLessonsColumns() {
         ),
         cell: ({ row }) => <ImageCell imageUrl={row.original.imageUrl} />
       },
-      {
-        accessorKey: "numLiked",
-        header: () => (
-          <div className="font-semibold text-gray-900 text-center w-full text-sm lg:text-base">Số lượt thích</div>
-        ),
-        cell: ({ row }) => {
-          const numLiked = row.original.numLiked;
-          return (
-            <div className="w-full flex items-center justify-center">
-              <span className="inline-flex items-center justify-center px-2 lg:px-3 py-1 lg:py-1.5 rounded-full bg-pink-50 text-pink-700 text-xs lg:text-sm font-medium min-w-[30px] lg:min-w-[40px]">
-                {numLiked}
-              </span>
-            </div>
-          );
-        }
-      },
+      // {
+      //   accessorKey: "numLiked",
+      //   header: () => (
+      //     <div className="font-semibold text-gray-900 text-center w-full text-sm lg:text-base">Số lượt thích</div>
+      //   ),
+      //   cell: ({ row }) => {
+      //     const numLiked = row.original.numLiked;
+      //     return (
+      //       <div className="w-full flex items-center justify-center">
+      //         <span className="inline-flex items-center justify-center px-2 lg:px-3 py-1 lg:py-1.5 rounded-full bg-pink-50 text-pink-700 text-xs lg:text-sm font-medium min-w-[30px] lg:min-w-[40px]">
+      //           {numLiked}
+      //         </span>
+      //       </div>
+      //     );
+      //   }
+      // },
       {
         accessorKey: "isActive",
         header: () => (
@@ -183,7 +193,7 @@ export function useLessonsColumns() {
         }
       }
     ],
-    []
+    [schoolWeekData, getSchoolWeekValue]
   );
 
   return columns;

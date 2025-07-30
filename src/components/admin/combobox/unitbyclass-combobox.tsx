@@ -20,8 +20,25 @@ import {
 import { useUnitByClassId } from "@/hooks/use-units"
 import { Skeleton } from "@/components/ui/skeleton"
 
+const removeVietnameseTones = (str: string): string => {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase();
+};
+
+// Utility function để tìm kiếm không phân biệt dấu
+const searchMatch = (searchTerm: string, targetText: string): boolean => {
+  const normalizedSearch = removeVietnameseTones(searchTerm.trim());
+  const normalizedTarget = removeVietnameseTones(targetText);
+  return normalizedTarget.includes(normalizedSearch);
+};
+
 interface UnitByClassComboboxProps {
   onSelect: (value: string) => void;
+  onChange?: (value: string) => void;
   placeholder?: string;
   classId: string;
   defaultValue?: string;
@@ -30,6 +47,7 @@ interface UnitByClassComboboxProps {
 
 export function UnitByClassCombobox({ 
   onSelect, 
+  onChange,
   placeholder = "Chọn unit...", 
   classId,
   defaultValue,
@@ -37,6 +55,7 @@ export function UnitByClassCombobox({
 }: UnitByClassComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(defaultValue || "")
+  const [searchValue, setSearchValue] = React.useState("")
 
   // Reset value khi classId thay đổi
   React.useEffect(() => {
@@ -61,20 +80,56 @@ export function UnitByClassCombobox({
     });
   }, [data?.data]);
 
+  // Lọc units theo search value
+  const filteredUnits = React.useMemo(() => {
+    if (!searchValue.trim()) {
+      return units;
+    }
+    
+    return units.filter(unit => 
+      searchMatch(searchValue, unit.unitName)
+    );
+  }, [units, searchValue]);
+
   const handleSelect = React.useCallback((currentValue: string) => {
     const newValue = currentValue === value ? "" : currentValue;
     setValue(newValue);
+    setSearchValue(""); // Clear search khi select
     setOpen(false);
     onSelect(newValue);
-  }, [value, onSelect]);
+    onChange?.(newValue);
+  }, [value, onSelect, onChange]);
 
   // Reset giá trị
   const handleReset = React.useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     setValue("");
     onSelect("");
+    onChange?.("");
+    setSearchValue("");
     setOpen(false);
-  }, [onSelect]);
+  }, [onSelect, onChange]);
+
+  // Xử lý thay đổi search value
+  const handleSearchChange = React.useCallback((search: string) => {
+    setSearchValue(search);
+    // Clear selection khi người dùng bắt đầu tìm kiếm
+    if (search.trim() && value) {
+      setValue("");
+      onSelect("");
+      onChange?.("");
+    }
+  }, [value, onSelect, onChange]);
+
+  // Xử lý khi popover đóng
+  const handleOpenChange = React.useCallback((isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setSearchValue(""); // Clear search khi đóng popover
+    }
+  }, []);
+
+  const selectedUnit = units.find((unit) => unit.unitId === Number(value));
 
   // Hiển thị loading state
   if (isLoading) {
@@ -96,10 +151,8 @@ export function UnitByClassCombobox({
     );
   }
 
-  const selectedUnit = units.find((unit) => unit.unitId === Number(value));
-
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <div className="flex items-center gap-2 relative">
         <PopoverTrigger asChild>
           <Button
@@ -108,6 +161,7 @@ export function UnitByClassCombobox({
             aria-expanded={open}
             className={cn("w-[300px] justify-between pr-8", buttonClassName)}
             disabled={units.length === 0}
+            onClick={() => setSearchValue("")}
           >
             <span className="truncate">
               {selectedUnit ? selectedUnit.unitName : placeholder}
@@ -129,15 +183,22 @@ export function UnitByClassCombobox({
       </div>
       
       <PopoverContent className="w-[300px] p-0">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput 
-            placeholder="Tìm kiếm unit..." 
+            placeholder="Tìm kiếm unit theo tên..." 
             className="h-9"
+            value={searchValue}
+            onValueChange={handleSearchChange}
           />
           <CommandList>
-            <CommandEmpty>Không tìm thấy unit nào.</CommandEmpty>
+            <CommandEmpty>
+              {searchValue.trim() 
+                ? `Không tìm thấy unit nào với từ khóa "${searchValue}"`
+                : "Không có unit nào."
+              }
+            </CommandEmpty>
             <CommandGroup>
-              {units.map((unit) => (
+              {filteredUnits.map((unit) => (
                 <CommandItem
                   key={unit.unitId}
                   value={unit.unitId.toString()}

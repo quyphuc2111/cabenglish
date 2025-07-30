@@ -31,8 +31,13 @@ import ImportSectionContentModal from "@/components/admin/modal/section-content/
 import ExportSectionContentModal from "@/components/admin/modal/section-content/export-section-content-modal";
 import ImportUnitsModal from "@/components/admin/modal/units/import-units-modal";
 import ExportUnitsModal from "@/components/admin/modal/units/export-units-modal";
+import { ErrorDetailsModal } from "@/components/common/error-details-modal";
+import { useModal } from "@/hooks/useModalStore";
+import ExportNotiTypeModal from "@/components/admin/modal/notitype/export-notitype-modal";
+
 function AdminModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
+  const { isOpen, type, data, onClose } = useModal();
 
   useEffect(() => {
     setIsMounted(true);
@@ -60,6 +65,7 @@ function AdminModalProvider() {
       <CreateUpdateNotiTypeModal />
       <DeleteNotiTypeModal />
       <ImportNotiTypeModal />
+      <ExportNotiTypeModal />
 
       {/* units */}
       <CreateUpdateUnitsModal />
@@ -89,6 +95,14 @@ function AdminModalProvider() {
       <CreateUpdateNotiModal />
       <DeleteNotiModal />
       <SendNotiModal />
+
+      {/* error details */}
+      <ErrorDetailsModal
+        isOpen={isOpen && type === "errorDetails"}
+        onClose={onClose}
+        error={data?.error || null}
+        title={data?.errorTitle || "Chi tiết lỗi"}
+      />
 
     </>
 

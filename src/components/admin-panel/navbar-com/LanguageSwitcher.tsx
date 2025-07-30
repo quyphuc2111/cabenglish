@@ -101,8 +101,6 @@ export function LanguageSwitcher({ t, initialLanguage, userId, updateUserInfo }:
     }
   };
 
-  console.log("session", session)
-
   return (
     <motion.div
       className="relative flex items-center w-full"

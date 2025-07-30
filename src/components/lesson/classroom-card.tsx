@@ -61,18 +61,18 @@ const ProgressIndicator = ({ progress, delay }: { progress: number, delay: numbe
       initial="hidden"
       animate="visible" 
       className={cn(
-        "bg-[#db8ab5]/50 rounded-tr-md px-2 py-1 h-full",
+        "bg-[#db8ab5]/50 rounded-tr-md px-1 sm:px-2 py-1 h-full",
         progress === 0 && "bg-[#e25762]"
       )}
     >
       <div
         className={cn(
-          "flex items-center gap-2",
+          "flex items-center gap-1 sm:gap-2",
           progress === 0 && "justify-center"
         )}
       >
         {progress === 0 ? (
-          <p className="text-center text-white">Chưa học</p>
+          <p className="text-center text-white text-xs sm:text-sm">Chưa học</p>
         ) : (
           [...Array(flowerCount)].map((_, index) => (
             <motion.div
@@ -84,8 +84,9 @@ const ProgressIndicator = ({ progress, delay }: { progress: number, delay: numbe
               <Image
                 src="/flower.png"
                 alt="flower"
-                width={13}
-                height={19}
+                width={10}
+                height={15}
+                className="w-[10px] h-[15px] sm:w-[13px] sm:h-[19px]"
               />
             </motion.div>
           ))
@@ -127,7 +128,7 @@ function ClassroomCard({
 
   const cardClasses = useMemo(() => 
     cn(
-      "px-3 py-4 bg-white rounded-2xl flex flex-col gap-2 shadow-course-inset border relative overflow-hidden h-[400px]",
+      "px-2 sm:px-3 py-3 sm:py-4 bg-white rounded-2xl flex flex-col gap-2 shadow-course-inset border relative overflow-hidden h-[320px] sm:h-[350px] md:h-[400px]",
       isLocked ? "opacity-60 cursor-not-allowed bg-[#d9d9d9]" : "cursor-pointer",
       className
     ),
@@ -145,65 +146,64 @@ function ClassroomCard({
       onClick={handleChooseCourse}
       className={cardClasses}
     >
-      <div>
-
+      <div className="flex-shrink-0">
         <motion.div
           variants={ANIMATIONS.imageVariants}
           className="relative w-full aspect-[16/9]"
         >
           <Image
-            src={`/modal/course1.png`}
+            src={imageurl}
             alt={classname}
             fill
             className={cn(
               "rounded-xl object-cover",
               isLocked && "opacity-50"
             )}
+            unoptimized
           />
 
-          {isLocked  && (
+          {isLocked && (
           <div className="absolute inset-0 flex items-center justify-center">
             <Image 
               src="/assets/image/lock_course.png" 
               alt="locked"
-              width={40}
-              height={40}
+              width={30}
+              height={30}
+              className="sm:w-[40px] sm:h-[40px]"
             />
           </div>
         )}
         </motion.div>
       </div>
 
-      <div className={cn("flex flex-col gap-3 flex-grow")}>
-      <motion.h2
+      <div className="flex flex-col min-h-0 flex-grow">
+        <motion.h2
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: delay + 0.4 }}
           className={cn(
-            "text-xl font-bold text-[#58B882]",
+            "text-base sm:text-lg md:text-xl font-bold text-[#58B882] line-clamp-2 flex-shrink-0",
           )}
         >
           {classname}
         </motion.h2>
-      <motion.p
+        <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: delay + 0.4 }}
-          className="text-base text-gray-600 line-clamp-3 flex-grow"
+          className="text-sm sm:text-base text-gray-600 line-clamp-2 sm:line-clamp-3 min-h-0 max-h-[60px] sm:max-h-[72px] overflow-hidden"
           title={description}
         >
           {description}
         </motion.p>
 
-       
-
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mt-auto pt-2 flex-shrink-0">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: delay + 0.5 }}
             className={cn(
-              "border-4",
+              "border-2 sm:border-4",
               progress == 0 ? "border-[#333333]/20" : "",
               progress > 0 && progress < 100 ? "border-[#e25762]/50" : "",
               progress == 100 ? "border-[#3EC474]" : "",
@@ -212,20 +212,21 @@ function ClassroomCard({
           >
             <ProgressIndicator progress={progress} delay={delay} />
             {progress > 0 && progress < 100 && (
-              <p className="text-center px-2">{formatProgress(progress)}%</p>
+              <p className="text-center px-1 sm:px-2 text-xs sm:text-sm">{formatProgress(progress)}%</p>
             )}
             {progress === 100 && (
               <motion.div
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: delay + 0.8 }}
-                className="ml-2"
+                className="ml-1 sm:ml-2"
               >
                 <Image
                   src="/check_course.png"
                   alt="check"
-                  width={21}
-                  height={25}
+                  width={16}
+                  height={20}
+                  className="w-[16px] h-[20px] sm:w-[21px] sm:h-[25px]"
                 />
               </motion.div>
             )}
@@ -242,16 +243,16 @@ function ClassroomCard({
               <Image 
                 src={"/modal/heart.png"} 
                 alt="likes" 
-                width={28} 
-                height={34}
+                width={22}
+                height={28}
                 className={cn(
-                  "transition-opacity duration-200",
+                  "transition-opacity duration-200 h-[28px] w-[28px]",
                   !isLiked && "opacity-60"
                 )}
               />
             </div>
             <span className={cn(
-              "text-sm transition-colors duration-200",
+              "text-xs sm:text-sm transition-colors duration-200",
               isLiked ? "text-gray-500" : "text-gray-400"
             )}>
               {numliked}

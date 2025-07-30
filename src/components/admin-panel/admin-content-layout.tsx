@@ -14,7 +14,7 @@ export function AdminContentLayout({ breadcrumb, children }: AdminContentLayoutP
   
   return (
     <>
-      <div className="2xl:px-8 mt-5 ">
+      <div className="2xl:px-8 mt-10 md:mt-5 ">
         {
           breadcrumb?.length > 0 && (
             <Navbar breadcrumb={breadcrumb} />

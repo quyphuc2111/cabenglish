@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import { useDeleteSchoolWeek } from "@/hooks/use-schoolweek";
-import { useDeleteNotiType } from "@/hooks/use-notitype";
+import { useDeleteNotiType, useDeleteMultipleNotiTypes } from "@/hooks/use-notitype";
 import { Badge } from "@/components/ui/badge";
 
 // Thêm các animation variants
@@ -74,41 +74,81 @@ interface DeleteNotiTypeModalProps {
 function DeleteNotiTypeModal() {
   const { isOpen, onClose, type, data } = useModal();
 
-  const { mutate: deleteNotiType, isPending } = useDeleteNotiType();
+  const { mutate: deleteNotiType, isPending: isSingleDeleting } = useDeleteNotiType();
+  const { mutate: deleteMultipleNotiTypes, isPending: isMultipleDeleting } = useDeleteMultipleNotiTypes();
+  
+  const isPending = isSingleDeleting || isMultipleDeleting;
+  const isMultipleDelete = data?.notiTypeIds && data.notiTypeIds.length > 1;
+  const notiTypesToDelete = data?.notiTypes || (data?.notiType ? [data.notiType] : []);
 
   const handleConfirm = React.useCallback(() => {
-    if (!data?.notiType?.ntId) return;
-
-    const notiTypeName = data.notiType.value;
-
-    deleteNotiType(data.notiType.ntId, {
-      onSuccess: () => {
-        toast.success(
-          <div className="flex flex-col gap-1">
-            <p className="font-medium">Xóa thành công!</p>
-            <p className="text-sm text-gray-600">
-              Đã xóa loại thông báo &quot;{notiTypeName}&quot;
-            </p>
-          </div>
-        );
-        onClose();
-      },
-      onError: (error) => {
-        toast.error(
-          <div className="flex flex-col gap-1">
-            <p className="font-medium">Xóa thất bại!</p>
-            <p className="text-sm text-gray-600">
-              {error instanceof Error 
-                ? error.message 
-                : `Không thể xóa loại thông báo "${notiTypeName}". Vui lòng thử lại sau.`
-              }
-            </p>
-          </div>
-        );
-        console.error("Delete error:", error);
-      }
-    });
-  }, [data?.notiType, deleteNotiType, onClose]);
+    if (isMultipleDelete) {
+      // Xóa nhiều loại thông báo
+      if (!data?.notiTypeIds || data.notiTypeIds.length === 0) return;
+      
+      deleteMultipleNotiTypes(data.notiTypeIds, {
+        onSuccess: () => {
+          toast.success(
+            <div className="flex flex-col gap-1">
+              <p className="font-medium">Xóa thành công!</p>
+              <p className="text-sm text-gray-600">
+                Đã xóa {data.notiTypeIds.length} loại thông báo
+              </p>
+            </div>
+          );
+          data?.onSuccess?.();
+          onClose();
+        },
+        onError: (error) => {
+          toast.error(
+            <div className="flex flex-col gap-1">
+              <p className="font-medium">Xóa thất bại!</p>
+              <p className="text-sm text-gray-600">
+                {error instanceof Error 
+                  ? error.message 
+                  : `Không thể xóa các loại thông báo đã chọn. Vui lòng thử lại sau.`
+                }
+              </p>
+            </div>
+          );
+          console.error("Delete multiple error:", error);
+        }
+      });
+    } else {
+      // Xóa một loại thông báo
+      if (!data?.notiType?.ntId) return;
+      
+      const notiTypeName = data.notiType.value;
+      
+      deleteNotiType(data.notiType.ntId, {
+        onSuccess: () => {
+          toast.success(
+            <div className="flex flex-col gap-1">
+              <p className="font-medium">Xóa thành công!</p>
+              <p className="text-sm text-gray-600">
+                Đã xóa loại thông báo &quot;{notiTypeName}&quot;
+              </p>
+            </div>
+          );
+          onClose();
+        },
+        onError: (error) => {
+          toast.error(
+            <div className="flex flex-col gap-1">
+              <p className="font-medium">Xóa thất bại!</p>
+              <p className="text-sm text-gray-600">
+                {error instanceof Error 
+                  ? error.message 
+                  : `Không thể xóa loại thông báo "${notiTypeName}". Vui lòng thử lại sau.`
+                }
+              </p>
+            </div>
+          );
+          console.error("Delete error:", error);
+        }
+      });
+    }
+  }, [data, deleteNotiType, deleteMultipleNotiTypes, isMultipleDelete, onClose]);
 
   if (!isOpen || type !== "deleteNotiType") return null;
 
@@ -181,22 +221,32 @@ function DeleteNotiTypeModal() {
                   height={90}
                 />
               </motion.div>
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-4">
                 <p className="text-2xl font-medium">
-                  Bạn có muốn xóa loại thông báo này không?
+                  {isMultipleDelete 
+                    ? `Bạn có muốn xóa ${notiTypesToDelete.length} loại thông báo này không?`
+                    : "Bạn có muốn xóa loại thông báo này không?"
+                  }
                 </p>
-                {data?.notiType?.value && (
-                  <p className="text-lg text-gray-600">
-                    <span className="font-medium text-blue-600 ">
-                      Loại thông báo:{" "}
-                      <Badge
-                        variant="outline"
-                        className="bg-blue-500 text-white px-4 py-1"
-                      >
-                        {data.notiType.value}
-                      </Badge>
+                {notiTypesToDelete.length > 0 && (
+                  <div className="text-lg text-gray-600">
+                    <span className="font-medium text-blue-600 block mb-3">
+                      {isMultipleDelete ? "Các loại thông báo:" : "Loại thông báo:"}
                     </span>
-                  </p>
+                    <div className={`flex flex-wrap gap-2 justify-center ${
+                      isMultipleDelete ? "max-h-32 overflow-y-auto" : ""
+                    }`}>
+                      {notiTypesToDelete.map((notiType, index) => (
+                        <Badge
+                          key={notiType.ntId || index}
+                          variant="outline"
+                          className="bg-blue-500 text-white px-4 py-1"
+                        >
+                          {notiType.value}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
               <div className="flex gap-20">

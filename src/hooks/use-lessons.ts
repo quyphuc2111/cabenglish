@@ -77,7 +77,9 @@ export function useCreateLessonByClassIdUnitId() {
           String(variables.unitId)
         ],
         ["lessons-by-class-id", String(variables.classId)],
-        ["lessons"]
+        ["lessons"],
+        // Invalidate validation cache để cập nhật suggestNextOrder
+        ["lessons-validation", variables.classId, variables.unitId]
       ];
 
       queryKeys.forEach((queryKey) => {
@@ -140,6 +142,10 @@ export const useUpdateLessonByClassIdUnitId = (
       queryClient.invalidateQueries({
         queryKey: ["lessons-by-class-id-unit-id", classId, unitId]
       });
+      // Invalidate validation cache để cập nhật suggestNextOrder
+      queryClient.invalidateQueries({
+        queryKey: ["lessons-validation", classId, unitId]
+      });
     }
   });
 };
@@ -182,7 +188,9 @@ export function useDeleteLesson() {
           String(variables.unitId)
         ],
         ["lessons-by-class-id", String(variables.classId)],
-        ["lessons"]
+        ["lessons"],
+        // Invalidate validation cache để cập nhật suggestNextOrder
+        ["lessons-validation", variables.classId, variables.unitId]
       ];
 
       queryKeys.forEach((queryKey) => {

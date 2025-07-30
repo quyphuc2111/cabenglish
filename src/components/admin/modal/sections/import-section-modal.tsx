@@ -204,9 +204,6 @@ function ImportSectionModal() {
         lessonId: activeLesson.lessonId,
       }
 
-      // console.log("Số hàng dữ liệu:", filteredRows.length);
-      // console.log("Dữ liệu đã format:", importData);
-
       if (importOption === "create") {
         createSection(importData, {
           onSuccess: (data) => {

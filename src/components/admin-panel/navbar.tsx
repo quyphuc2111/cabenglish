@@ -63,7 +63,7 @@ export function Navbar({ title, type }: NavbarProps) {
       initial="hidden"
       animate="visible"
     >
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 lg:gap-10">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 lg:gap-10">
         <SheetMenu />
         <LogoDecorations currentTheme={currentTheme} />
         <NavbarControls

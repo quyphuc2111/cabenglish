@@ -2,14 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
-import { Footer } from "@/components/admin-panel/footer";
-import { Sidebar } from "@/components/admin-panel/sidebar";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
-import Image from "next/image";
-import { ModalProvider } from "@/providers/modal-provider";
-import { useUserTheme } from "@/store/useUserStore";
 import { ToastContainer } from "react-toastify";
 import { AdminSidebar } from "./admin-sidebar";
+import { MobileAdminMenu } from "./mobile-admin-menu";
 import AdminModalProvider from "@/providers/admin-modal-provider";
 import Navbar from "../admin/navbar";
 import { useSession } from "next-auth/react";
@@ -41,22 +37,36 @@ export default function AdminPanelLayout({
 
 
   return (
-    <div className={themeClasses[currentTheme ?? "theme-red"]}>
+    <div className={themeClasses["theme-red"]}>
       <AdminSidebar />
+      <MobileAdminMenu />
       {/* p-3 xl:p-[40px] 2xl:p-[60px] */}
       <main
         className={cn(
-          `min-h-screen transition-[margin-left] ease-in-out duration-300 
-           flex-1 h-full ${themeSecondaryClasses[currentTheme]} lg:rounded-l-[48px] 
+          `min-h-screen transition-[margin-left] ease-in-out duration-300 px-3
+           flex-1 h-full ${themeSecondaryClasses["theme-red"]} lg:rounded-l-[48px] 
            overflow-y-hidden `,
-          sidebar?.isOpen === false ? "lg:ml-[100px]" : "lg:ml-72"
+          sidebar?.isOpen === false ? "ml-0 md:ml-[100px] pl-5" : "ml-0 md:ml-72"
         )}
       >
         {children}
       </main>
       {/* <ModalProvider /> */}
       <AdminModalProvider />
-      <ToastContainer />
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        limit={3}
+        containerId="admin-toast-container"
+      />
     </div>
   );
 }

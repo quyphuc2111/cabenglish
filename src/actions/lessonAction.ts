@@ -32,8 +32,6 @@ export async function getAllLessonDataByUserId({
     };
   }
 
-  console.log("mode", mode)
-
   try {
     await initializeProgress(userId)
     await initializeLocked({userId, mode: mode })
@@ -244,14 +242,16 @@ export async function deleteLessonAdminData({
 
     return {
       data,
-      error: undefined
+      error: undefined,
+      success: true
     };
   } catch (error) {
     console.error("Lỗi khi xóa bài học:", error);
     return {
       data: [],
       error:
-        error instanceof Error ? error.message : "Có lỗi xảy ra khi xóa bài học"
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi xóa bài học",
+      success: false
     };
   }
 }

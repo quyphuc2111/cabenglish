@@ -26,28 +26,32 @@ interface ActionButtonsProps {
   onCreate: () => void;
 }
 
-// Tách riêng component ActionButtons 
+// Tách riêng component ActionButtons với responsive design
 const ActionButtons = ({ rowSelection, onDelete, onExport, onImport, onCreate }: ActionButtonsProps) => (
   <>
     {Object.keys(rowSelection).length > 0 && (
-      <Button variant="destructive" onClick={onDelete}>
-        Xóa ({Object.keys(rowSelection).length})
+      <Button variant="destructive" onClick={onDelete} className="w-full sm:w-auto">
+        <span className="sm:hidden">Xóa ({Object.keys(rowSelection).length})</span>
+        <span className="hidden sm:inline">Xóa ({Object.keys(rowSelection).length})</span>
       </Button>
     )}
-    <Button variant="outline" onClick={onExport}>
+    <Button variant="outline" onClick={onExport} className="w-full sm:w-auto">
       <Download className="w-4 h-4 mr-2" />
-      Xuất dữ liệu
+      <span className="sm:hidden">Xuất</span>
+      <span className="hidden sm:inline">Xuất dữ liệu</span>
     </Button>
-    <Button variant="outline" onClick={onImport}>
+    <Button variant="outline" onClick={onImport} className="w-full sm:w-auto">
       <Upload className="w-4 h-4 mr-2" />
-      Nhập dữ liệu
+      <span className="sm:hidden">Nhập</span>
+      <span className="hidden sm:inline">Nhập dữ liệu</span>
     </Button>
     <Button
-      className="bg-blue-500 hover:bg-blue-600 text-white"
+      className="bg-blue-500 hover:bg-blue-600 text-white w-full sm:w-auto"
       onClick={onCreate}
     >
       <Plus className="w-4 h-4 mr-2" />
-      Tạo mới lớp học
+      <span className="sm:hidden">Tạo mới</span>
+      <span className="hidden sm:inline">Tạo mới lớp học</span>
     </Button>
   </>
 );

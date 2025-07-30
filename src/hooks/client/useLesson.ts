@@ -186,7 +186,6 @@ export const useAutoUnlockNextLesson = (lessonData: any[]) => {
             
             // Kiểm tra xem bài học tiếp theo có bị khóa không
             if (nextLesson.isLocked) {
-                console.log(`Mở khóa bài học tiếp theo: ${nextLesson.lessonName} (ID: ${nextLesson.lessonId})`);
                 
                 updateLessonLocked(
                     { lessonId: nextLesson.lessonId },

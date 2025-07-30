@@ -57,6 +57,10 @@ export function useCreateUnitByClassId(classId: number | null) {
         queryKey: ["units-by-class-id", String(classId)],
         exact: true
       });
+      
+      // Invalidate validation queries để cập nhật validation real-time
+      queryClient.invalidateQueries({ queryKey: ["units-validation"] });
+      queryClient.invalidateQueries({ queryKey: ["units-validation", classId] });
     }
   });
 }
@@ -85,6 +89,10 @@ export function useCreateManyUnitsByClassId(classId: number | null) {
         queryKey: ["units-by-class-id", String(classId)],
         exact: true
       });
+      
+      // Invalidate validation queries để cập nhật validation real-time
+      queryClient.invalidateQueries({ queryKey: ["units-validation"] });
+      queryClient.invalidateQueries({ queryKey: ["units-validation", classId] });
     }
   });
 }
@@ -100,6 +108,10 @@ export function useUpdateUnitByClassId(classId: number) {
     onSuccess: () => {
       // Invalidate và refetch
       queryClient.invalidateQueries({ queryKey: ["units-by-class-id"] });
+      queryClient.invalidateQueries({ queryKey: ["units-by-class-id", String(classId)] });
+      // Invalidate validation queries để cập nhật validation real-time
+      queryClient.invalidateQueries({ queryKey: ["units-validation"] });
+      queryClient.invalidateQueries({ queryKey: ["units-validation", classId] });
     },
   });
 }
@@ -112,6 +124,9 @@ export function useDeleteUnits(classId: number) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["units-by-class-id"] });
       queryClient.invalidateQueries({ queryKey: ["units-by-class-id", String(classId)] });
+      // Invalidate validation queries để cập nhật validation real-time
+      queryClient.invalidateQueries({ queryKey: ["units-validation"] });
+      queryClient.invalidateQueries({ queryKey: ["units-validation", classId] });
     },
   });
 }

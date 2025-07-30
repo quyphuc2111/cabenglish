@@ -26,7 +26,11 @@ const nextConfig = {
     minimumCacheTTL: 60
   },
   experimental: {
-    optimizeCss: false
+    optimizeCss: false,
+    serverComponentsExternalPackages: ['rimraf'],
+    serverActions: {
+      bodySizeLimit: "100mb"
+    }
   },
   typescript: {
     ignoreBuildErrors: true

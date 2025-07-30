@@ -201,9 +201,6 @@ function ImportSectionContentModal() {
         sectionContentIds: [], // Thêm field bắt buộc cho create
       }
 
-      // console.log("Số hàng dữ liệu:", filteredRows.length);
-      // console.log("Dữ liệu đã format:", importData);
-
       if (importOption === "create") {
         createSectionContent(importData, {
           onSuccess: (data) => {

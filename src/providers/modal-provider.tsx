@@ -7,6 +7,7 @@ import ResetUnitModal from "@/components/modal/reset-unit-modal";
 import ResetSchoolYearModal from "@/components/modal/reset-schoolyear-modal";
 import ChangeTeachingModeModal from "@/components/modal/change-teaching-mode-modal";
 import CompleteLessonModal from "@/components/modal/complete-lesson-modal";
+import NextSectionModal from "@/components/modal/next-section-modal";
 import NotificationModal from "@/components/modal/notification-modal";
 import LogoutModal from "@/components/modal/logout-modal";
 import ExpertDetailModal from "@/components/modal/expert-detail-modal";
@@ -33,6 +34,7 @@ export const ModalProvider = () => {
       <ResetSchoolYearModal />
       <ChangeTeachingModeModal />
       <CompleteLessonModal />
+      <NextSectionModal />
       <NotificationModal />
       <LogoutModal />
       <ExpertDetailModal

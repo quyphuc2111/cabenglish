@@ -27,16 +27,16 @@ interface GenericTableProps<T> {
   getRowId?: (row: T) => string;
 }
 
-// Tách SearchAndActions thành component riêng
+// Tách SearchAndActions thành component riêng với responsive design
 const SearchAndActions = ({ searchComponent, actionButtons }: { searchComponent: React.ReactNode, actionButtons: React.ReactNode }) => (
-  <div className="flex justify-between">
+  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
     {searchComponent && (
-      <div onClick={(e) => e.stopPropagation()}>
+      <div className="flex-1 sm:flex-none sm:min-w-0 sm:max-w-3xl" onClick={(e) => e.stopPropagation()}>
         {searchComponent}
       </div>
     )}
     {actionButtons && (
-      <div className="flex gap-5">
+      <div className="flex flex-wrap gap-2 sm:gap-3 justify-start sm:justify-center">
         {actionButtons}
       </div>
     )}
@@ -62,7 +62,7 @@ export function GenericTable<T>({
     page: 1,
     pageSize: 10
   });
-  
+
   // Thêm state để theo dõi loading khi chuyển trang
   const [isChangingPage, setIsChangingPage] = useState(false);
 
@@ -85,11 +85,13 @@ export function GenericTable<T>({
     const startIndex = (tableState.page - 1) * tableState.pageSize;
     const endIndex = Math.min(startIndex + tableState.pageSize, filtered.length);
     
-    return {
+    const result = {
       paginatedData: filtered.slice(startIndex, endIndex),
       totalPages: calculatedTotalPages,
       totalItems: filtered.length
     };
+    
+    return result;
   }, [data, tableState, filterFunction]);
 
   // Thêm hàm xử lý search riêng
@@ -130,10 +132,7 @@ export function GenericTable<T>({
   return (
     <div className="space-y-4">
       <SearchAndActions 
-        searchComponent={searchComponent && React.cloneElement(
-          searchComponent as React.ReactElement,
-          { onChange: handleSearch }
-        )}
+        searchComponent={searchComponent}
         actionButtons={actionButtons}
       />
       <DataTable
@@ -154,4 +153,4 @@ export function GenericTable<T>({
       />
     </div>
   );
-} 
+}
