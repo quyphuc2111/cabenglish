@@ -42,7 +42,7 @@ function LessonCompleteClient({ lessonData, initialFilterData, fetchFilterData }
       </div>
 
       <div className="bg-white px-3 sm:px-4 md:px-5 py-3 sm:py-4 md:py-2 relative rounded-xl mx-2 sm:mx-4 md:mx-0">
-        <div className="hidden lg:flex gap-12 xl:gap-20 absolute top-2 md:top-0 right-[8%] xl:right-[12%]">
+        {/* <div className="hidden lg:flex gap-12 xl:gap-20 absolute top-2 md:top-0 right-[8%] xl:right-[12%]">
           <Image 
             src="/rank.gif" 
             alt="rank" 
@@ -57,7 +57,7 @@ function LessonCompleteClient({ lessonData, initialFilterData, fetchFilterData }
             height={32} 
             className="w-8 h-8 xl:w-10 xl:h-10" 
           />
-        </div>
+        </div> */}
         
         <div className="flex flex-col gap-4 sm:gap-6 md:flex-row md:items-center md:gap-8">
           <div className="flex-shrink-0">

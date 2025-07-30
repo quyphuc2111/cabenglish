@@ -3,7 +3,7 @@ import React from "react";
 import { BreadcrumbLayout } from "@/components/admin-panel/breadcrumb-layout";
 import ClassroomWrapper from "@/components/common/classroom-wrapper";
 import { PaginatedContent } from "@/components/common/paginated-content";
-import { formatSlug } from "@/lib/utils";
+import { formatSlug, getSwValueById } from "@/lib/utils";
 import { LessonType } from "@/types/lesson";
 import LessonCard from "@/components/lesson/lesson-card";
 import { useRouter } from "next/navigation";
@@ -37,6 +37,8 @@ function ClassroomChildClient({
 
   const { checkAndUnlockNextLesson } = useAutoUnlockNextLesson(localLessonData);
   const { setSelectedLesson } = useSelectLessonStore();
+
+  const {data: schoolWeekData} = useSchoolWeek()
 
   // Cập nhật callback để nhận đúng params: lessonId và newLikeCount (0 hoặc 1)
   const updateLessonLike = React.useCallback((lessonId: number, newLikeCount: number) => {
@@ -100,6 +102,7 @@ function ClassroomChildClient({
   }, [searchQuery]);
 
   const uniqueWeeks = React.useMemo(() => {
+     const schoolWeekValue = getSwValueById(schoolWeekData?.data, 'label', 'value', lesson.schoolWeekId);
     const weeks = Array.from(new Set(lessonData.map(lesson => lesson.schoolWeekId)))
       .filter((week): week is number => week !== undefined && week !== null)
       .sort((a, b) => Number(a) - Number(b));
