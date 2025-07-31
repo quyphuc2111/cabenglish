@@ -66,28 +66,24 @@ const handleLocale = async (request: NextRequest) => {
 // Xử lý phân quyền và chuyển hướng
 const handleAuth = (req: NextRequest, token: any) => {
   const path = new URL(req.url).pathname;
-  const isAdmin = token?.role === ROLES.ADMIN;
-  const isTeacher = token?.role === ROLES.TEACHER;
-  const role = token?.role as RoleType;
+  const roles = token?.role || [];
+  const isAdmin = Array.isArray(roles) ? roles.includes(ROLES.ADMIN) : roles === ROLES.ADMIN;
 
-  // Nếu người dùng truy cập trang gốc '/', chuyển hướng đến trang mặc định theo role
-  // if (path === ROUTES.LANDING_PAGE) {
-  //   const defaultLandingPage =  ROUTES.LANDING_PAGE;
-  //   return NextResponse.redirect(new URL(defaultLandingPage, req.url));
-  // }
+  if (path === ROUTES.LANDING_PAGE) {
+    const defaultLandingPage = ROUTES.LANDING_PAGE;
+    return NextResponse.redirect(new URL(defaultLandingPage, req.url));
+  }
 
   // Xử lý quyền truy cập dựa trên role
-  // if (isAdmin) {
-  //   // Admin chỉ được phép truy cập các trang /admin/*
-  //   if (!isAdminRoute(path)) {
-  //     return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, req.url));
-  //   }
-  // } else {
-  //   // Người dùng không phải admin không được phép truy cập các trang /admin/*
-  //   if (isAdminRoute(path)) {
-  //     return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
-  //   }
-  // }
+  if (isAdmin) {
+    // Admin được phép truy cập tất cả các trang
+    return null;
+  } else {
+    // Người dùng không phải admin không được phép truy cập các trang /admin/*
+    if (isAdminRoute(path)) {
+      return NextResponse.redirect(new URL(ROUTES.OVERVIEW, req.url));
+    }
+  }
 
   // Cho phép truy cập nếu không vi phạm quy tắc nào
   return null;

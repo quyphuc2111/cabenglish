@@ -9,11 +9,11 @@ declare module "next-auth/jwt" {
   interface JWT {
     accessToken?: string;
     accessTokenExpires?: number;
-    role?: string;
+    role?: string[];
     userId?: string;
     mode?: string;
     email?: string;
-    isFirstLogin?: boolean;
+    is_firstlogin?: boolean;
     theme: string;
     authCookie?: string;
     language?: string;
@@ -28,10 +28,10 @@ declare module "next-auth" {
     email?: string;
     username?: string;
     accessToken?: string;
-    role?: string;
+    role?: string[];
     userId?: string;
     mode?: string;
-    isFirstLogin?: boolean;
+    is_firstlogin?: boolean;
     theme: "theme-blue" | "theme-gold" | "theme-pink" | "theme-red";
     authCookie?: string;
     language?: string;
@@ -41,34 +41,18 @@ declare module "next-auth" {
   interface Session {
     accessToken?: string;
     user: {
-      role?: string;
+      role?: string[];
       userId?: string;
       mode?: string;
       name?: string;
       email?: string;
-      isFirstLogin?: boolean;
+      is_firstlogin?: boolean;
       theme?: string;
       authCookie?: string;
       language?: string;
       moodleCookie?: string;
     };
   }
-}
-
-interface LoginResponse {
-  role: string;
-  token: string;
-  username: string;
-  message?: string;
-}
-
-interface UserResponse {
-  user_id: string;
-  email: string;
-  language: string;
-  theme: string;
-  mode: string;
-  is_firstlogin: boolean;
 }
 
 interface Credentials {
@@ -124,6 +108,7 @@ export const authOptions: NextAuthOptions = {
                 credentials.email,
                 data.accessToken
               );
+
             } catch (error) {
               if (axios.isAxiosError(error) && error.response?.status === 404) {
                 try {
@@ -132,7 +117,7 @@ export const authOptions: NextAuthOptions = {
                       email: credentials.email,
                       user_id: userId.toString(),
                       language: "vi",
-                      theme: "theme-blue",
+                      theme: "theme-red",
                       mode: "default"
                     },
                     data.accessToken
@@ -156,9 +141,9 @@ export const authOptions: NextAuthOptions = {
               userId: userId.toString(),
               username: data.username,
               role:
-                data.roles && data.roles.length > 0 ? data.roles[0] : undefined,
+                data.roles && data.roles.length > 0 ? data.roles : undefined,
               accessToken: data.accessToken,
-              isFirstLogin: userResponse.is_firstlogin || false,
+              is_firstlogin: userResponse.is_firstlogin,
               mode: userResponse.mode || "default",
               language: userResponse.language || "vi",
               theme:
@@ -196,7 +181,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         username: { label: "Username", type: "text" },
         roles: { label: "Roles", type: "text" },
-        authCookie: { label: "Auth Cookie", type: "text" } 
+        authCookie: { label: "Auth Cookie", type: "text" }
       },
       async authorize(credentials): Promise<User | null> {
         if (!credentials) return null;
@@ -239,7 +224,7 @@ export const authOptions: NextAuthOptions = {
             typeof roles === "string" ? JSON.parse(roles) : roles;
           const role =
             Array.isArray(parsedRoles) && parsedRoles.length > 0
-              ? parsedRoles[0]
+              ? parsedRoles
               : undefined;
 
           const user: User = {
@@ -248,7 +233,7 @@ export const authOptions: NextAuthOptions = {
             username: username,
             role: role,
             accessToken: accessToken,
-            isFirstLogin: userResponse.is_firstlogin || false,
+            is_firstlogin: userResponse.is_firstlogin,
             mode: userResponse.mode || "default",
             language: userResponse.language || "vi",
             theme:
@@ -290,7 +275,7 @@ export const authOptions: NextAuthOptions = {
         token.theme = user.theme;
         token.email = user.email;
         token.language = user.language;
-        token.isFirstLogin = user.isFirstLogin;
+        token.is_firstlogin = user.is_firstlogin;
         token.authCookie = user.authCookie;
         token.moodleCookie = user.moodleCookie;
         token.accessTokenExpires = Date.now() + 1 * 60 * 1000; // 1 phút
@@ -306,6 +291,9 @@ export const authOptions: NextAuthOptions = {
         }
         if (session.user?.mode) {
           token.mode = session.user.mode;
+        }
+        if (session.user?.is_firstlogin !== undefined) {
+          token.is_firstlogin = session.user.is_firstlogin;
         }
         return token;
       }
@@ -347,7 +335,7 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email;
         session.user.theme = token.theme;
         session.user.language = token.language;
-        session.user.isFirstLogin = token.isFirstLogin;
+        session.user.is_firstlogin = token.is_firstlogin;
         // session.user.authCookie = token.authCookie;
         // session.user.moodleCookie = token.moodleCookie;
       }
