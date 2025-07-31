@@ -24,8 +24,6 @@ export const ActionCell = memo(function ActionCell({ row }: ActionCellProps) {
   const section = row.original;
   const { activeLesson } = useLessonStore();
 
-  console.log("activateLesson activateLesson", activeLesson.lessonId)
-
   const handleEdit = useCallback(() => {
     onOpen("createUpdateSection", {
       formType: "update",
