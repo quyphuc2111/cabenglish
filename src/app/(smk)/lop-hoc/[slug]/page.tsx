@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getAllLessonDataByUserId } from "@/actions/lessonAction";
 import { getAllClassroomDataByUserId } from "@/actions/classroomAction";
-import { FilterService } from "@/services/filter.service";
+import { getClassIdByClassname, getClassroomByClassname } from "@/utils/getClassIdByClassname";
 
 export interface PageProps {
   params: Promise<{
@@ -25,16 +25,10 @@ export async function generateMetadata(
   const { slug } = await params;
   const classname = decodeURIComponent(slug);
 
-  // Lấy thông tin lớp học
   const { data: classrooms } = await getAllClassroomDataByUserId({
     userId: session.user.userId
   });
 
-  const currentClas = classrooms.find(
-    (classroom) => classroom.classname.toLowerCase() === classname.toLowerCase()
-  );
-
-  // Lấy metadata từ parent
   const previousImages = (await parent).openGraph?.images || [];
 
   return {
@@ -60,11 +54,11 @@ async function Page({ params, searchParams }: PageProps) {
     userId: session.user.userId
   });
 
-  const hasMatchingClass = classrooms.some(
-    (classroom) => classroom.classname.toLowerCase() === classname.toLowerCase()
-  );
+  // Lấy thông tin classroom và class_id
+  const matchingClassroom = getClassroomByClassname(classrooms, classname);
+  const classId = getClassIdByClassname(classrooms, classname);
 
-  if (!hasMatchingClass) {
+  if (!matchingClassroom || !classId) {
     return redirect("/lop-hoc");
   }
 
@@ -81,18 +75,12 @@ async function Page({ params, searchParams }: PageProps) {
       classname.toLowerCase()
   );
 
-  // const filterService = await FilterService.fetchFilterData(
-  //   session.user.userId as string
-  // );
-
-
-
   return (
     <ClassroomChildClient
       slug={slug}
       lessonData={filteredLessons}
-      // initialFilterData={filterService.initialFilterData}
-      // fetchFilterData={filterService.fetchFilterData}
+      classId={classId}
+      classroom={matchingClassroom}
     />
   );
 }

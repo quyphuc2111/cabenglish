@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface UsePaginationProps {
   totalItems: number;
@@ -14,6 +14,10 @@ export const usePagination = ({
   const [currentPage, setCurrentPage] = useState(initialPage);
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [totalItems]);
 
   const nextPage = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
@@ -40,4 +44,4 @@ export const usePagination = ({
     startIndex,
     endIndex
   };
-}; 
+};

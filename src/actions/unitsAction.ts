@@ -9,6 +9,22 @@ interface UnitsResponse {
   success?: boolean;
 }
 
+//Client 
+
+export async function getUnitByClassId(classId: number | string, userId: number | string) {
+  try {
+    const data = await serverFetch(`/api/Unit/class/${classId}/${userId}`);
+    return data;
+  } catch (error) {
+    console.error("Lỗi khi lấy dữ liệu unit:", error);
+    return {
+      data: [],
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
+    };
+  }
+}
+
 //Admin
 export async function getAllUnitsAdminDataByClassId(
   classId: number | string
@@ -33,8 +49,6 @@ export async function getAllUnitsAdminDataByClassId(
     };
   }
 }
-
-
 
 export async function createUnitAdminDataByClassId({
   unitData,
