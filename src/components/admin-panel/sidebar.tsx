@@ -13,10 +13,13 @@ import { NotificationType } from "@/types/notification";
 import { useSocket } from "@/hooks/useSocket";
 import { showToast } from "@/utils/toast-config";
 import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 export function Sidebar({notificationList}  : {notificationList: NotificationType[]}) {
   const sidebar = useStore(useSidebarToggle, (state) => state);
   const { socket, notifications: socketNotifications } = useSocket();
   const { onOpen } = useModal();
+
+  const { data: session } = useSession();
 
   useEffect(() => {
     if (socketNotifications.length > 0) {
@@ -65,7 +68,7 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
 
   if (!sidebar) return null;
 
-
+console.log("session", session)
 
   return (
     <aside
@@ -87,7 +90,7 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
           />
           {sidebar?.isOpen && <Badge variant="secondary">Giáo viên</Badge>}
         </div>
-        <AvatarUser sidebar={sidebar} />
+        <AvatarUser sidebar={sidebar} email={session.user.email} />
         <div className="w-full border-t-2 border-white mt-8 relative h-[30px]">
           <Image
             src="/menu-icon/ring.png"
