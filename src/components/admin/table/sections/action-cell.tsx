@@ -22,15 +22,17 @@ interface ActionCellProps {
 export const ActionCell = memo(function ActionCell({ row }: ActionCellProps) {
   const { onOpen } = useModal();
   const section = row.original;
-  const { selectedLessonId } = useLessonStore();
+  const { activeLesson } = useLessonStore();
+
+  console.log("activateLesson activateLesson", activeLesson.lessonId)
 
   const handleEdit = useCallback(() => {
     onOpen("createUpdateSection", {
       formType: "update",
       section: { id: section.sectionId },
-      lessonIds: Number(selectedLessonId)
-    });
-  }, [section.sectionId, selectedLessonId, onOpen]);
+      lessonIds: Number(activeLesson.lessonId)
+    }); 
+  }, [section.sectionId, activeLesson.lessonId, onOpen]);
 
   const handleDelete = useCallback(() => {
     onOpen("deleteSection", {

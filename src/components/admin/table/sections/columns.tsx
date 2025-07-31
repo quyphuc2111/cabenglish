@@ -163,41 +163,41 @@ export function useSectionColumns() {
           );
         }
       },
-      {
-        accessorKey: "progress",
-        header: () => (
-          <div className="font-semibold text-gray-900 px-4">Tiến độ</div>
-        ),
-        cell: ({ row }) => {
-          const progress = formatProgress(row.original.progress) || 0;
+      // {
+      //   accessorKey: "progress",
+      //   header: () => (
+      //     <div className="font-semibold text-gray-900 px-4">Tiến độ</div>
+      //   ),
+      //   cell: ({ row }) => {
+      //     const progress = formatProgress(row.original.progress) || 0;
 
-          return (
-            <div className="flex items-center gap-3 w-[200px] px-4">
-              <div className="w-full bg-gray-100 rounded-full h-2.5">
-                <div
-                  className={`h-2.5 rounded-full transition-all ${
-                    Number(progress) < 30 
-                      ? "bg-red-500" 
-                      : Number(progress) < 70 
-                      ? "bg-yellow-500" 
-                      : "bg-emerald-500"
-                  }`}
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              <span className={`text-sm font-medium min-w-[45px] ${
-                Number(progress) < 30 
-                  ? "text-red-500" 
-                  : Number(progress) < 70 
-                  ? "text-yellow-500" 
-                  : "text-emerald-500"
-              }`}>
-                {progress}%
-              </span>
-            </div>
-          );
-        }
-      },
+      //     return (
+      //       <div className="flex items-center gap-3 w-[200px] px-4">
+      //         <div className="w-full bg-gray-100 rounded-full h-2.5">
+      //           <div
+      //             className={`h-2.5 rounded-full transition-all ${
+      //               Number(progress) < 30 
+      //                 ? "bg-red-500" 
+      //                 : Number(progress) < 70 
+      //                 ? "bg-yellow-500" 
+      //                 : "bg-emerald-500"
+      //             }`}
+      //             style={{ width: `${progress}%` }}
+      //           />
+      //         </div>
+      //         <span className={`text-sm font-medium min-w-[45px] ${
+      //           Number(progress) < 30 
+      //             ? "text-red-500" 
+      //             : Number(progress) < 70 
+      //             ? "text-yellow-500" 
+      //             : "text-emerald-500"
+      //         }`}>
+      //           {progress}%
+      //         </span>
+      //       </div>
+      //     );
+      //   }
+      // },
       {
         id: "actions",
         cell: ActionCell,
