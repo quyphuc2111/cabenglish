@@ -13,6 +13,9 @@ interface UpdateSchoolWeekParams {
   data: SchoolWeekFormValues;
 }
 
+
+
+//Admin
 export function useSchoolWeek() {
   return useQuery({
     queryKey: ["school-weeks"],

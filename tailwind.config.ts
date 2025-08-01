@@ -130,7 +130,9 @@ const config = {
       },
       screens: {
         "3xl": "1920px",
-        "4xl": "2560px"
+        "4xl": "2560px",
+        "xs": "480px",
+        "landscape": { "raw": "(orientation: landscape)" }
       },
       spacing: {
         'safe-top': 'env(safe-area-inset-top)',
@@ -140,7 +142,7 @@ const config = {
       }
     }
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography"), require("@tailwindcss/line-clamp")]
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")]
 } satisfies Config;
 
 export default config;

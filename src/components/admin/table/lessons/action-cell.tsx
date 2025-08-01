@@ -32,6 +32,9 @@ export const ActionCell = memo(function ActionCell({ row, table }: ActionCellPro
   const selectedClassId = table.options.meta?.selectedClassId;
   const {activeLesson} = useLessonStore();
 
+  console.log(activeLesson)
+  console.log("lesson", lesson)
+
   const handleEdit = useCallback(() => {
     if (!activeLesson.classId) {
       toast.error("Không tìm thấy thông tin lớp học!");

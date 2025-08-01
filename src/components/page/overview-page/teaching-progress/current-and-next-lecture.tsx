@@ -1,7 +1,7 @@
 import LessonCard from "@/components/lesson/lesson-card";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useMemo, useCallback } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -19,14 +19,6 @@ import { cn } from "@/lib/utils";
 import "swiper/css";
 import "swiper/css/navigation";
 
-// const mockClassrooms = [
-//   { id: "1", name: "Lớp mầm non A", slug: "mam-non-a" },
-//   { id: "2", name: "Lớp mầm non B", slug: "mam-non-b" },
-//   { id: "3", name: "Lớp 3-4 tuổi", slug: "lop-3-4-tuoi" },
-//   { id: "4", name: "Lớp 4-5 tuổi", slug: "lop-4-5-tuoi" },
-//   { id: "5", name: "Lớp 5-6 tuổi", slug: "lop-5-6-tuoi" }
-// ];
-
 function CurrentAndNextLecture({
   courseData,
   t,
@@ -37,44 +29,268 @@ function CurrentAndNextLecture({
   classroomData: any[];
 }) {
   const router = useRouter();
-  const [selectedClassroom, setSelectedClassroom] = useState<string>("all");
-  const [currentSwiper, setCurrentSwiper] = useState<any>(null);
-  const [nextSwiper, setNextSwiper] = useState<any>(null);
+  // Initialize with empty string, will use first classroom by default
+  const [selectedClassroom, setSelectedClassroom] = useState<string>("");
+
+  // Set default classroom on component mount
+  React.useEffect(() => {
+    if (classroomData.length > 0 && !selectedClassroom) {
+      setSelectedClassroom(classroomData[0].class_id);
+    }
+  }, [classroomData, selectedClassroom]);
+  // Use refs for swiper instances to prevent re-renders when updating them
+  const currentSwiperRef = React.useRef<any>(null);
+  const nextSwiperRef = React.useRef<any>(null);
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
   const [nextSlideIndex, setNextSlideIndex] = useState<number>(0);
 
-  const handleLessonClick = async (lessonId: number) => {
-    router.push(`/lesson/${lessonId}`);
-  };
+  // Callbacks for swiper initialization
+  // Memoized callbacks for swiper initialization to prevent re-renders
+  const handleCurrentSwiperInit = useCallback((swiper: any) => {
+    currentSwiperRef.current = swiper;
+  }, []);
+
+  const handleNextSwiperInit = useCallback((swiper: any) => {
+    nextSwiperRef.current = swiper;
+  }, []);
+
+  // Memoized slide change handlers
+  const handleCurrentSlideChange = useCallback((swiper: any) => {
+    setCurrentSlideIndex(swiper.activeIndex);
+  }, []);
+
+  const handleNextSlideChange = useCallback((swiper: any) => {
+    setNextSlideIndex(swiper.activeIndex);
+  }, []);
+
+  const handleLessonClick = useCallback(
+    async (lessonId: number) => {
+      router.push(`/lesson/${lessonId}`);
+    },
+    [router]
+  );
 
   // Filter courseData theo classroom được chọn
-  const getFilteredDataByClassroom = (data: any[]) => {
-    return data.filter((course) => {
-      if (!selectedClassroom || selectedClassroom === "all") return true;
-      return course.classId === selectedClassroom;
-    });
-  };
+  const getFilteredDataByClassroom = useCallback(
+    (data: any[]) => {
+      return data.filter((course) => {
+        if (!selectedClassroom && classroomData.length === 0) return true;
+        return (
+          course.classId === (selectedClassroom || classroomData[0]?.class_id)
+        );
+      });
+    },
+    [selectedClassroom, classroomData]
+  );
 
-  const filteredCourseData = getFilteredDataByClassroom(courseData)
-    .filter(
-      (course) =>
-        course.progress < 1 &&
-        course.progress > 0 &&
-        !course.isLocked
-    )
-    .sort((a, b) => {
+  // Memoize computed data to prevent recalculation on re-renders
+  const { filteredCourseData, nextLectureData } = useMemo(() => {
+    const filteredData = getFilteredDataByClassroom(courseData);
+
+    if (!filteredData || filteredData.length === 0) {
+      return {
+        filteredCourseData: [],
+        nextLectureData: []
+      };
+    }
+
+    // Check if any lesson has progress > 0
+    const hasLessonsInProgress = filteredData.some((course: any) => course.progress > 0);
+    
+    if (!hasLessonsInProgress) {
+      return {
+        filteredCourseData: [],
+        nextLectureData: []
+      };
+    }
+
+    // Process all lessons regardless of progress status
+
+    // Group courses by classId
+    const coursesByClass = filteredData.reduce<
+      Record<string, any[]>
+    >((acc, course) => {
+      if (!acc[course.classId]) {
+        acc[course.classId] = [];
+      }
+      acc[course.classId].push(course);
+      return acc;
+    }, {});
+
+    // Sort courses within each class
+    Object.keys(coursesByClass).forEach((classId) => {
+      coursesByClass[classId].sort((a: any, b: any) => {
+        if (a.unitId !== b.unitId) return a.unitId - b.unitId;
+        return a.lessonOrder - b.lessonOrder;
+      });
+    });
+
+    // For current lectures: lessons in progress or the first not started lesson from each class
+    const currentLectures: any[] = [];
+    const remainingLectures: any[] = [];
+
+    Object.values(coursesByClass).forEach((classCourses: any[]) => {
+      // First find lessons in progress
+      const inProgressLessons = classCourses.filter(
+        (course: any) =>
+          course.progress > 0 && course.progress < 1 && !course.isLocked
+      );
+
+      if (inProgressLessons.length > 0) {
+        // Add all in-progress lessons to current
+        currentLectures.push(...inProgressLessons);
+
+        // For each in-progress lesson, find the next lessons in sequence
+        inProgressLessons.forEach((inProgressLesson: any) => {
+          // Find lessons in the same unit with higher lesson order
+          const nextLessonsInUnit = classCourses.filter(
+            (course: any) =>
+              course.progress === 0 &&
+              !course.isLocked &&
+              course.unitId === inProgressLesson.unitId &&
+              course.lessonOrder > inProgressLesson.lessonOrder
+          );
+
+          // If we have next lessons in the same unit, add them
+          if (nextLessonsInUnit.length > 0) {
+            // Sort by lessonOrder and take the first 3
+            nextLessonsInUnit.sort(
+              (a: any, b: any) => a.lessonOrder - b.lessonOrder
+            );
+            remainingLectures.push(...nextLessonsInUnit);
+          } else {
+            // If no next lessons in the same unit, find lessons in the next unit
+            const currentUnitIndex = classCourses.findIndex(
+              (course: any) => course.unitId === inProgressLesson.unitId
+            );
+
+            if (currentUnitIndex !== -1) {
+              // Get all unitIds in this class
+              const unitIds = [
+                ...new Set(classCourses.map((course: any) => course.unitId))
+              ];
+              unitIds.sort((a: any, b: any) => {
+                // Find the minimum lessonOrder for each unitId to determine unit sequence
+                const minLessonOrderA = Math.min(
+                  ...classCourses
+                    .filter((course: any) => course.unitId === a)
+                    .map((course: any) => course.lessonOrder)
+                );
+                const minLessonOrderB = Math.min(
+                  ...classCourses
+                    .filter((course: any) => course.unitId === b)
+                    .map((course: any) => course.lessonOrder)
+                );
+                return minLessonOrderA - minLessonOrderB;
+              });
+
+              // Find the index of the current unit
+              const unitIdIndex = unitIds.indexOf(inProgressLesson.unitId);
+
+              // If there's a next unit
+              if (unitIdIndex !== -1 && unitIdIndex < unitIds.length - 1) {
+                const nextUnitId = unitIds[unitIdIndex + 1];
+                // Get lessons from the next unit
+                const nextUnitLessons = classCourses.filter(
+                  (course: any) =>
+                    course.unitId === nextUnitId &&
+                    course.progress === 0 &&
+                    !course.isLocked
+                );
+
+                // Sort by lessonOrder and add them
+                nextUnitLessons.sort(
+                  (a: any, b: any) => a.lessonOrder - b.lessonOrder
+                );
+                remainingLectures.push(...nextUnitLessons);
+              }
+            }
+          }
+        });
+      } else {
+        // If no lessons in progress, add the first not-started lesson to current
+        const notStartedLessons = classCourses.filter(
+          (course: any) => course.progress === 0 && !course.isLocked
+        );
+
+        if (notStartedLessons.length > 0) {
+          // Sort by unitId and lessonOrder
+          notStartedLessons.sort((a: any, b: any) => {
+            if (a.unitId !== b.unitId) {
+              return a.unitId - b.unitId;
+            }
+            return a.lessonOrder - b.lessonOrder;
+          });
+
+          // Add the first lesson to current
+          currentLectures.push(notStartedLessons[0]);
+
+          // Add the next lessons in sequence to remaining
+          remainingLectures.push(...notStartedLessons.slice(1));
+        }
+      }
+    });
+
+    // Sort current lectures by classId, unitId, and lessonOrder
+    const sortedCurrentLectures = currentLectures.sort((a: any, b: any) => {
       if (a.classId !== b.classId) return a.classId - b.classId;
       if (a.unitId !== b.unitId) return a.unitId - b.unitId;
       return a.lessonOrder - b.lessonOrder;
     });
 
-  const nextLectureData = getFilteredDataByClassroom(courseData)
-    .filter((course) => course.progress === 0)
-    .sort((a, b) => {
-      if (a.classId !== b.classId) return a.classId - b.classId;
-      if (a.unitId !== b.unitId) return a.unitId - b.unitId;
-      return a.lessonOrder - b.lessonOrder;
-    });
+    // Remove duplicates from remainingLectures (in case we added the same lesson multiple times)
+    const uniqueRemainingLectures = remainingLectures.filter(
+      (lecture, index, self) =>
+        index === self.findIndex((l) => l.lessonId === lecture.lessonId)
+    );
+
+    // Sort next lectures by classId, unitId, and lessonOrder
+    const sortedNextLectures = uniqueRemainingLectures.sort(
+      (a: any, b: any) => {
+        if (a.classId !== b.classId) return a.classId - b.classId;
+        if (a.unitId !== b.unitId) return a.unitId - b.unitId;
+        return a.lessonOrder - b.lessonOrder;
+      }
+    );
+
+    return {
+      filteredCourseData: sortedCurrentLectures,
+      nextLectureData: sortedNextLectures
+    };
+  }, [courseData, getFilteredDataByClassroom]); // Only recalculate when courseData or filter changes
+
+  console.log("filteredCourseData", filteredCourseData);
+  console.log("nextLectureData", nextLectureData);
+
+  // Component will show "Hiện tại chưa có bài học nào!" message when no data
+
+  // Optional: Memoize slider navigation handlers to prevent re-renders
+  const handlePrevCurrentSlide = useCallback(() => {
+    currentSwiperRef.current?.slidePrev();
+  }, []);
+
+  const handleNextCurrentSlide = useCallback(() => {
+    currentSwiperRef.current?.slideNext();
+  }, []);
+
+  const handlePrevNextSlide = useCallback(() => {
+    nextSwiperRef.current?.slidePrev();
+  }, []);
+
+  const handleNextNextSlide = useCallback(() => {
+    nextSwiperRef.current?.slideNext();
+  }, []);
+
+  const handleCurrentDotClick = useCallback((idx: number) => {
+    currentSwiperRef.current?.slideTo(idx);
+    setCurrentSlideIndex(idx);
+  }, []);
+
+  const handleNextDotClick = useCallback((idx: number) => {
+    nextSwiperRef.current?.slideTo(idx);
+    setNextSlideIndex(idx);
+  }, []);
+
 
   return (
     <div className="relative w-full xl:w-1/2 overflow-hidden">
@@ -90,13 +306,10 @@ function CurrentAndNextLecture({
                 onValueChange={setSelectedClassroom}
               >
                 <SelectTrigger className="w-full bg-white/80 backdrop-blur-sm border-2 border-purple-200 hover:border-purple-300 rounded-lg sm:rounded-xl h-10 sm:h-12 px-3 sm:px-4 text-sm sm:text-base">
-                  <SelectValue placeholder="🏫 Chọn lớp học" />
+                  <SelectValue placeholder="🏫 Lớp học" />
                 </SelectTrigger>
                 <SelectContent className="bg-white/95 backdrop-blur-sm border-purple-200">
                   <SelectGroup>
-                    <SelectItem value="all" className="text-gray-600 text-sm sm:text-base">
-                      📚 Tất cả lớp học
-                    </SelectItem>
                     {classroomData.map((classroom) => (
                       <SelectItem
                         key={classroom.class_id}
@@ -105,7 +318,9 @@ function CurrentAndNextLecture({
                       >
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" />
-                          <span className="text-sm sm:text-base">{classroom.classname}</span>
+                          <span className="text-sm sm:text-base">
+                            {classroom.classname}
+                          </span>
                         </div>
                       </SelectItem>
                     ))}
@@ -132,7 +347,9 @@ function CurrentAndNextLecture({
                 <h3 className="text-md font-bold text-gray-800">
                   {t("lectureBeingTaught")}
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600">Bài giảng hiện tại</p>
+                <p className="text-xs sm:text-sm text-gray-600">
+                  Bài giảng hiện tại
+                </p>
               </div>
             </div>
 
@@ -140,10 +357,8 @@ function CurrentAndNextLecture({
               {filteredCourseData.length > 0 ? (
                 <div className="relative">
                   <Swiper
-                    onSwiper={setCurrentSwiper}
-                    onSlideChange={(swiper) =>
-                      setCurrentSlideIndex(swiper.activeIndex)
-                    }
+                    onSwiper={handleCurrentSwiperInit}
+                    onSlideChange={handleCurrentSlideChange}
                     modules={[Navigation, Autoplay]}
                     spaceBetween={20}
                     slidesPerView={1}
@@ -179,7 +394,7 @@ function CurrentAndNextLecture({
                         variant="outline"
                         size="sm"
                         className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/80 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
-                        onClick={() => currentSwiper?.slidePrev()}
+                        onClick={handlePrevCurrentSlide}
                       >
                         <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
@@ -194,10 +409,7 @@ function CurrentAndNextLecture({
                                   ? "bg-purple-500 scale-125"
                                   : "bg-purple-300 hover:bg-purple-400"
                               )}
-                              onClick={() => {
-                                currentSwiper?.slideTo(idx);
-                                setCurrentSlideIndex(idx);
-                              }}
+                              onClick={() => handleCurrentDotClick(idx)}
                             />
                           )
                         )}
@@ -206,7 +418,7 @@ function CurrentAndNextLecture({
                         variant="outline"
                         size="sm"
                         className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/80 border-purple-200 hover:border-purple-300 hover:bg-purple-50"
-                        onClick={() => currentSwiper?.slideNext()}
+                        onClick={handleNextCurrentSlide}
                       >
                         <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
@@ -252,7 +464,9 @@ function CurrentAndNextLecture({
                 <h3 className="text-md font-bold text-gray-800">
                   {t("nextLecture")}
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600">Bài giảng sắp tới</p>
+                <p className="text-xs sm:text-sm text-gray-600">
+                  Bài giảng sắp tới
+                </p>
               </div>
             </div>
 
@@ -260,10 +474,8 @@ function CurrentAndNextLecture({
               {nextLectureData.length > 0 ? (
                 <div className="relative">
                   <Swiper
-                    onSwiper={setNextSwiper}
-                    onSlideChange={(swiper) =>
-                      setNextSlideIndex(swiper.activeIndex)
-                    }
+                    onSwiper={handleNextSwiperInit}
+                    onSlideChange={handleNextSlideChange}
                     modules={[Navigation, Autoplay]}
                     spaceBetween={20}
                     slidesPerView={1}
@@ -279,6 +491,8 @@ function CurrentAndNextLecture({
                         ...courseItem,
                         classRoomName: courseItem.className
                       };
+
+                      console.log("nextLectureData", customCourse);
                       return (
                         <SwiperSlide key={index}>
                           <LessonCard
@@ -296,7 +510,7 @@ function CurrentAndNextLecture({
                         variant="outline"
                         size="sm"
                         className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/80 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
-                        onClick={() => nextSwiper?.slidePrev()}
+                        onClick={handlePrevNextSlide}
                       >
                         <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
@@ -312,10 +526,7 @@ function CurrentAndNextLecture({
                                 ? "bg-blue-500 scale-125"
                                 : "bg-blue-300 hover:bg-blue-400"
                             )}
-                            onClick={() => {
-                              nextSwiper?.slideTo(idx);
-                              setNextSlideIndex(idx);
-                            }}
+                            onClick={() => handleNextDotClick(idx)}
                           />
                         ))}
                       </div>
@@ -323,7 +534,7 @@ function CurrentAndNextLecture({
                         variant="outline"
                         size="sm"
                         className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/80 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
-                        onClick={() => nextSwiper?.slideNext()}
+                        onClick={handleNextNextSlide}
                       >
                         <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>

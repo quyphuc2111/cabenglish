@@ -25,7 +25,7 @@ interface ProgressChartProps {
 export function ProgressChart({ data }: ProgressChartProps) {
   const [hiddenBars, setHiddenBars] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Số lượng cột hiển thị trên mỗi trang
+  const itemsPerPage = 6; // Số lượng cột hiển thị trên mỗi trang
 
   // Xử lý dữ liệu cho biểu đồ
   const chartData = data[0]?.lesson
@@ -100,7 +100,7 @@ export function ProgressChart({ data }: ProgressChartProps) {
         </motion.div>
       </div>
 
-      <div className="w-full h-[400px]">
+      <div className="w-full h-[450px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={paginatedData}
@@ -108,15 +108,28 @@ export function ProgressChart({ data }: ProgressChartProps) {
               top: 20,
               right: 30,
               left: 20,
-              bottom: 5
+              bottom: 80
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" opacity={0.5} />
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              opacity={0.3}
+              stroke="#e0e0e0"
+              horizontal={true}
+              vertical={false}
+            />
             <XAxis
               dataKey="name"
-              tick={{ fill: "#555555" }}
+              tick={{ 
+                fill: "#555555", 
+                fontSize: 10,
+                width: 150
+              }}
               tickLine={{ stroke: "#555555" }}
-              fontSize={12}
+              angle={-45}
+              textAnchor="end"
+              height={80}
+              interval={0}
             />
             <YAxis
               ticks={[0, 20, 40, 60, 80, 100]}
@@ -139,12 +152,16 @@ export function ProgressChart({ data }: ProgressChartProps) {
                 boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
               }}
             />
-            <Bar dataKey="progress" radius={[8, 8, 0, 0]}>
+            <Bar 
+              dataKey="progress" 
+              radius={[8, 8, 0, 0]}
+              maxBarSize={60}
+            >
               {paginatedData.map((entry, index) => (
                 <Cell 
                   key={`cell-${entry.name}-${index}`}
                   fill={entry.fill}
-                  className="transition-all duration-300 hover:opacity-80"
+                  className="transition-all duration-200 hover:brightness-110"
                 />
               ))}
             </Bar>

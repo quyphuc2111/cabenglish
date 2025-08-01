@@ -68,7 +68,7 @@ function TaiLieuThamKhaoPage() {
   return (
     <ContentLayout title="TaiLieuThamKhao">
       <CourseWrapper>
-        <div className="flex items-center gap-10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 lg:gap-10">
           <SectionTitle
             title="Tài liệu tham khảo"
             image={{
@@ -77,10 +77,10 @@ function TaiLieuThamKhaoPage() {
               height: 40,
               alt: "replay_icon"
             }}
-            wrapperClassName="border-[#63a079]/50 w-full sm:w-[20vw]"
+            wrapperClassName="border-[#63a079]/50 w-full sm:w-auto lg:w-[20vw]"
           />
           <Select defaultValue="1">
-            <SelectTrigger className="w-[220px]">
+            <SelectTrigger className="w-full sm:w-[200px] md:w-[220px] lg:w-[250px]">
               <SelectValue placeholder="Sách" />
             </SelectTrigger>
             <SelectContent>
@@ -94,12 +94,52 @@ function TaiLieuThamKhaoPage() {
           </Select>
         </div>
 
-        <div className="mt-10 flex justify-center">
+        <div className="mt-6 sm:mt-8 lg:mt-10 flex justify-center px-2 sm:px-4">
           <Swiper
             effect={"coverflow"}
             grabCursor={true}
             centeredSlides={true}
             slidesPerView={"auto"}
+            spaceBetween={20}
+            breakpoints={{
+              320: {
+                slidesPerView: 1.2,
+                spaceBetween: 15,
+                coverflowEffect: {
+                  rotate: 0,
+                  stretch: 0,
+                  depth: 80,
+                  modifier: 1.5,
+                  slideShadows: false
+                }
+              },
+              480: {
+                slidesPerView: 1.5,
+                spaceBetween: 20,
+                coverflowEffect: {
+                  rotate: 0,
+                  stretch: 0,
+                  depth: 90,
+                  modifier: 2,
+                  slideShadows: false
+                }
+              },
+              768: {
+                slidesPerView: 2.5,
+                spaceBetween: 25,
+                coverflowEffect: {
+                  rotate: 0,
+                  stretch: 0,
+                  depth: 100,
+                  modifier: 2.5,
+                  slideShadows: false
+                }
+              },
+              1024: {
+                slidesPerView: "auto",
+                spaceBetween: 30
+              }
+            }}
             coverflowEffect={{
               rotate: 0,
               stretch: 0,
@@ -117,12 +157,12 @@ function TaiLieuThamKhaoPage() {
               dynamicBullets: true
             }}
             modules={[EffectCoverflow, Pagination, Autoplay]}
-            className="book-swiper"
+            className="book-swiper w-full max-w-7xl"
           >
             {tailieuData.map((item, index) => (
               <SwiperSlide key={item.id}>
-                <div className="w-full h-full flex flex-col items-center justify-center bg-white rounded-2xl overflow-hidden shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.15)] transition-all duration-300">
-                  <div className="relative w-full h-[75%] overflow-hidden">
+                <div className="w-full h-full flex flex-col items-center justify-center bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-[0_8px_16px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.15)] transition-all duration-300">
+                  <div className="relative w-full h-[70%] sm:h-[75%] overflow-hidden">
                     <Image
                       src={item.image}
                       alt={item.name}
@@ -135,8 +175,8 @@ function TaiLieuThamKhaoPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
                   </div>
-                  <div className="p-4 text-center w-full bg-white">
-                    <h3 className="text-xl font-bold text-gray-800 mb-2 hover:text-[#63a079] transition-colors duration-300">
+                  <div className="p-3 sm:p-4 text-center w-full bg-white">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-1 sm:mb-2 hover:text-[#63a079] transition-colors duration-300 line-clamp-2">
                       {item.name}
                     </h3>
                   </div>

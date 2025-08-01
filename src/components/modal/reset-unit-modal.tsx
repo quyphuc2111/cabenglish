@@ -91,7 +91,14 @@ function ResetUnitModal() {
           progress: undefined,
           theme: "light",
         });
-        router.refresh();
+        
+        // Gọi callback để refetch data nếu có
+        if (data?.onDataRefetch) {
+          await data.onDataRefetch();
+        } else {
+          router.refresh();
+        }
+        
         onClose();
       } else {
         toast.error(result.error || "Có lỗi xảy ra!", {

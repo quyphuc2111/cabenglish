@@ -9,7 +9,7 @@ interface userParams {
     language: string;
     theme: string;
     mode: string;
-    isFirstLogin: boolean;
+    is_firstlogin: boolean;
   };
 }
 
@@ -77,7 +77,7 @@ export async function updateUserInfo({
         language: userInfo.language,
         theme: userInfo.theme,
         mode: userInfo.mode,
-        isFirstLogin: userInfo.isFirstLogin
+        isFirstLogin: userInfo.is_firstlogin
       }
     });
 

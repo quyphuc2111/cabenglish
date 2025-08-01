@@ -47,10 +47,10 @@ function LessonPendingClient({
         Còn lại {filteredLessons.length}/{totalLessons} bài học chưa dạy
       </p>
       <div className="bg-white px-5 py-2 relative rounded-xl min-h-screen  ">
-        <div className="flex gap-20 absolute top-0 right-[12%]">
+        {/* <div className="flex gap-20 absolute top-0 right-[12%]">
           <Image src="/rank.gif" alt="rank" width={40} height={40} />
           <Image src="/rank.gif" alt="rank" width={40} height={40} />
-        </div>
+        </div> */}
         <div className="flex items-center gap-8">
           <SectionTitle
             title="Bài giảng chưa dạy"

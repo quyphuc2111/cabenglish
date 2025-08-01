@@ -11,30 +11,8 @@ export function useUnitByClassId(classId: number | string) {
   });
 }
 
-// export const useGetSingleUnit = (ntId: string | null) => {
-//   return useQuery({
-//     queryKey: ["notitype", ntId],
-//     queryFn: async () => {
-//       if (!ntId) return null;
-//       const response = await getSingleNotiTypeAdminData({ 
-//         ntId: parseInt(ntId) 
-//       });
-//       if (response.error) {
-//         throw new Error(response.error);
-//       }
-//       return response.data;
-//     },
-//     enabled: !!ntId,
-//   });
-// };
-
 export function useCreateUnitByClassId(classId: number | null) {
   const queryClient = useQueryClient();
-
-  // if (!classId) {
-  //   console.error('Missing or invalid classId:', classId);
-  //   return null;
-  // }
 
   return useMutation({
     mutationFn: (data: UnitsFormValues) => {

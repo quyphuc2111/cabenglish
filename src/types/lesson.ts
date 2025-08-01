@@ -12,6 +12,7 @@ export interface LessonType {
   numLiked: number;
   isLocked: boolean;
   schoolWeek: number;
+  lessonOrder: number;
 }
 
 export interface LessonAdminType {

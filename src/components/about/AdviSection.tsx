@@ -26,6 +26,7 @@ function AdviSection() {
 
           <div className="flex gap-5">
             <input className="p-3 border border-gray-300 w-full rounded-lg" type="text" placeholder="Họ và tên ba mẹ" />
+            <input className="p-3 border border-gray-300 w-full rounded-lg" type="text" placeholder="Số điện thoại" />
           </div>
 
           <Button size={"lg"} className="bg-green-600">Nhận tư vấn miễn phí</Button>
