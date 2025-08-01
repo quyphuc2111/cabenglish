@@ -56,6 +56,7 @@ export type ModalType =
 
 export interface ModalData {
   onConfirm?: () => void;
+  onDataRefetch?: () => Promise<void>;
   mode?: "defaultMode" | "freeMode";
   notificationList?: NotificationType[];
   lessonIds?: number[] | number;

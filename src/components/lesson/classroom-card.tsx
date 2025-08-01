@@ -128,7 +128,8 @@ function ClassroomCard({
 
   const cardClasses = useMemo(() => 
     cn(
-      "px-2 sm:px-3 py-3 sm:py-4 bg-white rounded-2xl flex flex-col gap-2 shadow-course-inset border relative overflow-hidden h-[320px] sm:h-[350px] md:h-[400px]",
+      "px-2 sm:px-3 py-3 sm:py-4 bg-white rounded-2xl flex flex-col gap-2 sm:gap-3 lg:gap-4 shadow-course-inset border relative overflow-hidden",
+      "h-[320px] sm:h-[350px]  lg:h-[420px] xl:h-[450px] 2xl:h-[480px]",
       isLocked ? "opacity-60 cursor-not-allowed bg-[#d9d9d9]" : "cursor-pointer",
       className
     ),
@@ -149,7 +150,7 @@ function ClassroomCard({
       <div className="flex-shrink-0">
         <motion.div
           variants={ANIMATIONS.imageVariants}
-          className="relative w-full aspect-[16/9]"
+          className="relative w-full aspect-[16/5]  md:aspect-[16/7] lg:aspect-[16/9]"
         >
           <Image
             src={imageurl}
@@ -176,26 +177,30 @@ function ClassroomCard({
         </motion.div>
       </div>
 
-      <div className="flex flex-col min-h-0 flex-grow">
+      <div className="flex flex-col flex-grow overflow-hidden">
         <motion.h2
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: delay + 0.4 }}
           className={cn(
-            "text-base sm:text-lg md:text-xl font-bold text-[#58B882] line-clamp-2 flex-shrink-0",
+            "text-base sm:text-lg md:text-xl font-bold text-[#58B882] line-clamp-2 mb-1",
           )}
         >
           {classname}
         </motion.h2>
-        <motion.p
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: delay + 0.4 }}
-          className="text-sm sm:text-base text-gray-600 line-clamp-2 sm:line-clamp-3 min-h-0 max-h-[60px] sm:max-h-[72px] overflow-hidden"
-          title={description}
+          className="flex-grow overflow-hidden mb-1"
         >
-          {description}
-        </motion.p>
+          <p 
+            className="text-sm sm:text-base text-gray-600 line-clamp-2 sm:line-clamp-2 md:line-clamp-3 lg:line-clamp-3 overflow-hidden"
+            title={description}
+          >
+            {description}
+          </p>
+        </motion.div>
 
         <div className="flex justify-between items-center mt-auto pt-2 flex-shrink-0">
           <motion.div

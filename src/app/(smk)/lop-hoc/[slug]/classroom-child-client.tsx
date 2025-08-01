@@ -281,11 +281,11 @@ function ClassroomChildClient({
   return (
     <BreadcrumbLayout title={formattedTitle}>
       <ClassroomWrapper>
-        <div className="px-3 py-2 mb-4 transition-all duration-200 w-5/6">
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col sm:flex-row gap-3 items-center">
+        <div className="px-0 lg:px-3 py-2 mb-4 transition-all duration-200 w-full lg:w-5/6">
+          <div className="flex flex-col gap-2  flex-wrap">
+            <div className="flex flex-col 2xl:flex-row gap-3 items-start 2xl:items-center">
               {/* Search Bar */}
-              <div className="relative flex-1 max-w-sm">
+              <div className="relative flex-1 max-w-full w-full  lg:max-w-sm">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   type="text"
@@ -312,7 +312,7 @@ function ClassroomChildClient({
               </div>
 
               {/* Filter Controls */}
-              <div className="flex gap-2 w-1/2">
+              <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-1/2">
                 {/* Unit Filter - Moved first */}
                 <div className="flex-1 sm:w-40">
                   <Select

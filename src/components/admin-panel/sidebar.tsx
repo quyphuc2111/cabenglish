@@ -90,7 +90,7 @@ console.log("session", session)
           />
           {sidebar?.isOpen && <Badge variant="secondary">Giáo viên</Badge>}
         </div>
-        <AvatarUser sidebar={sidebar} email={session.user.email} />
+        <AvatarUser sidebar={sidebar} email={session?.user?.email} />
         <div className="w-full border-t-2 border-white mt-8 relative h-[30px]">
           <Image
             src="/menu-icon/ring.png"

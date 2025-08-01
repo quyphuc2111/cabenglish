@@ -40,13 +40,13 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
 
   // Điều chỉnh slidesPerView cho từng kích thước màn hình - hiển thị gần như full 1 slide trên mobile
   const slidesPerView = isExtraSmall
-    ? 1.01 // Hiển thị gần như đầy đủ 1 card cho màn hình rất nhỏ
+    ? 1.5  
     : isMobile 
-    ? 1.05  // Điều chỉnh để hiển thị gần như full 1 card
+    ? 2.5   
     : isSmallTablet
-    ? 1.6  // Thêm breakpoint cho màn hình tablet nhỏ
+    ? 2.5  
     : isTablet 
-    ? 2.5  // Điều chỉnh từ 2.2 lên 2.5
+    ? 2.5 
     : isLargeScreen 
     ? 4 
     : 3;

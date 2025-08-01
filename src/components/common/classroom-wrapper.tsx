@@ -118,18 +118,19 @@ function ClassroomWrapper(props: ClassroomWrapperProps) {
         <motion.div
           variants={contentVariants}
           className={cn(
-            "bg-white px-7 py-5 my-4 relative ",
+            "bg-white px-3 lg:px-7 py-3 lg:py-5 my-4 relative ",
             className
           )}
           {...props}
         >
-          <div className="flex gap-10 absolute top-0 right-[1vw] ">
+          <div className=" gap-10 absolute top-0 right-[1vw] hidden lg:flex">
             {[0, 1].map((i) => (
               <motion.div
                 key={i}
                 variants={starVariants}
                 custom={i}
                 whileHover="hover"
+                className="w-8 h-8 lg:w-12 lg:h-12"
               >
                 <Image
                   src="/assets/image/star.png"

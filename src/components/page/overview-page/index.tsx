@@ -80,7 +80,7 @@ function OverviewPage({
   }, [session?.user?.userId, session?.user?.mode, isRefetching, courseData]);
 
   return (
-    <div>
+    <div className="w-full">
       <LectureFavouriteList
         courseData={courseData}
         initialFilterData={initialFilterData}
@@ -91,6 +91,7 @@ function OverviewPage({
         courseData={courseData} 
         classroomData={classroomData}  
         currentTheme={currentTheme}
+        onDataRefetch={refetchCourseData}
       />
     </div>
   );

@@ -32,16 +32,20 @@ interface TransformedFilterData {
 
 export async function fetchFilterData({ classId, unitId, userId }: FilterParams) {
   try {
+    // Validate classId để tránh gọi API với giá trị không hợp lệ
+    const isValidClassId = classId && classId !== 'user' && classId !== 'reset' && !isNaN(Number(classId));
+    const isValidUnitId = unitId && unitId !== 'reset' && !isNaN(Number(unitId));
+    
     const [classroomsResponse, unitsResponse, schoolWeeksResponse] = await Promise.all([
       serverFetch(`/api/Classroom/user/${userId}`),
-      classId ? serverFetch(`/api/Unit/class/${classId}/${userId}`) : Promise.resolve([]),
-      unitId ? serverFetch(`/api/Schoolweek/unit/${unitId}`) : Promise.resolve([])
+      isValidClassId ? serverFetch(`/api/Unit/class/${classId}/${userId}`) : Promise.resolve([]),
+      isValidUnitId ? serverFetch(`/api/Schoolweek/unit/${unitId}`) : Promise.resolve([])
     ]);
 
     // Transform data trước khi trả về
     const transformedData: TransformedFilterData = {
       classrooms: classroomsResponse.map((classroom: any) => ({
-        class_id: classroom.class_id,
+        class_id: String(classroom.class_id),
         classname: classroom.classname
       })),
       units: unitsResponse.map((unit: any) => ({

@@ -10,7 +10,7 @@ import {
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { Loading } from "@/components/common/loading";
+import { Loading } from "@/components/ui/loading";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -68,14 +68,14 @@ async function ClassroomPage({ searchParams }: PageProps) {
   };
 
   return (
-    <Suspense fallback={<Loading />}>
+    // <Suspense fallback={<Loading />}>
       <ClassroomClient
         classroomData={classroomData.data}
         increamentLike={increamentLike}
         decreamentLike={decreamentLike}
         selectedClassroomName={classroomName ? decodeURIComponent(classroomName) : undefined}
       />
-    </Suspense>
+    // </Suspense>
   );
 }
 

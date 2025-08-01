@@ -76,10 +76,10 @@ function ClassroomClient({
       <div className="flex flex-col gap-3 sm:gap-5 w-full max-w-full overflow-hidden">
         <div className="flex flex-wrap items-center gap-3 sm:gap-5 px-2 sm:px-0">
           <Image
-            src="/book_multi.png"
+            src="/menu-icon/lophoc_icon.png"
             alt="chong_sach"
-            width={32}
-            height={32}
+            width={40}
+            height={40}
             className="sm:w-[40px] sm:h-[40px]"
           />
           <p className="text-[#555] text-base sm:text-lg md:text-[20px] font-bold truncate">
@@ -89,13 +89,13 @@ function ClassroomClient({
             }
           </p>
         </div>
-        <div className="bg-white py-5 sm:py-8 md:py-10 px-3 sm:px-4 md:px-5 rounded-xl sm:rounded-2xl grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 w-full">
+        <div className="bg-white py-5 sm:py-8 md:py-10 px-3 sm:px-4 md:px-5 lg:px-6 rounded-xl sm:rounded-2xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4  gap-3 sm:gap-4 md:gap-5 lg:gap-6 w-full">
           {classroomData.map((classroomItem, index) => {
             const isSelected = selectedClassroomName && 
               classroomItem.classname.toLowerCase() === selectedClassroomName.toLowerCase();
             
             return (
-              <div key={index} className="w-full">
+              <div key={index} className="w-full h-full">
                 <ClassroomCard
                   class_id={classroomItem.class_id}
                   classname={classroomItem.classname}
