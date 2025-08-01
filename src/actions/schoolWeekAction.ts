@@ -10,6 +10,20 @@ interface SchoolWeekResponse {
   message?: string;
 }
 
+export async function getSchoolWeekByUnitId({
+  unitId
+}: {
+  unitId: number;
+}) {
+  try {
+    const data = await serverFetch(`/api/Schoolweek/unit/${unitId}`);
+    return data;
+  } catch (error) {
+    console.error("Lỗi khi lấy dữ liệu tuần học:", error);
+    return [];
+  }
+}
+
 //Admin
 export async function getAllSchoolWeekAdminData(): Promise<SchoolWeekResponse> {
   try {

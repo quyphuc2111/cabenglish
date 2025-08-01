@@ -32,6 +32,49 @@ const MODAL_CONTENT = {
   hint: "* Hãy chọn một chế độ giảng dạy"
 };
 
+const defaultCourseData = [
+  {
+    courseTitle: "Unit 1 - Bài học: Từ vựng",
+    courseImage: "/modal/course1.png",
+    courseWeek: "Tuần học 1",
+    courseCategory: "3 - 4 tuổi",
+    courseName: "Bảng chữ cái tiếng anh",
+    courseProgress: 100,
+    courseLike: 668,
+    courseStatus: "started"
+  },
+  {
+    courseTitle: "Unit 2 - Bài học: Chào hỏi",
+    courseImage: "/modal/course2.png",
+    courseWeek: "Tuần học 2",
+    courseCategory: "3 - 4 tuổi",
+    courseName: "Giới thiệu bản thân",
+    courseProgress: 100,
+    courseLike: 568,
+    courseStatus: "started"
+  },
+  {
+    courseTitle: "Unit 3 - Bài học: Màu sắc",
+    courseImage: "/modal/course3.png",
+    courseWeek: "Tuần học 3",
+    courseCategory: "3 - 4 tuổi",
+    courseName: "Khám phá các màu sắc",
+    courseProgress: 0,
+    courseLike: 86,
+    courseStatus: "not_started"
+  },
+  {
+    courseTitle: "Unit 4 - Bài học: Từ vựng",
+    courseImage: "/modal/course4.png",
+    courseWeek: "Tuần học 1",
+    courseCategory: "3 - 4 tuổi",
+    courseName: "Bảng chữ cái tiếng anh",
+    courseProgress: 0,
+    courseLike: 668,
+    courseStatus: "not_started"
+  }
+];
+
 const courseData = [
   {
     courseTitle: "Unit 1 - Bài học: Từ vựng",
@@ -155,7 +198,7 @@ const ModeOption = ({
 function TeachingModeModal() {
   const { isOpen, onClose, type } = useModal();
   const [mode, setMode] = useState<TeachingModeType | null>(null);
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
 
   const { mutateAsync: updateUserInfo } = useUpdateUserInfo();
 
@@ -166,24 +209,35 @@ function TeachingModeModal() {
       return;
     }
     try {
-      const result = await updateUserInfo({
-        userId: session.user.userId ?? "",
-        userInfo: {
-          mode: mode === "default" ? "default" : "free",
-          isFirstLogin: false,
-          email: session.user.email ?? "",
-          language: session.user.language ?? "",
-          theme: session.user.theme ?? ""
-        }
-      });
+      const updateUserResponse = await updateUserInfo(
+        {
+          userId: session.user.userId ?? "",
+          userInfo: {
+            mode: mode === "default" ? "default" : "free",
+            is_firstlogin: false,
+            email: session.user.email ?? "",
+            language: session.user.language ?? "",
+            theme: session.user.theme ?? ""
+          }
+        },
+        {
+          onSuccess: async () => {
+            // Cập nhật session với thông tin mới
+            await update({
+              user: {
+                ...session.user,
+                mode: mode === "default" ? "default" : "free",
+                is_firstlogin: false
+              }
+            });
 
-      if (result?.sessionShouldUpdate) {
-        await signIn("credentials", { redirect: false });
-      }
+            onClose();
+          }
+        }
+      );
+
     } catch (error) {
       console.error("Lỗi khi cập nhật user info:", error);
-    } finally {
-      onClose();
     }
   };
 
@@ -201,7 +255,7 @@ function TeachingModeModal() {
               title={MODAL_CONTENT.defaultMode.title}
             />
             <div className="grid grid-cols-4 gap-5">
-              {courseData.map((courseItem, index) => (
+              {defaultCourseData.map((courseItem, index) => (
                 <Fragment key={index}>
                   <motion.div
                     initial={{ opacity: 0 }}

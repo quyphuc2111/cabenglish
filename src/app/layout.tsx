@@ -28,7 +28,25 @@ export const metadata: Metadata = {
   title: "Lớp học BKT",
   description:
     "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness.",
-  
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover',
+  },
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" }
+  ],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Lớp học BKT"
+  },
+  formatDetection: {
+    telephone: false
+  }
 };
 
 export default async function RootLayout({
@@ -48,19 +66,17 @@ export default async function RootLayout({
   const translations = resources?.[currentLang]?.common || {};
 
   return (
-    <html lang={currentLang} suppressHydrationWarning>
+    <html lang={currentLang} suppressHydrationWarning className="h-full">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        {/* Use Next.js metadata instead of direct meta tags */}
       </head>
-      {/* <Script
-        src="https://lms.bkt.net.vn/h5p/h5plib/v127/joubel/core/js/h5p-resizer.js"
-      /> */}
-      <body className={`${inter.className} ${inter.variable} font-inter`}>
+      <body className={`${inter.className} ${inter.variable} font-inter h-full overscroll-none`}>
         <Providers translations={translations}>
-          {children}
+          <div className="min-h-full flex flex-col">
+            {children}
+          </div>
         </Providers>
       </body>
     </html>
   );
-  
 }

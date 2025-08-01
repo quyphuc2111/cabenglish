@@ -45,7 +45,8 @@ export function Navbar({ title, type }: NavbarProps) {
           mode: session.user.mode || "",
           email: session.user.email || "",
           language: language,
-          theme: session.user.theme || ""
+          theme: session.user.theme || "",
+          is_firstlogin: session.user.is_firstlogin || false
         }
       });
       
@@ -58,14 +59,16 @@ export function Navbar({ title, type }: NavbarProps) {
 
   return (
     <motion.header
-      className="z-10 w-full max-w-[1920px] mx-auto "
+      className="z-10 w-full max-w-[1920px] mx-auto"
       variants={navbarAnimations.container}
       initial="hidden"
       animate="visible"
     >
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 lg:gap-10">
+      <div className="flex xl:flex-row flex-col xl:align-center  xl:items-center justify-between gap-2 sm:gap-4 md:gap-6 lg:gap-10">
         <SheetMenu />
-        <LogoDecorations currentTheme={currentTheme} />
+        <div className="flex-1 w-full">
+          <LogoDecorations currentTheme={currentTheme} />
+        </div>
         <NavbarControls
           t={t}
           currentTeachingMode={currentTeachingMode}

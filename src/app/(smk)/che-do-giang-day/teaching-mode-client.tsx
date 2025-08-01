@@ -76,7 +76,7 @@ const TEACHING_MODE_DATA = {
         courseName: "Giới thiệu bản thân",
         courseProgress: 100,
         courseLike: 568,
-        courseStatus: "started"
+        courseStatus: "not_started"
       },
       {
         courseTitle: "Unit 3 - Bài học: Màu sắc",
@@ -86,7 +86,7 @@ const TEACHING_MODE_DATA = {
         courseName: "Khám phá các màu sắc",
         courseProgress: 100,
         courseLike: 86,
-        courseStatus: "started"
+        courseStatus: "not_started"
       },
       {
         courseTitle: "Unit 4 - Bài học: Từ vựng",
@@ -96,7 +96,7 @@ const TEACHING_MODE_DATA = {
         courseName: "Bảng chữ cái tiếng anh",
         courseProgress: 100,
         courseLike: 668,
-        courseStatus: "started"
+        courseStatus: "not_started"
       }
     ]
   },
@@ -169,7 +169,7 @@ const CourseList = ({ courses }: { courses: any[] }) => (
     variants={containerVariants}
     initial="hidden"
     animate="visible"
-    className="grid grid-cols-4 gap-5"
+    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5"
   >
     {courses.map((courseItem, index) => (
       <Fragment key={index}>

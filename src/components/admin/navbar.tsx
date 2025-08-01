@@ -36,17 +36,25 @@ function Navbar({ breadcrumb }: NavbarProps) {
   };
 
   // Định dạng role
-  const formatRole = (role: string) => {
+  const formatRole = (role: string | string[]) => {
     if (!role) return 'Admin';
+    
+    if (Array.isArray(role)) {
+      if (role.length === 0) return 'Admin';
+      return role.map(r => r.charAt(0).toUpperCase() + r.slice(1).toLowerCase()).join(', ');
+    }
+    
     return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
   };
 
   // Lấy màu badge dựa trên role
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role?.toLowerCase()) {
-      case 'admin':
+  const getRoleBadgeVariant = (role: string | string[]) => {
+    const roleToCheck = Array.isArray(role) ? role[0]?.toLowerCase() : role?.toLowerCase();
+    
+    switch (roleToCheck) {
+      case 'administrator':
         return 'destructive';
-      case 'moderator':
+      case 'teacher':
         return 'default';
       case 'user':
         return 'secondary';

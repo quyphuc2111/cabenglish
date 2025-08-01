@@ -51,10 +51,11 @@ function OverviewPage({
   const [isRefetching, setIsRefetching] = useState(false);
 
   useEffect(() => {
-    if (session && session.user.isFirstLogin) {
+    if (session && session.user.is_firstlogin) {
+     
       onOpen("teachingMode");
     }
-  }, [session]);
+  }, [session])
 
   // Function để refetch course data từ server
   const refetchCourseData = useCallback(async () => {
@@ -79,7 +80,7 @@ function OverviewPage({
   }, [session?.user?.userId, session?.user?.mode, isRefetching, courseData]);
 
   return (
-    <div>
+    <div className="w-full">
       <LectureFavouriteList
         courseData={courseData}
         initialFilterData={initialFilterData}
@@ -90,6 +91,7 @@ function OverviewPage({
         courseData={courseData} 
         classroomData={classroomData}  
         currentTheme={currentTheme}
+        onDataRefetch={refetchCourseData}
       />
     </div>
   );

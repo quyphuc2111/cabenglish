@@ -52,7 +52,7 @@ export default function ClientPanelLayout({
       <main
         className={cn(
           `min-h-screen transition-[margin-left] ease-in-out duration-300 
-           flex-1 h-screen ${themeSecondaryClasses[currentTheme]} lg:rounded-l-[48px] 
+           flex-1 h-screen ${themeSecondaryClasses[currentTheme]} lg:rounded-l-[48px] px-2 md:px-8 2xl:px-0 py-2 md:py-0
            overflow-y-hidden `,
           sidebar?.isOpen === false ? "lg:ml-[100px]" : "lg:ml-72"
         )}

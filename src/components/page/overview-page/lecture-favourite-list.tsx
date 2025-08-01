@@ -83,14 +83,20 @@ export function LectureFavouriteList({
       String(item.schoolWeek) === filterValues.weekId;
 
     return matchesClass && matchesUnit && matchesLocked && matchesSchoolWeek && matchesProgress;
-  });
+  })
+  .sort((a, b) => {
+    const dateA = a.updatedAt || a.createdAt || a.lessonId;
+    const dateB = b.updatedAt || b.createdAt || b.lessonId;
+    return dateB - dateA; 
+  })
+  .slice(0, 20);
 
   const handleFilterChange = (newFilterValues: typeof filterValues) => {
     setFilterValues(newFilterValues);
   };
 
   return (
-    <div className="px-4 md:px-0">
+    <div className="px-0 md:px-0">
       <div className="flex items-center gap-2">
         <Image
           src="/book.gif"
@@ -105,34 +111,34 @@ export function LectureFavouriteList({
       </div>
 
       <div className="bg-white px-3 md:px-7 py-3 md:py-5 my-2 relative rounded-xl">
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-24">
-          <div className="flex items-center gap-3 border-b-4 border-[#EA69AE]/50 w-fit pr-6 pb-1">
-            <Image
-              src="/favourite.png"
-              alt="favourite"
-              width={30}
-              height={30}
-              className="w-6 h-6 md:w-8 md:h-8"
-            />
-            <p className="text-base md:text-lg">{t("favourite")}</p>
-          </div>
-
-          {/* <FilterSection /> */}
-          <div className="w-full md:w-3/4">
-            <FilterFacet 
-              initialFilterData={initialFilterData} 
-              fetchFilterData={fetchFilterData}
-              onFilterChange={handleFilterChange} 
-            />
-          </div>
-
-          <div className="hidden lg:flex gap-20 absolute -top-1 right-[12%]">
-            <Image src="/rank.gif" alt="rank" width={40} height={40} />
-            <Image src="/rank.gif" alt="rank" width={40} height={40} />
-          </div>
+        {/* Header with title */}
+        <div className="flex items-center gap-3 border-b-4 border-[#EA69AE]/50 w-fit pr-6 pb-1 mb-3">
+          <Image
+            src="/favourite.png"
+            alt="favourite"
+            width={30}
+            height={30}
+            className="w-6 h-6 md:w-8 md:h-8"
+          />
+          <p className="text-base md:text-lg">{t("favourite")}</p>
         </div>
 
-        <div className="relative pt-3 md:pt-5">
+        {/* Filter section */}
+        <div className="mb-4 md:mb-6">
+          <FilterFacet 
+            initialFilterData={initialFilterData} 
+            fetchFilterData={fetchFilterData}
+            onFilterChange={handleFilterChange} 
+          />
+        </div>
+
+        {/* Decorative images (hidden on mobile) */}
+        <div className="hidden lg:flex gap-20 absolute -top-1 right-7 lg:right-[5%]">
+          <Image src="/rank.gif" alt="rank" width={40} height={40} />
+          <Image src="/rank.gif" alt="rank" width={40} height={40} />
+        </div>
+
+        <div className="relative pt-3">
           {filteredLessonData.length > 0 ? (
             <CourseCarousel 
               courseData={filteredLessonData} 
@@ -140,15 +146,16 @@ export function LectureFavouriteList({
               removingLessons={removingLessons}
             />
           ) : (
-            <div className="flex justify-center items-center min-h-[280px] h-full flex-col gap-12">
-              <p className="text-lg md:text-2xl text-[#736E6E] font-medium">
+            <div className="flex justify-center items-center min-h-[200px] sm:min-h-[250px] md:min-h-[280px] h-full flex-col gap-4 sm:gap-8 md:gap-12">
+              <p className="text-center text-base sm:text-lg md:text-2xl text-[#736E6E] font-medium px-2">
                 Hiện tại chưa có bài học nào được yêu thích !
               </p>
               <OptimizeImage
                 src="/assets/image/lesson/no_favourite_lesson.webp"
                 alt="no-data"
-                width={130}
-                height={130}
+                width={100}
+                height={100}
+                className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] md:w-[130px] md:h-[130px]"
               />
             </div>
           )}

@@ -6,7 +6,7 @@ const Mascot = ({ position }: { position: "left" | "right" }) => {
   return (
     <div
       className={`absolute ${
-        position === "right" ? "top-1/2 right-10" : "top-1/3 left-10"
+        position === "right" ? "top-1/2 right-5" : "top-1/3 left-1"
       }`}
     >
       <div className="relative">
@@ -15,8 +15,8 @@ const Mascot = ({ position }: { position: "left" | "right" }) => {
             src={`/assets/image/bkt_mascot_pose${
               position === "right" ? "1" : "2"
             }.webp`}
-            width={110}
-            height={160}
+            width={90}
+            height={140}
             alt="bkt_mascot"
             className="flex-shrink-0"
             priority
@@ -29,8 +29,8 @@ const Mascot = ({ position }: { position: "left" | "right" }) => {
           >
             <OptimizeImage
               src="/assets/image/bkt_mascot_pose2_dialog.webp"
-              width={80}
-              height={80}
+              width={60}
+              height={60}
               alt="bkt_mascot_pose2_dialog"
               className="flex-shrink-0"
             />
@@ -45,8 +45,8 @@ const Mascot = ({ position }: { position: "left" | "right" }) => {
             >
               <OptimizeImage
                 src="/assets/image/bkt_mascot_pose1_ball.webp"
-                width={40}
-                height={40}
+                width={30}
+                height={30}
                 alt="bkt_mascot_ball"
                 className="flex-shrink-0"
               />
@@ -58,8 +58,8 @@ const Mascot = ({ position }: { position: "left" | "right" }) => {
             >
               <OptimizeImage
                 src="/assets/image/bkt_mascot_pose1_bear.webp"
-                width={34}
-                height={34}
+                width={24}
+                height={24}
                 alt="bkt_mascot_pose1_bear"
                 className="flex-shrink-0"
               />

@@ -25,7 +25,7 @@ export const useUpdateSession = () => {
           ...session.user,
           mode: userResponse.data.mode,
           theme: userResponse.data.theme,
-          isFirstLogin: userResponse.data.is_firstlogin
+          is_firstlogin: userResponse.data.is_firstlogin
         }
       });
     } catch (error) {

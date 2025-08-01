@@ -419,9 +419,17 @@ function LessonCard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: delay + 0.4 }}
           className={cn(
-            "text-sm sm:text-base font-bold h-8 sm:h-10 md:h-12 line-clamp-2",
+            "text-xs sm:text-sm md:text-base font-bold overflow-hidden",
+            "min-h-[2.5em] xs:min-h-[2.7em] sm:min-h-[3em] md:min-h-[2.5em]",
+            "line-clamp-1 xs:line-clamp-2 sm:line-clamp-2 md:line-clamp-2",
             horizontal === true ? "flex-1" : ""
           )}
+          style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            lineHeight: '1.25em'
+          }}
         >
           {lessonName}
         </motion.h2>
@@ -895,7 +903,7 @@ const likeButtonStyles = `
   /* Thêm breakpoint cho màn hình siêu nhỏ */
   @media (max-width: 480px) {
     .lesson-card {
-      padding: 16px !important;
+      padding: 8px !important;
       border-radius: 6px !important;
     }
     

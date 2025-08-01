@@ -8,6 +8,8 @@ import { ClassroomType } from "@/types/classroom";
 import { formatProgress } from "@/lib/utils";
 import { LessonType } from "@/types/lesson";
 import OptimizeImage from "@/components/common/optimize-image";
+import { toast } from "react-toastify";
+import { X } from "lucide-react";
 
 interface ProgressStatsProps {
   onOpen: (type: ModalType, data?: ModalData) => void;
@@ -15,9 +17,10 @@ interface ProgressStatsProps {
   courseData: LessonType[];
   classroomData: ClassroomType[];
   currentTheme?: string;
+  onDataRefetch?: () => Promise<void>;
 }
 
-export function ProgressStats({ onOpen, t, courseData, classroomData, currentTheme = "theme-red" }: ProgressStatsProps) {
+export function ProgressStats({ onOpen, t, courseData, classroomData, currentTheme = "theme-red", onDataRefetch }: ProgressStatsProps) {
   const [showChart, setShowChart] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedAge, setSelectedAge] = useState<string | null>(null);
@@ -147,7 +150,7 @@ export function ProgressStats({ onOpen, t, courseData, classroomData, currentThe
       progress: Number(formatProgress(item.progress))
     }));
 
-    const selectedAgeData = currentPageData.find(item => item.classname === selectedAge);
+    const selectedAgeData = classroomData.find(item => item.classname === selectedAge);
     
     if (!selectedAgeData) return [];
 
@@ -155,11 +158,30 @@ export function ProgressStats({ onOpen, t, courseData, classroomData, currentThe
       lesson.classId === selectedAgeData.class_id
     );
 
-    return classLessons.map(lesson => ({
-      name: lesson.unitName,
-      progress: Number(formatProgress(lesson.progress || 0))
+    // Nhóm các lesson theo unitId và tính trung bình progress cho mỗi unit
+    const unitMap = new Map();
+    
+    classLessons.forEach(lesson => {
+      const unitId = lesson.unitId;
+      if (!unitMap.has(unitId)) {
+        unitMap.set(unitId, {
+          unitName: lesson.unitName,
+          totalProgress: 0,
+          lessonCount: 0
+        });
+      }
+      
+      const unitData = unitMap.get(unitId);
+      unitData.totalProgress += Number(formatProgress(lesson.progress || 0));
+      unitData.lessonCount += 1;
+    });
+
+    // Chuyển đổi Map thành array và tính trung bình progress
+    return Array.from(unitMap.values()).map(unit => ({
+      name: unit.unitName,
+      progress: Math.round(unit.totalProgress / unit.lessonCount)
     }));
-  }, [selectedAge, currentPageData, courseData]);
+  }, [selectedAge, classroomData, courseData]);
 
   const getProgressColor = (progress: number) => {
     if (progress >= 80) return currentColors.progressColors.high;
@@ -179,6 +201,13 @@ export function ProgressStats({ onOpen, t, courseData, classroomData, currentThe
 
   const renderProgressItem = (item: ClassroomType) => {
     const progress = Number(formatProgress(item.progress));
+    
+    // Kiểm tra xem có dữ liệu chart hay không
+    const selectedAgeData = currentPageData.find(pageItem => pageItem.classname === item.classname);
+    const classLessons = selectedAgeData ? courseData.filter(lesson => 
+      lesson.classId === selectedAgeData.class_id
+    ) : [];
+    const hasChartData = classLessons.length > 0;
     
     return (
       <motion.div
@@ -225,10 +254,21 @@ export function ProgressStats({ onOpen, t, courseData, classroomData, currentThe
                 <div className={`absolute inset-0 bg-gradient-to-r ${currentColors.iconBg} opacity-20 rounded-full`}></div>
                 
                 {/* Custom Progress với theme colors */}
-                <div className="relative h-8 sm:h-10 rounded-full bg-white/60 backdrop-blur-sm border-2 border-white/80 cursor-pointer transition-all duration-500 hover:scale-[1.02] hover:border-white overflow-hidden"
+                <div className={`relative h-8 sm:h-10 rounded-full bg-white/60 backdrop-blur-sm border-2 border-white/80 transition-all duration-500 overflow-hidden cursor-pointer hover:scale-[1.02] hover:border-white`}
                      onClick={() => {
-                       setSelectedAge(item.classname);
-                       setShowChart(true);
+                       if (hasChartData) {
+                         setSelectedAge(item.classname);
+                         setShowChart(true);
+                       } else {
+                         toast.info("Lớp học này chưa có dữ liệu tiến độ để hiển thị biểu đồ.", {
+                           position: "top-right",
+                           autoClose: 3000,
+                           hideProgressBar: false,
+                           closeOnClick: true,
+                           pauseOnHover: true,
+                           draggable: true,
+                         });
+                       }
                      }}>
                   
                   {/* Progress fill với theme colors */}
@@ -251,8 +291,10 @@ export function ProgressStats({ onOpen, t, courseData, classroomData, currentThe
                 </div>
                 
                 {/* Floating indicator với theme colors */}
-                <div className={`absolute -top-3 -right-3 w-7 h-7 bg-gradient-to-br ${currentColors.iconBg} rounded-full flex items-center justify-center border-2 border-white animate-bounce z-40`}>
-                  <span className="text-xs font-bold text-white">📊</span>
+                <div className={`absolute -top-3 -right-3 w-7 h-7 bg-gradient-to-br ${currentColors.iconBg} rounded-full flex items-center justify-center border-2 border-white z-40 ${
+                  hasChartData ? 'animate-bounce' : ''
+                }`}>
+                  <span className="text-xs font-bold text-white">{hasChartData ? '📊' : '⚠️'}</span>
                 </div>
                 
                 {/* Glow effect theo theme */}
@@ -283,7 +325,7 @@ export function ProgressStats({ onOpen, t, courseData, classroomData, currentThe
                           lesson.classId === item.class_id
                         );
                         const lessonIds = classLessons.map(lesson => lesson.lessonId);
-                        onOpen("resetUnit", { lessonIds });
+                        onOpen("resetUnit", { lessonIds, onDataRefetch });
                       }}
                     />
                   </div>
@@ -418,8 +460,18 @@ export function ProgressStats({ onOpen, t, courseData, classroomData, currentThe
               </DialogTitle>
             </DialogHeader>
           </div>
-          <div className="p-6 overflow-auto">
-            <ProgressChart data={chartData} />
+          <div className="p-2 overflow-auto">
+            {chartData.length > 0 ? (
+              <ProgressChart data={chartData} />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-64 text-center">
+                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+                  <span className="text-2xl text-gray-400">📊</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-600 mb-2">Không có dữ liệu</h3>
+                <p className="text-gray-500">Lớp học này chưa có dữ liệu tiến độ để hiển thị biểu đồ.</p>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

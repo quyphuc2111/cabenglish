@@ -11,12 +11,14 @@ interface TeachingProgressProps {
   courseData: any[];
   classroomData: ClassroomType[];
   currentTheme?: string;
+  onDataRefetch?: () => Promise<void>;
 }
 
 export function TeachingProgress({
   courseData,
   classroomData,
-  currentTheme = "theme-red"
+  currentTheme = "theme-red",
+  onDataRefetch
 }: TeachingProgressProps) {
   const { t } = useTranslation("", "common");
   const { onOpen } = useModal();
@@ -112,6 +114,7 @@ export function TeachingProgress({
             courseData={courseData}
             classroomData={classroomData}
             currentTheme={currentTheme}
+            onDataRefetch={onDataRefetch}
           />
           <CurrentAndNextLecture
             courseData={courseData}

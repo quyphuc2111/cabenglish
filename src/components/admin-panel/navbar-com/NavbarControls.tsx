@@ -91,7 +91,7 @@ export function NavbarControls({
   return (
     <>
       {/* Desktop Layout */}
-      <div className="hidden md:block relative">
+      <div className="hidden xl:block relative">
         <motion.div
           className="grid grid-cols-2 gap-6 w-full md:w-auto items-center"
           variants={{
@@ -127,8 +127,8 @@ export function NavbarControls({
         </div>
       </div>
 
-      {/* Mobile Floating Menu */}
-      <div className="md:hidden">
+      {/* Mobile Floating Menu - Fixed positioning so it doesn't affect document flow */}
+      <div className="fixed bottom-0 right-0 z-50 xl:hidden" style={{ pointerEvents: 'none' }}>
         {/* Backdrop overlay */}
         <AnimatePresence>
           {isOpen && (
@@ -138,78 +138,79 @@ export function NavbarControls({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
+              style={{ pointerEvents: 'auto' }}
             />
           )}
         </AnimatePresence>
 
         {/* Floating Action Button */}
-          <div className="fixed bottom-6 right-6 z-50">
-            {/* Menu Items Container */}
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  className="absolute bottom-16 right-0 flex flex-col-reverse gap-3 min-w-max"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                >
-                  {menuItems.map((item, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      transition={{
-                        delay: index * 0.05,
-                        duration: 0.2,
-                        ease: "easeOut"
-                      }}
-                      className="flex items-center gap-3"
-                    >
-                      {/* Label */}
-                      <div className="bg-white text-gray-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg border border-gray-200">
-                        {item.label}
-                      </div>
-                      
-                      {/* Button */}
-                      {item.component ? (
-                        <div className="w-fit h-12 rounded-lg bg-white shadow-lg border border-gray-200 flex items-center justify-center">
-                          <div className="scale-90">
-                            {item.component}
-                          </div>
+        <div className="fixed bottom-3 right-3 z-50" style={{ pointerEvents: 'auto' }}>
+          {/* Menu Items Container */}
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                className="absolute bottom-16 right-0 flex flex-col-reverse gap-3 min-w-max"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              >
+                {menuItems.map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{
+                      delay: index * 0.05,
+                      duration: 0.2,
+                      ease: "easeOut"
+                    }}
+                    className="flex items-center gap-3"
+                  >
+                    {/* Label */}
+                    <div className="bg-white text-gray-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg border border-gray-200">
+                      {item.label}
+                    </div>
+                    
+                    {/* Button */}
+                    {item.component ? (
+                      <div className="w-fit h-12 rounded-lg bg-white shadow-lg border border-gray-200 flex items-center justify-center">
+                        <div className="scale-90">
+                          {item.component}
                         </div>
-                      ) : (
-                        <button
-                          className={`w-12 h-12 rounded-lg ${item.color || 'bg-gray-600'} text-white shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow duration-200`}
-                          onClick={() => {
-                            item.onClick?.();
-                            setIsOpen(false);
-                          }}
-                        >
-                          <item.icon size={18} />
-                        </button>
-                      )}
-                    </motion.div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
- 
-            {/* Main FAB */}
-            <motion.button
-              className={`w-14 h-14 rounded-full ${themeClasses[currentTheme]} text-white shadow-lg flex items-center justify-center`}
-              onClick={() => setIsOpen(!isOpen)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              animate={{
-                rotate: isOpen ? 45 : 0
-              }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-            >
-              <SettingsIcon size={20} />
-            </motion.button>
-          </div>
+                      </div>
+                    ) : (
+                      <button
+                        className={`w-12 h-12 rounded-lg ${item.color || 'bg-gray-600'} text-white shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow duration-200`}
+                        onClick={() => {
+                          item.onClick?.();
+                          setIsOpen(false);
+                        }}
+                      >
+                        <item.icon size={18} />
+                      </button>
+                    )}
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Main FAB */}
+          <motion.button
+            className={`w-12 h-12 rounded-full ${themeClasses[currentTheme]} text-white shadow-lg flex items-center justify-center`}
+            onClick={() => setIsOpen(!isOpen)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            animate={{
+              rotate: isOpen ? 45 : 0
+            }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+          >
+            <SettingsIcon size={20} />
+          </motion.button>
+        </div>
       </div>
     </>
   );
