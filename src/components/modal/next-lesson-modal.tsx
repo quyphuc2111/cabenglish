@@ -162,7 +162,7 @@ function NextLessonModal() {
 
                 <p className="text-2xl text-center font-medium">
                   {data?.isLastLesson
-                    ? "🎉 Chúc mừng! Bạn đã hoàn thành tất cả bài học trong lớp này!"
+                    ? "🎉 Chúc mừng! Bạn đã hoàn thành bài học cuối cùng trong lớp này!"
                     : "Bạn có muốn tiếp tục học bài tiếp theo không?"}
                 </p>
 

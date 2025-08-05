@@ -109,6 +109,7 @@ export const TabsContainer = ({
   const [localUnlockedContents, setLocalUnlockedContents] = useState<
     Set<number>
   >(new Set());
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const iframeContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -284,50 +285,170 @@ export const TabsContainer = ({
   };
 
   const handleFullScreen = () => {
-    if (iframeRef.current) {
+    if (iframeContainerRef.current) {
       try {
-        // Phương pháp 1: Thêm tham số để hiển thị nút fullscreen của H5P
-        const currentSrc = iframeRef.current.src;
+        setIsFullscreen(true);
 
-        // Phương pháp 2: Giả lập click vào nút fullscreen của H5P
-        // Cố gắng tìm và click vào nút fullscreen
-        try {
-          const fullscreenButton =
-            iframeRef.current.contentDocument?.querySelector(
-              ".h5p-fullscreen, .h5p-enable-fullscreen"
-            );
-          if (fullscreenButton) {
-            (fullscreenButton as HTMLElement).click();
-            return;
-          }
-        } catch (e) {
-          // Bỏ qua lỗi khi truy cập cross-origin iframe
-          console.log("Không thể truy cập nút fullscreen trong iframe", e);
-        }
-
-        // Phương pháp 3: Sử dụng API fullscreen tiêu chuẩn của trình duyệt
-        if (iframeRef.current.requestFullscreen) {
-          iframeRef.current.requestFullscreen();
-        } else if ((iframeRef.current as any).webkitRequestFullscreen) {
-          (iframeRef.current as any).webkitRequestFullscreen(); // Safari
-        } else if ((iframeRef.current as any).msRequestFullscreen) {
-          (iframeRef.current as any).msRequestFullscreen(); // IE11
+        // Sử dụng API fullscreen tiêu chuẩn của trình duyệt cho container
+        if (iframeContainerRef.current.requestFullscreen) {
+          iframeContainerRef.current.requestFullscreen();
+        } else if (
+          (iframeContainerRef.current as any).webkitRequestFullscreen
+        ) {
+          (iframeContainerRef.current as any).webkitRequestFullscreen(); // Safari
+        } else if ((iframeContainerRef.current as any).mozRequestFullScreen) {
+          (iframeContainerRef.current as any).mozRequestFullScreen(); // Firefox
+        } else if ((iframeContainerRef.current as any).msRequestFullscreen) {
+          (iframeContainerRef.current as any).msRequestFullscreen(); // IE11
+        } else {
+          // Fallback cho iOS và các trình duyệt không hỗ trợ
+          const element = iframeContainerRef.current;
+          element.style.position = "fixed";
+          element.style.top = "0";
+          element.style.left = "0";
+          element.style.width = "100vw";
+          element.style.height = "100vh";
+          element.style.zIndex = "9999";
+          element.style.backgroundColor = "white";
+          document.body.style.overflow = "hidden";
         }
       } catch (error) {
         console.error("Lỗi khi chuyển sang chế độ toàn màn hình:", error);
 
-        // Fallback cuối cùng: Thử mở tab mới với nội dung iframe
-        try {
-          const iframeSrc = iframeRef.current.src;
-          if (iframeSrc) {
-            window.open(iframeSrc, "_blank");
-          }
-        } catch (e) {
-          console.error("Không thể mở tab mới:", e);
-        }
+        // Fallback manual fullscreen
+        const element = iframeContainerRef.current;
+        element.style.position = "fixed";
+        element.style.top = "0";
+        element.style.left = "0";
+        element.style.width = "100vw";
+        element.style.height = "100vh";
+        element.style.zIndex = "9999";
+        element.style.backgroundColor = "white";
+        document.body.style.overflow = "hidden";
+        setIsFullscreen(true);
       }
     }
   };
+
+  const handleExitFullScreen = () => {
+    try {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitFullscreenElement) {
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).mozFullScreenElement) {
+        (document as any).mozCancelFullScreen();
+      } else if ((document as any).msFullscreenElement) {
+        (document as any).msExitFullscreen();
+      } else {
+        // Manual exit fallback
+        if (iframeContainerRef.current) {
+          iframeContainerRef.current.style.position = "";
+          iframeContainerRef.current.style.top = "";
+          iframeContainerRef.current.style.left = "";
+          iframeContainerRef.current.style.width = "";
+          iframeContainerRef.current.style.height = "";
+          iframeContainerRef.current.style.zIndex = "";
+          iframeContainerRef.current.style.backgroundColor = "";
+          document.body.style.overflow = "";
+        }
+      }
+      setIsFullscreen(false);
+    } catch (error) {
+      console.error("Lỗi khi thoát chế độ toàn màn hình:", error);
+      // Force exit
+      if (iframeContainerRef.current) {
+        iframeContainerRef.current.style.position = "";
+        iframeContainerRef.current.style.top = "";
+        iframeContainerRef.current.style.left = "";
+        iframeContainerRef.current.style.width = "";
+        iframeContainerRef.current.style.height = "";
+        iframeContainerRef.current.style.zIndex = "";
+        iframeContainerRef.current.style.backgroundColor = "";
+        document.body.style.overflow = "";
+      }
+      setIsFullscreen(false);
+    }
+  };
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen = !!(
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).mozFullScreenElement ||
+        (document as any).msFullscreenElement
+      );
+
+      if (!isCurrentlyFullscreen && isFullscreen) {
+        // User exited fullscreen using browser controls
+        setIsFullscreen(false);
+        if (iframeContainerRef.current) {
+          iframeContainerRef.current.style.position = "";
+          iframeContainerRef.current.style.top = "";
+          iframeContainerRef.current.style.left = "";
+          iframeContainerRef.current.style.width = "";
+          iframeContainerRef.current.style.height = "";
+          iframeContainerRef.current.style.zIndex = "";
+          iframeContainerRef.current.style.backgroundColor = "";
+          document.body.style.overflow = "";
+        }
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+    document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener(
+        "webkitfullscreenchange",
+        handleFullscreenChange
+      );
+      document.removeEventListener(
+        "mozfullscreenchange",
+        handleFullscreenChange
+      );
+      document.removeEventListener(
+        "MSFullscreenChange",
+        handleFullscreenChange
+      );
+    };
+  }, [isFullscreen]);
+
+  // Handle escape key
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isFullscreen) {
+        handleExitFullScreen();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscapeKey);
+    return () => {
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [isFullscreen]);
+
+  // Handle viewport height for mobile devices
+  useEffect(() => {
+    const setVH = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
+    };
+
+    setVH();
+    window.addEventListener("resize", setVH);
+    window.addEventListener("orientationchange", setVH);
+
+    return () => {
+      window.removeEventListener("resize", setVH);
+      window.removeEventListener("orientationchange", setVH);
+    };
+  }, []);
 
   console.log(sectionInfo);
 
@@ -498,8 +619,40 @@ export const TabsContainer = ({
               {/* Iframe Container */}
               <div
                 ref={iframeContainerRef}
-                className="relative flex-1 min-h-0 p-1 landscape:p-2 sm:p-4 md:p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"
+                className={`relative flex-1 min-h-0 p-1 landscape:p-2 sm:p-4 md:p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 ${
+                  isFullscreen ? "fullscreen-container" : ""
+                }`}
               >
+                {/* Exit Fullscreen Button */}
+                {isFullscreen && (
+                  <button
+                    onClick={handleExitFullScreen}
+                    className="absolute top-2 left-2 z-50 bg-black/70 hover:bg-black/90 text-white rounded-full p-2 sm:p-3 transition-all duration-200 hover:scale-110 backdrop-blur-sm"
+                    style={{
+                      position: "fixed",
+                      top: "16px",
+                      left: "16px",
+                      zIndex: 10000
+                    }}
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-4 h-4 sm:w-5 sm:h-5"
+                    >
+                      <path
+                        d="M18 6L6 18M6 6L18 18"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                )}
                 {content.iframe_url.startsWith("http") ? (
                   <div className="w-full h-full relative">
                     {iframeLoading && (
@@ -515,7 +668,9 @@ export const TabsContainer = ({
                     <iframe
                       ref={iframeRef}
                       src={content.iframe_url}
-                      className="w-full h-full border-none rounded-t-md"
+                      className={`w-full h-full border-none rounded-t-md ${
+                        isFullscreen ? "fullscreen-iframe" : ""
+                      }`}
                       title={content.title}
                       allowFullScreen
                       allow="geolocation *; microphone *; camera *; midi *; encrypted-media *"
@@ -545,18 +700,61 @@ export const TabsContainer = ({
                   {content.description}
                 </div>
                 <button
-                  onClick={handleFullScreen}
+                  onClick={
+                    isFullscreen ? handleExitFullScreen : handleFullScreen
+                  }
                   className="flex items-center justify-center landscape:justify-start sm:justify-start gap-1 landscape:gap-2 sm:gap-3 bg-gray-100 p-1 landscape:p-2 sm:p-2 rounded-md text-xs landscape:text-sm sm:text-sm hover:bg-gray-200 transition-colors flex-shrink-0"
                 >
                   <FullscreenIcon className="w-3 h-3 landscape:w-4 landscape:h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
                   <span className="hidden landscape:inline xs:inline">
-                    Toàn màn hình
+                    {isFullscreen ? "Thoát toàn màn hình" : "Toàn màn hình"}
                   </span>
                 </button>
               </div>
             </motion.div>
           </TabsContent>
         ))}
+
+      {/* Fullscreen Styles */}
+      <style jsx>{`
+        .fullscreen-container {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          z-index: 9999 !important;
+          background: white !important;
+          padding: 0 !important;
+        }
+
+        .fullscreen-iframe {
+          border-radius: 0 !important;
+        }
+
+        /* iOS Safari specific fixes */
+        @supports (-webkit-touch-callout: none) {
+          .fullscreen-container {
+            height: 100vh !important;
+            height: -webkit-fill-available !important;
+          }
+        }
+
+        /* Android Chrome specific fixes */
+        @media screen and (max-width: 768px) {
+          .fullscreen-container {
+            height: 100vh !important;
+            height: calc(var(--vh, 1vh) * 100) !important;
+          }
+        }
+
+        /* Tablet landscape orientation */
+        @media screen and (orientation: landscape) and (max-height: 768px) {
+          .fullscreen-container {
+            height: 100vh !important;
+          }
+        }
+      `}</style>
     </Tabs>
   );
 };
