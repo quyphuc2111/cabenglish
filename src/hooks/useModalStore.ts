@@ -1,6 +1,14 @@
 import { LessonAdminType } from "@/types/lesson";
-import { NotiAdminType, NotificationType, NotiType } from "@/types/notification";
-import { SectionAdminType, SectionContentAdminType, SectionContentType } from "@/types/section";
+import {
+  NotiAdminType,
+  NotificationType,
+  NotiType
+} from "@/types/notification";
+import {
+  SectionAdminType,
+  SectionContentAdminType,
+  SectionContentType
+} from "@/types/section";
 import { create } from "zustand";
 
 export type ModalType =
@@ -13,6 +21,8 @@ export type ModalType =
   | "changeTeachingModeModal"
   | "completeLesson"
   | "nextSection"
+  | "nextLesson"
+  | "completeLessonFinal"
   | "notification"
   | "createUpdateClassroom"
   | "deleteClassroom"
@@ -51,8 +61,7 @@ export type ModalType =
   | "importLessons"
   | "logout"
   | "errorDetails"
-  | "exportNotiType"
-  ;
+  | "exportNotiType";
 
 export interface ModalData {
   onConfirm?: () => void;
@@ -60,6 +69,8 @@ export interface ModalData {
   mode?: "defaultMode" | "freeMode";
   notificationList?: NotificationType[];
   lessonIds?: number[] | number;
+  nextLessonId?: number;
+  isLastLesson?: boolean;
   formType?: "create" | "update";
   classroomId?: string;
   classroomIds?: string[];
@@ -128,7 +139,6 @@ export interface ModalData {
   errorTitle?: string;
   selectedClassId?: number | string;
 }
-
 
 export interface ModalStore {
   type: ModalType | null;

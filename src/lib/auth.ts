@@ -108,7 +108,6 @@ export const authOptions: NextAuthOptions = {
                 credentials.email,
                 data.accessToken
               );
-
             } catch (error) {
               if (axios.isAxiosError(error) && error.response?.status === 404) {
                 try {
@@ -303,9 +302,12 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (token.authCookie) {
+        console.log("Refreshing access token...");
+        console.log("Current token:", token);
         try {
           const { refreshAccessToken } = await import("@/hooks/client/userApi");
           const refreshed = await refreshAccessToken(token.authCookie);
+          console.log("Refreshed token:", refreshed);
           token.accessToken = refreshed.accessToken;
           token.accessTokenExpires = Date.now() + refreshed.expiresIn * 1000;
           return token;
