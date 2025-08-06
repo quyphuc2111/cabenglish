@@ -4,11 +4,12 @@ import { serverFetch } from "@/lib/api";
 import { LessonAdminType, LessonType } from "@/types/lesson";
 import { initializeProgress } from "./progressAction";
 import { initializeLocked } from "./lockedAction";
+import { revalidatePath } from "next/cache";
 
 interface LessonResponse {
   data: LessonType[];
   error?: string;
-  success?: boolean;
+  success: boolean;
 }
 
 interface LessonAdminResponse {
@@ -28,13 +29,14 @@ export async function getAllLessonDataByUserId({
   if (!userId) {
     return {
       data: [],
-      error: "UserId không được để trống"
+      error: "UserId không được để trống",
+      success: false
     };
   }
 
   try {
     await initializeProgress(userId)
-    await initializeLocked({userId, mode: mode })
+    // await initializeLocked({userId, mode: mode })
     const data = await serverFetch(`/api/Lesson/user/${userId}`);
 
     if (!Array.isArray(data)) {
@@ -43,14 +45,44 @@ export async function getAllLessonDataByUserId({
 
     return {
       data: data as LessonType[],
-      error: undefined
+      error: undefined,
+      success: true
     };
   } catch (error) {
     console.error("Lỗi khi lấy dữ liệu bài học:", error);
     return {
       data: [],
       error:
-        error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu"
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu",
+      success: false
+    };
+  }
+}
+
+// Action để refresh dữ liệu lesson và classroom
+export async function refreshLessonData({
+  userId,
+  classroomSlug
+}: {
+  userId: string;
+  classroomSlug?: string;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Revalidate các path liên quan
+    revalidatePath('/lop-hoc');
+    if (classroomSlug) {
+      revalidatePath(`/lop-hoc/${classroomSlug}`);
+    }
+    revalidatePath('/tong-quan');
+    
+    return {
+      success: true
+    };
+  } catch (error) {
+    console.error('Lỗi khi refresh dữ liệu lesson:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Có lỗi xảy ra khi refresh dữ liệu'
     };
   }
 }
@@ -63,7 +95,8 @@ export async function incrementLessonLike(lessonId: string): Promise<LessonRespo
 
     return {
       data: data,
-      error: undefined
+      error: undefined,
+      success: true
     };
   } catch (error) {
     console.error("Lỗi khi tăng số lượt thích cho bài học:", error);
@@ -72,7 +105,8 @@ export async function incrementLessonLike(lessonId: string): Promise<LessonRespo
       error:
         error instanceof Error
           ? error.message
-          : "Có lỗi xảy ra khi tăng số lượt thích cho bài học"
+          : "Có lỗi xảy ra khi tăng số lượt thích cho bài học",
+      success: false
     };
   }
 }
@@ -85,7 +119,8 @@ export async function decrementLessonLike(lessonId: string): Promise<LessonRespo
 
     return {
       data: data,
-      error: undefined
+      error: undefined,
+      success: true
     };
   } catch (error) {
     console.error("Lỗi khi tăng số lượt thích cho bài học:", error);
@@ -94,7 +129,8 @@ export async function decrementLessonLike(lessonId: string): Promise<LessonRespo
       error:
         error instanceof Error
           ? error.message
-          : "Có lỗi xảy ra khi tăng số lượt thích cho bài học"
+          : "Có lỗi xảy ra khi tăng số lượt thích cho bài học",
+      success: false
     };
   }
 }

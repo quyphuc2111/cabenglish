@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 
 import initTranslations from "@/locales/i18n";
@@ -25,29 +25,16 @@ export const metadata: Metadata = {
       ? `https://${process.env.VERCEL_URL}`
       : `http://localhost:${process.env.PORT || 3000}`
   ),
-  title: "Lớp học BKT",
-  description:
-    "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness.",
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    viewportFit: 'cover',
-  },
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" }
-  ],
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Lớp học BKT"
-  },
-  formatDetection: {
-    telephone: false
-  }
+  title: "Lớp học BKT"
 };
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+}
 
 export default async function RootLayout({
   children,

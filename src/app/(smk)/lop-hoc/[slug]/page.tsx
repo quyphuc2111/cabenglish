@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getAllLessonDataByUserId } from "@/actions/lessonAction";
 import { getAllClassroomDataByUserId } from "@/actions/classroomAction";
+import { getUserInfo } from "@/actions/userAction";
 import { getClassIdByClassname, getClassroomByClassname } from "@/utils/getClassIdByClassname";
 
 export interface PageProps {
@@ -62,17 +63,24 @@ async function Page({ params, searchParams }: PageProps) {
     return redirect("/lop-hoc");
   }
 
-  const lessonData = await getAllLessonDataByUserId({
-    userId: session.user.userId as string,
-    mode: session.user.mode
+  // Lấy thông tin user từ database để có mode mới nhất
+  const userInfoResponse = await getUserInfo({
+    userId: session.user.userId as string
   });
 
-  const filteredLessons = (
-    Array.isArray(lessonData) ? lessonData : lessonData.data
-  ).filter(
+  const userMode = userInfoResponse.success ? (userInfoResponse.data?.mode || "default") : "default";
+
+  const lessonResponse = await getAllLessonDataByUserId({
+    userId: session.user.userId as string,
+    mode: userMode as "default" | "free"
+  });
+
+  // Handle new response structure
+  const allLessons = lessonResponse.success ? lessonResponse.data : [];
+  
+  const filteredLessons = allLessons.filter(
     (lesson) =>
-      (lesson.classname || lesson.className).toLowerCase() ===
-      classname.toLowerCase()
+      lesson.className?.toLowerCase() === classname.toLowerCase()
   );
 
   return (
@@ -80,7 +88,6 @@ async function Page({ params, searchParams }: PageProps) {
       slug={slug}
       lessonData={filteredLessons}
       classId={classId}
-      classroom={matchingClassroom}
     />
   );
 }
