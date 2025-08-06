@@ -3,23 +3,20 @@ import { SheetMenu } from "@/components/admin-panel/sheet-menu";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Switch } from "../ui/switch";
 import { motion } from "framer-motion";
 import { navbarAnimations } from "@/constants/animation-variants";
 import { useModal } from "@/hooks/useModalStore";
-import { useUserTheme, useUserMode } from "@/store/useUserStore";
-import i18next from "i18next";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSession } from "next-auth/react";
 import { NavbarControls } from "./navbar-com/NavbarControls";
-// import { useTeachingModeStore } from "@/store/useTeachingModeStore";
+import { useUserInfo } from "@/hooks/useUserInfo";
 
 interface BreadcrumbNavbarProps {
   title: string;
   type?: string;
 }
 
-const foregroundThemeClasses = {
+const foregroundThemeClasses: Record<string, string> = {
   "theme-gold": "bg-theme-gold-foreground",
   "theme-blue": "bg-theme-blue-foreground",
   "theme-pink": "bg-theme-pink-foreground",
@@ -27,17 +24,13 @@ const foregroundThemeClasses = {
 };
 
 export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
-  // backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0
   const [lastSlug, setLastSlug] = useState<string | any>("");
-  const [isChecked, setIsChecked] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
 
   const { data: session } = useSession();
-
-  const currentTheme = session?.user.theme ?? "theme-red";
+  const { data: userInfo } = useUserInfo(session?.user?.userId);
+  const currentTheme = userInfo?.theme ?? "theme-red";
   const { onOpen } = useModal();
   const router = useRouter();
-  const currentTeachingMode = session?.user.mode === "default" ? "defaultMode" : "freeMode";
 
   const { t } = useTranslation("", "common");
 
@@ -51,10 +44,6 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
 
   const handleBack = () => {
     router.push("/lop-hoc");
-  };
-
-  const handleClick = () => {
-    setIsChecked((prev) => !prev);
   };
 
   const handleChangeTheme = () => {
@@ -90,7 +79,6 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
 
           <div className="w-full lg:w-3/4 lg:bg-white absolute top-1/2 -translate-y-1/2 left-0 lg:left-10  rounded-xl p-2 lg:px-4 xl:px-12">
             <div className="w-fit relative">
-              {/* <LogoSection /> */}
               <div className="flex gap-5">
                 <div
                   onClick={handleBack}
@@ -134,7 +122,6 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
               </div>
               <motion.div
                 className="absolute top-1 -left-8 -rotate-12 hidden xl:block"
-                // variants={rotatingVariants}
                 initial="initial"
                 animate="animate"
               >
@@ -145,15 +132,6 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                   alt="lesson"
                 />
               </motion.div>
-
-              {/* <div className="absolute -top-3 -right-12 rotate-12">
-                <Image
-                  src="/navbar/banhchung.png"
-                  width={40}
-                  height={30}
-                  alt="lesson"
-                />
-              </div> */}
 
               <div className="absolute right-1/2 rotate-12 hidden xl:block">
                 <Image
@@ -167,7 +145,6 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
 
             <motion.div
               className="absolute top-0 right-[42%] hidden 3xl:block"
-              // variants={bellVariants}
               initial="initial"
               animate="animate"
             >
@@ -215,7 +192,6 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
 
             <motion.div
               className="absolute right-[42% hidden "
-              //  variants={fishVariants}
               initial="initial"
               animate="animate"
             >
@@ -247,15 +223,6 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
 
             <motion.div
               className="absolute -right-12 top-0 -rotate-6 hidden lg:block"
-              // animate={{
-              //   rotate: [-6, -3, -6],
-              //   scale: [1, 1.05, 1],
-              //   transition: {
-              //     duration: 2,
-              //     repeat: Infinity,
-              //     ease: "easeInOut"
-              //   }
-              // }}
             >
               <Image
                 src="/navbar/hoadao.png"
@@ -268,15 +235,6 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
 
           <motion.div
             className="absolute right-[11%] -bottom-2 hidden lg:block"
-            //  animate={{
-            //    y: [-2, 2, -2],
-            //    transition: {
-            //      duration: 1.5,
-            //      repeat: Infinity,
-            //      ease: "easeInOut",
-            //      delay: 0.2
-            //    }
-            //  }}
           >
             <Image
               src="/navbar/nguoi1.png"
@@ -332,15 +290,6 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
             />
           </motion.div>
 
-          {/* <div className="absolute right-[10%] top-[25%] ">
-            <Image
-              src="/navbar/hoa_do.png"
-              width={25}
-              height={25}
-              alt="lesson"
-            />
-          </div> */}
-
           <div className="absolute right-[6%] top-0 hidden lg:block">
             <Image
               src="/navbar/hoa_do.png"
@@ -371,9 +320,9 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
 
         <NavbarControls
           t={t}
-          currentTeachingMode={currentTeachingMode}
           onChangeTheme={handleChangeTheme}
           onLogout={handleLogout}
+          userId={session?.user.userId}
         />
       </div>
     </motion.header>

@@ -68,7 +68,6 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
 
   if (!sidebar) return null;
 
-console.log("session", session)
 
   return (
     <aside

@@ -7,7 +7,6 @@ import { ToastContainer } from "react-toastify";
 import { AdminSidebar } from "./admin-sidebar";
 import { MobileAdminMenu } from "./mobile-admin-menu";
 import AdminModalProvider from "@/providers/admin-modal-provider";
-import Navbar from "../admin/navbar";
 import { useSession } from "next-auth/react";
 
 export default function AdminPanelLayout({
@@ -16,7 +15,6 @@ export default function AdminPanelLayout({
   children: React.ReactNode;
 }) {
   const { data: session } = useSession();
-  const currentTheme = session?.user.theme;
   const sidebar = useStore(useSidebarToggle, (state) => state);
 
   const themeClasses = {
@@ -40,7 +38,6 @@ export default function AdminPanelLayout({
     <div className={themeClasses["theme-red"]}>
       <AdminSidebar />
       <MobileAdminMenu />
-      {/* p-3 xl:p-[40px] 2xl:p-[60px] */}
       <main
         className={cn(
           `min-h-screen transition-[margin-left] ease-in-out duration-300 px-3

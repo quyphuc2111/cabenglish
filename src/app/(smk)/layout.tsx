@@ -1,5 +1,6 @@
 import { getNotificationListByUserId } from "@/actions/notificationAction";
 import ClientPanelLayout from "@/components/admin-panel/client-panel-layout";
+import UserStoreProvider from "@/components/user-store-provider";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
@@ -27,7 +28,9 @@ export default async function ClientLayout({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ClientPanelLayout>{children}</ClientPanelLayout>
+      <UserStoreProvider userId={userId}>
+        <ClientPanelLayout>{children}</ClientPanelLayout>
+      </UserStoreProvider>
     </HydrationBoundary>
   );
 }

@@ -17,9 +17,8 @@ import {
   TooltipProvider
 } from "@/components/ui/tooltip";
 import Image from "next/image";
-// import { useTeachingModeStore } from "@/store/useTeachingModeStore";
-import { useUserMode, useUserStore } from "@/store/useUserStore";
 import { useSession } from "next-auth/react";
+import { useUserInfo } from "@/hooks/useUserInfo";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -28,7 +27,8 @@ interface MenuProps {
 
 export function Menu({ isOpen, disabled }: MenuProps) {
   const { data: session } = useSession();
-  const currentTeachingMode = session?.user?.mode == "default" ? "defaultMode" : "freeMode";
+  const { data: userInfo } = useUserInfo(session?.user?.userId);
+  const currentTeachingMode = userInfo?.mode === "default" ? "defaultMode" : "freeMode";
 
   const pathname = usePathname();
   const menuList = useMenuList(pathname, currentTeachingMode);

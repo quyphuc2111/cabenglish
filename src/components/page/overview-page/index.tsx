@@ -6,6 +6,7 @@ import { ClassroomType } from "@/types/classroom";
 import { useModal } from "@/hooks/useModalStore";
 import { useSession } from "next-auth/react";
 import { DashboardClientService } from "@/services/dashboard.client.service";
+import { useUserInfo } from "@/hooks/useUserInfo";
 
 const LectureFavouriteList = dynamic(
   () =>
@@ -44,9 +45,9 @@ function OverviewPage({
 }: OverviewPageProps) {
   const { onOpen } = useModal();
   const { data: session } = useSession();
-  const currentTheme = session?.user.theme;
+  const { data: userInfo } = useUserInfo(session?.user?.userId);
+  const currentTheme = userInfo?.theme;
   
-  // State để quản lý course data có thể refetch
   const [courseData, setCourseData] = useState(initialCourseData);
   const [isRefetching, setIsRefetching] = useState(false);
 
@@ -57,7 +58,7 @@ function OverviewPage({
     }
   }, [session])
 
-  // Function để refetch course data từ server
+
   const refetchCourseData = useCallback(async () => {
     if (!session?.user?.userId || isRefetching) {
       return;

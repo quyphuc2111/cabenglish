@@ -15,7 +15,6 @@ async function TeachingMode() {
     redirect("/signin");
   }
 
-  const initialTeachingMode = session.user.mode;
   const updateUser = async ({mode}: {mode: string}) => {
     "use server"
     const userInfo = await updateUserInfo({
@@ -24,7 +23,8 @@ async function TeachingMode() {
         mode: mode,
         email: session.user.email || "",
         language: session.user.language || "",
-        theme: session.user.theme || ""
+        theme: session.user.theme || "",
+        is_firstlogin: false
       }
     });
 
@@ -44,9 +44,7 @@ async function TeachingMode() {
   return (
     <Suspense fallback={<Loading />}>
       <TeachingModeClient
-        initialMode={initialTeachingMode as "defaultMode" | "freeMode"}
         userId={session.user.userId}
-        // userInfo={userInfo}
         updateUserInfo={updateUser}
         switchMode={switchMode}
       />

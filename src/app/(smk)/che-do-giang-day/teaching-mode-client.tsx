@@ -9,10 +9,9 @@ import CourseCard from "@/components/course-card/course-card";
 import { useModal } from "@/hooks/useModalStore";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useUserMode, useUserStore } from "@/store/useUserStore";
-import { useSession } from "next-auth/react";
 import { resetAllSectionContent } from "@/actions/progressAction";
-// import { updateUserInfo } from "@/actions/userAction";
+import { useUserInfo, useInvalidateUserInfo } from "@/hooks/useUserInfo";
+import { useBroadcastSync } from "@/hooks/useBroadcastSync";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -182,39 +181,29 @@ const CourseList = ({ courses }: { courses: any[] }) => (
 );
 
 interface TeachingModeClientProps {
-  initialMode: "defaultMode" | "freeMode";
   userId: string;
-  userInfo: {
-    mode: string;
-    email: string;
-    language: string;
-    theme: string;
-  };
-  updateUserInfo: (userInfo: { mode: string }) => Promise<void>;
-  switchMode: (mode: string) => Promise<void>;
+  updateUserInfo: (userInfo: { mode: string }) => Promise<any>;
+  switchMode: (mode: string) => Promise<any>;
 }
 
 function TeachingModeClient({
-  initialMode,
   userId,
-  userInfo,
   updateUserInfo,
   switchMode
 }: TeachingModeClientProps) {
-  const [modeActive, setModeActive] = useState<"defaultMode" | "freeMode">();
-
-  const {data: session, update} = useSession();
-
+  const { data: userInfo, isLoading, error } = useUserInfo(userId);
+  const invalidateUserInfo = useInvalidateUserInfo();
+  const { broadcastUpdate } = useBroadcastSync(); 
   const { onOpen, onClose } = useModal();
-  const currentTeachingMode = session?.user.mode;
+
+  const modeActive = userInfo?.mode === "default" ? "defaultMode" : "freeMode";
 
   useEffect(() => {
-    if (currentTeachingMode) {
-      // Map giá trị từ session sang định dạng component
-      const mappedMode = currentTeachingMode === "default" ? "defaultMode" : "freeMode";
-      setModeActive(mappedMode);
+    if (error) {
+      console.error("Error fetching user mode:", error);
+      toast.error("Có lỗi xảy ra khi lấy thông tin chế độ");
     }
-  }, [currentTeachingMode]);
+  }, [error]);
 
   const handleConfirmModeChange = async (
     newMode: "defaultMode" | "freeMode"
@@ -229,22 +218,13 @@ function TeachingModeClient({
       });
 
       const resetAllSectionContentResponse = await resetAllSectionContent({
-        userId: session?.user.userId
+        userId: userId
       });
 
       if (result.success && switchModeResponse.success && resetAllSectionContentResponse.success) {
-       
-
-
-        await update({
-          user: {
-            ...session?.user,
-            mode: newMode === "defaultMode" ? "default" : "free"
-          }
-        });
-
-       
-        setModeActive(newMode);
+        invalidateUserInfo(userId);
+        // broadcastUpdate để các tab khác biết đã cập nhật
+        broadcastUpdate(userId);
 
         toast.success(
           `Đã chuyển sang ${
@@ -304,6 +284,45 @@ function TeachingModeClient({
       <CourseList courses={TEACHING_MODE_DATA[mode].courseData} />
     </motion.div>
   );
+
+  if (isLoading) {
+    return (
+      <ContentLayout title="TeachingMode">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-3 mb-3"
+        >
+          <div className="w-10 h-10 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-40 h-6 bg-gray-200 rounded animate-pulse"></div>
+        </motion.div>
+        <div className="flex flex-col gap-5">
+          <div className="bg-gray-100 px-10 py-6 border-4 border-gray-200 rounded-3xl animate-pulse">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-12 h-10 bg-gray-200 rounded"></div>
+              <div className="w-32 h-6 bg-gray-200 rounded"></div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-gray-200 h-48 rounded-lg animate-pulse"></div>
+              ))}
+            </div>
+          </div>
+          <div className="bg-gray-100 px-10 py-6 border-4 border-gray-200 rounded-3xl animate-pulse">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-12 h-10 bg-gray-200 rounded"></div>
+              <div className="w-32 h-6 bg-gray-200 rounded"></div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-gray-200 h-48 rounded-lg animate-pulse"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </ContentLayout>
+    );
+  }
 
   return (
     <ContentLayout title="TeachingMode">

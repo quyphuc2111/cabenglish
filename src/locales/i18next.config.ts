@@ -11,7 +11,7 @@ const i18NextConfig = {
   };
   
   export const getOptions = (lang: string, ns: string | string[]) => {
-    // Kiểm tra xem ngôn ngữ có hợp lệ không
+
     if (!i18NextConfig.i18n.locales.includes(lang)) {
       lang = i18NextConfig.i18n.defaultLocale; 
     }
