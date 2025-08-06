@@ -30,10 +30,12 @@ export async function refreshAccessToken(
 ): Promise<TokenResponseDto> {
   // Extract bkt_account cookie value if it's in the full cookie string
   let bktAccountCookie = authCookie;
+
   if (authCookie.includes("bkt_account=")) {
     // If it's a full cookie string, extract just the bkt_account part
-    const match = authCookie.match(/bkt_account=([^;]+)/);
+    const match = authCookie.match(/bkt_account=([^;,]+)/);
     if (match) {
+      // Don't decode here as the backend expects it encoded
       bktAccountCookie = `bkt_account=${match[1]}`;
     }
   } else if (!authCookie.startsWith("bkt_account=")) {
@@ -41,17 +43,48 @@ export async function refreshAccessToken(
     bktAccountCookie = `bkt_account=${authCookie}`;
   }
 
-  const response = await axios.post<TokenResponseDto>(
-    `${process.env.BKT_ACCOUNT_API_URL}/api/Auth/refresh-token`,
-    {},
-    {
-      headers: {
-        Cookie: bktAccountCookie
-      },
-      withCredentials: true
+  try {
+    const response = await axios.post<TokenResponseDto>(
+      `${process.env.BKT_ACCOUNT_API_URL}/api/Auth/refresh-token`,
+      {},
+      {
+        headers: {
+          Cookie: bktAccountCookie
+        },
+        withCredentials: true,
+        timeout: 10000 // 10 second timeout
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Log more detailed error info for debugging
+      console.error("Refresh token error details:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        cookieLength: bktAccountCookie.length,
+        hasBktAccount: bktAccountCookie.includes("bkt_account=")
+      });
+
+      // If it's a 401, the refresh token is expired
+      if (error.response?.status === 401) {
+        throw new Error("Refresh token expired");
+      }
     }
-  );
-  return response.data;
+    throw error;
+  }
+}
+
+// Helper function to validate if refresh token is likely valid
+export function isRefreshTokenValid(authCookie?: string): boolean {
+  if (!authCookie) return false;
+
+  // Check if cookie has the expected format
+  const hasValidFormat =
+    authCookie.includes("bkt_account=") && authCookie.length > 20;
+
+  return hasValidFormat;
 }
 
 export async function logout(): Promise<{ message: string }> {

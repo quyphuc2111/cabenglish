@@ -65,6 +65,26 @@ const ACC_DOMAIN = process.env.BKT_ACCOUNT_API_URL;
 // Simple lock to prevent concurrent refresh attempts
 const refreshLocks = new Map<string, Promise<any>>();
 
+// Helper function to parse JWT expiry with safety buffer
+function getJWTExpiryTime(token: string, fallbackSeconds?: number): number {
+  try {
+    const tokenParts = token.split(".");
+    if (tokenParts.length === 3) {
+      const payload = JSON.parse(atob(tokenParts[1]));
+      if (payload.exp) {
+        // JWT exp is in seconds, convert to milliseconds
+        // Subtract 10 seconds as buffer for clock drift
+        return payload.exp * 1000 - 10000;
+      }
+    }
+  } catch (error) {
+    console.error("Error parsing JWT expiry:", error);
+  }
+  // Fallback
+  const fallback = fallbackSeconds || 45;
+  return Date.now() + fallback * 1000;
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -305,8 +325,12 @@ export const authOptions: NextAuthOptions = {
         token.is_firstlogin = user.is_firstlogin;
         token.authCookie = user.authCookie;
         token.moodleCookie = user.moodleCookie;
-        // Set initial expiration to 15 minutes like backend
-        token.accessTokenExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+        // Parse JWT to get exact expiry time from backend
+        token.accessTokenExpires = user.accessToken
+          ? getJWTExpiryTime(user.accessToken)
+          : Date.now() + 45 * 1000;
+
         return token;
       }
 
@@ -331,6 +355,17 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (token.authCookie) {
+        // Validate refresh token format before attempting refresh
+        const { isRefreshTokenValid } = await import("@/hooks/client/userApi");
+        if (!isRefreshTokenValid(token.authCookie)) {
+          console.warn("Invalid refresh token format detected");
+          return {
+            ...token,
+            authCookie: undefined,
+            accessTokenExpires: 0
+          };
+        }
+
         // Check if there's already a refresh in progress for this user
         const userId = token.userId || "unknown";
         if (refreshLocks.has(userId)) {
@@ -341,6 +376,7 @@ export const authOptions: NextAuthOptions = {
           } catch (error) {
             console.error("Waiting for refresh failed:", error);
             refreshLocks.delete(userId);
+            // Return original token if concurrent refresh fails
             return token;
           }
         }
@@ -353,7 +389,15 @@ export const authOptions: NextAuthOptions = {
             );
             const refreshed = await refreshAccessToken(token.authCookie!);
 
-            const newExpirationTime = Date.now() + refreshed.expiresIn * 1000;
+            // Try to parse JWT expiry, fallback to API response if fails
+            let newExpirationTime;
+            try {
+              newExpirationTime = getJWTExpiryTime(refreshed.accessToken);
+            } catch {
+              // If JWT parsing fails completely, use API response
+              newExpirationTime =
+                Date.now() + refreshed.expiresIn * 1000 - 10000; // 10s buffer
+            }
 
             const updatedToken = {
               ...token,
@@ -362,6 +406,24 @@ export const authOptions: NextAuthOptions = {
             };
 
             return updatedToken;
+          } catch (refreshError) {
+            // If refresh fails, check if it's 401 (refresh token expired)
+            if (
+              axios.isAxiosError(refreshError) &&
+              refreshError.response?.status === 401
+            ) {
+              console.warn(
+                "Refresh token expired - user needs to re-authenticate"
+              );
+              // Clear the expired refresh token
+              return {
+                ...token,
+                authCookie: undefined,
+                accessTokenExpires: 0 // Force immediate expiration
+              };
+            }
+            // For other errors, return original token and let it try again later
+            throw refreshError;
           } finally {
             refreshLocks.delete(userId);
           }
@@ -374,7 +436,11 @@ export const authOptions: NextAuthOptions = {
         } catch (error) {
           console.error("Refresh token failed in jwt callback:", error);
           refreshLocks.delete(userId);
-          return token;
+          // Return original token with a shorter expiry to retry sooner
+          return {
+            ...token,
+            accessTokenExpires: Date.now() + 5 * 60 * 1000 // Retry in 5 minutes
+          };
         }
       }
 
