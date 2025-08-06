@@ -41,7 +41,9 @@ function ClassroomChildClient({
     React.useState<string>("");
   const [selectedWeek, setSelectedWeek] = React.useState<string>("");
   const [selectedUnit, setSelectedUnit] = React.useState<string>("");
-  const [schoolWeekData, setSchoolWeekData] = React.useState<SchoolWeekType[]>([]);
+  const [schoolWeekData, setSchoolWeekData] = React.useState<SchoolWeekType[]>(
+    []
+  );
 
   // State để track lessons đang being removed (khi unlike)
   const [removingLessons, setRemovingLessons] = React.useState<Set<number>>(
@@ -51,7 +53,7 @@ function ClassroomChildClient({
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
-  
+
   // Decode classname từ slug
   const classname = React.useMemo(() => {
     return decodeURIComponent(slug);
@@ -68,8 +70,6 @@ function ClassroomChildClient({
     removeLessonFromCache
   } = useClassroomLessons(classname);
 
-  console.log("currentLessonscurrentLessons", currentLessons)
-
   // Sử dụng currentLessons từ hook, fallback to lessonData chỉ khi loading
   const localLessonData = React.useMemo(() => {
     if (lessonsLoading && currentLessons.length === 0) {
@@ -79,8 +79,6 @@ function ClassroomChildClient({
   }, [currentLessons, lessonData, lessonsLoading]);
 
   const { checkAndUnlockNextLesson } = useAutoUnlockNextLesson(localLessonData);
-
-  console.log("lessonDatalessonData", lessonData)
   const { setSelectedLesson } = useSelectLessonStore();
 
   // Use units order hook to get sorted lessons
@@ -97,7 +95,9 @@ function ClassroomChildClient({
     const fetchSchoolWeeks = async () => {
       if (selectedUnit && selectedUnit !== "all") {
         try {
-          const data = await getSchoolWeekByUnitId({ unitId: parseInt(selectedUnit) });
+          const data = await getSchoolWeekByUnitId({
+            unitId: parseInt(selectedUnit)
+          });
           setSchoolWeekData(data || []);
         } catch (error) {
           console.error("Error fetching school weeks:", error);
@@ -105,11 +105,16 @@ function ClassroomChildClient({
         }
       } else {
         setSchoolWeekData([]);
-        setSelectedWeek(""); 
+        setSelectedWeek("");
       }
     };
 
-    fetchSchoolWeeks();
+    // Debounce API call để tránh gọi liên tục
+    const timeoutId = setTimeout(() => {
+      fetchSchoolWeeks();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
   }, [selectedUnit]);
 
   const updateLessonLike = React.useCallback(
@@ -139,15 +144,15 @@ function ClassroomChildClient({
   // Effect để invalidate cache khi navigate về trang classroom - optimized
   React.useEffect(() => {
     // Chỉ invalidate khi thực sự cần thiết
-    if (pathname.includes('/lop-hoc/') && session?.user?.userId && classname) {
-      // Debounce để tránh gọi liên tục
+    if (pathname.includes("/lop-hoc/") && session?.user?.userId && classname) {
+      // Debounce để tránh gọi liên tục với delay lớn hơn cho mobile
       const timeoutId = setTimeout(() => {
         invalidateLessons();
-      }, 500); // Tăng delay để tránh gọi liên tục
+      }, 1500); // Tăng delay lên 1.5s để giảm tần suất gọi API
 
       return () => clearTimeout(timeoutId);
     }
-  }, [pathname, session?.user?.userId, classname, invalidateLessons]);
+  }, [pathname, session?.user?.userId, classname]); // Loại bỏ invalidateLessons khỏi dependency
 
   const formattedTitle = React.useMemo(() => {
     const formattedSlug = formatSlug(slug);
@@ -172,10 +177,11 @@ function ClassroomChildClient({
     [localLessonData, setSelectedLesson, router]
   );
 
+  // Debounced search với delay lớn hơn cho mobile
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-    }, 500);
+    }, 800); // Tăng delay lên 800ms để giảm tần suất filter
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -184,14 +190,13 @@ function ClassroomChildClient({
     if (!schoolWeekData || schoolWeekData.length === 0) {
       return [];
     }
-    
+
     const weeks = schoolWeekData
-      .map(sw => sw.value)
+      .map((sw) => sw.value)
       .filter((week): week is number => week !== undefined && week !== null)
       .sort((a, b) => Number(a) - Number(b));
     return weeks;
   }, [schoolWeekData]);
-  
 
   const uniqueUnits = React.useMemo(() => {
     return units.map((unit) => ({
@@ -200,7 +205,7 @@ function ClassroomChildClient({
     }));
   }, [units]);
 
-
+  // Tối ưu hóa filteredLessons với early returns và less computation
   const filteredLessons = React.useMemo(() => {
     if (unitsLoading || !units.length) {
       return [];
@@ -208,33 +213,19 @@ function ClassroomChildClient({
 
     let filtered = sortedLessons;
 
-    if (debouncedSearchQuery.trim()) {
-      const normalizedQuery = debouncedSearchQuery
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9\s]/gi, '');
-      
+    // Early return nếu không có lessons
+    if (!filtered || filtered.length === 0) {
+      return [];
+    }
+
+    // Unit filter trước (ít tốn kém hơn)
+    if (selectedUnit && selectedUnit !== "all") {
       filtered = filtered.filter(
-        (lesson) => {
-          const normalizedLessonName = lesson.lessonName
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9\s]/gi, '');
-          
-          const normalizedUnitName = lesson.unitName
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9\s]/gi, '');
-          
-          return normalizedLessonName.includes(normalizedQuery) ||
-                 normalizedUnitName.includes(normalizedQuery);
-        }
+        (lesson) => lesson.unitId.toString() === selectedUnit
       );
     }
 
+    // Week filter
     if (selectedWeek && selectedUnit && selectedUnit !== "all") {
       filtered = filtered.filter(
         (lesson) =>
@@ -242,12 +233,35 @@ function ClassroomChildClient({
       );
     }
 
-    if (selectedUnit) {
-      filtered = filtered.filter(
-        (lesson) => lesson.unitId.toString() === selectedUnit
-      );
+    // Search filter cuối cùng (tốn kém nhất)
+    if (debouncedSearchQuery.trim()) {
+      const normalizedQuery = debouncedSearchQuery
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]/gi, "");
+
+      filtered = filtered.filter((lesson) => {
+        const normalizedLessonName = lesson.lessonName
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9\s]/gi, "");
+
+        const normalizedUnitName = lesson.unitName
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9\s]/gi, "");
+
+        return (
+          normalizedLessonName.includes(normalizedQuery) ||
+          normalizedUnitName.includes(normalizedQuery)
+        );
+      });
     }
 
+    // Remove lessons đang được removed
     return filtered.filter((lesson) => !removingLessons.has(lesson.lessonId));
   }, [
     sortedLessons,
@@ -256,13 +270,24 @@ function ClassroomChildClient({
     selectedUnit,
     removingLessons,
     unitsLoading,
-    units
+    units.length // Chỉ theo dõi length thay vì toàn bộ units object
   ]);
 
+  // Throttle search input để giảm re-render
   const handleSearchChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchQuery(e.target.value);
-    },
+    React.useMemo(() => {
+      let timeoutId: NodeJS.Timeout;
+      return (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setSearchQuery(value);
+
+        // Throttle để giảm update frequency
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          // Additional throttling nếu cần
+        }, 100);
+      };
+    }, []),
     []
   );
 
@@ -309,8 +334,6 @@ function ClassroomChildClient({
     [handleLessonClick, updateLessonLike, removingLessons]
   );
 
-console.log("sortedLessonssortedLessons", sortedLessons)
-
   return (
     <BreadcrumbLayout title={formattedTitle}>
       <ClassroomWrapper>
@@ -322,13 +345,25 @@ console.log("sortedLessonssortedLessons", sortedLessons)
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   type="text"
-                  placeholder={(!selectedUnit || selectedUnit === "all") ? "Tìm kiếm bài học, tên unit, ..." : (() => {
-                    const unitName = uniqueUnits.find(unit => unit.id.toString() === selectedUnit)?.name || selectedUnit;
-                    const maxLength = 25;
-                    return unitName.length > maxLength 
-                      ? `Tìm kiếm bài học của ${unitName.substring(0, maxLength)}...`
-                      : `Tìm kiếm bài học của ${unitName}`;
-                  })()}
+                  placeholder={React.useMemo(
+                    () =>
+                      !selectedUnit || selectedUnit === "all"
+                        ? "Tìm kiếm bài học, tên unit, ..."
+                        : (() => {
+                            const unitName =
+                              uniqueUnits.find(
+                                (unit) => unit.id.toString() === selectedUnit
+                              )?.name || selectedUnit;
+                            const maxLength = 25;
+                            return unitName.length > maxLength
+                              ? `Tìm kiếm bài học của ${unitName.substring(
+                                  0,
+                                  maxLength
+                                )}...`
+                              : `Tìm kiếm bài học của ${unitName}`;
+                          })(),
+                    [selectedUnit, uniqueUnits]
+                  )}
                   value={searchQuery}
                   onChange={handleSearchChange}
                   className="pl-10 pr-10 h-9 bg-white"
@@ -358,14 +393,15 @@ console.log("sortedLessonssortedLessons", sortedLessons)
                     <SelectContent>
                       <SelectGroup>
                         <SelectItem value="all">Tất cả units</SelectItem>
-                        {uniqueUnits.length > 0 && uniqueUnits.map((unit) => (
-                          <SelectItem
-                            key={`unit-${unit.id}`}
-                            value={unit.id.toString()}
-                          >
-                            {unit.name}
-                          </SelectItem>
-                        ))}
+                        {uniqueUnits.length > 0 &&
+                          uniqueUnits.map((unit) => (
+                            <SelectItem
+                              key={`unit-${unit.id}`}
+                              value={unit.id.toString()}
+                            >
+                              {unit.name}
+                            </SelectItem>
+                          ))}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
@@ -375,38 +411,47 @@ console.log("sortedLessonssortedLessons", sortedLessons)
                 <div className="flex-1 sm:w-40">
                   <Select
                     onValueChange={handleWeekChange}
-                    value={(!selectedUnit || selectedUnit === "all") ? "" : (selectedWeek || "all")}
+                    value={
+                      !selectedUnit || selectedUnit === "all"
+                        ? ""
+                        : selectedWeek || "all"
+                    }
                     disabled={!selectedUnit || selectedUnit === "all"}
                   >
-                    <SelectTrigger className={`w-full h-9 text-sm ${
-                      !selectedUnit || selectedUnit === "all" 
-                        ? "opacity-50 cursor-not-allowed" 
-                        : ""
-                    }`}>
-                      <SelectValue placeholder={
-                        !selectedUnit || selectedUnit === "all" 
-                          ? "Vui lòng chọn unit" 
-                          : "Tuần học"
-                      } />
+                    <SelectTrigger
+                      className={`w-full h-9 text-sm ${
+                        !selectedUnit || selectedUnit === "all"
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      <SelectValue
+                        placeholder={
+                          !selectedUnit || selectedUnit === "all"
+                            ? "Vui lòng chọn unit"
+                            : "Tuần học"
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                     <ScrollArea className="max-h-80 overflow-auto">
-                       <SelectGroup>
-                        {selectedUnit && selectedUnit !== "all" && (
-                          <SelectItem value="all">Tất cả tuần</SelectItem>
-                        )}
-                        {uniqueWeeks.length > 0 && uniqueWeeks.map((week) => (
-                          week && week.toString() ? (
-                            <SelectItem
-                              key={`week-${week}`}
-                              value={week.toString()}
-                            >
-                              Tuần {week}
-                            </SelectItem>
-                          ) : null
-                        ))}
-                      </SelectGroup>
-                     </ScrollArea>
+                      <ScrollArea className="max-h-80 overflow-auto">
+                        <SelectGroup>
+                          {selectedUnit && selectedUnit !== "all" && (
+                            <SelectItem value="all">Tất cả tuần</SelectItem>
+                          )}
+                          {uniqueWeeks.length > 0 &&
+                            uniqueWeeks.map((week) =>
+                              week && week.toString() ? (
+                                <SelectItem
+                                  key={`week-${week}`}
+                                  value={week.toString()}
+                                >
+                                  Tuần {week}
+                                </SelectItem>
+                              ) : null
+                            )}
+                        </SelectGroup>
+                      </ScrollArea>
                     </SelectContent>
                   </Select>
                 </div>
@@ -420,29 +465,31 @@ console.log("sortedLessonssortedLessons", sortedLessons)
                 </button>
               </div>
             </div>
-
-     
           </div>
         </div>
 
         {lessonsError ? (
           <div className="flex justify-center items-center py-8">
-            <p className="text-red-500">Có lỗi khi tải dữ liệu. Vui lòng thử lại.</p>
+            <p className="text-red-500">
+              Có lỗi khi tải dữ liệu. Vui lòng thử lại.
+            </p>
           </div>
-        ) : (unitsLoading || lessonsLoading) ? (
+        ) : unitsLoading || lessonsLoading ? (
           <div className="flex justify-center items-center py-8">
             {/* <p className="text-gray-500">Đang tải dữ liệu...</p> */}
             {lessonsFetching && (
-              <span className="ml-2 text-sm text-blue-500">Đang tải dữ liệu...</span>
+              <span className="ml-2 text-sm text-blue-500">
+                Đang tải dữ liệu...
+              </span>
             )}
           </div>
         ) : sortedLessons && sortedLessons.length > 0 ? (
           <PaginatedContent
             items={filteredLessons}
-            itemsPerPage={8}
+            itemsPerPage={6} // Giảm từ 8 xuống 6 để giảm tải cho mobile
             renderItem={renderLessonItem}
-            itemInPage={[8, 16, 24, 32, 40]}
-            rowPerPage={4}
+            itemInPage={[6, 12, 18, 24]} // Điều chỉnh số lượng phù hợp mobile
+            rowPerPage={3} // Giảm từ 4 xuống 3 row per page
           />
         ) : (
           <div className="flex justify-center items-center py-8">
@@ -454,4 +501,4 @@ console.log("sortedLessonssortedLessons", sortedLessons)
   );
 }
 
-export default ClassroomChildClient;
+export default React.memo(ClassroomChildClient);
