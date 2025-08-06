@@ -59,6 +59,54 @@ export async function getAllLessonDataByUserId({
   }
 }
 
+export async function getLockedStatusByLessonId({
+  userId,
+  lessonId
+}: {
+  userId: string;
+  lessonId: string;
+}): Promise<LessonResponse> {
+  if (!userId) {
+    return {
+      data: [],
+      error: "UserId không được để trống",
+      success: false
+    };
+  }
+
+  if (!lessonId) {
+    return {
+      data: [],
+      error: "LessonId không được để trống",
+      success: false
+    };
+  }
+
+  try {
+    const data = await serverFetch(`/api/Lesson/locked-status${userId}/${lessonId}/`);
+
+    if (!Array.isArray(data)) {
+      throw new Error("Dữ liệu không đúng định dạng");
+    }
+
+    return {
+      data: data as LessonType[],
+      error: undefined,
+      success: true
+    };
+  } catch (error) {
+    console.error("Lỗi khi lấy dữ liệu trạng thái bài học:", error);
+    return {
+      data: [],
+      error:
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu trạng thái bài học",
+      success: false
+    };
+  }
+}
+
+
+
 // Action để refresh dữ liệu lesson và classroom
 export async function refreshLessonData({
   userId,
