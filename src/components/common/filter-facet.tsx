@@ -185,6 +185,10 @@ function FilterFacet({
 
     if (hasChanged) {
       setFilters(newFilters);
+      // 🚀 Gọi onFilterChange ngay khi có URL params (after F5)
+      if (session?.user?.userId) {
+        onFilterChange(newFilters);
+      }
     }
 
     // Nếu có URL params và có userId, fetch data với debouncing
@@ -209,7 +213,13 @@ function FilterFacet({
 
       return () => clearTimeout(timeoutId);
     }
-  }, [searchParams, session?.user?.userId, fetchFilterData, filters]);
+  }, [
+    searchParams,
+    session?.user?.userId,
+    fetchFilterData,
+    filters,
+    onFilterChange
+  ]);
 
   // Khởi tạo filters khi session có userId (chỉ chạy 1 lần)
   useEffect(() => {
@@ -229,42 +239,32 @@ function FilterFacet({
     }
   }, [filterData.classrooms]);
 
-  // Fetch filterData khi filters thay đổi (chỉ khi không phải từ URL params) - với debouncing
+  // Simplified useEffect for API calls only
   useEffect(() => {
-    // Chỉ fetch khi có userId và có filter nào đó được set
-    if (
-      filters.userId &&
-      (filters.classId || filters.unitId || filters.weekId) &&
-      isDataLoaded // Chỉ fetch khi đã load data ban đầu
-    ) {
-      // Kiểm tra xem có phải từ URL params không
-      const currentUrlClassId = searchParams.get("classId");
-      const currentUrlUnitId = searchParams.get("unitId");
-      const currentUrlWeekId = searchParams.get("weekId");
+    // Chỉ fetch API khi có sự thay đổi filter (không phải từ URL params)
+    if (filters.userId && (filters.classId || filters.unitId) && isDataLoaded) {
+      console.log("🌐 API call triggered for filters:", filters);
 
-      // Chỉ fetch nếu không phải từ URL params
-      if (
-        filters.classId !== currentUrlClassId ||
-        filters.unitId !== currentUrlUnitId ||
-        filters.weekId !== currentUrlWeekId
-      ) {
-        // Debounce API call
-        const timeoutId = setTimeout(() => {
-          startTransition(async () => {
-            try {
-              const newData = await fetchFilterData(filters);
-              setFilterData(newData);
-            } catch (error) {
-              console.error("Error fetching filter data:", error);
-            }
-          });
-        }, 200); // 200ms debounce cho user-initiated changes
+      const timeoutId = setTimeout(() => {
+        startTransition(async () => {
+          try {
+            const newData = await fetchFilterData(filters);
+            setFilterData(newData);
+          } catch (error) {
+            console.error("Error fetching filter data:", error);
+          }
+        });
+      }, 300); // Increased debounce time
 
-        return () => clearTimeout(timeoutId);
-      }
+      return () => clearTimeout(timeoutId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, fetchFilterData, isDataLoaded, searchParams]);
+  }, [
+    filters.classId,
+    filters.unitId,
+    filters.userId,
+    fetchFilterData,
+    isDataLoaded
+  ]);
 
   // Update URL when filters change - với requestIdleCallback để tối ưu hiệu năng
   const updateURL = useCallback(
@@ -310,76 +310,39 @@ function FilterFacet({
         ...newFilters
       };
 
+      console.log("🔧 UpdateFilters called:", newFilters);
+
       // Set state và update URL ngay lập tức
       setFilters(updatedFilters);
       updateURL(updatedFilters);
 
-      // Gọi callback ngay lập tức cho UI responsiveness
+      // Gọi callback một lần duy nhất - không gọi lại trong setTimeout
       onFilterChange(updatedFilters);
 
-      // Chỉ gọi API cần thiết dựa trên filter nào thay đổi
+      // Simplified API logic - chỉ update local state nếu cần
       if (updatedFilters.userId) {
-        // Debounce API calls
-        const timeoutId = setTimeout(() => {
-          startTransition(() => {
-            // Nếu đổi classId → chỉ gọi API lấy Units
-            if (
-              newFilters.hasOwnProperty("classId") &&
-              newFilters.classId !== filters.classId
-            ) {
-              // Nếu reset classId (về rỗng), chỉ update local state
-              if (newFilters.classId === "") {
-                setFilterData((prev) => ({
-                  ...prev,
-                  units: [],
-                  schoolWeeks: []
-                }));
-              } else {
-                // Nếu chọn classId mới, gọi API
-                fetchFilterData({
-                  ...updatedFilters,
-                  unitId: "",
-                  weekId: ""
-                }).then((newData) => {
-                  setFilterData((prev) => ({
-                    ...prev,
-                    units: newData.units || [],
-                    schoolWeeks: [] // Reset schoolWeeks khi đổi class
-                  }));
-                  setIsDataLoaded(true);
-                });
-              }
-            }
-            // Nếu đổi unitId → chỉ gọi API lấy SchoolWeeks
-            else if (
-              newFilters.hasOwnProperty("unitId") &&
-              newFilters.unitId !== filters.unitId
-            ) {
-              // Nếu reset unitId (về rỗng), chỉ update local state
-              if (newFilters.unitId === "") {
-                setFilterData((prev) => ({
-                  ...prev,
-                  schoolWeeks: []
-                }));
-              } else {
-                // Nếu chọn unitId mới, gọi API
-                fetchFilterData(updatedFilters).then((newData) => {
-                  setFilterData((prev) => ({
-                    ...prev,
-                    schoolWeeks: newData.schoolWeeks || []
-                  }));
-                  setIsDataLoaded(true);
-                });
-              }
-            }
-            // Nếu đổi weekId → không cần gọi API, đã update callback ở trên
-          });
-        }, 100); // 100ms debounce cho filter API calls
-
-        return () => clearTimeout(timeoutId);
+        // Nếu reset classId → clear units và schoolWeeks
+        if (newFilters.hasOwnProperty("classId") && newFilters.classId === "") {
+          setFilterData((prev) => ({
+            ...prev,
+            units: [],
+            schoolWeeks: []
+          }));
+        }
+        // Nếu reset unitId → clear schoolWeeks
+        else if (
+          newFilters.hasOwnProperty("unitId") &&
+          newFilters.unitId === ""
+        ) {
+          setFilterData((prev) => ({
+            ...prev,
+            schoolWeeks: []
+          }));
+        }
+        // Các trường hợp khác để useEffect xử lý
       }
     },
-    [filters, updateURL, onFilterChange, fetchFilterData]
+    [filters, updateURL, onFilterChange]
   );
 
   const handleClassChange = useCallback(

@@ -61,36 +61,160 @@ function LessonPendingClient({
   initialFilterData: any;
   fetchFilterData: any;
 }) {
-  const [filteredLessons, setFilteredLessons] =
-    useState<LessonType[]>(pendingLessons);
+  // Memoize pendingLessons với deep comparison để tránh re-render không cần thiết
+  const memoizedPendingLessons = React.useMemo(
+    () => pendingLessons,
+    [
+      JSON.stringify(
+        pendingLessons.map((lesson) => ({
+          id: lesson.lessonId,
+          classId: lesson.classId,
+          unitId: lesson.unitId
+        }))
+      )
+    ]
+  );
+
+  const [filteredLessons, setFilteredLessons] = useState<LessonType[]>(
+    memoizedPendingLessons
+  );
+  const [currentFilters, setCurrentFilters] = useState<{
+    classId: string;
+    unitId: string;
+    userId: string;
+    weekId: string;
+  }>({
+    classId: "",
+    unitId: "",
+    userId: "",
+    weekId: ""
+  });
+
+  // Sync filteredLessons when memoizedPendingLessons changes
+  React.useEffect(() => {
+    console.log(
+      "🔄 memoizedPendingLessons changed:",
+      memoizedPendingLessons.length
+    );
+
+    // Áp dụng lại filter hiện tại khi có dữ liệu mới
+    if (
+      currentFilters.classId ||
+      currentFilters.unitId ||
+      currentFilters.weekId
+    ) {
+      const filtered = memoizedPendingLessons.filter((lesson) => {
+        if (currentFilters.classId && currentFilters.classId.trim() !== "") {
+          if (lesson.classId !== parseInt(currentFilters.classId)) return false;
+        }
+        if (currentFilters.unitId && currentFilters.unitId.trim() !== "") {
+          if (lesson.unitId !== parseInt(currentFilters.unitId)) return false;
+        }
+        if (currentFilters.weekId && currentFilters.weekId.trim() !== "") {
+          const lessonWeekId = lesson.schoolWeekId || lesson.schoolWeekID;
+          if (lessonWeekId !== parseInt(currentFilters.weekId)) return false;
+        }
+        return true;
+      });
+      setFilteredLessons(filtered);
+    } else {
+      setFilteredLessons(memoizedPendingLessons);
+    }
+  }, [memoizedPendingLessons, currentFilters]);
+
+  // Debug: Log dữ liệu pendingLessons (chỉ khi có thay đổi thực sự)
+  React.useEffect(() => {
+    if (memoizedPendingLessons.length > 0) {
+      console.log(
+        "📊 All pending lessons classIds:",
+        memoizedPendingLessons.map((lesson) => ({
+          lessonId: lesson.lessonId,
+          classId: lesson.classId,
+          className: lesson.className
+        }))
+      );
+
+      const uniqueClassIds = [
+        ...new Set(memoizedPendingLessons.map((lesson) => lesson.classId))
+      ];
+      console.log("🏫 Unique class IDs in data:", uniqueClassIds);
+    }
+  }, [memoizedPendingLessons.length]); // Chỉ log khi length thay đổi
 
   const handleFilterChange = useCallback(
     async (filterValues: {
       classId: string;
       unitId: string;
       userId: string;
+      weekId: string;
     }) => {
-      // Optimistic update - cập nhật UI ngay lập tức
-      const filtered = pendingLessons.filter((lesson) => {
-        if (
-          filterValues.classId &&
-          lesson.classId !== parseInt(filterValues.classId)
-        ) {
-          return false;
+      console.log("🔍 Filter change detected:", filterValues);
+
+      // Lưu filter hiện tại
+      setCurrentFilters(filterValues);
+
+      // Áp dụng filter ngay lập tức
+      const filtered = memoizedPendingLessons.filter((lesson) => {
+        // Filter theo classId
+        if (filterValues.classId && filterValues.classId.trim() !== "") {
+          if (lesson.classId !== parseInt(filterValues.classId)) {
+            return false;
+          }
         }
-        if (
-          filterValues.unitId &&
-          lesson.unitId !== parseInt(filterValues.unitId)
-        ) {
-          return false;
+
+        // Filter theo unitId
+        if (filterValues.unitId && filterValues.unitId.trim() !== "") {
+          if (lesson.unitId !== parseInt(filterValues.unitId)) {
+            return false;
+          }
         }
+
+        // Filter theo weekId
+        if (filterValues.weekId && filterValues.weekId.trim() !== "") {
+          const lessonWeekId = lesson.schoolWeekId || lesson.schoolWeekID;
+          if (lessonWeekId !== parseInt(filterValues.weekId)) {
+            return false;
+          }
+        }
+
         return true;
       });
 
+      console.log(
+        "✅ Filtered lessons:",
+        filtered.length,
+        "out of",
+        memoizedPendingLessons.length
+      );
       setFilteredLessons(filtered);
     },
-    [pendingLessons]
+    [memoizedPendingLessons]
   );
+
+  // 🚀 Initial filter application effect - apply filters on component mount
+  React.useEffect(() => {
+    // Kiểm tra xem có URL search params không khi component mount
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const classId = urlParams.get("classId") || "";
+      const unitId = urlParams.get("unitId") || "";
+      const weekId = urlParams.get("weekId") || "";
+
+      if (classId || unitId || weekId) {
+        console.log("🎯 Initial URL params detected, applying filters:", {
+          classId,
+          unitId,
+          weekId
+        });
+        handleFilterChange({
+          classId,
+          unitId,
+          userId: "",
+          weekId
+        });
+      }
+    }
+  }, []); // Chỉ chạy một lần khi component mount
 
   // Memoized render function for lesson cards
   const renderLessonCard = useCallback(
