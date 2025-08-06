@@ -20,7 +20,7 @@ import {
   ArrowLeft,
   Clock,
   CheckCircle,
-  Lock,
+  Lock
 } from "lucide-react";
 import OptimizeImage from "@/components/common/optimize-image";
 import { useSelectLessonStore } from "@/store/useSelectLesson";
@@ -40,12 +40,17 @@ interface LessonClientProps {
 const STYLES = {
   container: {
     base: "min-h-screen relative overflow-hidden",
-    loading: "min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-blue-400 flex items-center justify-center relative overflow-hidden",
-    error: "min-h-screen bg-gradient-to-br from-red-400 via-pink-400 to-orange-400 flex items-center justify-center relative overflow-hidden"
+    loading:
+      "min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-blue-400 flex items-center justify-center relative overflow-hidden",
+    error:
+      "min-h-screen bg-gradient-to-br from-red-400 via-pink-400 to-orange-400 flex items-center justify-center relative overflow-hidden"
   },
-  cardWrapper: "relative z-10 bg-white/95 backdrop-blur-lg rounded-3xl p-6 sm:p-8 md:p-12 shadow-2xl border border-white/20",
-  background: "absolute inset-0 bg-[url('/assets/bg_classroom.webp')] bg-cover bg-center",
-  buttonPrimary: "px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-semibold flex items-center gap-2"
+  cardWrapper:
+    "relative z-10 bg-white/95 backdrop-blur-lg rounded-3xl p-6 sm:p-8 md:p-12 shadow-2xl border border-white/20",
+  background:
+    "absolute inset-0 bg-[url('/assets/bg_classroom.webp')] bg-cover bg-center",
+  buttonPrimary:
+    "px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-semibold flex items-center gap-2"
 };
 
 function LessonClient({
@@ -62,7 +67,7 @@ function LessonClient({
   const { mutate: updateSectionContentLocked } =
     useUpdateSectionContentLocked();
   const { onOpen } = useModal();
-  const { lessonName } = useSelectLessonStore();
+  const { lessonName, setSelectedLesson } = useSelectLessonStore();
 
   const [selectedSection, setSelectedSection] = useState<number | null>(null);
   const [sectionContentLoading, setSectionContentLoading] = useState(false);
@@ -103,7 +108,9 @@ function LessonClient({
   const handleShowNextSectionModal = useCallback(() => {
     const lessonId = pathname.split("/")[2];
     // Tìm section tiếp theo
-    const currentSection = sectionData.find((s) => s.sectionId === selectedSection);
+    const currentSection = sectionData.find(
+      (s) => s.sectionId === selectedSection
+    );
     const nextSection = sectionData.find(
       (s) => s.order === (currentSection?.order || 0) + 1
     );
@@ -112,7 +119,7 @@ function LessonClient({
       onConfirm: () => {
         // Navigate to next section if exists, otherwise stay on lesson page
         if (nextSection) {
-          router.push(`/lesson/${lessonId}?section=${nextSection.sectionId}`);
+          router.push(`?section=${nextSection.sectionId}`);
         } else {
           router.push(`/lesson/${lessonId}`);
         }
@@ -150,7 +157,9 @@ function LessonClient({
   // Check scroll indicator on mount and when data changes
   useEffect(() => {
     if (mounted && sectionData && sectionData.length > 0) {
-      const scrollArea = document.querySelector('[data-radix-scroll-area-viewport]');
+      const scrollArea = document.querySelector(
+        "[data-radix-scroll-area-viewport]"
+      );
       if (scrollArea) {
         const { scrollHeight, clientHeight } = scrollArea;
         setShowScrollIndicator(scrollHeight > clientHeight);
@@ -268,7 +277,8 @@ function LessonClient({
                 Chưa có nội dung học
               </h2>
               <p className="text-gray-600 leading-relaxed">
-                Bài học này chưa có các phần học. Vui lòng liên hệ admin để tạo nội dung.
+                Bài học này chưa có các phần học. Vui lòng liên hệ admin để tạo
+                nội dung.
               </p>
             </div>
             <button
@@ -293,13 +303,15 @@ function LessonClient({
       "max-h-[90vh] sm:max-h-[85vh] md:max-h-[80vh] lg:max-h-[90vh]",
       selectedSection ? "h-full" : "h-[85vh] py-4 sm:py-6 md:py-8"
     ),
-    sectionList: `w-full transition-all duration-500 ${selectedSection
-      ? "translate-x-[-100%] opacity-0 pointer-events-none"
-      : "translate-x-0 opacity-100 pointer-events-auto"
+    sectionList: `w-full transition-all duration-500 ${
+      selectedSection
+        ? "translate-x-[-100%] opacity-0 pointer-events-none"
+        : "translate-x-0 opacity-100 pointer-events-auto"
     }`,
-    sectionContent: `absolute top-0 right-0 w-full h-full transition-all duration-500 ${selectedSection
-      ? "translate-x-0 opacity-100"
-      : "translate-x-full opacity-0"
+    sectionContent: `absolute top-0 right-0 w-full h-full transition-all duration-500 ${
+      selectedSection
+        ? "translate-x-0 opacity-100"
+        : "translate-x-full opacity-0"
     }`
   };
 
@@ -343,7 +355,8 @@ function LessonClient({
                 const target = e.target as HTMLElement;
                 const { scrollTop, scrollHeight, clientHeight } = target;
                 const isScrollable = scrollHeight > clientHeight;
-                const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
+                const isAtBottom =
+                  scrollTop + clientHeight >= scrollHeight - 10;
                 setShowScrollIndicator(isScrollable && !isAtBottom);
               }}
             >
@@ -366,7 +379,9 @@ function LessonClient({
                       <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200 rounded-t-xl sm:rounded-t-2xl overflow-hidden">
                         <div
                           className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000 ease-out"
-                          style={{ width: `${formatProgress(section.progress)}%` }}
+                          style={{
+                            width: `${formatProgress(section.progress)}%`
+                          }}
                         ></div>
                       </div>
 
@@ -414,28 +429,30 @@ function LessonClient({
 
                           <div className="flex sm:hidden flex-col items-end gap-1 sm:gap-2 w-full sm:w-1/3">
                             <div
-                              className={`text-xl sm:text-2xl font-bold ${section.progress > 0
-                                ? "text-green-600"
-                                : "text-gray-400"
-                                }`}
+                              className={`text-xl sm:text-2xl font-bold ${
+                                section.progress > 0
+                                  ? "text-green-600"
+                                  : "text-gray-400"
+                              }`}
                             >
                               {formatProgress(section.progress)}%
                             </div>
                             <div className="flex items-center gap-1">
                               <div
-                                className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${section.progress === 100
-                                  ? "bg-green-500"
-                                  : section.progress > 0
+                                className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
+                                  section.progress === 100
+                                    ? "bg-green-500"
+                                    : section.progress > 0
                                     ? "bg-yellow-500"
                                     : "bg-gray-300"
-                                  }`}
+                                }`}
                               ></div>
                               <span className="text-xs text-gray-500">
                                 {section.progress === 100
                                   ? "Hoàn thành"
                                   : section.progress > 0
-                                    ? "Đang học"
-                                    : "Chưa bắt đầu"}
+                                  ? "Đang học"
+                                  : "Chưa bắt đầu"}
                               </span>
                             </div>
                           </div>
@@ -458,28 +475,30 @@ function LessonClient({
                         {/* Right section - Progress */}
                         <div className="hidden sm:flex flex-col items-end gap-1 sm:gap-2 w-full sm:w-1/3">
                           <div
-                            className={`text-xl sm:text-2xl font-bold ${section.progress > 0
-                              ? "text-green-600"
-                              : "text-gray-400"
-                              }`}
+                            className={`text-xl sm:text-2xl font-bold ${
+                              section.progress > 0
+                                ? "text-green-600"
+                                : "text-gray-400"
+                            }`}
                           >
                             {formatProgress(section.progress)}%
                           </div>
                           <div className="flex items-center gap-1">
                             <div
-                              className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${section.progress === 100
-                                ? "bg-green-500"
-                                : section.progress > 0
+                              className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
+                                section.progress === 100
+                                  ? "bg-green-500"
+                                  : section.progress > 0
                                   ? "bg-yellow-500"
                                   : "bg-gray-300"
-                                }`}
+                              }`}
                             ></div>
                             <span className="text-xs text-gray-500">
                               {section.progress === 100
                                 ? "Hoàn thành"
                                 : section.progress > 0
-                                  ? "Đang học"
-                                  : "Chưa bắt đầu"}
+                                ? "Đang học"
+                                : "Chưa bắt đầu"}
                             </span>
                           </div>
                         </div>
@@ -554,7 +573,7 @@ function LessonClient({
                   <TabsContainer
                     sectionContents={sectionContentData}
                     sectionInfo={
-                      sectionData.find((s) => s.sectionId === selectedSection)
+                      sectionData.find((s) => s.sectionId === selectedSection)!
                     }
                     onClose={handleCloseSection}
                     updateProgressSectionContent={updateProgressSectionContent}
@@ -565,9 +584,16 @@ function LessonClient({
                         (sectionData.find(
                           (curr) => curr.sectionId === selectedSection
                         )?.order || 0) +
-                        1
+                          1
                     )}
                     onShowNextSectionModal={handleShowNextSectionModal}
+                    currentLesson={{
+                      lessonId: parseInt(pathname.split("/")[2]),
+                      classId: 0, // Sẽ được lấy từ server-side nếu cần
+                      unitId: 0, // Sẽ được lấy từ server-side nếu cần
+                      lessonOrder: 0
+                    }}
+                    allSections={sectionData}
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full">
@@ -578,7 +604,9 @@ function LessonClient({
                             <AlertCircle className="h-8 sm:h-10 w-8 sm:w-10 text-white" />
                           </div>
                           <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-6 sm:w-8 h-6 sm:h-8 bg-yellow-400 rounded-full flex items-center justify-center">
-                            <span className="text-yellow-600 text-xs sm:text-sm">★</span>
+                            <span className="text-yellow-600 text-xs sm:text-sm">
+                              ★
+                            </span>
                           </div>
                         </div>
                         <div className="text-center">
