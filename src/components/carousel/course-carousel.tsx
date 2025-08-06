@@ -1,20 +1,20 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
-import { motion, AnimatePresence } from 'framer-motion';
-import CourseCard from '@/components/course-card/course-card';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
+"use client";
+import React, { useState, useEffect } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import { motion, AnimatePresence } from "framer-motion";
+import CourseCard from "@/components/course-card/course-card";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 // Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import LessonCard from '../lesson/lesson-card';
-import { useRouter } from 'next/navigation';
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import LessonCard from "../lesson/lesson-card";
+import { useRouter } from "next/navigation";
 
 interface CourseCarouselProps {
   courseData: any[];
@@ -23,43 +23,48 @@ interface CourseCarouselProps {
   removingLessons?: Set<number>;
 }
 
-export function CourseCarousel({ courseData, className, onLikeUpdate, removingLessons }: CourseCarouselProps) {
+export function CourseCarousel({
+  courseData,
+  className,
+  onLikeUpdate,
+  removingLessons
+}: CourseCarouselProps) {
   const [swiper, setSwiper] = useState<any>(null);
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(1);
   const [visibleItems, setVisibleItems] = useState(courseData);
-  
+
   // Thêm breakpoint cho màn hình siêu nhỏ (mobile nhỏ)
-  const isExtraSmall = useMediaQuery('(max-width: 480px)');
-  const isMobile = useMediaQuery('(max-width: 640px)');
-  const isSmallTablet = useMediaQuery('(max-width: 768px)');
-  const isTablet = useMediaQuery('(max-width: 1024px)');
-  const isLargeScreen = useMediaQuery('(min-width: 1536px)');
+  const isExtraSmall = useMediaQuery("(max-width: 480px)");
+  const isMobile = useMediaQuery("(max-width: 640px)");
+  const isSmallTablet = useMediaQuery("(max-width: 768px)");
+  const isTablet = useMediaQuery("(max-width: 1024px)");
+  const isLargeScreen = useMediaQuery("(min-width: 1536px)");
   const router = useRouter();
 
   // Điều chỉnh slidesPerView cho từng kích thước màn hình - hiển thị gần như full 1 slide trên mobile
   const slidesPerView = isExtraSmall
-    ? 1.5  
-    : isMobile 
-    ? 2.5   
+    ? 1.5
+    : isMobile
+    ? 2.5
     : isSmallTablet
-    ? 2.5  
-    : isTablet 
-    ? 2.5 
-    : isLargeScreen 
-    ? 4 
+    ? 2.5
+    : isTablet
+    ? 2.5
+    : isLargeScreen
+    ? 4
     : 3;
 
   const effectiveSlidesPerView = Math.floor(slidesPerView);
 
   // Điều chỉnh spaceBetween cho từng kích thước màn hình
   const getSpaceBetween = () => {
-    if (isExtraSmall) return 6;  // Giảm khoảng cách cho màn hình rất nhỏ
-    if (isMobile) return 8;     // Giảm khoảng cách cho mobile
+    if (isExtraSmall) return 6; // Giảm khoảng cách cho màn hình rất nhỏ
+    if (isMobile) return 8; // Giảm khoảng cách cho mobile
     if (isSmallTablet) return 12; // Khoảng cách cho tablet nhỏ
-    if (isTablet) return 16;     // Giữ nguyên cho tablet
-    return 20;                   // Mặc định cho màn hình lớn
+    if (isTablet) return 16; // Giữ nguyên cho tablet
+    return 20; // Mặc định cho màn hình lớn
   };
 
   // Update visible items khi courseData thay đổi
@@ -70,31 +75,40 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
   // Smooth update pagination khi items thay đổi
   useEffect(() => {
     if (swiper) {
-      const totalPages = Math.ceil(visibleItems.length / effectiveSlidesPerView);
+      const totalPages = Math.ceil(
+        visibleItems.length / effectiveSlidesPerView
+      );
       const currentActiveIndex = swiper.activeIndex;
-      
+
       // Adjust active slide if needed
-      if (currentActiveIndex >= visibleItems.length && visibleItems.length > 0) {
+      if (
+        currentActiveIndex >= visibleItems.length &&
+        visibleItems.length > 0
+      ) {
         swiper.slideTo(Math.max(0, visibleItems.length - 1));
       }
-      
+
       swiper.update();
     }
   }, [visibleItems.length, swiper, effectiveSlidesPerView]);
 
-  const totalPages = Math.ceil(visibleItems.length / effectiveSlidesPerView);
+  const totalPages = Math.ceil(visibleItems.length / slidesPerView);
 
   const getCurrentPage = (activeIndex: number) => {
+    // Tính toán chính xác hơn với slidesPerView có thể là số thập phân
     const calculatedPage = Math.min(
-      Math.ceil((activeIndex + 1) / effectiveSlidesPerView),
+      Math.ceil((activeIndex + 1) / slidesPerView),
       totalPages
     );
-    return Math.max(1, calculatedPage); 
+    return Math.max(1, calculatedPage);
   };
+
+  // Thêm state để track current page chính xác hơn
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Simplified animation variants cho carousel items
   const itemVariants = {
-    hidden: { 
+    hidden: {
       opacity: 0
     },
     visible: {
@@ -125,7 +139,8 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
         }
 
         @keyframes float {
-          0%, 100% {
+          0%,
+          100% {
             transform: translateY(0) scale(1);
             opacity: 0.6;
           }
@@ -136,7 +151,8 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
         }
 
         @keyframes glowPulse {
-          0%, 100% {
+          0%,
+          100% {
             box-shadow: 0 0 5px rgba(236, 72, 153, 0.3);
           }
           50% {
@@ -162,14 +178,15 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
         }
 
         @keyframes bounce {
-          0%, 100% {
+          0%,
+          100% {
             transform: translateY(0) scale(1);
           }
           50% {
             transform: translateY(-8px) scale(1.1);
           }
         }
-        
+
         /* Thêm CSS cho responsive swiper */
         .course-swiper {
           width: 100%;
@@ -177,7 +194,7 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
           margin: 0 auto;
           overflow: visible;
         }
-        
+
         /* Cải thiện hiển thị nút điều hướng trên mobile */
         @media (max-width: 640px) {
           .swiper-pagination-bullet {
@@ -185,7 +202,7 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
             height: 4px;
             margin: 0 2px;
           }
-          
+
           .swiper-container {
             padding: 0 1px;
             overflow: hidden;
@@ -227,7 +244,7 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
                         className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full animate-bounce"
                         style={{
                           animationDelay: `${i * 0.15}s`,
-                          animationDuration: '0.8s'
+                          animationDuration: "0.8s"
                         }}
                       />
                     ))}
@@ -239,7 +256,11 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
                       Đang cập nhật dữ liệu
                     </h3>
                     <p className="text-sm text-gray-600">
-                      Đang xử lý <span className="text-pink-600 font-semibold">{removingLessons.size}</span> bài học
+                      Đang xử lý{" "}
+                      <span className="text-pink-600 font-semibold">
+                        {removingLessons.size}
+                      </span>{" "}
+                      bài học
                     </p>
                   </div>
 
@@ -247,18 +268,22 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-500">Tiến độ:</span>
                     <div className="flex gap-1">
-                      {[...Array(Math.min(removingLessons.size, 8))].map((_, i) => (
-                        <div
-                          key={i}
-                          className="w-2 h-2 bg-pink-300 rounded-full animate-pulse"
-                          style={{
-                            animationDelay: `${i * 0.2}s`,
-                            animationDuration: '1.5s'
-                          }}
-                        />
-                      ))}
+                      {[...Array(Math.min(removingLessons.size, 8))].map(
+                        (_, i) => (
+                          <div
+                            key={i}
+                            className="w-2 h-2 bg-pink-300 rounded-full animate-pulse"
+                            style={{
+                              animationDelay: `${i * 0.2}s`,
+                              animationDuration: "1.5s"
+                            }}
+                          />
+                        )
+                      )}
                       {removingLessons.size > 8 && (
-                        <span className="text-xs text-gray-500 ml-1">+{removingLessons.size - 8}</span>
+                        <span className="text-xs text-gray-500 ml-1">
+                          +{removingLessons.size - 8}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -267,10 +292,10 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
                   <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div className="h-full bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 rounded-full relative">
                       {/* Shimmer effect */}
-                      <div 
+                      <div
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shimmer"
                         style={{
-                          backgroundSize: '200% 100%'
+                          backgroundSize: "200% 100%"
                         }}
                       />
                     </div>
@@ -290,10 +315,10 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
                     key={`loading-particle-${i}`}
                     className="absolute w-1 h-1 sm:w-1.5 sm:h-1.5 bg-pink-400/40 rounded-full animate-float"
                     style={{
-                      left: `${15 + (i * 8)}%`,
+                      left: `${15 + i * 8}%`,
                       top: `${30 + (i % 4) * 20}%`,
                       animationDelay: `${i * 0.3}s`,
-                      animationDuration: '4s'
+                      animationDuration: "4s"
                     }}
                   />
                 ))}
@@ -304,10 +329,12 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
           /* Normal Swiper Display */
           <>
             {/* Cải thiện container với padding phù hợp cho từng thiết bị */}
-            <div className={cn(
-              "swiper-container w-full",
-              isExtraSmall ? "px-0 mx-0" : isMobile ? "px-0.5 mx-0.5" : "px-0" // Giảm padding đối với mobile
-            )}>
+            <div
+              className={cn(
+                "swiper-container w-full",
+                isExtraSmall ? "px-0 mx-0" : isMobile ? "px-0.5 mx-0.5" : "px-0" // Giảm padding đối với mobile
+              )}
+            >
               <Swiper
                 onSwiper={setSwiper}
                 modules={[Navigation, Pagination]}
@@ -324,34 +351,39 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
                 updateOnWindowResize={true}
                 pagination={{
                   clickable: true,
-                  el: '.swiper-pagination',
-                  dynamicBullets: isMobile ? true : false,
+                  el: ".swiper-pagination",
+                  dynamicBullets: isMobile ? true : false
                 }}
                 onSlideChange={(swiper) => {
                   setIsBeginning(swiper.isBeginning);
                   setIsEnd(swiper.isEnd);
-                  setCurrentSlide(getCurrentPage(swiper.activeIndex));
+                  const newPage = getCurrentPage(swiper.activeIndex);
+                  setCurrentSlide(newPage);
+                  setCurrentPage(newPage);
                 }}
-                className="course-swiper pb-8 sm:pb-10" // Giảm padding-bottom trên mobile
+                className="course-swiper" // Loại bỏ padding-bottom
               >
                 <AnimatePresence>
                   {visibleItems.map((course, index) => {
                     const customCourse = {
                       ...course,
-                      classRoomName: course.className,
+                      classRoomName: course.className
                     };
 
-                    const isRemoving = removingLessons?.has(course.lessonId) || false;
+                    const isRemoving =
+                      removingLessons?.has(course.lessonId) || false;
 
                     return (
-                      <SwiperSlide 
+                      <SwiperSlide
                         key={`lesson-${course.lessonId}`}
                         className="transition-all duration-300 ease-in-out pb-1.5 w-full" // Giảm padding-bottom
                       >
-                        <div className={cn(
-                          "px-0.5", // Thêm padding nhỏ cho card
-                          isExtraSmall && "transform scale-[0.98]" // Thu nhỏ một chút cho màn hình rất nhỏ
-                        )}>
+                        <div
+                          className={cn(
+                            "px-0.5", // Thêm padding nhỏ cho card
+                            isExtraSmall && "transform scale-[0.98]" // Thu nhỏ một chút cho màn hình rất nhỏ
+                          )}
+                        >
                           <motion.div
                             variants={itemVariants}
                             initial="hidden"
@@ -359,9 +391,11 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
                             exit="exit"
                             className="h-full"
                           >
-                            <LessonCard 
-                              {...customCourse} 
-                              onClick={() => router.push(`/lesson/${customCourse.lessonId}`)}
+                            <LessonCard
+                              {...customCourse}
+                              onClick={() =>
+                                router.push(`/lesson/${customCourse.lessonId}`)
+                              }
                               onLikeUpdate={onLikeUpdate}
                               removingLessons={removingLessons}
                               delay={0}
@@ -382,7 +416,7 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
 
             {/* Enhanced Navigation - hiển thị trên tablet và desktop */}
             {!isMobile && visibleItems.length > effectiveSlidesPerView && (
-              <div className="flex items-center justify-center gap-4 mt-4 sm:mt-6">
+              <div className="flex items-center justify-center gap-4 -mt-2">
                 <Button
                   variant="outline"
                   size={isSmallTablet ? "default" : "xl"}
@@ -395,14 +429,125 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
                   onClick={() => swiper?.slidePrev()}
                   disabled={isBeginning}
                 >
-                  <ChevronLeft className={cn(
-                    isSmallTablet ? "h-5 w-5" : "h-6 w-6",
-                    "text-gray-700"
-                  )} />
+                  <ChevronLeft
+                    className={cn(
+                      isSmallTablet ? "h-5 w-5" : "h-6 w-6",
+                      "text-gray-700"
+                    )}
+                  />
                 </Button>
 
-                <div className="min-w-[80px] sm:min-w-[100px] text-center font-medium text-gray-600 bg-gray-50 px-3 py-1 sm:px-4 sm:py-2 rounded-full text-sm">
-                  {currentSlide} / {totalPages}
+                {/* Custom Dots Pagination */}
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const maxDots = 6;
+                    const dots = [];
+
+                    if (totalPages <= maxDots) {
+                      // Hiển thị tất cả dots nếu tổng số trang <= 6
+                      for (let i = 1; i <= totalPages; i++) {
+                        dots.push(
+                          <button
+                            key={i}
+                            onClick={() => {
+                              const targetIndex = Math.floor(
+                                (i - 1) * slidesPerView
+                              );
+                              swiper?.slideTo(targetIndex);
+                            }}
+                            className={cn(
+                              "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
+                              currentPage === i
+                                ? "bg-pink-500 scale-110"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            )}
+                          />
+                        );
+                      }
+                    } else {
+                      // Logic cho trường hợp có nhiều hơn 6 trang
+                      const halfMax = Math.floor(maxDots / 2);
+
+                      // Luôn hiển thị trang đầu
+                      dots.push(
+                        <button
+                          key={1}
+                          onClick={() => {
+                            swiper?.slideTo(0);
+                          }}
+                          className={cn(
+                            "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
+                            currentPage === 1
+                              ? "bg-pink-500 scale-110"
+                              : "bg-gray-300 hover:bg-gray-400"
+                          )}
+                        />
+                      );
+
+                      // Tính toán range để hiển thị
+                      let startPage = Math.max(2, currentPage - halfMax);
+                      let endPage = Math.min(
+                        totalPages - 1,
+                        currentPage + halfMax
+                      );
+
+                      // Điều chỉnh nếu range quá ngắn
+                      if (endPage - startPage < maxDots - 3) {
+                        if (startPage === 2) {
+                          endPage = Math.min(
+                            totalPages - 1,
+                            startPage + maxDots - 3
+                          );
+                        } else {
+                          startPage = Math.max(2, endPage - maxDots + 3);
+                        }
+                      }
+
+                      // Thêm dots cho các trang ở giữa
+                      for (let i = startPage; i <= endPage; i++) {
+                        dots.push(
+                          <button
+                            key={i}
+                            onClick={() => {
+                              const targetIndex = Math.floor(
+                                (i - 1) * slidesPerView
+                              );
+                              swiper?.slideTo(targetIndex);
+                            }}
+                            className={cn(
+                              "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
+                              currentPage === i
+                                ? "bg-pink-500 scale-110"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            )}
+                          />
+                        );
+                      }
+
+                      // Luôn hiển thị trang cuối nếu có nhiều hơn 1 trang
+                      if (totalPages > 1) {
+                        dots.push(
+                          <button
+                            key={totalPages}
+                            onClick={() => {
+                              const targetIndex = Math.floor(
+                                (totalPages - 1) * slidesPerView
+                              );
+                              swiper?.slideTo(targetIndex);
+                            }}
+                            className={cn(
+                              "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
+                              currentPage === totalPages
+                                ? "bg-pink-500 scale-110"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            )}
+                          />
+                        );
+                      }
+                    }
+
+                    return dots;
+                  })()}
                 </div>
 
                 <Button
@@ -417,10 +562,12 @@ export function CourseCarousel({ courseData, className, onLikeUpdate, removingLe
                   onClick={() => swiper?.slideNext()}
                   disabled={isEnd}
                 >
-                  <ChevronRight className={cn(
-                    isSmallTablet ? "h-5 w-5" : "h-6 w-6",
-                    "text-gray-700"
-                  )} />
+                  <ChevronRight
+                    className={cn(
+                      isSmallTablet ? "h-5 w-5" : "h-6 w-6",
+                      "text-gray-700"
+                    )}
+                  />
                 </Button>
               </div>
             )}

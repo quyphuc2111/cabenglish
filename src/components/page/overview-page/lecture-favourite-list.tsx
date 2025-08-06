@@ -132,9 +132,9 @@ export function LectureFavouriteList({
         />
         <h3 className="font-bold text-gray-800 ">{t("favourite")}</h3>
       </div>
-      <div className="bg-white px-3 md:px-7 py-3 md:py-5  relative rounded-tr-xl rounded-b-xl   ">
+      <div className="bg-white px-3 md:px-7 py-3 md:py-5  relative rounded-tr-xl rounded-b-xl ">
         {/* Filter section */}
-        <div className="mb-4 md:mb-6">
+        <div className="mb-4 md:mb-6 ">
           <FilterFacet
             initialFilterData={initialFilterData}
             fetchFilterData={fetchFilterData}

@@ -7,7 +7,7 @@ import { useModal } from "@/hooks/useModalStore";
 import { useSession } from "next-auth/react";
 import { DashboardClientService } from "@/services/dashboard.client.service";
 import { useUserInfo } from "@/hooks/useUserInfo";
-import CurrentAndNextLecture from "./teaching-progress/current-and-next-lecture";
+import CurrentAndNextLecture from "./current-and-next-lecture";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 

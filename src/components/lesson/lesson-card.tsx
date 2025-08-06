@@ -181,7 +181,7 @@ function LessonCard({
       scale: 1,
       transition: {
         duration: 0.5,
-        ease: "easeOut"
+        ease: "easeOut" as const
       }
     },
     removing: {
@@ -189,7 +189,7 @@ function LessonCard({
       scale: 0.85,
       transition: {
         duration: 0.8,
-        ease: "easeInOut"
+        ease: "easeInOut" as const
       }
     },
     hover: {
@@ -395,7 +395,7 @@ function LessonCard({
         )}
       </AnimatePresence>
 
-      <div className="flex flex-col space-y-1">
+      <div className="flex flex-col space-y-1 ">
         <motion.h2
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
