@@ -63,34 +63,30 @@ export function TeachingProgress({
     themeGradients[currentTheme] || themeGradients["theme-red"];
 
   return (
-    <div className="mt-6 sm:mt-8 lg:mt-10">
+    <div className="mt-4 w-full">
       {/* Header Section với gradient background */}
       <div className="relative">
-        <div className="relative bg-white/80 backdrop-blur-sm p-4 sm:p-6  border border-white/60 w-fit rounded-t-2xl">
-          <div className="flex items-center gap-3 sm:gap-4">
+        <div className="relative bg-white  px-4 pt-3 pb-2 w-max rounded-t-2xl">
+          <div className="flex items-center gap-3 ">
             <div className="relative">
+              <div className={`absolute inset-0  rounded-full `}></div>
               <div
-                className={`absolute inset-0 bg-gradient-to-r ${currentGradients.icon} rounded-full blur opacity-60`}
-              ></div>
-              <div
-                className={`relative w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r ${currentGradients.icon} rounded-full flex items-center justify-center shadow-lg`}
+                className={`relative  rounded-full flex items-center justify-center `}
               >
                 <Image
                   src="/rank_flag.gif"
                   alt="teaching progress"
-                  width={28}
-                  height={28}
-                  className="sm:w-8 sm:h-8"
+                  width={35}
+                  height={358}
+                  className=""
                 />
               </div>
             </div>
             <div>
-              <h1
-                className={`text-xl sm:text-2xl  text-gray-800 font-bold bg-gradient-to-r ${currentGradients.title} bg-clip-text text-transparent`}
-              >
+              <h3 className={`  text-gray-800 font-bold  bg-clip-text `}>
                 {t("teachingProgress")}
-              </h1>
-              <p className="text-sm sm:text-base text-gray-600 mt-1">
+              </h3>
+              <p className="text-sm text-gray-600 ">
                 Quản lý và theo dõi tiến độ giảng dạy
               </p>
             </div>
@@ -99,15 +95,9 @@ export function TeachingProgress({
       </div>
 
       {/* Main Content với improved layout */}
-      <div className="relative">
-        {/* Background decoration */}
-        <div
-          className={`absolute inset-0 bg-gradient-to-br ${currentGradients.content} rounded-3xl`}
-        ></div>
-        <div className="absolute inset-0 bg-[url('/assets/bg-pattern.svg')] opacity-5 rounded-3xl"></div>
-
+      <div className=" w-full">
         {/* Content container */}
-        <div className="relative bg-white/70 backdrop-blur-sm px-4 sm:px-6 lg:px-8 3xl:px-10 py-6 sm:py-8 lg:py-10 flex flex-col xl:flex-row gap-6 lg:gap-8 xl:gap-10 rounded-r-3xl rounded-bl-3xl border border-white/60 ">
+        <div className=" bg-white w-full min-h-[700px] px-4 sm:px-6 lg:px-8 3xl:px-10 py-6 sm:py-8 lg:py-10 flex flex-col xl:flex-row gap-6 lg:gap-8 xl:gap-10 rounded-r-3xl rounded-bl-3xl  ">
           <ProgressStats
             onOpen={onOpen}
             t={t}
@@ -115,11 +105,6 @@ export function TeachingProgress({
             classroomData={classroomData}
             currentTheme={currentTheme}
             onDataRefetch={onDataRefetch}
-          />
-          <CurrentAndNextLecture
-            courseData={courseData}
-            t={t}
-            classroomData={classroomData}
           />
         </div>
       </div>

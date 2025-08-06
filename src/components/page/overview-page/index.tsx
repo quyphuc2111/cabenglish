@@ -7,6 +7,9 @@ import { useModal } from "@/hooks/useModalStore";
 import { useSession } from "next-auth/react";
 import { DashboardClientService } from "@/services/dashboard.client.service";
 import { useUserInfo } from "@/hooks/useUserInfo";
+import CurrentAndNextLecture from "./teaching-progress/current-and-next-lecture";
+import { useTranslation } from "react-i18next";
+import Image from "next/image";
 
 const LectureFavouriteList = dynamic(
   () =>
@@ -47,31 +50,30 @@ function OverviewPage({
   const { data: session } = useSession();
   const { data: userInfo } = useUserInfo(session?.user?.userId);
   const currentTheme = userInfo?.theme;
-  
+  const { t } = useTranslation();
+
   const [courseData, setCourseData] = useState(initialCourseData);
   const [isRefetching, setIsRefetching] = useState(false);
 
   useEffect(() => {
     if (session && session.user.is_firstlogin) {
-     
       onOpen("teachingMode");
     }
-  }, [session])
-
+  }, [session]);
 
   const refetchCourseData = useCallback(async () => {
     if (!session?.user?.userId || isRefetching) {
       return;
     }
-    
+
     try {
       setIsRefetching(true);
-      
+
       const dashboardData = await DashboardClientService.fetchDashboardData(
         session.user.userId,
         session.user.mode as "default" | "free"
       );
-      
+
       setCourseData(dashboardData.courseData);
     } catch (error) {
       console.error("❌ Error refetching course data:", error);
@@ -81,16 +83,22 @@ function OverviewPage({
   }, [session?.user?.userId, session?.user?.mode, isRefetching, courseData]);
 
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-wrap gap-4">
+      <CurrentAndNextLecture
+        courseData={courseData}
+        classroomData={classroomData}
+        userId={session?.user?.userId}
+        t={t}
+      />
       <LectureFavouriteList
         courseData={courseData}
         initialFilterData={initialFilterData}
         fetchFilterData={fetchFilterData}
         onDataRefetch={refetchCourseData}
       />
-      <TeachingProgress 
-        courseData={courseData} 
-        classroomData={classroomData}  
+      <TeachingProgress
+        courseData={courseData}
+        classroomData={classroomData}
         currentTheme={currentTheme}
         onDataRefetch={refetchCourseData}
       />

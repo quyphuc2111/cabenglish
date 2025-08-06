@@ -1,11 +1,18 @@
 "use client";
 
-import React, { Fragment, useCallback, useMemo, useState, useRef, useEffect } from "react";
+import React, {
+  Fragment,
+  useCallback,
+  useMemo,
+  useState,
+  useRef,
+  useEffect
+} from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn, formatProgress, validateImageUrl } from "@/lib/utils";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import { useLessonLike } from "@/hooks/client/useLesson";
 
 interface LessonCardProps {
@@ -23,7 +30,7 @@ interface LessonCardProps {
   horizontal?: boolean;
   className?: string;
   onClick?: () => void;
-  onLikeUpdate?: (lessonId: number, newLikeCount: number) => void; 
+  onLikeUpdate?: (lessonId: number, newLikeCount: number) => void;
   isLocked: boolean;
   delay?: number;
   removingLessons?: Set<number>;
@@ -58,14 +65,20 @@ const ANIMATIONS = {
   }
 } as const;
 
-const ProgressIndicator = ({ progress, delay }: { progress: number , delay: number }) => {
+const ProgressIndicator = ({
+  progress,
+  delay
+}: {
+  progress: number;
+  delay: number;
+}) => {
   const flowerCount = Math.ceil(progress / 25);
-  
+
   return (
     <motion.div
       variants={ANIMATIONS.progressVariants}
       initial="hidden"
-      animate="visible" 
+      animate="visible"
       className={cn(
         "bg-[#db8ab5]/50 rounded-tr-[4px] sm:rounded-tr-md px-1 sm:px-2 py-0.5 sm:py-1 h-full",
         progress === 0 && "bg-[#e25762]"
@@ -73,12 +86,14 @@ const ProgressIndicator = ({ progress, delay }: { progress: number , delay: numb
     >
       <div
         className={cn(
-          "flex items-center gap-1 sm:gap-2 justify-around", 
+          "flex items-center gap-1 sm:gap-2 justify-around",
           progress === 0 && "justify-center"
         )}
       >
         {progress === 0 ? (
-          <p className="text-center text-white text-[10px] sm:text-xs">Chưa học</p>
+          <p className="text-center text-white text-[10px] sm:text-xs">
+            Chưa học
+          </p>
         ) : (
           [...Array(flowerCount)].map((_, index) => (
             <motion.div
@@ -121,10 +136,10 @@ function LessonCard({
   removingLessons
 }: LessonCardProps) {
   const router = useRouter();
-  const {mutate: likeAction } = useLessonLike();
+  const { mutate: likeAction } = useLessonLike();
   const [isLiking, setIsLiking] = useState(false);
   const lastActionTimeRef = useRef(0);
-  
+
   // State để track optimistic update
   const [optimisticLikeCount, setOptimisticLikeCount] = useState(numLiked);
   const [showLikeAnimation, setShowLikeAnimation] = useState(false);
@@ -145,11 +160,11 @@ function LessonCard({
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
-        draggable: true,
+        draggable: true
       });
       return;
     }
-    
+
     if (onClick) {
       onClick();
     }
@@ -179,121 +194,139 @@ function LessonCard({
     },
     hover: {
       scale: 1.02,
-      transition: { 
+      transition: {
         duration: 0.3
       }
     },
-    tap: { 
+    tap: {
       scale: 0.98,
       transition: { duration: 0.1 }
     }
   };
 
-  const cardClasses = useMemo(() => 
-    cn(
-      "lesson-card px-1 sm:px-2 md:px-3 py-1.5 sm:py-2 md:py-4 bg-white rounded-lg sm:rounded-xl md:rounded-2xl flex flex-col gap-1 sm:gap-2 md:gap-3 shadow-course-inset border relative overflow-hidden w-full",
-      "transition-all duration-300 ease-out",
-      isLocked ? "opacity-60 cursor-not-allowed bg-[#d9d9d9]" : "cursor-pointer hover:shadow-lg",
-      horizontal && "flex-col sm:flex-row gap-2 sm:gap-3 md:gap-5",
-      isRemoving && "lesson-card-removing pointer-events-none z-10", 
-      className
-    ),
+  const cardClasses = useMemo(
+    () =>
+      cn(
+        "lesson-card px-1 sm:px-2 md:px-3 py-1.5 sm:py-2 md:py-4 bg-white rounded-lg sm:rounded-xl md:rounded-2xl flex flex-col gap-1 sm:gap-2 md:gap-3 shadow-course-inset border relative overflow-hidden w-full",
+        "transition-all duration-300 ease-out h-full",
+        isLocked
+          ? "opacity-60 cursor-not-allowed bg-[#d9d9d9]"
+          : "cursor-pointer hover:shadow-lg",
+        horizontal && "flex-col sm:flex-row gap-2 sm:gap-3 md:gap-5",
+        isRemoving && "lesson-card-removing pointer-events-none z-10",
+        className
+      ),
     [isLocked, horizontal, className, isRemoving]
   );
 
-  const handleLessonLike = useCallback(async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
+  const handleLessonLike = useCallback(
+    async (e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
 
-    // Debounce để tránh multiple rapid clicks
-    const now = Date.now();
-    if (now - lastActionTimeRef.current < 1000) {
-      return; // Ignore clicks within 1 second
-    }
-    lastActionTimeRef.current = now;
+      // Debounce để tránh multiple rapid clicks
+      const now = Date.now();
+      if (now - lastActionTimeRef.current < 1000) {
+        return; // Ignore clicks within 1 second
+      }
+      lastActionTimeRef.current = now;
 
-    // Prevent double clicks
-    if (isLiking) {
-      return;
-    }
+      // Prevent double clicks
+      if (isLiking) {
+        return;
+      }
 
-    setIsLiking(true);
+      setIsLiking(true);
 
-    const willLike = optimisticLikeCount === 0;
-    const toastId = `like-action-${lessonId}-${now}`;
-    
-    // Optimistic update - cập nhật UI ngay lập tức
-    const newLikeCount = willLike ? 1 : 0;
-    setOptimisticLikeCount(newLikeCount);
-    
-    // Trigger like animation
-    if (willLike) {
-      setShowLikeAnimation(true);
-      setTimeout(() => setShowLikeAnimation(false), 2000);
-    }
-    
-    try {
-      // Dismiss any existing toasts first
-      toast.dismiss();
+      const willLike = optimisticLikeCount === 0;
+      const toastId = `like-action-${lessonId}-${now}`;
 
-      likeAction({
-        lessonId: String(lessonId),
-        action: willLike ? "like" : "unlike"
-      }, {
-        onSuccess: () => {
-          setIsLiking(false);
-          
-          // Gọi callback để update parent state
-          if (onLikeUpdate) {
-            onLikeUpdate(lessonId as number, newLikeCount);
-          }
-          
-          // Show success toast
-          toast.success(
-            willLike 
-              ? `Đã thích bài học "${lessonName}"! 💖` 
-              : `Đã bỏ thích bài học "${lessonName}"`, 
-            {
-              position: "top-right",
-              autoClose: 2000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: false,
-              draggable: true,
-              toastId: toastId,
+      // Optimistic update - cập nhật UI ngay lập tức
+      const newLikeCount = willLike ? 1 : 0;
+      setOptimisticLikeCount(newLikeCount);
+
+      // Trigger like animation
+      if (willLike) {
+        setShowLikeAnimation(true);
+        setTimeout(() => setShowLikeAnimation(false), 2000);
+      }
+
+      try {
+        // Dismiss any existing toasts first
+        toast.dismiss();
+
+        likeAction(
+          {
+            lessonId: String(lessonId),
+            action: willLike ? "like" : "unlike"
+          },
+          {
+            onSuccess: () => {
+              setIsLiking(false);
+
+              // Gọi callback để update parent state
+              if (onLikeUpdate) {
+                onLikeUpdate(lessonId as number, newLikeCount);
+              }
+
+              // Show success toast
+              toast.success(
+                willLike
+                  ? `Đã thích bài học "${lessonName}"! 💖`
+                  : `Đã bỏ thích bài học "${lessonName}"`,
+                {
+                  position: "top-right",
+                  autoClose: 2000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: false,
+                  draggable: true,
+                  toastId: toastId
+                }
+              );
+            },
+            onError: (error) => {
+              setIsLiking(false);
+
+              // Revert optimistic update khi có lỗi
+              setOptimisticLikeCount(numLiked);
+
+              console.error("Like action failed:", error);
+
+              toast.error("Có lỗi xảy ra khi thực hiện thao tác!", {
+                position: "top-right",
+                autoClose: 3000,
+                toastId: `error-${toastId}`
+              });
             }
-          );
-        },
-        onError: (error) => {
-          setIsLiking(false);
-          
-          // Revert optimistic update khi có lỗi
-          setOptimisticLikeCount(numLiked);
-          
-          console.error('Like action failed:', error);
-          
-          toast.error("Có lỗi xảy ra khi thực hiện thao tác!", {
-            position: "top-right",
-            autoClose: 3000,
-            toastId: `error-${toastId}`,
-          });
-        }
-      });
-    } catch (error) {
-      setIsLiking(false);
-      
-      // Revert optimistic update khi có lỗi
-      setOptimisticLikeCount(numLiked);
-      
-      console.error('Like action error:', error);
-      
-      toast.error("Có lỗi xảy ra khi thực hiện thao tác!", {
-        position: "top-right",
-        autoClose: 3000,
-        toastId: `catch-error-${toastId}`,
-      });
-    }
-  }, [likeAction, lessonId, optimisticLikeCount, lessonName, router, isLiking, numLiked, onLikeUpdate]);
+          }
+        );
+      } catch (error) {
+        setIsLiking(false);
+
+        // Revert optimistic update khi có lỗi
+        setOptimisticLikeCount(numLiked);
+
+        console.error("Like action error:", error);
+
+        toast.error("Có lỗi xảy ra khi thực hiện thao tác!", {
+          position: "top-right",
+          autoClose: 3000,
+          toastId: `catch-error-${toastId}`
+        });
+      }
+    },
+    [
+      likeAction,
+      lessonId,
+      optimisticLikeCount,
+      lessonName,
+      router,
+      isLiking,
+      numLiked,
+      onLikeUpdate
+    ]
+  );
 
   return (
     <motion.div
@@ -302,7 +335,7 @@ function LessonCard({
       animate={isRemoving ? "removing" : "visible"}
       whileHover={isLocked || isRemoving ? undefined : "hover"}
       whileTap={isLocked || isRemoving ? undefined : "tap"}
-      transition={{ delay: isRemoving ? 0 : delay }} 
+      transition={{ delay: isRemoving ? 0 : delay }}
       onClick={handleChooseCourse}
       className={cardClasses}
     >
@@ -318,23 +351,21 @@ function LessonCard({
               className="absolute inset-0 bg-white/60 backdrop-blur-sm rounded-xl z-20"
               transition={{ duration: 0.3 }}
             />
-            
+
             {/* Simple fade out text - CSS animation */}
             <div className="absolute inset-0 flex items-center justify-center text-gray-500 font-medium text-xs z-30">
-              <div className="removing-text-animation">
-                Đã bỏ thích
-              </div>
+              <div className="removing-text-animation">Đã bỏ thích</div>
             </div>
-            
+
             {/* Simple particles - CSS animation */}
             <div className="absolute inset-0 pointer-events-none z-25 overflow-hidden rounded-xl">
               <div className="sparkles-container">
                 {[...Array(8)].map((_, i) => (
-                  <div 
+                  <div
                     key={`sparkle-${i}`}
                     className="sparkle-particle"
                     style={{
-                      left: `${20 + (i * 10)}%`,
+                      left: `${20 + i * 10}%`,
                       top: `${30 + (i % 2) * 20}%`,
                       animationDelay: `${i * 0.1}s`
                     }}
@@ -343,14 +374,14 @@ function LessonCard({
                   </div>
                 ))}
               </div>
-              
+
               <div className="hearts-container">
                 {[...Array(4)].map((_, i) => (
-                  <div 
+                  <div
                     key={`heart-${i}`}
                     className="heart-particle"
                     style={{
-                      left: `${50 + (i * 5)}%`,
+                      left: `${50 + i * 5}%`,
                       top: `70%`,
                       animationDelay: `${0.2 + i * 0.1}s`
                     }}
@@ -382,35 +413,39 @@ function LessonCard({
             src={validateImageUrl(imageUrl)}
             alt={unitName}
             fill
-            className={cn(
-              "object-cover",
-              isLocked && "opacity-50"
-            )}
+            className={cn("object-cover", isLocked && "opacity-50")}
             unoptimized
           />
 
-          {isLocked  && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Image 
-              src="/assets/image/lock_course.png" 
-              alt="locked"
-              width={25}
-              height={25}
-              className="w-[20px] h-[20px] sm:w-[30px] sm:h-[30px] md:w-[35px] md:h-[35px]"
-            />
-          </div>
-        )}
+          {isLocked && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Image
+                src="/assets/image/lock_course.png"
+                alt="locked"
+                width={25}
+                height={25}
+                className="w-[20px] h-[20px] sm:w-[30px] sm:h-[30px] md:w-[35px] md:h-[35px]"
+              />
+            </div>
+          )}
         </motion.div>
       </div>
 
-      <div className={cn("flex flex-col", horizontal === true ? "flex-1" : "gap-1")}>
+      <div
+        className={cn(
+          "flex flex-col",
+          horizontal === true ? "flex-1" : "gap-1"
+        )}
+      >
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: delay + 0.3 }}
           className="text-[#736E6E] text-[9px]  md:text-[14px] flex justify-between gap-1"
         >
-          <span className="course-week truncate">{`Tuần học ${String(schoolWeek)}`}</span>
+          <span className="course-week truncate">{`Tuần học ${String(
+            schoolWeek
+          )}`}</span>
           <span className="course-category truncate">{classRoomName}</span>
         </motion.div>
 
@@ -425,10 +460,10 @@ function LessonCard({
             horizontal === true ? "flex-1" : ""
           )}
           style={{
-            display: '-webkit-box',
+            display: "-webkit-box",
             WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            lineHeight: '1.25em'
+            WebkitBoxOrient: "vertical",
+            lineHeight: "1.25em"
           }}
         >
           {lessonName}
@@ -448,9 +483,14 @@ function LessonCard({
               "rounded-tr-[4px] sm:rounded-tr-md p-0.5 sm:p-1 flex justify-around items-center"
             )}
           >
-            <ProgressIndicator progress={Number(formatProgress(progress))} delay={delay} />
+            <ProgressIndicator
+              progress={Number(formatProgress(progress))}
+              delay={delay}
+            />
             {progress > 0 && progress < 1 && (
-              <p className="text-center px-1 text-[9px] sm:text-xs">{formatProgress(progress)}%</p>
+              <p className="text-center px-1 text-[9px] sm:text-xs">
+                {formatProgress(progress)}%
+              </p>
             )}
             {progress === 1 && (
               <motion.div
@@ -476,24 +516,28 @@ function LessonCard({
             transition={{ delay: delay + 0.9 }}
             className={cn(
               "like-button relative flex items-center gap-0.5 sm:gap-1 p-1 sm:p-1.5 md:p-2 rounded-lg transition-all duration-300 -m-1 sm:-m-1.5 md:-m-2 group",
-              isLiking 
-                ? "cursor-not-allowed opacity-50" 
+              isLiking
+                ? "cursor-not-allowed opacity-50"
                 : "hover:bg-pink-50 active:scale-95",
               optimisticLikeCount > 0 && "like-button-loved"
             )}
             onClick={handleLessonLike}
             type="button"
             disabled={isLiking}
-            aria-label={`${optimisticLikeCount === 0 ? 'Like' : 'Unlike'} this lesson`}
+            aria-label={`${
+              optimisticLikeCount === 0 ? "Like" : "Unlike"
+            } this lesson`}
             whileHover={!isLiking ? { scale: 1.05 } : {}}
             whileTap={!isLiking ? { scale: 0.95 } : {}}
           >
             {/* Background glow effect */}
-            <div className={cn(
-              "absolute inset-0 rounded-lg bg-gradient-to-r from-pink-400 to-red-400 opacity-0 blur-sm transition-opacity duration-300",
-              optimisticLikeCount > 0 && "opacity-20"
-            )}></div>
-            
+            <div
+              className={cn(
+                "absolute inset-0 rounded-lg bg-gradient-to-r from-pink-400 to-red-400 opacity-0 blur-sm transition-opacity duration-300",
+                optimisticLikeCount > 0 && "opacity-20"
+              )}
+            ></div>
+
             {/* Heart container */}
             <div className="relative w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex items-center justify-center">
               {isLiking ? (
@@ -503,15 +547,15 @@ function LessonCard({
                   {/* Floating mini hearts */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <motion.div
-                      animate={{ 
+                      animate={{
                         y: [-2, -8, -2],
                         opacity: [0.5, 1, 0.5],
                         scale: [0.8, 1, 0.8]
                       }}
-                      transition={{ 
-                        duration: 1.5, 
+                      transition={{
+                        duration: 1.5,
                         repeat: Infinity,
-                        delay: 0 
+                        delay: 0
                       }}
                       className="absolute text-pink-400 text-[10px]"
                     >
@@ -524,22 +568,26 @@ function LessonCard({
                 <div className="relative">
                   {/* Main heart */}
                   <motion.div
-                    animate={optimisticLikeCount > 0 ? {
-                      scale: [1, 1.2, 1],
-                    } : {}}
+                    animate={
+                      optimisticLikeCount > 0
+                        ? {
+                            scale: [1, 1.2, 1]
+                          }
+                        : {}
+                    }
                     transition={{ duration: 0.6 }}
                     className="relative"
                   >
                     {/* SVG Heart thay vì Image */}
                     <svg
-                      width="18" 
+                      width="18"
                       height="18"
                       viewBox="0 0 24 24"
                       className={cn(
                         "heart-svg transition-all duration-300",
                         "w-[14px] h-[14px] sm:w-[16px] sm:h-[16px] md:w-[20px] md:h-[20px]", // Responsive size
-                        optimisticLikeCount > 0 
-                          ? "fill-red-500 text-red-500 drop-shadow-lg" 
+                        optimisticLikeCount > 0
+                          ? "fill-red-500 text-red-500 drop-shadow-lg"
                           : "fill-none text-gray-400 hover:text-red-400 hover:fill-red-100"
                       )}
                     >
@@ -558,7 +606,11 @@ function LessonCard({
                     <motion.div
                       initial={{ scale: 0, opacity: 1 }}
                       animate={{ scale: 2, opacity: 0 }}
-                      transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 2 }}
+                      transition={{
+                        duration: 0.8,
+                        repeat: Infinity,
+                        repeatDelay: 2
+                      }}
                       className="absolute inset-0 border-2 border-red-400 rounded-full"
                     />
                   )}
@@ -571,20 +623,20 @@ function LessonCard({
                         animate={{
                           y: [0, -12, -20],
                           opacity: [0, 1, 0],
-                          scale: [0.5, 1, 0.5],
+                          scale: [0.5, 1, 0.5]
                         }}
                         transition={{
                           duration: 1.5,
                           repeat: Infinity,
-                          delay: i * 0.2,
+                          delay: i * 0.2
                         }}
                         className="absolute text-[10px]"
                         style={{
                           left: `${20 + i * 15}%`,
-                          top: '50%',
+                          top: "50%"
                         }}
                       >
-                        {['❤️', '💕', '💖'][i]}
+                        {["❤️", "💕", "💖"][i]}
                       </motion.div>
                     ))}
                   </div>
@@ -600,11 +652,11 @@ function LessonCard({
               transition={{ duration: 0.3 }}
               className={cn(
                 "text-[10px] sm:text-xs md:text-sm font-medium transition-all duration-300", // Responsive text size
-                isLiking 
-                  ? "text-gray-400" 
-                  : optimisticLikeCount > 0 
-                    ? "text-red-500 font-semibold" 
-                    : "text-gray-500 group-hover:text-red-400"
+                isLiking
+                  ? "text-gray-400"
+                  : optimisticLikeCount > 0
+                  ? "text-red-500 font-semibold"
+                  : "text-gray-500 group-hover:text-red-400"
               )}
             >
               {optimisticLikeCount}
@@ -629,21 +681,21 @@ function LessonCard({
               {[...Array(8)].map((_, i) => (
                 <motion.div
                   key={`floating-heart-${i}`}
-                  initial={{ 
+                  initial={{
                     x: `${50 + (Math.random() - 0.5) * 40}%`,
-                    y: '100%',
+                    y: "100%",
                     scale: 0,
                     opacity: 0,
                     rotate: 0
                   }}
-                  animate={{ 
-                    y: '-30%',
+                  animate={{
+                    y: "-30%",
                     scale: [0, 1.5, 0.7, 0],
                     opacity: [0, 1, 0.8, 0],
                     rotate: [0, 180, 360],
                     x: `${50 + (Math.random() - 0.5) * 100}%`
                   }}
-                  transition={{ 
+                  transition={{
                     duration: 2.5,
                     delay: i * 0.15,
                     ease: [0.4, 0.0, 0.2, 1]
@@ -651,37 +703,37 @@ function LessonCard({
                   className="heart-particle absolute text-red-500 select-none"
                   style={{
                     fontSize: `${6 + Math.random() * 4}px`, // Giảm font size
-                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                    filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))"
                   }}
                 >
-                  {['❤️', '💕', '💖', '💝', '💗', '💓', '💞', '💟'][i]}
+                  {["❤️", "💕", "💖", "💝", "💗", "💓", "💞", "💟"][i]}
                 </motion.div>
               ))}
-              
+
               {/* Additional sparkle effects */}
               {[...Array(5)].map((_, i) => (
                 <motion.div
                   key={`sparkle-${i}`}
-                  initial={{ 
+                  initial={{
                     x: `${40 + Math.random() * 20}%`,
-                    y: '80%',
+                    y: "80%",
                     scale: 0,
                     opacity: 0
                   }}
-                  animate={{ 
-                    y: '-10%',
+                  animate={{
+                    y: "-10%",
                     scale: [0, 1, 0],
                     opacity: [0, 1, 0],
                     rotate: 360
                   }}
-                  transition={{ 
+                  transition={{
                     duration: 1.5,
                     delay: 0.5 + i * 0.1,
                     ease: "easeOut"
                   }}
                   className="absolute text-yellow-400 select-none"
                   style={{
-                    fontSize: '6px', // Giảm font size
+                    fontSize: "6px" // Giảm font size
                   }}
                 >
                   ✨
@@ -968,11 +1020,11 @@ const likeButtonStyles = `
 `;
 
 // Inject styles
-if (typeof document !== 'undefined') {
-  const styleElement = document.createElement('style');
+if (typeof document !== "undefined") {
+  const styleElement = document.createElement("style");
   styleElement.textContent = likeButtonStyles;
-  if (!document.head.querySelector('style[data-like-effects]')) {
-    styleElement.setAttribute('data-like-effects', 'true');
+  if (!document.head.querySelector("style[data-like-effects]")) {
+    styleElement.setAttribute("data-like-effects", "true");
     document.head.appendChild(styleElement);
   }
 }
