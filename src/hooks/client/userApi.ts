@@ -28,12 +28,25 @@ export interface UserCreateRequest {
 export async function refreshAccessToken(
   authCookie: string
 ): Promise<TokenResponseDto> {
+  // Extract bkt_account cookie value if it's in the full cookie string
+  let bktAccountCookie = authCookie;
+  if (authCookie.includes("bkt_account=")) {
+    // If it's a full cookie string, extract just the bkt_account part
+    const match = authCookie.match(/bkt_account=([^;]+)/);
+    if (match) {
+      bktAccountCookie = `bkt_account=${match[1]}`;
+    }
+  } else if (!authCookie.startsWith("bkt_account=")) {
+    // If it's just the value, add the name
+    bktAccountCookie = `bkt_account=${authCookie}`;
+  }
+
   const response = await axios.post<TokenResponseDto>(
     `${process.env.BKT_ACCOUNT_API_URL}/api/Auth/refresh-token`,
     {},
     {
       headers: {
-        Cookie: authCookie
+        Cookie: bktAccountCookie
       },
       withCredentials: true
     }
@@ -42,9 +55,7 @@ export async function refreshAccessToken(
 }
 
 export async function logout(): Promise<{ message: string }> {
-  console.log("Logging out...");
   const session = await getServerSession(authOptions);
-  console.log("Logging out session:", session);
   const response = await axios.post<{ message: string }>(
     `${process.env.BKT_ACCOUNT_API_URL}/api/Auth/logout`,
     {},

@@ -62,6 +62,9 @@ interface Credentials {
 
 const ACC_DOMAIN = process.env.BKT_ACCOUNT_API_URL;
 
+// Simple lock to prevent concurrent refresh attempts
+const refreshLocks = new Map<string, Promise<any>>();
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -132,8 +135,24 @@ export const authOptions: NextAuthOptions = {
             }
 
             const authCookie = loginResponse.headers["set-cookie"];
+
             const moodleCookie =
               "MoodleSession=3qfpb47l8gre739bhq3t0q61d0; path=/; secure; HttpOnly; SameSite=None";
+
+            // Extract bkt_account cookie specifically
+            let bktAccountCookie = undefined;
+            if (authCookie && Array.isArray(authCookie)) {
+              const bktCookie = authCookie.find((cookie) =>
+                cookie.includes("bkt_account=")
+              );
+              if (bktCookie) {
+                // Extract just the bkt_account cookie part
+                const match = bktCookie.match(/bkt_account=([^;]+)/);
+                bktAccountCookie = match
+                  ? `bkt_account=${match[1]}`
+                  : bktCookie;
+              }
+            }
 
             const user: User = {
               email: data.email,
@@ -151,7 +170,7 @@ export const authOptions: NextAuthOptions = {
                   | "theme-gold"
                   | "theme-pink"
                   | "theme-red") || "theme-blue",
-              authCookie: authCookie ? authCookie[0] : undefined,
+              authCookie: bktAccountCookie,
               moodleCookie: moodleCookie
             };
 
@@ -226,6 +245,15 @@ export const authOptions: NextAuthOptions = {
               ? parsedRoles
               : undefined;
 
+          // Extract bkt_account cookie specifically
+          let bktAccountCookie = authCookie;
+          if (authCookie && authCookie.includes("bkt_account=")) {
+            const match = authCookie.match(/bkt_account=([^;]+)/);
+            if (match) {
+              bktAccountCookie = `bkt_account=${match[1]}`;
+            }
+          }
+
           const user: User = {
             email: email,
             userId: accountId.toString(),
@@ -241,9 +269,9 @@ export const authOptions: NextAuthOptions = {
                 | "theme-gold"
                 | "theme-pink"
                 | "theme-red") || "theme-blue",
-            authCookie: authCookie, // Add this line to include the auth cookie
+            authCookie: bktAccountCookie,
             moodleCookie:
-              "MoodleSession=3qfpb47l8gre739bhq3t0q61d0; path=/; secure; HttpOnly; SameSite=None" // Add moodle cookie like in the other provider
+              "MoodleSession=3qfpb47l8gre739bhq3t0q61d0; path=/; secure; HttpOnly; SameSite=None"
           };
 
           return user;
@@ -277,7 +305,8 @@ export const authOptions: NextAuthOptions = {
         token.is_firstlogin = user.is_firstlogin;
         token.authCookie = user.authCookie;
         token.moodleCookie = user.moodleCookie;
-        token.accessTokenExpires = Date.now() + 1 * 60 * 1000; // 1 phút
+        // Set initial expiration to 15 minutes like backend
+        token.accessTokenExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
         return token;
       }
 
@@ -302,14 +331,49 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (token.authCookie) {
+        // Check if there's already a refresh in progress for this user
+        const userId = token.userId || "unknown";
+        if (refreshLocks.has(userId)) {
+          console.log("Refresh already in progress for user:", userId);
+          try {
+            const result = await refreshLocks.get(userId);
+            return result;
+          } catch (error) {
+            console.error("Waiting for refresh failed:", error);
+            refreshLocks.delete(userId);
+            return token;
+          }
+        }
+
+        // Start new refresh
+        const refreshPromise = (async () => {
+          try {
+            const { refreshAccessToken } = await import(
+              "@/hooks/client/userApi"
+            );
+            const refreshed = await refreshAccessToken(token.authCookie!);
+
+            const newExpirationTime = Date.now() + refreshed.expiresIn * 1000;
+
+            const updatedToken = {
+              ...token,
+              accessToken: refreshed.accessToken,
+              accessTokenExpires: newExpirationTime
+            };
+
+            return updatedToken;
+          } finally {
+            refreshLocks.delete(userId);
+          }
+        })();
+
+        refreshLocks.set(userId, refreshPromise);
+
         try {
-          const { refreshAccessToken } = await import("@/hooks/client/userApi");
-          const refreshed = await refreshAccessToken(token.authCookie);
-          token.accessToken = refreshed.accessToken;
-          token.accessTokenExpires = Date.now() + refreshed.expiresIn * 1000;
-          return token;
+          return await refreshPromise;
         } catch (error) {
           console.error("Refresh token failed in jwt callback:", error);
+          refreshLocks.delete(userId);
           return token;
         }
       }

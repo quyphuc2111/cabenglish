@@ -63,9 +63,6 @@ export async function serverFetch(
 
     let response = await axios(axiosConfig);
 
-    if (endpoint.startsWith("/api/Users/")) {
-      console.log("API response", response.data);
-    }
     if (response.status === 401 && session?.user?.authCookie) {
       try {
         const tokenResponse = await refreshAccessToken(session.user.authCookie);
@@ -78,7 +75,6 @@ export async function serverFetch(
           headers
         };
         response = await axios(retryConfig);
-        console.log("token refresh status", response.status);
       } catch (refreshError) {
         console.error("Token refresh failed:", refreshError);
         throw refreshError;
