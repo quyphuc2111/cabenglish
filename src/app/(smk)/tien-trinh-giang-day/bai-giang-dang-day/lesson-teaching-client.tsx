@@ -4,6 +4,7 @@ import { ContentLayout } from "@/components/admin-panel/content-layout";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { LessonType } from "@/types/lesson";
+import { ClassroomType } from "@/types/classroom";
 import LessonCard from "@/components/lesson/lesson-card";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -15,6 +16,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { useRouter, useSearchParams } from "next/navigation";
 import SectionTitle from "@/components/common/section-title";
+import styles from "./lesson-teaching.module.css";
 
 // Memoized component cho Tab classroom để tránh re-render không cần thiết
 const ClassroomTab = memo(
@@ -26,7 +28,7 @@ const ClassroomTab = memo(
     onClick,
     classroomIcons
   }: {
-    classroom: any;
+    classroom: ClassroomType;
     index: number;
     activeTab: string;
     lessonCount: number;
@@ -43,16 +45,17 @@ const ClassroomTab = memo(
         onClick={onClick}
         className={cn(
           // Base styles với responsive spacing
-          "px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-5",
+          "px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4",
           "text-xs sm:text-sm md:text-base font-medium",
           "transition-all duration-200 shadow-none",
-          "flex items-center gap-1 sm:gap-2 md:gap-4 lg:gap-6",
-          // Responsive width
-          "min-w-0 flex-shrink-0 max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-none",
+          "flex items-center gap-1 sm:gap-2 md:gap-3",
+          // Responsive width và flex behavior
+          "min-w-0 flex-shrink-0 max-w-[140px] sm:max-w-[160px] md:max-w-[200px] lg:max-w-none",
           // Active state
           isActive
             ? "border bg-[#F09DA4] hover:bg-[#F09DA4] text-white"
-            : "bg-white text-gray-700 hover:bg-gray-50 border-gray-300 border"
+            : "bg-white text-gray-700 hover:bg-gray-50 border-gray-300 border",
+          styles.classroomTab
         )}
       >
         <span className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
@@ -85,19 +88,131 @@ const ClassroomTab = memo(
 
 ClassroomTab.displayName = "ClassroomTab";
 
+// Memoized LessonSlide component để tối ưu hiệu năng
+const LessonSlide = memo(
+  ({ lesson, router }: { lesson: LessonType; router: any }) => {
+    const handleClick = useCallback(() => {
+      if (!lesson.isLocked) {
+        router.push(`/lesson/${lesson.lessonId}`);
+      }
+    }, [lesson.isLocked, lesson.lessonId, router]);
+
+    const customLesson = useMemo(
+      () => ({
+        ...lesson,
+        classRoomName: lesson.className,
+        schoolWeekId: lesson.schoolWeekId || 0
+      }),
+      [lesson]
+    );
+
+    return (
+      <LessonCard
+        {...customLesson}
+        className={cn(
+          "transform hover:scale-[1.02] transition-all duration-300",
+          styles.lessonSlide
+        )}
+        onClick={handleClick}
+      />
+    );
+  }
+);
+
+LessonSlide.displayName = "LessonSlide";
+
+// Custom hook để tính toán breakpoint hiện tại với SSR safety
+const useBreakpoint = () => {
+  const [breakpoint, setBreakpoint] = useState<"mobile" | "tablet" | "desktop">(
+    "mobile" // Default to mobile để tránh hydration mismatch
+  );
+
+  useEffect(() => {
+    const updateBreakpoint = () => {
+      // Chỉ chạy trên client side
+      if (typeof window === "undefined") return;
+
+      const width = window.innerWidth;
+      if (width < 768) {
+        setBreakpoint("mobile");
+      } else if (width < 1024) {
+        setBreakpoint("tablet");
+      } else {
+        setBreakpoint("desktop");
+      }
+    };
+
+    // Initial call
+    updateBreakpoint();
+
+    // Add resize listener
+    window.addEventListener("resize", updateBreakpoint);
+    return () => window.removeEventListener("resize", updateBreakpoint);
+  }, []);
+
+  return breakpoint;
+};
+
+// Memoized navigation dots component
+const NavigationDots = memo(
+  ({
+    totalSlides,
+    currentIndex,
+    onDotClick,
+    slidesPerView
+  }: {
+    totalSlides: number;
+    currentIndex: number;
+    onDotClick: (index: number) => void;
+    slidesPerView: number;
+  }) => {
+    const totalDots = Math.ceil(totalSlides / slidesPerView);
+    const activeDot = Math.floor(currentIndex / slidesPerView);
+
+    return (
+      <div className={cn("flex gap-1 sm:gap-2", styles.navigationDots)}>
+        {Array.from({ length: totalDots }).map((_, idx) => (
+          <div
+            key={idx}
+            className={cn(
+              "rounded-full cursor-pointer transition-all duration-300",
+              "w-1.5 h-1.5 sm:w-2 sm:h-2",
+              activeDot === idx
+                ? "bg-blue-500 scale-125"
+                : "bg-gray-300 hover:bg-gray-400"
+            )}
+            onClick={() => onDotClick(idx * slidesPerView)}
+          />
+        ))}
+      </div>
+    );
+  }
+);
+
+NavigationDots.displayName = "NavigationDots";
+
 interface LessonTeachingClientProps {
   teachingLessons: LessonType[];
-  initialFilterData: any;
+  classrooms: ClassroomType[];
+  allLessons: LessonType[];
 }
 
 function LessonTeachingClient({
   teachingLessons,
-  initialFilterData
+  classrooms,
+  allLessons
 }: LessonTeachingClientProps) {
   const [currentSwiper, setCurrentSwiper] = useState<any>(null);
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const breakpoint = useBreakpoint();
+
+  // Ensure component is hydrated trên client
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Lấy activeTab từ URL parameter, mặc định là "all"
   const urlActiveTab = searchParams.get("classId") || "all";
@@ -109,6 +224,24 @@ function LessonTeachingClient({
   useEffect(() => {
     setActiveTabState(urlActiveTab);
   }, [urlActiveTab]);
+
+  // Tính toán slides per view dựa trên breakpoint - memoized
+  const slidesPerView = useMemo(() => {
+    switch (breakpoint) {
+      case "mobile":
+        return 1;
+      case "tablet":
+        return 2;
+      case "desktop":
+        // Kiểm tra window object tồn tại để tránh SSR issues
+        if (typeof window !== "undefined") {
+          return window.innerWidth < 1280 ? 4 : 5;
+        }
+        return 4; // fallback cho SSR
+      default:
+        return 1;
+    }
+  }, [breakpoint]);
 
   // Mảng icon cho các lớp học - memoized để tránh re-create
   const classroomIcons = useMemo(
@@ -128,9 +261,10 @@ function LessonTeachingClient({
   // Function để tính số lượng bài giảng đang học theo class_id - memoized
   const getTeachingLessonCountByClassId = useCallback(
     (classId: number) => {
-      return (teachingLessons || []).filter(
-        (lesson) => lesson.classId === classId
-      ).length;
+      if (!Array.isArray(teachingLessons)) return 0;
+
+      return teachingLessons.filter((lesson) => lesson.classId === classId)
+        .length;
     },
     [teachingLessons]
   );
@@ -138,6 +272,8 @@ function LessonTeachingClient({
   // Function để update activeTab và URL parameter - memoized
   const setActiveTab = useCallback(
     (tab: string) => {
+      console.log("🔄 Setting active tab:", tab);
+
       // Update state local ngay lập tức để UI responsive
       setActiveTabState(tab);
 
@@ -157,62 +293,167 @@ function LessonTeachingClient({
 
   // Filter data theo classroom được chọn - memoized
   const getFilteredDataByClassroom = useCallback(
-    (data: any[]) => {
-      return data.filter((course) => {
-        if (!activeTab || activeTab === "all") return true;
-        return course.classId === parseInt(activeTab);
-      });
+    (data: LessonType[]) => {
+      // Defensive programming
+      if (!Array.isArray(data) || data.length === 0) {
+        console.log("🐛 No data to filter:", data);
+        return [];
+      }
+
+      // Nếu activeTab là "all", hiển thị tất cả
+      if (!activeTab || activeTab === "all") {
+        return data;
+      }
+
+      // Filter theo classId của classroom được chọn
+      const selectedClassId = parseInt(activeTab);
+      return data.filter((lesson) => lesson.classId === selectedClassId);
     },
     [activeTab]
   );
 
-  // Lọc bài giảng đang dạy - memoized
+  // Lọc bài giảng đang dạy với memo để tránh re-computation
   const filteredTeachingLessons = useMemo(() => {
-    return getFilteredDataByClassroom(teachingLessons || []).sort((a, b) => {
+    // Validate input data
+    if (!Array.isArray(teachingLessons)) {
+      console.warn("🐛 teachingLessons is not an array:", teachingLessons);
+      return [];
+    }
+
+    const filtered = getFilteredDataByClassroom(teachingLessons);
+    const sorted = filtered.sort((a, b) => {
       if (a.classId !== b.classId) return a.classId - b.classId;
       if (a.unitId !== b.unitId) return a.unitId - b.unitId;
       return a.lessonId - b.lessonId;
     });
-  }, [getFilteredDataByClassroom, teachingLessons]);
 
-  // Classroom tabs memoized
-  const classroomTabs = useMemo(() => {
-    return initialFilterData.classrooms?.map(
-      (classroom: any, index: number) => {
-        const lessonCount = getTeachingLessonCountByClassId(
-          parseInt(classroom.class_id)
-        );
+    // Debug logging
+    console.log("🐛 Debug - Teaching Lessons:", {
+      totalTeachingLessons: teachingLessons?.length || 0,
+      activeTab,
+      filteredCount: sorted.length,
+      breakpoint,
+      isClient,
+      classroomsWithLessons:
+        classrooms?.filter(
+          (c) => getTeachingLessonCountByClassId(c.class_id) > 0
+        ).length || 0,
+      teachingLessons: teachingLessons?.slice(0, 3), // Log first 3 lessons
+      selectedClassId: activeTab !== "all" ? parseInt(activeTab) : "all"
+    });
 
-        return (
-          <ClassroomTab
-            key={classroom.class_id}
-            classroom={classroom}
-            index={index}
-            activeTab={activeTab}
-            lessonCount={lessonCount}
-            onClick={() => setActiveTab(classroom.class_id.toString())}
-            classroomIcons={classroomIcons}
-          />
-        );
-      }
-    );
+    return sorted;
   }, [
-    initialFilterData.classrooms,
+    getFilteredDataByClassroom,
+    teachingLessons,
+    activeTab,
+    breakpoint,
+    isClient
+  ]);
+
+  // Tối ưu callback cho slide navigation
+  const handleSlidePrev = useCallback(() => {
+    currentSwiper?.slidePrev();
+  }, [currentSwiper]);
+
+  const handleSlideNext = useCallback(() => {
+    currentSwiper?.slideNext();
+  }, [currentSwiper]);
+
+  const handleDotClick = useCallback(
+    (index: number) => {
+      currentSwiper?.slideTo(index);
+      setCurrentSlideIndex(index);
+    },
+    [currentSwiper]
+  );
+
+  // Classroom tabs memoized với performance optimization
+  const classroomTabs = useMemo(() => {
+    if (!Array.isArray(classrooms) || !Array.isArray(teachingLessons)) {
+      return [];
+    }
+
+    // Chỉ lấy những classroom có lessons đang dạy
+    const classroomsWithLessons = classrooms.filter((classroom) => {
+      const lessonCount = getTeachingLessonCountByClassId(classroom.class_id);
+      return lessonCount > 0;
+    });
+
+    // Limit số lượng tabs để tránh lag trên mobile
+    const maxTabs = breakpoint === "mobile" ? 10 : 20;
+    const classroomsToRender = classroomsWithLessons.slice(0, maxTabs);
+
+    return classroomsToRender.map((classroom: ClassroomType, index: number) => {
+      const lessonCount = getTeachingLessonCountByClassId(classroom.class_id);
+
+      return (
+        <ClassroomTab
+          key={classroom.class_id}
+          classroom={classroom}
+          index={index}
+          activeTab={activeTab}
+          lessonCount={lessonCount}
+          onClick={() => setActiveTab(classroom.class_id.toString())}
+          classroomIcons={classroomIcons}
+        />
+      );
+    });
+  }, [
+    classrooms,
+    teachingLessons,
     activeTab,
     getTeachingLessonCountByClassId,
     setActiveTab,
-    classroomIcons
+    classroomIcons,
+    breakpoint
   ]);
+
+  // Show loading state until client hydration complete
+  if (!isClient) {
+    return (
+      <ContentLayout title="BaiGiangDangDay">
+        <div className="flex gap-4 sm:gap-6 md:gap-8 flex-col px-2 sm:px-4 md:px-0">
+          <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+              <div className="flex gap-2 mb-4">
+                <div className="h-10 bg-gray-200 rounded w-24"></div>
+                <div className="h-10 bg-gray-200 rounded w-24"></div>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="h-32 bg-gray-200 rounded"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ContentLayout>
+    );
+  }
 
   return (
     <ContentLayout title="BaiGiangDangDay">
-      <div className="flex gap-4 sm:gap-6 md:gap-8 flex-col px-2 sm:px-4 md:px-0">
+      <div
+        className={cn(
+          "flex gap-4 sm:gap-6 md:gap-8 flex-col px-2 sm:px-4 md:px-0",
+          styles.teachingContainer
+        )}
+      >
         <div className="flex flex-col">
           {/* Tab Component */}
           <div className="w-full">
             {/* Tab Content */}
             {/* Bài giảng đang dạy */}
-            <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-5 md:space-y-6">
+            <div
+              className={cn(
+                "bg-white rounded-lg p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-5 md:space-y-6",
+                styles.performanceOptimized
+              )}
+            >
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="flex-shrink-0">
                   <SectionTitle
@@ -228,8 +469,34 @@ function LessonTeachingClient({
                 </div>
               </div>
 
+              {/* Debug info cho development */}
+              {process.env.NODE_ENV === "development" && (
+                <div className="bg-yellow-50 hidden border border-yellow-200 rounded p-2 text-xs">
+                  <p>
+                    <strong>Debug Info:</strong>
+                  </p>
+                  <p>Total Teaching Lessons: {teachingLessons?.length || 0}</p>
+                  <p>Filtered Lessons: {filteredTeachingLessons.length}</p>
+                  <p>Active Tab: {activeTab}</p>
+                  <p>
+                    Selected Class ID:{" "}
+                    {activeTab !== "all" ? activeTab : "Tất cả"}
+                  </p>
+                  <p>Breakpoint: {breakpoint}</p>
+                  <p>Is Client: {isClient.toString()}</p>
+                  <p>Slides Per View: {slidesPerView}</p>
+                  <p>
+                    Classrooms with Lessons:{" "}
+                    {classrooms?.filter(
+                      (c) => getTeachingLessonCountByClassId(c.class_id) > 0
+                    ).length || 0}
+                  </p>
+                  <p>Classroom Tabs: {classroomTabs.length}</p>
+                </div>
+              )}
+
               {/* Tab Headers - Responsive horizontal scroll */}
-              <div className="overflow-x-auto pb-2">
+              <div className={cn("overflow-x-auto pb-2", styles.tabsContainer)}>
                 <div className="flex gap-1 sm:gap-2 min-w-max">
                   {/* Tab "Tất cả lớp học" */}
                   <Button
@@ -278,182 +545,150 @@ function LessonTeachingClient({
               <div className="bg-gray-50 rounded-lg p-3 sm:p-4 md:p-6">
                 {filteredTeachingLessons.length > 0 ? (
                   <div className="relative">
-                    <Swiper
-                      onSwiper={setCurrentSwiper}
-                      onSlideChange={(swiper) =>
-                        setCurrentSlideIndex(swiper.activeIndex)
-                      }
-                      modules={[Navigation, Autoplay]}
-                      spaceBetween={12} // Giảm spacing cho mobile
-                      slidesPerView={1} // Mặc định 1 slide cho mobile
-                      slidesPerGroup={1}
-                      autoplay={{
-                        delay: 4000,
-                        disableOnInteraction: false,
-                        pauseOnMouseEnter: true
-                      }}
-                      breakpoints={{
-                        // Mobile siêu nhỏ
-                        320: {
-                          slidesPerView: 1,
-                          slidesPerGroup: 1,
-                          spaceBetween: 8
-                        },
-                        // Mobile nhỏ
-                        480: {
-                          slidesPerView: 1,
-                          slidesPerGroup: 1,
-                          spaceBetween: 10
-                        },
-                        // Mobile lớn / Tablet nhỏ
-                        640: {
-                          slidesPerView: 2,
-                          slidesPerGroup: 2,
-                          spaceBetween: 12
-                        },
-                        // Tablet
-                        768: {
-                          slidesPerView: 3,
-                          slidesPerGroup: 3,
-                          spaceBetween: 16
-                        },
-                        // Desktop nhỏ
-                        1024: {
-                          slidesPerView: 4,
-                          slidesPerGroup: 4,
-                          spaceBetween: 20
-                        },
-                        // Desktop lớn
-                        1280: {
-                          slidesPerView: 5,
-                          slidesPerGroup: 5,
-                          spaceBetween: 20
-                        }
-                      }}
-                      className="teaching-lessons-swiper"
-                    >
-                      {filteredTeachingLessons.map((lesson, index) => {
-                        const customLesson = {
-                          ...lesson,
-                          classRoomName: lesson.className
-                        };
-                        return (
-                          <SwiperSlide key={`${lesson.lessonId}-${index}`}>
-                            <LessonCard
-                              {...customLesson}
-                              className="transform hover:scale-[1.02] transition-all duration-300"
-                              onClick={() =>
-                                !lesson.isLocked &&
-                                router.push(`/lesson/${lesson.lessonId}`)
-                              }
-                            />
-                          </SwiperSlide>
-                        );
-                      })}
-                    </Swiper>
-
-                    {/* Navigation buttons - responsive */}
-                    {filteredTeachingLessons.length > 1 && (
-                      <div className="flex items-center justify-center gap-2 sm:gap-3 mt-3 sm:mt-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={cn(
-                            "rounded-full bg-white border-gray-200",
-                            "hover:border-gray-300 hover:bg-gray-50",
-                            "w-8 h-8 sm:w-10 sm:h-10 p-0"
-                          )}
-                          onClick={() => currentSwiper?.slidePrev()}
-                        >
-                          <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
-                        </Button>
-
-                        {/* Dot indicators - responsive */}
-                        <div className="flex gap-1 sm:gap-2">
-                          {Array.from({
-                            length: Math.ceil(
-                              filteredTeachingLessons.length /
-                                (window.innerWidth < 640
-                                  ? 1
-                                  : window.innerWidth < 768
-                                  ? 2
-                                  : window.innerWidth < 1024
-                                  ? 3
-                                  : window.innerWidth < 1280
-                                  ? 4
-                                  : 5)
-                            )
-                          }).map((_, idx) => (
-                            <div
-                              key={idx}
-                              className={cn(
-                                "rounded-full cursor-pointer transition-all duration-300",
-                                "w-1.5 h-1.5 sm:w-2 sm:h-2",
-                                Math.floor(
-                                  currentSlideIndex /
-                                    (window.innerWidth < 640
-                                      ? 1
-                                      : window.innerWidth < 768
-                                      ? 2
-                                      : window.innerWidth < 1024
-                                      ? 3
-                                      : window.innerWidth < 1280
-                                      ? 4
-                                      : 5)
-                                ) === idx
-                                  ? "bg-blue-500 scale-125"
-                                  : "bg-gray-300 hover:bg-gray-400"
-                              )}
-                              onClick={() => {
-                                const slidesPerView =
-                                  window.innerWidth < 640
-                                    ? 1
-                                    : window.innerWidth < 768
-                                    ? 2
-                                    : window.innerWidth < 1024
-                                    ? 3
-                                    : window.innerWidth < 1280
-                                    ? 4
-                                    : 5;
-                                currentSwiper?.slideTo(idx * slidesPerView);
-                                setCurrentSlideIndex(idx * slidesPerView);
-                              }}
-                            />
-                          ))}
-                        </div>
-
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={cn(
-                            "rounded-full bg-white border-gray-200",
-                            "hover:border-gray-300 hover:bg-gray-50",
-                            "w-8 h-8 sm:w-10 sm:h-10 p-0"
-                          )}
-                          onClick={() => currentSwiper?.slideNext()}
-                        >
-                          <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-                        </Button>
+                    {/* Swiper component với fallback cho mobile */}
+                    {breakpoint === "mobile" &&
+                    filteredTeachingLessons.length === 1 ? (
+                      // Simple grid fallback cho mobile với 1 lesson
+                      <div className="grid grid-cols-1 gap-4">
+                        {filteredTeachingLessons.map((lesson, index) => (
+                          <div key={`${lesson.lessonId}-${index}`}>
+                            <LessonSlide lesson={lesson} router={router} />
+                          </div>
+                        ))}
                       </div>
+                    ) : (
+                      // Swiper cho multiple lessons hoặc desktop
+                      <>
+                        <Swiper
+                          onSwiper={setCurrentSwiper}
+                          onSlideChange={(swiper) =>
+                            setCurrentSlideIndex(swiper.activeIndex)
+                          }
+                          modules={[Navigation, Autoplay]}
+                          spaceBetween={12}
+                          slidesPerView={1}
+                          slidesPerGroup={1}
+                          autoplay={{
+                            delay: 4000,
+                            disableOnInteraction: false,
+                            pauseOnMouseEnter: true
+                          }}
+                          watchSlidesProgress={true} // Enable slide progress watching cho performance
+                          breakpoints={{
+                            // Mobile siêu nhỏ
+                            320: {
+                              slidesPerView: 1,
+                              slidesPerGroup: 1,
+                              spaceBetween: 8
+                            },
+                            // Mobile nhỏ
+                            480: {
+                              slidesPerView: 1,
+                              slidesPerGroup: 1,
+                              spaceBetween: 10
+                            },
+                            // Mobile lớn / Tablet nhỏ
+                            640: {
+                              slidesPerView: 2,
+                              slidesPerGroup: 2,
+                              spaceBetween: 12
+                            },
+                            // Tablet
+                            768: {
+                              slidesPerView: 3,
+                              slidesPerGroup: 3,
+                              spaceBetween: 16
+                            },
+                            // Desktop nhỏ
+                            1024: {
+                              slidesPerView: 4,
+                              slidesPerGroup: 4,
+                              spaceBetween: 20
+                            },
+                            // Desktop lớn
+                            1280: {
+                              slidesPerView: 5,
+                              slidesPerGroup: 5,
+                              spaceBetween: 20
+                            }
+                          }}
+                          className={cn(
+                            "teaching-lessons-swiper",
+                            styles.swiperContainer
+                          )}
+                        >
+                          {filteredTeachingLessons.map((lesson, index) => (
+                            <SwiperSlide key={`${lesson.lessonId}-${index}`}>
+                              <LessonSlide lesson={lesson} router={router} />
+                            </SwiperSlide>
+                          ))}
+                        </Swiper>
+
+                        {/* Navigation buttons - chỉ hiển thị khi có > 1 lesson */}
+                        {filteredTeachingLessons.length > 1 && (
+                          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-3 sm:mt-4">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className={cn(
+                                "rounded-full bg-white border-gray-200",
+                                "hover:border-gray-300 hover:bg-gray-50",
+                                "w-8 h-8 sm:w-10 sm:h-10 p-0",
+                                "transition-all duration-200",
+                                styles.navigationButton
+                              )}
+                              onClick={handleSlidePrev}
+                            >
+                              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+                            </Button>
+
+                            {/* Optimized Navigation Dots */}
+                            <NavigationDots
+                              totalSlides={filteredTeachingLessons.length}
+                              currentIndex={currentSlideIndex}
+                              onDotClick={handleDotClick}
+                              slidesPerView={slidesPerView}
+                            />
+
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className={cn(
+                                "rounded-full bg-white border-gray-200",
+                                "hover:border-gray-300 hover:bg-gray-50",
+                                "w-8 h-8 sm:w-10 sm:h-10 p-0",
+                                "transition-all duration-200",
+                                styles.navigationButton
+                              )}
+                              onClick={handleSlideNext}
+                            >
+                              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 py-8 sm:py-12">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-full flex items-center justify-center">
+                  <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 py-8 sm:py-12 md:py-16">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gray-100 rounded-full flex items-center justify-center">
                       <Image
                         src="/assets/image/no_course.png"
                         alt="no-course"
                         width={32}
                         height={32}
-                        className="w-8 h-8 sm:w-10 sm:h-10"
+                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
                       />
                     </div>
-                    <div className="text-center">
-                      <p className="text-gray-600 font-medium text-sm sm:text-base">
-                        Hiện tại chưa có bài học nào đang dạy!
+                    <div className="text-center max-w-sm">
+                      <p className="text-gray-600 font-medium text-sm sm:text-base md:text-lg">
+                        {activeTab === "all"
+                          ? "Hiện tại chưa có bài học nào đang dạy!"
+                          : `Chưa có bài học nào đang dạy trong lớp này!`}
                       </p>
-                      <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                        Hãy bắt đầu một bài học mới
+                      <p className="text-xs sm:text-sm md:text-base text-gray-500 mt-1">
+                        Hãy bắt đầu một bài học mới để tiếp tục hành trình học
+                        tập
                       </p>
                     </div>
                   </div>
