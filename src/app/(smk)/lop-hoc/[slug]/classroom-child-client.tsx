@@ -7,6 +7,7 @@ import { formatSlug } from "@/lib/utils";
 import { LessonType } from "@/types/lesson";
 import LessonCard from "@/components/lesson/lesson-card";
 import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -21,8 +22,10 @@ import { useAutoUnlockNextLesson } from "@/hooks/client/useLesson";
 import { useSelectLessonStore } from "@/store/useSelectLesson";
 import { useUnitsOrder } from "@/hooks/client/useUnitsOrder";
 import { getSchoolWeekByUnitId } from "@/actions/schoolWeekAction";
+import { useClassroomLessons } from "@/hooks/useLessonData";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SchoolWeekType } from "@/types/schoolweek";
+import { useSession } from "next-auth/react";
 
 function ClassroomChildClient({
   slug,
@@ -40,18 +43,44 @@ function ClassroomChildClient({
   const [selectedUnit, setSelectedUnit] = React.useState<string>("");
   const [schoolWeekData, setSchoolWeekData] = React.useState<SchoolWeekType[]>([]);
 
-  // State để track lesson updates
-  const [localLessonData, setLocalLessonData] =
-    React.useState<LessonType[]>(lessonData);
-
   // State để track lessons đang being removed (khi unlike)
   const [removingLessons, setRemovingLessons] = React.useState<Set<number>>(
     new Set()
   );
 
   const router = useRouter();
+  const pathname = usePathname();
+  const { data: session } = useSession();
+  
+  // Decode classname từ slug
+  const classname = React.useMemo(() => {
+    return decodeURIComponent(slug);
+  }, [slug]);
+
+  // Sử dụng hook mới để quản lý lesson data
+  const {
+    lessons: currentLessons,
+    isLoading: lessonsLoading,
+    isFetching: lessonsFetching,
+    error: lessonsError,
+    invalidateLessons,
+    updateLessonInCache,
+    removeLessonFromCache
+  } = useClassroomLessons(classname);
+
+  console.log("currentLessonscurrentLessons", currentLessons)
+
+  // Sử dụng currentLessons từ hook, fallback to lessonData chỉ khi loading
+  const localLessonData = React.useMemo(() => {
+    if (lessonsLoading && currentLessons.length === 0) {
+      return lessonData;
+    }
+    return currentLessons;
+  }, [currentLessons, lessonData, lessonsLoading]);
 
   const { checkAndUnlockNextLesson } = useAutoUnlockNextLesson(localLessonData);
+
+  console.log("lessonDatalessonData", lessonData)
   const { setSelectedLesson } = useSelectLessonStore();
 
   // Use units order hook to get sorted lessons
@@ -96,23 +125,29 @@ function ClassroomChildClient({
             newSet.delete(lessonId);
             return newSet;
           });
+          // Remove from cache after animation
+          removeLessonFromCache(lessonId);
         }, 800);
+      } else {
+        // Update lesson in cache
+        updateLessonInCache(lessonId, { numLiked: sanitizedLikeCount });
       }
-
-      setLocalLessonData((prevData) =>
-        prevData.map((lesson) =>
-          lesson.lessonId === lessonId
-            ? { ...lesson, numLiked: sanitizedLikeCount }
-            : lesson
-        )
-      );
     },
-    []
+    [updateLessonInCache, removeLessonFromCache]
   );
 
+  // Effect để invalidate cache khi navigate về trang classroom - optimized
   React.useEffect(() => {
-    setLocalLessonData(lessonData);
-  }, [lessonData]);
+    // Chỉ invalidate khi thực sự cần thiết
+    if (pathname.includes('/lop-hoc/') && session?.user?.userId && classname) {
+      // Debounce để tránh gọi liên tục
+      const timeoutId = setTimeout(() => {
+        invalidateLessons();
+      }, 500); // Tăng delay để tránh gọi liên tục
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [pathname, session?.user?.userId, classname, invalidateLessons]);
 
   const formattedTitle = React.useMemo(() => {
     const formattedSlug = formatSlug(slug);
@@ -274,7 +309,7 @@ function ClassroomChildClient({
     [handleLessonClick, updateLessonLike, removingLessons]
   );
 
-
+console.log("sortedLessonssortedLessons", sortedLessons)
 
   return (
     <BreadcrumbLayout title={formattedTitle}>
@@ -390,9 +425,16 @@ function ClassroomChildClient({
           </div>
         </div>
 
-        {unitsLoading ? (
+        {lessonsError ? (
           <div className="flex justify-center items-center py-8">
-            <p className="text-gray-500">Đang tải dữ liệu...</p>
+            <p className="text-red-500">Có lỗi khi tải dữ liệu. Vui lòng thử lại.</p>
+          </div>
+        ) : (unitsLoading || lessonsLoading) ? (
+          <div className="flex justify-center items-center py-8">
+            {/* <p className="text-gray-500">Đang tải dữ liệu...</p> */}
+            {lessonsFetching && (
+              <span className="ml-2 text-sm text-blue-500">Đang tải dữ liệu...</span>
+            )}
           </div>
         ) : sortedLessons && sortedLessons.length > 0 ? (
           <PaginatedContent
