@@ -126,6 +126,18 @@ function FilterFacet({
   const [isPending, startTransition] = useTransition();
   const [filterData, setFilterData] = useState<FilterData>(initialFilterData);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true); // Flag để track initial load
+
+  // Ref để track previous filter values và tránh duplicate API calls
+  const prevFiltersRef = React.useRef<FilterValues>({
+    classId: "",
+    unitId: "",
+    userId: "",
+    weekId: ""
+  });
+
+  // Ref để track API call đang pending
+  const apiCallInProgress = React.useRef(false);
 
   // URL synchronization
   const searchParams = useSearchParams();
@@ -167,7 +179,43 @@ function FilterFacet({
     }
   }, [searchParams, session?.user?.userId]);
 
-  // Update filters when URL params change - với debouncing
+  // 🚀 Initial load: Apply URL params filter một lần duy nhất
+  useEffect(() => {
+    const hasUrlParams =
+      searchParams.get("classId") ||
+      searchParams.get("unitId") ||
+      searchParams.get("weekId");
+
+    if (
+      hasUrlParams &&
+      session?.user?.userId &&
+      isDataLoaded &&
+      isInitialLoad
+    ) {
+      const initialFilters = {
+        classId: searchParams.get("classId") || "",
+        unitId: searchParams.get("unitId") || "",
+        userId: session.user.userId || "",
+        weekId: searchParams.get("weekId") || ""
+      };
+
+      // Chỉ gọi onFilterChange một lần khi initial load
+      console.log("🎯 Initial URL params filter applied:", initialFilters);
+      onFilterChange(initialFilters);
+      setIsInitialLoad(false); // Đánh dấu đã xong initial load
+    } else if (!hasUrlParams && session?.user?.userId) {
+      // Không có URL params, set flag ngay
+      setIsInitialLoad(false);
+    }
+  }, [
+    session?.user?.userId,
+    isDataLoaded,
+    isInitialLoad,
+    searchParams,
+    onFilterChange
+  ]); // Thêm dependencies cần thiết
+
+  // Update filters when URL params change - KHÔNG gọi API
   useEffect(() => {
     const newFilters = {
       classId: searchParams.get("classId") || "",
@@ -176,50 +224,20 @@ function FilterFacet({
       weekId: searchParams.get("weekId") || ""
     };
 
-    // Chỉ cập nhật nếu filters thực sự thay đổi
+    // Chỉ cập nhật nếu filters thực sự thay đổi (so với prevFiltersRef)
     const hasChanged =
-      newFilters.classId !== filters.classId ||
-      newFilters.unitId !== filters.unitId ||
-      newFilters.weekId !== filters.weekId ||
-      newFilters.userId !== filters.userId;
+      newFilters.classId !== prevFiltersRef.current.classId ||
+      newFilters.unitId !== prevFiltersRef.current.unitId ||
+      newFilters.weekId !== prevFiltersRef.current.weekId ||
+      newFilters.userId !== prevFiltersRef.current.userId;
 
     if (hasChanged) {
+      console.log("🔄 URL params changed, updating filters:", newFilters);
+      console.log("🔍 Previous URL filters:", prevFiltersRef.current);
       setFilters(newFilters);
-      // 🚀 Gọi onFilterChange ngay khi có URL params (after F5)
-      if (session?.user?.userId) {
-        onFilterChange(newFilters);
-      }
+      // ❌ KHÔNG gọi API từ đây, để API effect xử lý
     }
-
-    // Nếu có URL params và có userId, fetch data với debouncing
-    const hasUrlParams =
-      searchParams.get("classId") ||
-      searchParams.get("unitId") ||
-      searchParams.get("weekId");
-
-    if (hasUrlParams && session?.user?.userId && hasChanged) {
-      // Debounce API call
-      const timeoutId = setTimeout(() => {
-        startTransition(async () => {
-          try {
-            const newData = await fetchFilterData(newFilters);
-            setFilterData(newData);
-            setIsDataLoaded(true);
-          } catch (error) {
-            console.error("Error fetching filter data from URL params:", error);
-          }
-        });
-      }, 150); // 150ms debounce
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [
-    searchParams,
-    session?.user?.userId,
-    fetchFilterData,
-    filters,
-    onFilterChange
-  ]);
+  }, [searchParams, session?.user?.userId]); // Loại bỏ isInitialLoad để tránh conflict
 
   // Khởi tạo filters khi session có userId (chỉ chạy 1 lần)
   useEffect(() => {
@@ -239,31 +257,58 @@ function FilterFacet({
     }
   }, [filterData.classrooms]);
 
-  // Simplified useEffect for API calls only
+  // UNIFIED API calls effect - xử lý cả URL params và user interactions
   useEffect(() => {
-    // Chỉ fetch API khi có sự thay đổi filter (không phải từ URL params)
-    if (filters.userId && (filters.classId || filters.unitId) && isDataLoaded) {
-      console.log("🌐 API call triggered for filters:", filters);
+    const shouldFetchData =
+      filters.userId && (filters.classId || filters.unitId) && isDataLoaded;
+
+    // Kiểm tra xem có thay đổi thực sự không
+    const hasRealChange =
+      filters.classId !== prevFiltersRef.current.classId ||
+      filters.unitId !== prevFiltersRef.current.unitId ||
+      filters.userId !== prevFiltersRef.current.userId;
+
+    if (shouldFetchData && hasRealChange && !apiCallInProgress.current) {
+      console.log("🌐 [UNIFIED] API call triggered for filters:", filters);
+      console.log("🌐 Previous filters:", prevFiltersRef.current);
+      console.log("🌐 isInitialLoad:", isInitialLoad);
+
+      // Đánh dấu API call đang chạy
+      apiCallInProgress.current = true;
+
+      // Update previous filters
+      prevFiltersRef.current = { ...filters };
 
       const timeoutId = setTimeout(() => {
         startTransition(async () => {
           try {
             const newData = await fetchFilterData(filters);
             setFilterData(newData);
+
+            // Đánh dấu đã load xong nếu là initial load
+            if (isInitialLoad) {
+              setIsDataLoaded(true);
+            }
           } catch (error) {
             console.error("Error fetching filter data:", error);
+          } finally {
+            // Reset flag khi API call xong
+            apiCallInProgress.current = false;
           }
         });
-      }, 300); // Increased debounce time
+      }, 300);
 
-      return () => clearTimeout(timeoutId);
+      return () => {
+        clearTimeout(timeoutId);
+        apiCallInProgress.current = false;
+      };
     }
   }, [
     filters.classId,
     filters.unitId,
     filters.userId,
-    fetchFilterData,
-    isDataLoaded
+    isDataLoaded,
+    isInitialLoad
   ]);
 
   // Update URL when filters change - với requestIdleCallback để tối ưu hiệu năng
@@ -310,14 +355,24 @@ function FilterFacet({
         ...newFilters
       };
 
-      console.log("🔧 UpdateFilters called:", newFilters);
+      console.log(
+        "🔧 UpdateFilters called:",
+        newFilters,
+        "isInitialLoad:",
+        isInitialLoad
+      );
 
       // Set state và update URL ngay lập tức
       setFilters(updatedFilters);
       updateURL(updatedFilters);
 
-      // Gọi callback một lần duy nhất - không gọi lại trong setTimeout
-      onFilterChange(updatedFilters);
+      // 🚀 Chỉ gọi onFilterChange khi user thực sự thay đổi filter (không phải initial load)
+      if (!isInitialLoad) {
+        console.log("✅ Calling onFilterChange from updateFilters");
+        onFilterChange(updatedFilters);
+      } else {
+        console.log("⏳ Skipping onFilterChange - still in initial load");
+      }
 
       // Simplified API logic - chỉ update local state nếu cần
       if (updatedFilters.userId) {
@@ -342,7 +397,7 @@ function FilterFacet({
         // Các trường hợp khác để useEffect xử lý
       }
     },
-    [filters, updateURL, onFilterChange]
+    [filters, updateURL, isInitialLoad] // Loại bỏ onFilterChange để tránh re-create
   );
 
   const handleClassChange = useCallback(

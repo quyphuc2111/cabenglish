@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState, useCallback, memo } from "react";
+import React, { useState, useCallback, memo, useMemo } from "react";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import SectionTitle from "@/components/common/section-title";
-import FilterFacet from "@/components/common/filter-facet";
 import Image from "next/image";
 import { PaginatedContent } from "@/components/common/paginated-content";
 import { LessonType } from "@/types/lesson";
+import { ClassroomType } from "@/types/classroom";
 import LessonCard from "@/components/lesson/lesson-card";
+import { getUnitByClassId } from "@/actions/unitsAction";
+import { getSchoolWeekByUnitId } from "@/actions/schoolWeekAction";
 
 // Memoized stats component
 const LessonStats = memo(
@@ -51,170 +53,118 @@ const EmptyLessonsState = memo(() => (
 EmptyLessonsState.displayName = "EmptyLessonsState";
 
 function LessonPendingClient({
-  pendingLessons,
-  totalLessons,
-  initialFilterData,
-  fetchFilterData
+  allLessons,
+  classrooms,
+  userId
 }: {
-  pendingLessons: LessonType[];
-  totalLessons: number;
-  initialFilterData: any;
-  fetchFilterData: any;
+  allLessons: LessonType[];
+  classrooms: ClassroomType[];
+  userId: string;
 }) {
-  // Memoize pendingLessons với deep comparison để tránh re-render không cần thiết
-  const memoizedPendingLessons = React.useMemo(
-    () => pendingLessons,
-    [
-      JSON.stringify(
-        pendingLessons.map((lesson) => ({
-          id: lesson.lessonId,
-          classId: lesson.classId,
-          unitId: lesson.unitId
-        }))
-      )
-    ]
-  );
+  // State cho các filter
+  const [selectedClassId, setSelectedClassId] = useState<string>("");
+  const [selectedUnitId, setSelectedUnitId] = useState<string>("");
+  const [selectedWeekId, setSelectedWeekId] = useState<string>("");
+  const [units, setUnits] = useState<any[]>([]);
+  const [schoolWeeks, setSchoolWeeks] = useState<any[]>([]);
+  const [loadingUnits, setLoadingUnits] = useState(false);
+  const [loadingWeeks, setLoadingWeeks] = useState(false);
 
-  const [filteredLessons, setFilteredLessons] = useState<LessonType[]>(
-    memoizedPendingLessons
-  );
-  const [currentFilters, setCurrentFilters] = useState<{
-    classId: string;
-    unitId: string;
-    userId: string;
-    weekId: string;
-  }>({
-    classId: "",
-    unitId: "",
-    userId: "",
-    weekId: ""
-  });
+  // Lọc ra các bài học chưa dạy (pending)
+  const pendingLessons = useMemo(() => {
+    return allLessons.filter((lesson) => {
+      // Logic để xác định bài học chưa dạy - có thể dựa vào status hoặc progress
+      // Tạm thời return tất cả, bạn có thể điều chỉnh logic này
+      return true;
+    });
+  }, [allLessons]);
 
-  // Sync filteredLessons when memoizedPendingLessons changes
-  React.useEffect(() => {
-    console.log(
-      "🔄 memoizedPendingLessons changed:",
-      memoizedPendingLessons.length
-    );
+  // Lọc bài học theo các filter
+  const filteredLessons = useMemo(() => {
+    let filtered = [...pendingLessons];
 
-    // Áp dụng lại filter hiện tại khi có dữ liệu mới
-    if (
-      currentFilters.classId ||
-      currentFilters.unitId ||
-      currentFilters.weekId
-    ) {
-      const filtered = memoizedPendingLessons.filter((lesson) => {
-        if (currentFilters.classId && currentFilters.classId.trim() !== "") {
-          if (lesson.classId !== parseInt(currentFilters.classId)) return false;
-        }
-        if (currentFilters.unitId && currentFilters.unitId.trim() !== "") {
-          if (lesson.unitId !== parseInt(currentFilters.unitId)) return false;
-        }
-        if (currentFilters.weekId && currentFilters.weekId.trim() !== "") {
-          const lessonWeekId = lesson.schoolWeekId || lesson.schoolWeekID;
-          if (lessonWeekId !== parseInt(currentFilters.weekId)) return false;
-        }
-        return true;
-      });
-      setFilteredLessons(filtered);
-    } else {
-      setFilteredLessons(memoizedPendingLessons);
-    }
-  }, [memoizedPendingLessons, currentFilters]);
-
-  // Debug: Log dữ liệu pendingLessons (chỉ khi có thay đổi thực sự)
-  React.useEffect(() => {
-    if (memoizedPendingLessons.length > 0) {
-      console.log(
-        "📊 All pending lessons classIds:",
-        memoizedPendingLessons.map((lesson) => ({
-          lessonId: lesson.lessonId,
-          classId: lesson.classId,
-          className: lesson.className
-        }))
+    // Filter theo lớp học
+    if (selectedClassId && selectedClassId !== "") {
+      filtered = filtered.filter(
+        (lesson) => lesson.classId === parseInt(selectedClassId)
       );
-
-      const uniqueClassIds = [
-        ...new Set(memoizedPendingLessons.map((lesson) => lesson.classId))
-      ];
-      console.log("🏫 Unique class IDs in data:", uniqueClassIds);
     }
-  }, [memoizedPendingLessons.length]); // Chỉ log khi length thay đổi
 
-  const handleFilterChange = useCallback(
-    async (filterValues: {
-      classId: string;
-      unitId: string;
-      userId: string;
-      weekId: string;
-    }) => {
-      console.log("🔍 Filter change detected:", filterValues);
-
-      // Lưu filter hiện tại
-      setCurrentFilters(filterValues);
-
-      // Áp dụng filter ngay lập tức
-      const filtered = memoizedPendingLessons.filter((lesson) => {
-        // Filter theo classId
-        if (filterValues.classId && filterValues.classId.trim() !== "") {
-          if (lesson.classId !== parseInt(filterValues.classId)) {
-            return false;
-          }
-        }
-
-        // Filter theo unitId
-        if (filterValues.unitId && filterValues.unitId.trim() !== "") {
-          if (lesson.unitId !== parseInt(filterValues.unitId)) {
-            return false;
-          }
-        }
-
-        // Filter theo weekId
-        if (filterValues.weekId && filterValues.weekId.trim() !== "") {
-          const lessonWeekId = lesson.schoolWeekId || lesson.schoolWeekID;
-          if (lessonWeekId !== parseInt(filterValues.weekId)) {
-            return false;
-          }
-        }
-
-        return true;
-      });
-
-      console.log(
-        "✅ Filtered lessons:",
-        filtered.length,
-        "out of",
-        memoizedPendingLessons.length
+    // Filter theo unit
+    if (selectedUnitId && selectedUnitId !== "") {
+      filtered = filtered.filter(
+        (lesson) => lesson.unitId === parseInt(selectedUnitId)
       );
-      setFilteredLessons(filtered);
+    }
+
+    // Filter theo tuần học
+    if (selectedWeekId && selectedWeekId !== "") {
+      filtered = filtered.filter((lesson) => {
+        const lessonWeekId = lesson.schoolWeekId || lesson.schoolWeekID;
+        return lessonWeekId === parseInt(selectedWeekId);
+      });
+    }
+
+    return filtered;
+  }, [pendingLessons, selectedClassId, selectedUnitId, selectedWeekId]);
+
+  // Xử lý thay đổi lớp học
+  const handleClassChange = useCallback(
+    async (classId: string) => {
+      setSelectedClassId(classId);
+      setSelectedUnitId(""); // Reset unit khi đổi lớp
+      setSelectedWeekId(""); // Reset week khi đổi lớp
+      setUnits([]);
+      setSchoolWeeks([]); // Reset school weeks khi đổi lớp
+
+      if (classId && classId !== "") {
+        setLoadingUnits(true);
+        try {
+          const unitsResponse = await getUnitByClassId(classId, userId);
+          // getUnitByClassId trả về data trực tiếp, không có .data wrapper
+          setUnits(
+            Array.isArray(unitsResponse)
+              ? unitsResponse
+              : unitsResponse.data || []
+          );
+        } catch (error) {
+          console.error("Error loading units:", error);
+          setUnits([]);
+        } finally {
+          setLoadingUnits(false);
+        }
+      }
     },
-    [memoizedPendingLessons]
+    [userId]
   );
 
-  // 🚀 Initial filter application effect - apply filters on component mount
-  React.useEffect(() => {
-    // Kiểm tra xem có URL search params không khi component mount
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
-      const classId = urlParams.get("classId") || "";
-      const unitId = urlParams.get("unitId") || "";
-      const weekId = urlParams.get("weekId") || "";
+  // Xử lý thay đổi unit
+  const handleUnitChange = useCallback(async (unitId: string) => {
+    setSelectedUnitId(unitId);
+    setSelectedWeekId(""); // Reset week khi đổi unit
+    setSchoolWeeks([]); // Reset school weeks khi đổi unit
 
-      if (classId || unitId || weekId) {
-        console.log("🎯 Initial URL params detected, applying filters:", {
-          classId,
-          unitId,
-          weekId
+    if (unitId && unitId !== "") {
+      setLoadingWeeks(true);
+      try {
+        const weeksResponse = await getSchoolWeekByUnitId({
+          unitId: parseInt(unitId)
         });
-        handleFilterChange({
-          classId,
-          unitId,
-          userId: "",
-          weekId
-        });
+        // getSchoolWeekByUnitId trả về data trực tiếp
+        setSchoolWeeks(Array.isArray(weeksResponse) ? weeksResponse : []);
+      } catch (error) {
+        console.error("Error loading school weeks:", error);
+        setSchoolWeeks([]);
+      } finally {
+        setLoadingWeeks(false);
       }
     }
-  }, []); // Chỉ chạy một lần khi component mount
+  }, []);
+
+  // Xử lý thay đổi tuần học
+  const handleWeekChange = useCallback((weekId: string) => {
+    setSelectedWeekId(weekId);
+  }, []);
 
   // Memoized render function for lesson cards
   const renderLessonCard = useCallback(
@@ -233,11 +183,11 @@ function LessonPendingClient({
     <ContentLayout title="BaiGiangChuaDay">
       <LessonStats
         filteredCount={filteredLessons.length}
-        totalCount={totalLessons}
+        totalCount={pendingLessons.length}
       />
 
       <div className="bg-white p-3 sm:p-4 md:p-6 relative rounded-xl min-h-screen mx-2 sm:mx-4 md:mx-0">
-        <div className="flex flex-col gap-4 w-full sm:gap-6 md:flex-row md:items-end md:gap-8 md:justify-between">
+        <div className="flex flex-col gap-4 w-full sm:gap-6">
           <div className="flex-shrink-0">
             <SectionTitle
               title="Bài giảng chưa dạy"
@@ -251,12 +201,74 @@ function LessonPendingClient({
             />
           </div>
 
-          <div className="w-full md:flex-1">
-            <FilterFacet
-              initialFilterData={initialFilterData}
-              fetchFilterData={fetchFilterData}
-              onFilterChange={handleFilterChange}
-            />
+          {/* Bộ lọc mới */}
+          <div className="flex flex-col sm:flex-row gap-4 bg-gray-50 p-4 rounded-lg">
+            {/* Filter Lớp học */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Chọn lớp học
+              </label>
+              <select
+                value={selectedClassId}
+                onChange={(e) => handleClassChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Tất cả lớp học</option>
+                {classrooms.map((classroom) => (
+                  <option key={classroom.class_id} value={classroom.class_id}>
+                    {classroom.classname}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Filter Unit */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Chọn đơn vị học
+              </label>
+              <select
+                value={selectedUnitId}
+                onChange={(e) => handleUnitChange(e.target.value)}
+                disabled={!selectedClassId || loadingUnits}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <option value="">Tất cả đơn vị học</option>
+                {units.map((unit) => (
+                  <option key={unit.unitId} value={unit.unitId}>
+                    {unit.unitName}
+                  </option>
+                ))}
+              </select>
+              {loadingUnits && (
+                <p className="text-sm text-gray-500 mt-1">Đang tải...</p>
+              )}
+            </div>
+
+            {/* Filter Tuần học */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Chọn tuần học
+              </label>
+              <select
+                value={selectedWeekId}
+                onChange={(e) => handleWeekChange(e.target.value)}
+                disabled={!selectedUnitId || loadingWeeks}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <option value="">Tất cả tuần học</option>
+                {schoolWeeks.map((week) => (
+                  <option key={week.swId} value={week.swId}>
+                    Tuần {week.value}
+                  </option>
+                ))}
+              </select>
+              {loadingWeeks && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Đang tải tuần học...
+                </p>
+              )}
+            </div>
           </div>
         </div>
 

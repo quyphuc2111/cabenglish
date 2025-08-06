@@ -1,9 +1,9 @@
 import { getServerSession } from "next-auth";
 import LessonPendingClient from "./lesson-pending-client";
-import { LessonService } from "@/services/lesson.service";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { FilterService } from "@/services/filter.service";
+import { getAllLessonDataByUserId } from "@/actions/lessonAction";
+import { getAllClassroomDataByUserId } from "@/actions/classroomAction";
 
 async function BaiGiangChuaDayPage() {
   const session = await getServerSession(authOptions);
@@ -12,19 +12,21 @@ async function BaiGiangChuaDayPage() {
     redirect("/signin");
   }
 
-  const lessonService = await LessonService.lessonPendingData(
-    session.user.userId
-  );
-  const filterService = await FilterService.fetchFilterData(
-    session.user.userId
-  );
+  // Lấy toàn bộ lesson data theo user id
+  const lessonResponse = await getAllLessonDataByUserId({
+    userId: session.user.userId!
+  });
+
+  // Lấy toàn bộ classroom data theo user id
+  const classroomResponse = await getAllClassroomDataByUserId({
+    userId: session.user.userId!
+  });
 
   return (
     <LessonPendingClient
-      pendingLessons={lessonService.pendingLessons}
-      totalLessons={lessonService.totalLessons}
-      initialFilterData={filterService.initialFilterData}
-      fetchFilterData={filterService.fetchFilterData}
+      allLessons={lessonResponse.data || []}
+      classrooms={classroomResponse.data || []}
+      userId={session.user.userId!}
     />
   );
 }
