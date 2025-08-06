@@ -53,11 +53,13 @@ const EmptyLessonsState = memo(() => (
 EmptyLessonsState.displayName = "EmptyLessonsState";
 
 function LessonPendingClient({
-  allLessons,
+  pendingLessons,
+  totalLessons,
   classrooms,
   userId
 }: {
-  allLessons: LessonType[];
+  pendingLessons: LessonType[];
+  totalLessons: number;
   classrooms: ClassroomType[];
   userId: string;
 }) {
@@ -69,15 +71,6 @@ function LessonPendingClient({
   const [schoolWeeks, setSchoolWeeks] = useState<any[]>([]);
   const [loadingUnits, setLoadingUnits] = useState(false);
   const [loadingWeeks, setLoadingWeeks] = useState(false);
-
-  // Lọc ra các bài học chưa dạy (pending)
-  const pendingLessons = useMemo(() => {
-    return allLessons.filter((lesson) => {
-      // Logic để xác định bài học chưa dạy - có thể dựa vào status hoặc progress
-      // Tạm thời return tất cả, bạn có thể điều chỉnh logic này
-      return true;
-    });
-  }, [allLessons]);
 
   // Lọc bài học theo các filter
   const filteredLessons = useMemo(() => {
@@ -183,7 +176,7 @@ function LessonPendingClient({
     <ContentLayout title="BaiGiangChuaDay">
       <LessonStats
         filteredCount={filteredLessons.length}
-        totalCount={pendingLessons.length}
+        totalCount={totalLessons}
       />
 
       <div className="bg-white p-3 sm:p-4 md:p-6 relative rounded-xl min-h-screen mx-2 sm:mx-4 md:mx-0">
