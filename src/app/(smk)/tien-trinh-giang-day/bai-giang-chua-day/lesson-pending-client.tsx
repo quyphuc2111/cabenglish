@@ -20,7 +20,8 @@ function LessonPendingClient({
   initialFilterData: any;
   fetchFilterData: any;
 }) {
-  const [filteredLessons, setFilteredLessons] = useState<LessonType[]>(pendingLessons);
+  const [filteredLessons, setFilteredLessons] =
+    useState<LessonType[]>(pendingLessons);
 
   const handleFilterChange = async (filterValues: {
     classId: string;
@@ -28,16 +29,22 @@ function LessonPendingClient({
     userId: string;
   }) => {
     // Lọc bài học dựa trên các giá trị filter
-    const filtered = pendingLessons.filter(lesson => {
-      if (filterValues.classId && lesson.classId !== parseInt(filterValues.classId)) {
+    const filtered = pendingLessons.filter((lesson) => {
+      if (
+        filterValues.classId &&
+        lesson.classId !== parseInt(filterValues.classId)
+      ) {
         return false;
       }
-      if (filterValues.unitId && lesson.unitId !== parseInt(filterValues.unitId)) {
+      if (
+        filterValues.unitId &&
+        lesson.unitId !== parseInt(filterValues.unitId)
+      ) {
         return false;
       }
       return true;
     });
-    
+
     setFilteredLessons(filtered);
   };
 
@@ -46,22 +53,20 @@ function LessonPendingClient({
       <p className="text-[#736E6E] text-md ml-8">
         Còn lại {filteredLessons.length}/{totalLessons} bài học chưa dạy
       </p>
-      <div className="bg-white px-5 py-2 relative rounded-xl min-h-screen  ">
-        {/* <div className="flex gap-20 absolute top-0 right-[12%]">
-          <Image src="/rank.gif" alt="rank" width={40} height={40} />
-          <Image src="/rank.gif" alt="rank" width={40} height={40} />
-        </div> */}
-        <div className="flex items-center gap-8">
-          <SectionTitle
-            title="Bài giảng chưa dạy"
-            image={{
-              src: "/assets/gif/book_animate.gif",
-              width: 40,
-              height: 40,
-              alt: "book_animate"
-            }}
-            wrapperClassName="border-[#3EC474]"
-          />
+      <div className="bg-white p-6 relative rounded-xl min-h-screen  ">
+        <div className="flex items-end gap-8">
+          <div className="flex-shrink-0 ">
+            <SectionTitle
+              title="Bài giảng chưa dạy"
+              image={{
+                src: "/assets/gif/book_animate.gif",
+                width: 40,
+                height: 40,
+                alt: "book_animate"
+              }}
+              wrapperClassName="border-[#E25762]"
+            />
+          </div>
           <FilterFacet
             initialFilterData={initialFilterData}
             fetchFilterData={fetchFilterData}

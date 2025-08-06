@@ -3,6 +3,7 @@ import LessonTeachingClient from "./lesson-teaching-client";
 import { LessonService } from "@/services/lesson.service";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { FilterService } from "@/services/filter.service";
 
 async function LessonTeachingPage() {
   const session = await getServerSession(authOptions);
@@ -15,11 +16,14 @@ async function LessonTeachingPage() {
     session.user.userId
   );
 
+  const filterService = await FilterService.fetchFilterData(
+    session.user.userId
+  );
+
   return (
     <LessonTeachingClient
       teachingLessons={lessonService.teachingLessons}
-      upcomingLessons={lessonService.upcomingLessons}
-      classroomData={lessonService.classroomData}
+      initialFilterData={filterService.initialFilterData}
     />
   );
 }

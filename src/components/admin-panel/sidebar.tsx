@@ -14,7 +14,11 @@ import { useSocket } from "@/hooks/useSocket";
 import { showToast } from "@/utils/toast-config";
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
-export function Sidebar({notificationList}  : {notificationList: NotificationType[]}) {
+export function Sidebar({
+  notificationList
+}: {
+  notificationList: NotificationType[];
+}) {
   const sidebar = useStore(useSidebarToggle, (state) => state);
   const { socket, notifications: socketNotifications } = useSocket();
   const { onOpen } = useModal();
@@ -23,7 +27,8 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
 
   useEffect(() => {
     if (socketNotifications.length > 0) {
-      const latestNotification = socketNotifications[socketNotifications.length - 1];
+      const latestNotification =
+        socketNotifications[socketNotifications.length - 1];
       showToast.success(
         <div className="min-w-[320px] max-w-[400px] p-2 font-sans">
           {/* Header */}
@@ -32,10 +37,12 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
               {latestNotification.title}
             </h4>
             <span className="text-xs text-gray-500 ml-3 whitespace-nowrap">
-              {new Date(latestNotification.lastSentTime).toLocaleTimeString('vi-VN')}
+              {new Date(latestNotification.lastSentTime).toLocaleTimeString(
+                "vi-VN"
+              )}
             </span>
           </div>
-          
+
           {/* Content */}
           <div className="text-gray-600">
             {latestNotification.description && (
@@ -43,11 +50,13 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
                 {latestNotification.description}
               </p>
             )}
-            
+
             {latestNotification.contentHtml && (
-              <div 
+              <div
                 className="text-sm leading-relaxed prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: latestNotification.contentHtml }}
+                dangerouslySetInnerHTML={{
+                  __html: latestNotification.contentHtml
+                }}
               />
             )}
           </div>
@@ -60,7 +69,7 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
-          className: 'bg-white shadow-lg border-l-4 border-green-500'
+          className: "bg-white shadow-lg border-l-4 border-green-500"
         }
       );
     }
@@ -68,7 +77,7 @@ export function Sidebar({notificationList}  : {notificationList: NotificationTyp
 
   if (!sidebar) return null;
 
-console.log("session", session)
+  console.log("session", session);
 
   return (
     <aside
@@ -148,9 +157,11 @@ console.log("session", session)
               }
             }}
             className="absolute bottom-1 left-[13%] flex items-start gap-3"
-            onClick={() => onOpen("notification", {
-              notificationList: notificationList
-            })}
+            onClick={() =>
+              onOpen("notification", {
+                notificationList: notificationList
+              })
+            }
           >
             <OptimizeImage
               src="/assets/image/bkt_mascot.webp"
@@ -160,7 +171,6 @@ console.log("session", session)
               className="flex-shrink-0 object-contain"
               priority={true}
             />
-
 
             <div className="relative">
               <OptimizeImage
@@ -174,7 +184,10 @@ console.log("session", session)
                 variant="destructive"
                 className="absolute top-0 right-1 rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium"
               >
-                {notificationList.filter((item) => item.isRead === false).length}
+                {
+                  notificationList.filter((item) => item.isRead === false)
+                    .length
+                }
               </Badge>
             </div>
           </motion.div>

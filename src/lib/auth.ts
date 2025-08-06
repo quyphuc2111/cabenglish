@@ -108,7 +108,6 @@ export const authOptions: NextAuthOptions = {
                 credentials.email,
                 data.accessToken
               );
-
             } catch (error) {
               if (axios.isAxiosError(error) && error.response?.status === 404) {
                 try {
