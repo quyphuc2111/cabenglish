@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import TeachingModeClient from "./teaching-mode-client";
 import { Suspense } from "react";
 import { switchModeAction } from "@/actions/lockedAction";
-import { updateUserInfo } from "@/actions/userAction";
+import { updateUserInfo, getUserInfo } from "@/actions/userAction";
 import { Loading } from "@/components/common/loading";
 
 async function TeachingMode() {
@@ -17,13 +17,22 @@ async function TeachingMode() {
 
   const updateUser = async ({mode}: {mode: string}) => {
     "use server"
+    // Lấy thông tin user hiện tại từ database
+    const currentUserInfo = await getUserInfo({
+      userId: session.user.userId
+    });
+
+    if (!currentUserInfo.success) {
+      throw new Error(currentUserInfo.error || "Không thể lấy thông tin user");
+    }
+
     const userInfo = await updateUserInfo({
       userId: session.user.userId,
       userInfo: {
         mode: mode,
-        email: session.user.email || "",
-        language: session.user.language || "",
-        theme: session.user.theme || "",
+        email: currentUserInfo.data?.email || "",
+        language: currentUserInfo.data?.language || "",
+        theme: currentUserInfo.data?.theme || "",
         is_firstlogin: false
       }
     });
