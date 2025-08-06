@@ -18,6 +18,7 @@ import { useUpdateSectionLockedFromLocked } from "@/hooks/client/useLesson";
 import { ArrowLeft, CheckCircle, FullscreenIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getNextLessonByLessonId } from "@/actions/nextLessonAction";
+import { useLessonData } from "@/hooks/useLessonData";
 import { useSession } from "next-auth/react";
 
 // Định nghĩa interface cho H5P global
@@ -97,6 +98,7 @@ export const TabsContainer = ({
   allSections
 }: TabsContainerProps) => {
   const router = useRouter();
+  const { invalidateLessons } = useLessonData();
   const { onOpen, onClose: onCloseModal } = useModal();
   const { data: session } = useSession();
 
@@ -301,11 +303,21 @@ export const TabsContainer = ({
               onOpen("nextLesson", {
                 isLastLesson: false,
                 nextLessonId: nextLessonResult.nextLesson.lessonId,
-                onConfirm: () => {
+                onConfirm: async () => {
                   console.log(
                     "Chuyển sang lesson tiếp theo:",
                     nextLessonResult.nextLesson
                   );
+
+                  // Invalidate lesson data để refresh dữ liệu
+                  if (session?.user?.userId && currentLesson?.classId) {
+                    try {
+                      await invalidateLessons();
+                    } catch (error) {
+                      console.error("Lỗi khi invalidate dữ liệu:", error);
+                    }
+                  }
+                  
                   // Cập nhật store với thông tin lesson mới
                   if (typeof window !== "undefined") {
                     const {
