@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useMutation } from "@tanstack/react-query";
 import { updateUserInfo } from "@/actions/userAction";
+import { useBroadcastSync } from "@/hooks/useBroadcastSync";
 
 interface UserInfoParams {
   userId: string;
@@ -10,7 +11,7 @@ interface UserInfoParams {
     language: string;
     theme: string;
     mode: string;
-    is_firstlogin?: boolean;
+    is_firstlogin: boolean;
   };
 }
 
@@ -19,6 +20,7 @@ import type { userResponse } from "@/actions/userAction";
 export const useUpdateUserInfo = () => {
   const queryClient = useQueryClient();
   const { data: session } = useSession();
+  const { broadcastUpdate } = useBroadcastSync();
 
   return useMutation<userResponse, Error, UserInfoParams>({
     mutationFn: async (data: UserInfoParams) => {
@@ -31,9 +33,12 @@ export const useUpdateUserInfo = () => {
         userInfo: data.userInfo
       });
     },
-    onSuccess: () => {
-      // queryClient.invalidateQueries({ queryKey: ["lesson", lessonId, classId, unitId] });
-      // queryClient.invalidateQueries({ queryKey: ["lessons-by-class-id-unit-id", classId, unitId] });
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ 
+        queryKey: ["userInfo", variables.userId] 
+      });
+      
+      broadcastUpdate(variables.userId);
     }
   });
 };

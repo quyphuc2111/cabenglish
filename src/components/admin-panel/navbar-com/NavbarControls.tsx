@@ -7,24 +7,22 @@ import { LogoutButton } from "./LogoutButton";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useTranslation } from "@/hooks/useTranslation";
 import { useState } from "react";
 import { SettingsIcon, Home, Settings, LogOut, Globe, Palette } from "lucide-react";
+import { useUserInfo } from "@/hooks/useUserInfo";
 
 interface NavbarControlsProps {
   t: (key: string) => string;
-  currentTeachingMode: string | undefined;
   onChangeTheme: () => void;
   onLogout: () => void;
-  updateUserInfo?: ({language}: {language: string}) => Promise<any>;
+  userId?: string;
 }
 
 export function NavbarControls({
   t,
-  currentTeachingMode,
   onChangeTheme,
   onLogout,
-  updateUserInfo
+  userId
 }: NavbarControlsProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -43,7 +41,8 @@ export function NavbarControls({
   } as const;
 
   const { data: session } = useSession();
-  const currentTheme = (session?.user.theme ?? "theme-red") as keyof typeof themeClasses;
+  const { data: userInfo } = useUserInfo(userId);
+  const currentTheme = (userInfo?.theme ?? "theme-red") as keyof typeof themeClasses;
   const router = useRouter();
 
   const menuItems = [
@@ -55,28 +54,26 @@ export function NavbarControls({
     },
     {
       icon: Globe,
-      label: t("language"), 
+      label: t("language"),
       component: (
-        <LanguageSwitcher 
-          t={t} 
-          initialLanguage={session?.user.language}
-          userId={session?.user.userId}
-          updateUserInfo={updateUserInfo}
+        <LanguageSwitcher
+          t={t}
+          userId={userId}
         />
       )
     },
     {
       icon: Palette,
       label: t("changeTheme"),
-      component: <ThemeSwitcher onChangeTheme={onChangeTheme} t={t} />
+      component: <ThemeSwitcher onChangeTheme={onChangeTheme} t={t} userId={userId} />
     },
     {
       icon: Settings,
       label: t("teachingMode"),
       component: (
         <TeachingModeSwitcher
-          currentTeachingMode={currentTeachingMode}
           t={t}
+          userId={userId}
           onClick={() => router.push("/che-do-giang-day")}
         />
       )
@@ -90,7 +87,6 @@ export function NavbarControls({
 
   return (
     <>
-      {/* Desktop Layout */}
       <div className="hidden xl:block relative">
         <motion.div
           className="grid grid-cols-2 gap-6 w-full md:w-auto items-center"
@@ -99,16 +95,14 @@ export function NavbarControls({
             visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.1 } }
           }}
         >
-          <LanguageSwitcher 
-            t={t} 
-            initialLanguage={session?.user.language}
-            userId={session?.user.userId}
-            updateUserInfo={updateUserInfo}
-          />
-          <ThemeSwitcher onChangeTheme={onChangeTheme} t={t} />
-          <TeachingModeSwitcher
-            currentTeachingMode={currentTeachingMode}
+          <LanguageSwitcher
             t={t}
+            userId={userId}
+          />
+          <ThemeSwitcher onChangeTheme={onChangeTheme} t={t} userId={userId} />
+          <TeachingModeSwitcher
+            t={t}
+            userId={userId}
             onClick={() => {
               router.push("/che-do-giang-day");
             }}
@@ -127,9 +121,7 @@ export function NavbarControls({
         </div>
       </div>
 
-      {/* Mobile Floating Menu - Fixed positioning so it doesn't affect document flow */}
       <div className="fixed bottom-0 right-0 z-50 xl:hidden" style={{ pointerEvents: 'none' }}>
-        {/* Backdrop overlay */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
@@ -143,9 +135,7 @@ export function NavbarControls({
           )}
         </AnimatePresence>
 
-        {/* Floating Action Button */}
         <div className="fixed bottom-3 right-3 z-50" style={{ pointerEvents: 'auto' }}>
-          {/* Menu Items Container */}
           <AnimatePresence>
             {isOpen && (
               <motion.div
@@ -168,12 +158,10 @@ export function NavbarControls({
                     }}
                     className="flex items-center gap-3"
                   >
-                    {/* Label */}
                     <div className="bg-white text-gray-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg border border-gray-200">
                       {item.label}
                     </div>
-                    
-                    {/* Button */}
+
                     {item.component ? (
                       <div className="w-fit h-12 rounded-lg bg-white shadow-lg border border-gray-200 flex items-center justify-center">
                         <div className="scale-90">
@@ -197,7 +185,6 @@ export function NavbarControls({
             )}
           </AnimatePresence>
 
-          {/* Main FAB */}
           <motion.button
             className={`w-12 h-12 rounded-full ${themeClasses[currentTheme]} text-white shadow-lg flex items-center justify-center`}
             onClick={() => setIsOpen(!isOpen)}

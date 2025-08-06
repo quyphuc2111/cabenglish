@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useUpdateUserInfo } from "@/hooks/client/useUser";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useUserInfo } from "@/hooks/useUserInfo";
 
 const THEME_OPTIONS = [
   { id: "theme-gold", color: "#ECC98D" },
@@ -30,19 +31,22 @@ type ThemeType = "theme-gold" | "theme-blue" | "theme-pink" | "theme-red";
 
 function ChangeTheme() {
   const { isOpen, onClose, type } = useModal();
-  // const currentTheme = useUserTheme();
-  const { updateUser } = useUserStore();
-
 
   const { data: session, update } = useSession();
-  const currentTheme = session?.user.theme ?? "theme-red";
+  const { data: userInfo } = useUserInfo(session?.user?.userId);
+  const currentTheme = userInfo?.theme ?? "theme-red";
 
   const [selectedTheme, setSelectedTheme] = React.useState<ThemeType>(
-    currentTheme as ThemeType
+    (currentTheme as ThemeType) || "theme-red"
   );
 
+  React.useEffect(() => {
+    if (userInfo?.theme) {
+      setSelectedTheme(userInfo.theme as ThemeType);
+    }
+  }, [userInfo?.theme]);
+
   const { mutate: updateUserInfo, isPending } = useUpdateUserInfo();
-  const router = useRouter();
 
   const handleChangeTheme = async () => {
     try {
@@ -50,9 +54,10 @@ function ChangeTheme() {
         userId: session?.user.userId as string,
         userInfo: {
           theme: selectedTheme,
-          email: session?.user.email as string,
-          language: session?.user.language as string,
-          mode: session?.user.mode as string,
+          email: session?.user.email || "",
+          language: session?.user.language || "",
+          mode: session?.user.mode || "",
+          is_firstlogin: session?.user.is_firstlogin || false,
         }
       }, {
         onSuccess: async () => {
@@ -210,7 +215,7 @@ function ChangeTheme() {
                     width={40}
                     height={40}
                     color={
-                      THEME_OPTIONS.find((t) => t.id === selectedTheme)?.color
+                      THEME_OPTIONS.find((t) => t.id === selectedTheme)?.color || "#E25762"
                     }
                   />
                 </motion.div>

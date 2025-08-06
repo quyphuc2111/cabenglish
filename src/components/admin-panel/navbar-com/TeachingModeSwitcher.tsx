@@ -1,20 +1,28 @@
 "use client";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useUserInfo } from "@/hooks/useUserInfo";
 
 interface TeachingModeSwitcherProps {
-  currentTeachingMode: string | undefined;
   t: (key: string) => string;
   onClick: () => void;
+  userId?: string;
 }
 
 export function TeachingModeSwitcher({
-  currentTeachingMode,
   t,
-  onClick
+  onClick,
+  userId
 }: TeachingModeSwitcherProps) {
+  const { data: userInfo, isLoading, error } = useUserInfo(userId);
 
-  
+  const currentTeachingMode = userInfo?.mode === "default" ? "defaultMode" : "freeMode";
+
+  if (error) {
+    console.error("Error fetching user mode:", error);
+  }
+
+
   return (
     <motion.div
       className="border border-gray-200 rounded-lg flex items-center justify-center md:justify-between
@@ -25,7 +33,12 @@ export function TeachingModeSwitcher({
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
     >
-      {currentTeachingMode === "defaultMode" ? (
+      {isLoading ? (
+        <div className="flex items-center gap-2 sm:gap-3 flex-nowrap">
+          <div className="w-6 h-5 sm:w-7 sm:h-6 md:w-9 md:h-8 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-16 h-4 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+      ) : currentTeachingMode === "defaultMode" ? (
         <div className="flex items-center gap-2 sm:gap-3 flex-nowrap">
           <Image
             src="/assets/image/modal/bkt_logo.webp"

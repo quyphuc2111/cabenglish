@@ -22,7 +22,7 @@ export function SheetMenu() {
       <SheetContent className="sm:w-[75vw] sm:max-w-[75vw] px-3 h-full flex flex-col" side="left">
         <SheetHeader className="mb-2">
           <div className="flex justify-center items-center w-full">
-            <Link href="/bao-cao-hoc-tap" className="no-underline">
+            <Link href="/" className="no-underline">
               <div className="flex flex-row items-center">
                 <div className={cn(
                   "font-bold text-2xl relative tracking-wide",
@@ -49,7 +49,6 @@ export function SheetMenu() {
   );
 }
 
-// Add CSS animation for the text effect
 export const animationStyles = `
   @keyframes textShine {
     0% {

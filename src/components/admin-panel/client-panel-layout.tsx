@@ -8,6 +8,7 @@ import { ToastContainer } from 'react-toastify';
 import { useQuery } from "@tanstack/react-query";
 import { getNotificationListByUserId } from "@/actions/notificationAction";
 import { useSession } from "next-auth/react";
+import { useUserInfo } from "@/hooks/useUserInfo";
 
 export default function ClientPanelLayout({
   children,
@@ -15,7 +16,8 @@ export default function ClientPanelLayout({
   children: React.ReactNode;
 }) {
   const { data: session } = useSession();
-  const currentTheme = (session?.user.theme ?? "theme-red") as keyof typeof themeClasses;
+  const { data: userInfo } = useUserInfo(session?.user?.userId);
+  const currentTheme = (userInfo?.theme ?? "theme-red") as keyof typeof themeClasses;
   const sidebar = useStore(useSidebarToggle, (state) => state);
 
   const { data: notificationList = [] } = useQuery({
@@ -48,7 +50,6 @@ export default function ClientPanelLayout({
   return (
     <div className={themeClasses[currentTheme]}>
       <Sidebar notificationList={notificationList} />
-      {/* p-3 xl:p-[40px] 2xl:p-[60px] */}
       <main
         className={cn(
           `min-h-screen transition-[margin-left] ease-in-out duration-300 
@@ -59,7 +60,6 @@ export default function ClientPanelLayout({
       >
         {children}
       </main>
-       {/* <ModalProvider /> */}
        <ToastContainer
          position="top-right"
          autoClose={3000}

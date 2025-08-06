@@ -77,8 +77,6 @@ export function Sidebar({
 
   if (!sidebar) return null;
 
-  console.log("session", session);
-
   return (
     <aside
       className={cn(

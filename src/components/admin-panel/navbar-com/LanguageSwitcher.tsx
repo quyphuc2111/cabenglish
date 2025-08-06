@@ -7,59 +7,74 @@ import { useRouter } from "next/navigation";
 import i18next from "i18next";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
+import { useUserInfo } from "@/hooks/useUserInfo";
+import { useUpdateUserInfo } from "@/hooks/client/useUser";
+import { useBroadcastSync } from "@/hooks/useBroadcastSync";
 
 interface LanguageSwitcherProps {
   t: (key: string) => string;
-  initialLanguage?: string;
   userId?: string;
-  updateUserInfo?: ({language}: {language: string}) => Promise<any>;
 }
 
-export function LanguageSwitcher({ t, initialLanguage, userId, updateUserInfo }: LanguageSwitcherProps) {
+export function LanguageSwitcher({ t, userId }: LanguageSwitcherProps) {
   const [isChecked, setIsChecked] = useState(false);
+  const { data: userInfo, isLoading, error } = useUserInfo(userId);
+  const { mutate: updateUserInfo, isPending } = useUpdateUserInfo();
+  const { broadcastUpdate } = useBroadcastSync(); 
   const router = useRouter();
   const { data: session, update } = useSession();
   const isChangingRef = useRef(false);
 
   useEffect(() => {
-    // Ưu tiên sử dụng initialLanguage từ session nếu có
-    if (initialLanguage) {
-      setIsChecked(initialLanguage === "en");
-      i18next.changeLanguage(initialLanguage);
-    } else {
-      // Fallback vào URL params nếu không có session
+    if (userInfo?.language) {
+      const userLanguage = userInfo.language;
+      setIsChecked(userLanguage === "en");
+      i18next.changeLanguage(userLanguage);
+    } else if (!isLoading && !userId) {
+
       const searchParams = new URLSearchParams(window.location.search);
-      const currentLang = searchParams.get("lang");
+      const currentLang = searchParams.get("lang") || "vi";
       setIsChecked(currentLang === "en");
-      if (currentLang) {
-        i18next.changeLanguage(currentLang);
-      }
+      i18next.changeLanguage(currentLang);
     }
-  }, [initialLanguage]);
+  }, [userInfo, isLoading, userId]);
+
+  useEffect(() => {
+    if (error) {
+      console.error("Error fetching user language:", error);
+
+      const searchParams = new URLSearchParams(window.location.search);
+      const currentLang = searchParams.get("lang") || "vi";
+      setIsChecked(currentLang === "en");
+      i18next.changeLanguage(currentLang);
+    }
+  }, [error]);
 
   const handleLanguageChange = async () => {
-    // Ngăn xử lý trùng lặp
+
     if (isChangingRef.current) return;
     isChangingRef.current = true;
     
     try {
-      // Đảo ngược trạng thái checked và cập nhật ngôn ngữ tương ứng
+
       const newCheckedState = !isChecked;
       const newLang = newCheckedState ? "en" : "vi";
       
-      // Cập nhật ngôn ngữ trong database nếu có userId và updateUserInfo
-      if (userId && updateUserInfo) {
-        try {
-          const result = await updateUserInfo({ language: newLang });
-          
-          if (result && result.success) {
-            // Cập nhật session sau khi đã cập nhật thành công trong database
-            await update({
-              user: {
-                ...session?.user,
-                language: newLang
-              }
-            });
+
+      if (userId && session?.user) {
+        updateUserInfo({
+          userId: userId,
+          userInfo: {
+            email: userInfo?.email || "",
+            language: newLang,
+            theme: userInfo?.theme || "",
+            mode: userInfo?.mode || "",
+            is_firstlogin: userInfo?.is_firstlogin || false,
+          }
+        }, {
+          onSuccess: async () => {
+
+            broadcastUpdate(userId);
             
             toast.success(
               `Đã chuyển sang ngôn ngữ ${newLang === "en" ? "tiếng Anh" : "tiếng Việt"}!`,
@@ -71,16 +86,15 @@ export function LanguageSwitcher({ t, initialLanguage, userId, updateUserInfo }:
                 pauseOnHover: true
               }
             );
-          } else {
-            toast.error(result?.error || "Có lỗi xảy ra khi chuyển ngôn ngữ");
+          },
+          onError: (error) => {
+            console.error("Không thể cập nhật ngôn ngữ cho người dùng:", error);
+            toast.error("Có lỗi xảy ra khi chuyển ngôn ngữ");
           }
-        } catch (error) {
-          console.error("Không thể cập nhật ngôn ngữ cho người dùng:", error);
-          toast.error("Có lỗi xảy ra khi chuyển ngôn ngữ");
-        }
+        });
       }
       
-      // Cập nhật URL và giao diện
+
       const currentPath = window.location.pathname;
       const newUrl = `${currentPath}?lang=${newLang}`;
       i18next.changeLanguage(newLang);
@@ -88,7 +102,7 @@ export function LanguageSwitcher({ t, initialLanguage, userId, updateUserInfo }:
       router.refresh();
       setIsChecked(newCheckedState);
     } finally {
-      // Đảm bảo luôn reset flag sau khi xử lý xong
+
       setTimeout(() => {
         isChangingRef.current = false;
       }, 300);
@@ -115,26 +129,36 @@ export function LanguageSwitcher({ t, initialLanguage, userId, updateUserInfo }:
         shadow-sm hover:shadow-md transition-all duration-200 
         border border-gray-200 rounded-lg"
       >
-        <Image
-          src={
-            isChecked
-              ? "/assets/image/navbar/american_flag.webp"
-              : "/assets/image/navbar/vietnam_flag.webp"
-          }
-          width={28}
-          height={28}
-          alt={isChecked ? "american_flag" : "vietnam_flag"}
-          className="rounded-sm w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 
-            object-contain flex-shrink-0"
-          priority
-          quality={90}
-        />
-        <Switch
-          id="change_language"
-          className="data-[state=checked]:bg-blue-600 scale-75 sm:scale-90 md:scale-100 switch-component"
-          checked={isChecked}
-          onCheckedChange={handleLanguageChange}
-        />
+        {isLoading ? (
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-gray-200 rounded-sm animate-pulse"></div>
+            <div className="w-10 h-5 bg-gray-200 rounded-full animate-pulse"></div>
+          </div>
+        ) : (
+          <>
+            <Image
+              src={
+                isChecked
+                  ? "/assets/image/navbar/american_flag.webp"
+                  : "/assets/image/navbar/vietnam_flag.webp"
+              }
+              width={28}
+              height={28}
+              alt={isChecked ? "american_flag" : "vietnam_flag"}
+              className="rounded-sm w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 
+                object-contain flex-shrink-0"
+              priority
+              quality={90}
+            />
+            <Switch
+              id="change_language"
+              className="data-[state=checked]:bg-blue-600 scale-75 sm:scale-90 md:scale-100 switch-component"
+              checked={isChecked}
+              onCheckedChange={handleLanguageChange}
+              disabled={isLoading || isPending}
+            />
+          </>
+        )}
       </div>
     </motion.div>
   );
