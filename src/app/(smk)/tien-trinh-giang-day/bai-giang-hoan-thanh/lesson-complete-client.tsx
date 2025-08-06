@@ -1,139 +1,65 @@
 "use client";
-import React, { useMemo, useState, useEffect, useCallback, memo } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import React, { useMemo, useState, useCallback, memo } from "react";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import SectionTitle from "@/components/common/section-title";
 import Image from "next/image";
 import { PaginatedContent } from "@/components/common/paginated-content";
 import { LessonType } from "@/types/lesson";
+import { ClassroomType } from "@/types/classroom";
 import LessonCard from "@/components/lesson/lesson-card";
 import OptimizeImage from "@/components/common/optimize-image";
-import FilterFacet from "@/components/common/filter-facet";
 import PerformanceWrapper from "@/components/common/performance-wrapper";
+import { getUnitByClassId } from "@/actions/unitsAction";
+import { getSchoolWeekByUnitId } from "@/actions/schoolWeekAction";
 
 const ITEMS_PER_PAGE = 8;
 
 // Types
-interface FilterValues {
-  classId: string;
-  unitId: string;
-  weekId: string;
-}
-
 interface LessonCompleteClientProps {
   lessonData: LessonType[];
-  initialFilterData: any;
-  fetchFilterData: any;
-}
-
-// Custom hook for URL synchronization with debouncing
-const useURLSync = (searchParams: URLSearchParams) => {
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const [filterValues, setFilterValues] = useState<FilterValues>(() => ({
-    classId: searchParams.get("classId") || "",
-    unitId: searchParams.get("unitId") || "",
-    weekId: searchParams.get("weekId") || ""
-  }));
-
-  // Debounced URL update function
-  const debouncedUpdateURL = useCallback(
-    debounce((newValues: FilterValues) => {
-      const params = new URLSearchParams(searchParams.toString());
-
-      Object.entries(newValues).forEach(([key, value]) => {
-        if (value) {
-          params.set(key, value);
-        } else {
-          params.delete(key);
-        }
-      });
-
-      const newSearchParams = params.toString();
-      const newURL = `${pathname}${
-        newSearchParams ? `?${newSearchParams}` : ""
-      }`;
-
-      // Use requestIdleCallback for better performance
-      if (typeof window !== "undefined" && "requestIdleCallback" in window) {
-        requestIdleCallback(() => {
-          router.replace(newURL, { scroll: false });
-        });
-      } else {
-        router.replace(newURL, { scroll: false });
-      }
-    }, 150),
-    [router, pathname, searchParams]
-  );
-
-  const updateFilterValues = useCallback(
-    (newValues: FilterValues) => {
-      setFilterValues(newValues);
-      debouncedUpdateURL(newValues);
-    },
-    [debouncedUpdateURL]
-  );
-
-  useEffect(() => {
-    const newFilterValues = {
-      classId: searchParams.get("classId") || "",
-      unitId: searchParams.get("unitId") || "",
-      weekId: searchParams.get("weekId") || ""
-    };
-
-    setFilterValues(newFilterValues);
-  }, [searchParams]);
-
-  return { filterValues, updateFilterValues };
-};
-
-// Debounce utility function
-function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
+  classrooms: ClassroomType[];
+  userId: string;
 }
 
 // Custom hook for lesson filtering
 const useLessonFilter = (
   lessonData: LessonType[],
-  filterValues: FilterValues
+  selectedClassId: string,
+  selectedUnitId: string,
+  selectedWeekId: string
 ) => {
   return useMemo(() => {
+    // Filter completed lessons (progress >= 1)
     const completedLessons = lessonData.filter(
       (lesson) => Number(lesson.progress) >= 1
     );
 
-    const filterConditions = [
-      {
-        condition: !!filterValues.classId,
-        filter: (lesson: LessonType) =>
-          lesson.classId === Number(filterValues.classId)
-      },
-      {
-        condition: !!filterValues.unitId,
-        filter: (lesson: LessonType) =>
-          lesson.unitId === Number(filterValues.unitId)
-      },
-      {
-        condition: !!filterValues.weekId,
-        filter: (lesson: LessonType) =>
-          lesson.schoolWeekId === Number(filterValues.weekId)
-      }
-    ];
+    let filtered = [...completedLessons];
 
-    return completedLessons.filter((lesson) =>
-      filterConditions.every(
-        ({ condition, filter }) => !condition || filter(lesson)
-      )
-    );
-  }, [lessonData, filterValues]);
+    // Filter by class
+    if (selectedClassId && selectedClassId !== "") {
+      filtered = filtered.filter(
+        (lesson) => lesson.classId === parseInt(selectedClassId)
+      );
+    }
+
+    // Filter by unit
+    if (selectedUnitId && selectedUnitId !== "") {
+      filtered = filtered.filter(
+        (lesson) => lesson.unitId === parseInt(selectedUnitId)
+      );
+    }
+
+    // Filter by school week
+    if (selectedWeekId && selectedWeekId !== "") {
+      filtered = filtered.filter((lesson) => {
+        const lessonWeekId = lesson.schoolWeekId || lesson.schoolWeekID;
+        return lessonWeekId === parseInt(selectedWeekId);
+      });
+    }
+
+    return filtered;
+  }, [lessonData, selectedClassId, selectedUnitId, selectedWeekId]);
 };
 
 // Memoized component for lesson stats
@@ -198,30 +124,103 @@ SectionHeader.displayName = "SectionHeader";
 
 function LessonCompleteClient({
   lessonData,
-  initialFilterData,
-  fetchFilterData
+  classrooms,
+  userId
 }: LessonCompleteClientProps) {
-  const searchParams = useSearchParams();
+  // Local state for filters - no URL params
+  const [selectedClassId, setSelectedClassId] = useState("");
+  const [selectedUnitId, setSelectedUnitId] = useState("");
+  const [selectedWeekId, setSelectedWeekId] = useState("");
 
-  // Custom hooks for better separation of concerns
-  const { filterValues, updateFilterValues } = useURLSync(searchParams);
-  const completedLessons = useLessonFilter(lessonData, filterValues);
-
-  // Memoized filter change handler
-  const handleFilterChange = useCallback(
-    (newFilterValues: FilterValues) => {
-      updateFilterValues(newFilterValues);
-    },
-    [updateFilterValues]
+  const completedLessons = useLessonFilter(
+    lessonData,
+    selectedClassId,
+    selectedUnitId,
+    selectedWeekId
   );
+
+  // State for filter options
+  const [units, setUnits] = useState<any[]>([]);
+  const [schoolWeeks, setSchoolWeeks] = useState<any[]>([]);
+  const [loadingUnits, setLoadingUnits] = useState(false);
+  const [loadingWeeks, setLoadingWeeks] = useState(false);
+
+  // Handle class change
+  const handleClassChange = useCallback(
+    async (classId: string) => {
+      setSelectedClassId(classId);
+      setSelectedUnitId(""); // Reset unit when changing class
+      setSelectedWeekId(""); // Reset week when changing class
+      setUnits([]);
+      setSchoolWeeks([]); // Reset school weeks when changing class
+
+      if (classId && classId !== "") {
+        setLoadingUnits(true);
+        try {
+          const unitsResponse = await getUnitByClassId(classId, userId);
+          setUnits(
+            Array.isArray(unitsResponse)
+              ? unitsResponse
+              : unitsResponse.data || []
+          );
+        } catch (error) {
+          console.error("Error loading units:", error);
+          setUnits([]);
+        } finally {
+          setLoadingUnits(false);
+        }
+      }
+    },
+    [userId]
+  );
+
+  // Handle unit change
+  const handleUnitChange = useCallback(async (unitId: string) => {
+    setSelectedUnitId(unitId);
+    setSelectedWeekId(""); // Reset week when changing unit
+    setSchoolWeeks([]); // Reset school weeks when changing unit
+
+    if (unitId && unitId !== "") {
+      setLoadingWeeks(true);
+      try {
+        const weeksResponse = await getSchoolWeekByUnitId({
+          unitId: parseInt(unitId)
+        });
+        setSchoolWeeks(Array.isArray(weeksResponse) ? weeksResponse : []);
+      } catch (error) {
+        console.error("Error loading school weeks:", error);
+        setSchoolWeeks([]);
+      } finally {
+        setLoadingWeeks(false);
+      }
+    }
+  }, []);
+
+  // Handle week change
+  const handleWeekChange = useCallback((weekId: string) => {
+    setSelectedWeekId(weekId);
+  }, []);
 
   // Memoized lesson count
   const lessonCounts = useMemo(
     () => ({
       completed: completedLessons.length,
-      total: lessonData.length
+      total: lessonData.filter((lesson) => Number(lesson.progress) >= 1).length
     }),
-    [completedLessons.length, lessonData.length]
+    [completedLessons.length, lessonData]
+  );
+
+  // Memoized render function for lesson cards
+  const renderLessonCard = useCallback(
+    (lessonItem: LessonType) => (
+      <LessonCard
+        {...lessonItem}
+        classRoomName={lessonItem.className}
+        schoolWeekId={lessonItem.schoolWeekId || lessonItem.schoolWeekID || 0}
+        key={`completed-${lessonItem.lessonId}`}
+      />
+    ),
+    []
   );
 
   return (
@@ -232,15 +231,77 @@ function LessonCompleteClient({
       />
 
       <div className="bg-white px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6 relative rounded-xl mx-2 sm:mx-4 md:mx-6 lg:mx-0 shadow-sm">
-        <div className="flex flex-col gap-4 w-full sm:gap-6 md:flex-row md:items-end md:gap-6 lg:gap-8 md:justify-between">
+        <div className="flex flex-col gap-4 w-full sm:gap-6">
           <SectionHeader />
 
-          <div className="w-full md:flex-1 lg:max-w-2xl">
-            <FilterFacet
-              initialFilterData={initialFilterData}
-              fetchFilterData={fetchFilterData}
-              onFilterChange={handleFilterChange}
-            />
+          {/* Bộ lọc mới */}
+          <div className="flex flex-col sm:flex-row gap-4 bg-gray-50 p-4 rounded-lg">
+            {/* Filter Lớp học */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Chọn lớp học
+              </label>
+              <select
+                value={selectedClassId}
+                onChange={(e) => handleClassChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Tất cả lớp học</option>
+                {classrooms.map((classroom) => (
+                  <option key={classroom.class_id} value={classroom.class_id}>
+                    {classroom.classname}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Filter Unit */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Chọn đơn vị học
+              </label>
+              <select
+                value={selectedUnitId}
+                onChange={(e) => handleUnitChange(e.target.value)}
+                disabled={!selectedClassId || loadingUnits}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <option value="">Tất cả đơn vị học</option>
+                {units.map((unit) => (
+                  <option key={unit.unitId} value={unit.unitId}>
+                    {unit.unitName}
+                  </option>
+                ))}
+              </select>
+              {loadingUnits && (
+                <p className="text-sm text-gray-500 mt-1">Đang tải...</p>
+              )}
+            </div>
+
+            {/* Filter Tuần học */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Chọn tuần học
+              </label>
+              <select
+                value={selectedWeekId}
+                onChange={(e) => handleWeekChange(e.target.value)}
+                disabled={!selectedUnitId || loadingWeeks}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <option value="">Tất cả tuần học</option>
+                {schoolWeeks.map((week) => (
+                  <option key={week.swId} value={week.swId}>
+                    Tuần {week.value}
+                  </option>
+                ))}
+              </select>
+              {loadingWeeks && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Đang tải tuần học...
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -254,15 +315,9 @@ function LessonCompleteClient({
               <PaginatedContent
                 items={completedLessons}
                 itemsPerPage={ITEMS_PER_PAGE}
-                renderItem={(lessonItem) => (
-                  <LessonCard
-                    {...lessonItem}
-                    classRoomName={lessonItem.className}
-                    schoolWeekId={
-                      lessonItem.schoolWeekId || lessonItem.schoolWeekID || 0
-                    }
-                  />
-                )}
+                renderItem={renderLessonCard}
+                rowPerPage={4} // Grid responsive: 2 cột trên mobile, 4 cột trên desktop
+                itemInPage={[8, 16, 24, 32]} // Options cho items per page
               />
             ) : (
               <NoLessons />
