@@ -168,7 +168,7 @@ const CourseList = ({ courses }: { courses: any[] }) => (
     variants={containerVariants}
     initial="hidden"
     animate="visible"
-    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5"
+    className="grid grid-cols-2 md:grid-cols-4 gap-5"
   >
     {courses.map((courseItem, index) => (
       <Fragment key={index}>
