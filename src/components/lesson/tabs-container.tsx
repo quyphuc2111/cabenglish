@@ -124,6 +124,66 @@ export const TabsContainer = ({
     setLastSCItem(lastItem);
   }, [sectionContents]);
 
+  // Auto unlock first content if section is unlocked
+  useEffect(() => {
+    console.log("Section unlock check:", {
+      sectionIsLocked: sectionInfo.isLocked,
+      sectionContentsLength: sectionContents.length,
+      sectionContents: sectionContents.map((content) => ({
+        sc_id: content.sc_id,
+        title: content.title,
+        isLocked: content.isLocked,
+        order: content.order
+      }))
+    });
+
+    if (
+      !sectionInfo.isLocked &&
+      sectionContents.length > 0 &&
+      session?.user?.userId
+    ) {
+      const firstContent = sectionContents.find(
+        (content) => content.order === 0
+      );
+      if (firstContent && firstContent.isLocked) {
+        console.log("Auto unlocking first content:", firstContent.sc_id);
+
+        // Update local state immediately for better UX
+        setLocalUnlockedContents(
+          (prev) => new Set([...prev, firstContent.sc_id])
+        );
+
+        // Also call API to unlock on server
+        updateSectionContentLocked(
+          {
+            sectionContentId: firstContent.sc_id
+          },
+          {
+            onSuccess: () => {
+              console.log("Successfully unlocked first content on server");
+              router.refresh();
+            },
+            onError: (error: any) => {
+              console.error("Failed to unlock first content on server:", error);
+              // Revert local state if API call failed
+              setLocalUnlockedContents((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(firstContent.sc_id);
+                return newSet;
+              });
+            }
+          }
+        );
+      }
+    }
+  }, [
+    sectionInfo.isLocked,
+    sectionContents,
+    session?.user?.userId,
+    updateSectionContentLocked,
+    router
+  ]);
+
   // Helper function để check trạng thái locked
   const isContentLocked = (content: SectionContentType) => {
     return content.isLocked && !localUnlockedContents.has(content.sc_id);
@@ -449,8 +509,6 @@ export const TabsContainer = ({
       window.removeEventListener("orientationchange", setVH);
     };
   }, []);
-
-  console.log(sectionInfo);
 
   return (
     <Tabs
