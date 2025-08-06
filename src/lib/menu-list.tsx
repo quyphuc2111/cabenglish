@@ -45,12 +45,10 @@ export function useMenuList(
   const { t } = useTranslation("", "common");
   const [classrooms, setClassrooms] = useState<ClassroomType[]>([]);
 
-  // lấy session từ next-auth
   const { data: session, status } = useSession();
 
   useEffect(() => {
     const fetchClassrooms = async () => {
-      // Only proceed if session is authenticated
       if (status !== "authenticated" || !session?.user?.userId) {
         return;
       }

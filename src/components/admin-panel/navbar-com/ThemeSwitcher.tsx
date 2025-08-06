@@ -1,16 +1,33 @@
 "use client";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useUserInfo } from "@/hooks/useUserInfo";
 
 interface ThemeSwitcherProps {
   onChangeTheme: () => void;
   t: (key: string) => string;
+  userId?: string;
 }
 
-export function ThemeSwitcher({ onChangeTheme, t }: ThemeSwitcherProps) {
+export function ThemeSwitcher({ onChangeTheme, t, userId }: ThemeSwitcherProps) {
+  const { data: userInfo, isLoading, error } = useUserInfo(userId);
+
+  const themeColors = {
+    'theme-gold': '#FFD700',
+    'theme-blue': '#3B82F6', 
+    'theme-pink': '#EC4899',
+    'theme-red': '#EF4444'
+  } as const;
+
+  const currentTheme = userInfo?.theme || "theme-red";
+
+  if (error) {
+    console.error("Error fetching user theme:", error);
+  }
+
   return (
     <motion.div
-      className="border border-gray-200 rounded-lg flex items-center justify-end
+      className="border border-gray-200 rounded-lg flex items-center justify-between
         bg-white w-full h-10 sm:h-12 md:h-14 xl:h-12
         px-3 sm:px-4 md:px-5 
         shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
@@ -36,6 +53,8 @@ export function ThemeSwitcher({ onChangeTheme, t }: ThemeSwitcherProps) {
           {t("changeTheme")}
         </p>
       </div>
+      
+      
     </motion.div>
   );
 }

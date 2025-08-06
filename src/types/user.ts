@@ -4,6 +4,7 @@ export interface UserInfo {
     language: string;
     theme: string;
     mode: string;
+    is_firstlogin: boolean;
 }
 
 export interface UserResponse {

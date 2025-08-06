@@ -7,7 +7,8 @@ export interface User {
   language: string
   theme: string 
   mode: string
-  progress: {
+  is_firstlogin: boolean
+  progress?: {
     units: {
       unit_id: number
     }[]
@@ -21,7 +22,7 @@ export interface User {
       class_id: number
     }[]
   }
-  locked: {
+  locked?: {
     sections: number[]
     section_contents: number[]
     lessons: number[]
@@ -74,6 +75,10 @@ export const useUserStore = create<UserStore>()(
           user: state.user ? {
             ...state.user,
             progress: {
+              units: [],
+              lessons: [],
+              sections: [],
+              classrooms: [],
               ...state.user.progress,
               ...progressData
             }
@@ -85,6 +90,9 @@ export const useUserStore = create<UserStore>()(
           user: state.user ? {
             ...state.user,
             locked: {
+              sections: [],
+              section_contents: [],
+              lessons: [],
               ...state.user.locked,
               ...lockedData  
             }
@@ -120,6 +128,7 @@ export const useUserStore = create<UserStore>()(
 
 // Selector helpers
 export const useUser = () => useUserStore((state) => state.user)
+export const useUserId = () => useUserStore((state) => state.user?.user_id)
 export const useIsAuthenticated = () => useUserStore((state) => state.isAuthenticated)
 export const useIsLoading = () => useUserStore((state) => state.isLoading)
 export const useUserError = () => useUserStore((state) => state.error)
