@@ -9,12 +9,12 @@ import LessonCard from "@/components/lesson/lesson-card";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
-import { ChevronLeft, ChevronRight, GraduationCap } from "lucide-react";
+import { ChevronLeft, ChevronRight, GraduationCap, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import "swiper/css";
 import "swiper/css/navigation";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import SectionTitle from "@/components/common/section-title";
 import styles from "./lesson-teaching.module.css";
 
@@ -45,41 +45,53 @@ const ClassroomTab = memo(
         onClick={onClick}
         className={cn(
           // Base styles với responsive spacing
-          "px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4",
-          "text-xs sm:text-sm md:text-base font-medium",
-          "transition-all duration-200 shadow-none",
-          "flex items-center gap-1 sm:gap-2 md:gap-3",
-          // Responsive width và flex behavior
-          "min-w-0 flex-shrink-0 max-w-[140px] sm:max-w-[160px] md:max-w-[200px] lg:max-w-none",
-          // Active state
+          "px-3 sm:px-4 md:px-6 py-3 sm:py-3.5 md:py-4",
+          "text-xs sm:text-sm md:text-base font-semibold",
+          "transition-all duration-300 shadow-sm hover:shadow-md",
+          "flex items-center gap-2 sm:gap-3 md:gap-4",
+          "min-w-0 flex-shrink-0 max-w-[160px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-none",
+          "rounded-xl border-2",
+          // Active state với gradient và glow effect
           isActive
-            ? "border bg-[#F09DA4] hover:bg-[#F09DA4] text-white"
-            : "bg-white text-gray-700 hover:bg-gray-50 border-gray-300 border",
+            ? "bg-gradient-to-r from-[#F09DA4] to-[#E91E63] hover:from-[#E91E63] hover:to-[#F09DA4] text-white border-[#E91E63] shadow-lg shadow-pink-200/50 scale-105"
+            : "bg-white text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 border-gray-200 hover:border-blue-300 hover:text-blue-800",
           styles.classroomTab
         )}
       >
-        <span className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
-          <IconComponent
+        <span className="flex items-center gap-2 min-w-0 flex-1">
+          <div
             className={cn(
-              "w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0",
-              iconData.color,
-              isActive && "text-white"
+              "p-1.5 rounded-lg transition-all duration-300",
+              isActive
+                ? "bg-white/20 shadow-inner"
+                : "bg-gray-100 group-hover:bg-blue-100"
             )}
-          />
-          <span className="truncate text-xs sm:text-sm md:text-base">
+          >
+            <IconComponent
+              className={cn(
+                "w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0 transition-all duration-300",
+                isActive
+                  ? "text-white drop-shadow-sm"
+                  : `${iconData.color} group-hover:text-blue-600`
+              )}
+            />
+          </div>
+          <span className="truncate text-xs sm:text-sm md:text-base font-medium">
             {classroom.classname}
           </span>
         </span>
 
         <div
           className={cn(
-            "text-[10px] sm:text-xs font-medium",
-            "whitespace-nowrap flex-shrink-0",
-            "hidden xs:block", // Ẩn trên màn hình siêu nhỏ
-            isActive ? "text-white" : "text-gray-500"
+            "px-2 py-1 rounded-full text-[10px] sm:text-xs font-bold",
+            "whitespace-nowrap flex-shrink-0 transition-all duration-300",
+            "hidden xs:flex items-center justify-center min-w-[20px]",
+            isActive
+              ? "bg-white/25 text-white shadow-inner"
+              : "bg-gray-200 text-gray-600 group-hover:bg-blue-200 group-hover:text-blue-800"
           )}
         >
-          • {lessonCount}
+          {lessonCount}
         </div>
       </Button>
     );
@@ -206,7 +218,6 @@ function LessonTeachingClient({
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
   const breakpoint = useBreakpoint();
 
   // Ensure component is hydrated trên client
@@ -214,16 +225,8 @@ function LessonTeachingClient({
     setIsClient(true);
   }, []);
 
-  // Lấy activeTab từ URL parameter, mặc định là "all"
-  const urlActiveTab = searchParams.get("classId") || "all";
-
-  // State local để quản lý activeTab, khởi tạo từ URL
-  const [activeTab, setActiveTabState] = useState<string>(urlActiveTab);
-
-  // Đồng bộ state local với URL params khi URL thay đổi
-  useEffect(() => {
-    setActiveTabState(urlActiveTab);
-  }, [urlActiveTab]);
+  // State local để quản lý activeTab, mặc định là "all"
+  const [activeTab, setActiveTab] = useState<string>("all");
 
   // Tính toán slides per view dựa trên breakpoint - memoized
   const slidesPerView = useMemo(() => {
@@ -269,27 +272,11 @@ function LessonTeachingClient({
     [teachingLessons]
   );
 
-  // Function để update activeTab và URL parameter - memoized
-  const setActiveTab = useCallback(
-    (tab: string) => {
-      console.log("🔄 Setting active tab:", tab);
-
-      // Update state local ngay lập tức để UI responsive
-      setActiveTabState(tab);
-
-      // Update URL parameter trong background - debounced
-      requestIdleCallback(() => {
-        const params = new URLSearchParams(searchParams);
-        if (tab === "all") {
-          params.delete("classId");
-        } else {
-          params.set("classId", tab);
-        }
-        router.replace(`?${params.toString()}`, { scroll: false });
-      });
-    },
-    [searchParams, router]
-  );
+  // Function để update activeTab - đơn giản hóa không cần URL params
+  const updateActiveTab = useCallback((tab: string) => {
+    console.log("🔄 Setting active tab:", tab);
+    setActiveTab(tab);
+  }, []);
 
   // Filter data theo classroom được chọn - memoized
   const getFilteredDataByClassroom = useCallback(
@@ -394,7 +381,7 @@ function LessonTeachingClient({
           index={index}
           activeTab={activeTab}
           lessonCount={lessonCount}
-          onClick={() => setActiveTab(classroom.class_id.toString())}
+          onClick={() => updateActiveTab(classroom.class_id.toString())}
           classroomIcons={classroomIcons}
         />
       );
@@ -404,7 +391,7 @@ function LessonTeachingClient({
     teachingLessons,
     activeTab,
     getTeachingLessonCountByClassId,
-    setActiveTab,
+    updateActiveTab,
     classroomIcons,
     breakpoint
   ]);
@@ -495,49 +482,106 @@ function LessonTeachingClient({
                 </div>
               )}
 
-              {/* Tab Headers - Responsive horizontal scroll */}
-              <div className={cn("overflow-x-auto pb-2", styles.tabsContainer)}>
-                <div className="flex gap-1 sm:gap-2 min-w-max">
-                  {/* Tab "Tất cả lớp học" */}
-                  <Button
-                    variant={activeTab === "all" ? "default" : "outline"}
-                    size="default"
-                    onClick={() => setActiveTab("all")}
-                    className={cn(
-                      "px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-5",
-                      "text-xs sm:text-sm md:text-base font-medium",
-                      "transition-all duration-200 shadow-none",
-                      "flex items-center gap-1 sm:gap-2 md:gap-4 lg:gap-6",
-                      "min-w-0 flex-shrink-0",
-                      activeTab === "all"
-                        ? "border bg-[#F09DA4] hover:bg-[#F09DA4] text-white"
-                        : "bg-white text-gray-700 hover:bg-gray-50"
-                    )}
-                  >
-                    <span className="flex items-center gap-1 sm:gap-2">
-                      <GraduationCap
-                        className={cn(
-                          "w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5",
-                          activeTab === "all" ? "text-white" : "text-green-600"
-                        )}
-                      />
-                      <span className="whitespace-nowrap text-xs sm:text-sm md:text-base">
-                        Tất cả lớp học
-                      </span>
-                    </span>
-                    <div
+              {/* Tab Headers - Enhanced UI với gradient background */}
+              <div className="bg-gradient-to-br from-gray-50 to-blue-50/30 p-4 sm:p-5 md:p-6 rounded-2xl border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Users className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800">
+                      Lọc theo lớp học
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Chọn lớp học để xem bài giảng đang dạy
+                    </p>
+                  </div>
+                </div>
+
+                {/* Tab container với responsive scroll */}
+                <div
+                  className={cn("overflow-x-auto pb-2", styles.tabsContainer)}
+                >
+                  <div className="flex gap-2 sm:gap-3 min-w-max">
+                    {/* Tab "Tất cả lớp học" */}
+                    <Button
+                      variant="ghost"
+                      size="default"
+                      onClick={() => updateActiveTab("all")}
                       className={cn(
-                        "text-[10px] sm:text-xs font-medium whitespace-nowrap",
-                        "hidden xs:block", // Ẩn trên màn hình siêu nhỏ
-                        activeTab === "all" ? "text-white" : "text-gray-500"
+                        "px-4 sm:px-5 md:px-6 py-3 sm:py-3.5 md:py-4",
+                        "text-sm sm:text-base md:text-lg font-semibold",
+                        "transition-all duration-300 shadow-sm hover:shadow-md",
+                        "flex items-center gap-3 sm:gap-4",
+                        "min-w-0 flex-shrink-0 rounded-xl border-2",
+                        activeTab === "all"
+                          ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-emerald-600 hover:to-green-500 text-white border-green-500 shadow-lg shadow-green-200/50 scale-105"
+                          : "bg-white text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-green-50 border-gray-200 hover:border-green-300 hover:text-green-800"
                       )}
                     >
-                      • {(teachingLessons || []).length}
-                    </div>
-                  </Button>
+                      <span className="flex items-center gap-2 sm:gap-3">
+                        <div
+                          className={cn(
+                            "p-1.5 rounded-lg transition-all duration-300",
+                            activeTab === "all"
+                              ? "bg-white/20 shadow-inner"
+                              : "bg-gray-100 group-hover:bg-green-100"
+                          )}
+                        >
+                          <GraduationCap
+                            className={cn(
+                              "w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300",
+                              activeTab === "all"
+                                ? "text-white drop-shadow-sm"
+                                : "text-green-600 group-hover:text-green-700"
+                            )}
+                          />
+                        </div>
+                        <span className="whitespace-nowrap">
+                          Tất cả lớp học
+                        </span>
+                      </span>
+                      <div
+                        className={cn(
+                          "px-2 py-1 rounded-full text-xs font-bold",
+                          "whitespace-nowrap flex-shrink-0 transition-all duration-300",
+                          "hidden xs:flex items-center justify-center min-w-[24px]",
+                          activeTab === "all"
+                            ? "bg-white/25 text-white shadow-inner"
+                            : "bg-gray-200 text-gray-600 group-hover:bg-green-200 group-hover:text-green-800"
+                        )}
+                      >
+                        {(teachingLessons || []).length}
+                      </div>
+                    </Button>
 
-                  {/* Các tab lớp học */}
-                  {classroomTabs}
+                    {/* Các tab lớp học */}
+                    {classroomTabs}
+                  </div>
+                </div>
+
+                {/* Filter status indicator */}
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <span className="text-gray-600 font-medium flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      Đang hiển thị:
+                    </span>
+                    {activeTab === "all" ? (
+                      <span className="px-3 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 rounded-full font-semibold border border-green-200">
+                        Tất cả lớp học ({(teachingLessons || []).length} bài)
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1.5 bg-gradient-to-r from-pink-100 to-rose-100 text-pink-800 rounded-full font-semibold border border-pink-200">
+                        {
+                          classrooms.find(
+                            (c) => c.class_id.toString() === activeTab
+                          )?.classname
+                        }
+                        ({filteredTeachingLessons.length} bài)
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 

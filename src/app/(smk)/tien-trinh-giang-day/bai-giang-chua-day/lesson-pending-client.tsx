@@ -10,6 +10,8 @@ import { ClassroomType } from "@/types/classroom";
 import LessonCard from "@/components/lesson/lesson-card";
 import { getUnitByClassId } from "@/actions/unitsAction";
 import { getSchoolWeekByUnitId } from "@/actions/schoolWeekAction";
+import { ChevronDown, Users, BookOpen, Calendar } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Memoized stats component
 const LessonStats = memo(
@@ -51,6 +53,116 @@ const EmptyLessonsState = memo(() => (
 ));
 
 EmptyLessonsState.displayName = "EmptyLessonsState";
+
+// Custom Select Component with better styling
+const CustomSelect = memo(
+  ({
+    value,
+    onChange,
+    options,
+    placeholder,
+    disabled = false,
+    loading = false,
+    icon: Icon,
+    label
+  }: {
+    value: string;
+    onChange: (value: string) => void;
+    options: Array<{ value: string; label: string }>;
+    placeholder: string;
+    disabled?: boolean;
+    loading?: boolean;
+    icon?: any;
+    label: string;
+  }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const selectedOption = options.find((opt) => opt.value === value);
+    const hasValue = value && value !== "";
+
+    return (
+      <div className="relative">
+        <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2">
+          {Icon && <Icon className="w-4 h-4 text-blue-600" />}
+          {label}
+        </label>
+
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => !disabled && !loading && setIsOpen(!isOpen)}
+            disabled={disabled || loading}
+            className={cn(
+              "w-full px-4 py-3 text-left border-2 rounded-xl transition-all duration-200",
+              "flex items-center justify-between gap-2",
+              "shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500/20",
+              "text-sm font-medium",
+              // States
+              hasValue
+                ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-blue-900"
+                : "bg-white border-gray-200 text-gray-600 hover:border-gray-300",
+              disabled &&
+                "bg-gray-50 border-gray-200 cursor-not-allowed opacity-60",
+              loading && "bg-gray-50 border-gray-200 cursor-wait"
+            )}
+          >
+            <span
+              className={cn(
+                "truncate",
+                hasValue ? "text-blue-900 font-semibold" : "text-gray-500"
+              )}
+            >
+              {loading ? "Đang tải..." : selectedOption?.label || placeholder}
+            </span>
+
+            <ChevronDown
+              className={cn(
+                "w-4 h-4 transition-transform duration-200 flex-shrink-0",
+                isOpen && "rotate-180",
+                hasValue ? "text-blue-600" : "text-gray-400"
+              )}
+            />
+          </button>
+
+          {isOpen && !disabled && !loading && (
+            <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+              <div className="py-2">
+                {options.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      onChange(option.value);
+                      setIsOpen(false);
+                    }}
+                    className={cn(
+                      "w-full px-4 py-2.5 text-left text-sm transition-colors duration-150",
+                      "hover:bg-blue-50 focus:outline-none focus:bg-blue-50",
+                      option.value === value
+                        ? "bg-blue-100 text-blue-900 font-semibold"
+                        : "text-gray-700 hover:text-blue-800"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Overlay to close dropdown */}
+        {isOpen && (
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsOpen(false)}
+          />
+        )}
+      </div>
+    );
+  }
+);
+
+CustomSelect.displayName = "CustomSelect";
 
 function LessonPendingClient({
   pendingLessons,
@@ -194,73 +306,105 @@ function LessonPendingClient({
             />
           </div>
 
-          {/* Bộ lọc mới */}
-          <div className="flex flex-col sm:flex-row gap-4 bg-gray-50 p-4 rounded-lg">
-            {/* Filter Lớp học */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Chọn lớp học
-              </label>
-              <select
-                value={selectedClassId}
-                onChange={(e) => handleClassChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Tất cả lớp học</option>
-                {classrooms.map((classroom) => (
-                  <option key={classroom.class_id} value={classroom.class_id}>
-                    {classroom.classname}
-                  </option>
-                ))}
-              </select>
+          {/* Bộ lọc mới - Enhanced UI */}
+          <div className="bg-gradient-to-br from-gray-50 to-blue-50/30 p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+              {/* Filter Lớp học */}
+              <div className="flex-1 min-w-0">
+                <CustomSelect
+                  value={selectedClassId}
+                  onChange={handleClassChange}
+                  options={[
+                    { value: "", label: "Tất cả lớp học" },
+                    ...classrooms.map((classroom) => ({
+                      value: classroom.class_id.toString(),
+                      label: classroom.classname
+                    }))
+                  ]}
+                  placeholder="Chọn lớp học"
+                  icon={Users}
+                  label="Lớp học"
+                />
+              </div>
+
+              {/* Filter Unit */}
+              <div className="flex-1 min-w-0">
+                <CustomSelect
+                  value={selectedUnitId}
+                  onChange={handleUnitChange}
+                  options={[
+                    { value: "", label: "Tất cả đơn vị học" },
+                    ...units.map((unit) => ({
+                      value: unit.unitId.toString(),
+                      label: unit.unitName
+                    }))
+                  ]}
+                  placeholder="Chọn đơn vị học"
+                  disabled={!selectedClassId}
+                  loading={loadingUnits}
+                  icon={BookOpen}
+                  label="Đơn vị học"
+                />
+              </div>
+
+              {/* Filter Tuần học */}
+              <div className="flex-1 min-w-0">
+                <CustomSelect
+                  value={selectedWeekId}
+                  onChange={handleWeekChange}
+                  options={[
+                    { value: "", label: "Tất cả tuần học" },
+                    ...schoolWeeks.map((week) => ({
+                      value: week.swId.toString(),
+                      label: `Tuần ${week.value}`
+                    }))
+                  ]}
+                  placeholder="Chọn tuần học"
+                  disabled={!selectedUnitId}
+                  loading={loadingWeeks}
+                  icon={Calendar}
+                  label="Tuần học"
+                />
+              </div>
             </div>
 
-            {/* Filter Unit */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Chọn đơn vị học
-              </label>
-              <select
-                value={selectedUnitId}
-                onChange={(e) => handleUnitChange(e.target.value)}
-                disabled={!selectedClassId || loadingUnits}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-              >
-                <option value="">Tất cả đơn vị học</option>
-                {units.map((unit) => (
-                  <option key={unit.unitId} value={unit.unitId}>
-                    {unit.unitName}
-                  </option>
-                ))}
-              </select>
-              {loadingUnits && (
-                <p className="text-sm text-gray-500 mt-1">Đang tải...</p>
-              )}
-            </div>
-
-            {/* Filter Tuần học */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Chọn tuần học
-              </label>
-              <select
-                value={selectedWeekId}
-                onChange={(e) => handleWeekChange(e.target.value)}
-                disabled={!selectedUnitId || loadingWeeks}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-              >
-                <option value="">Tất cả tuần học</option>
-                {schoolWeeks.map((week) => (
-                  <option key={week.swId} value={week.swId}>
-                    Tuần {week.value}
-                  </option>
-                ))}
-              </select>
-              {loadingWeeks && (
-                <p className="text-sm text-gray-500 mt-1">
-                  Đang tải tuần học...
-                </p>
-              )}
+            {/* Filter status indicator */}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-gray-600 font-medium">
+                  Bộ lọc đang áp dụng:
+                </span>
+                {selectedClassId && (
+                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
+                    {
+                      classrooms.find(
+                        (c) => c.class_id.toString() === selectedClassId
+                      )?.classname
+                    }
+                  </span>
+                )}
+                {selectedUnitId && (
+                  <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full font-medium">
+                    {
+                      units.find((u) => u.unitId.toString() === selectedUnitId)
+                        ?.unitName
+                    }
+                  </span>
+                )}
+                {selectedWeekId && (
+                  <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full font-medium">
+                    Tuần{" "}
+                    {
+                      schoolWeeks.find(
+                        (w) => w.swId.toString() === selectedWeekId
+                      )?.value
+                    }
+                  </span>
+                )}
+                {!selectedClassId && !selectedUnitId && !selectedWeekId && (
+                  <span className="text-gray-500 italic">Hiển thị tất cả</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
