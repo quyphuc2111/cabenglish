@@ -157,7 +157,6 @@ function ClassroomChildClient({
     return weeks;
   }, [schoolWeekData]);
   
-  console.log("uniqueWeeks", uniqueWeeks)
 
   const uniqueUnits = React.useMemo(() => {
     return units.map((unit) => ({
@@ -166,7 +165,6 @@ function ClassroomChildClient({
     }));
   }, [units]);
 
-  console.log("uniqueUnits", uniqueUnits)
 
   const filteredLessons = React.useMemo(() => {
     if (unitsLoading || !units.length) {
