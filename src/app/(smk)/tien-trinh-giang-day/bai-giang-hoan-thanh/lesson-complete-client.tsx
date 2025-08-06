@@ -1,5 +1,6 @@
 "use client";
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import SectionTitle from "@/components/common/section-title";
 import Image from "next/image";
@@ -10,6 +11,76 @@ import OptimizeImage from "@/components/common/optimize-image";
 import FilterFacet from "@/components/common/filter-facet";
 
 const ITEMS_PER_PAGE = 8;
+
+// Types
+interface FilterValues {
+  classId: string;
+  unitId: string;
+  weekId: string;
+}
+
+interface LessonCompleteClientProps {
+  lessonData: LessonType[];
+  initialFilterData: any;
+  fetchFilterData: any;
+}
+
+// Custom hook for URL synchronization
+const useURLSync = (searchParams: URLSearchParams) => {
+  const [filterValues, setFilterValues] = useState<FilterValues>(() => ({
+    classId: searchParams.get("classId") || "",
+    unitId: searchParams.get("unitId") || "",
+    weekId: searchParams.get("weekId") || ""
+  }));
+
+  useEffect(() => {
+    const newFilterValues = {
+      classId: searchParams.get("classId") || "",
+      unitId: searchParams.get("unitId") || "",
+      weekId: searchParams.get("weekId") || ""
+    };
+
+    setFilterValues(newFilterValues);
+  }, [searchParams]);
+
+  return { filterValues, setFilterValues };
+};
+
+// Custom hook for lesson filtering
+const useLessonFilter = (
+  lessonData: LessonType[],
+  filterValues: FilterValues
+) => {
+  return useMemo(() => {
+    const completedLessons = lessonData.filter(
+      (lesson) => Number(lesson.progress) >= 1
+    );
+
+    const filterConditions = [
+      {
+        condition: !!filterValues.classId,
+        filter: (lesson: LessonType) =>
+          lesson.classId === Number(filterValues.classId)
+      },
+      {
+        condition: !!filterValues.unitId,
+        filter: (lesson: LessonType) =>
+          lesson.unitId === Number(filterValues.unitId)
+      },
+      {
+        condition: !!filterValues.weekId,
+        filter: (lesson: LessonType) =>
+          lesson.schoolWeekId === Number(filterValues.weekId)
+      }
+    ];
+
+    return completedLessons.filter((lesson) =>
+      filterConditions.every(
+        ({ condition, filter }) => !condition || filter(lesson)
+      )
+    );
+  }, [lessonData, filterValues]);
+};
 
 const NoLessons = () => (
   <div className="flex flex-col items-center gap-6 sm:gap-8 md:gap-10 min-h-[300px] sm:min-h-[400px] md:min-h-[600px] justify-center px-4">
@@ -28,38 +99,38 @@ const NoLessons = () => (
   </div>
 );
 
-function LessonCompleteClient({ lessonData, initialFilterData, fetchFilterData }: { lessonData: LessonType[], initialFilterData: any, fetchFilterData: any }) {
-  const completedLessons = useMemo(() => 
-    lessonData.filter((lesson) => Number(lesson.progress) === 1)
-  , [lessonData]);
+function LessonCompleteClient({
+  lessonData,
+  initialFilterData,
+  fetchFilterData
+}: LessonCompleteClientProps) {
+  const searchParams = useSearchParams();
+
+  // Custom hooks for better separation of concerns
+  const { filterValues, setFilterValues } = useURLSync(searchParams);
+  const completedLessons = useLessonFilter(lessonData, filterValues);
+
+  const handleFilterChange = useCallback(
+    (newFilterValues: FilterValues) => {
+      setFilterValues(newFilterValues);
+    },
+    [setFilterValues]
+  );
 
   return (
     <ContentLayout title="BaiGiangHoanThanh">
       <div className="px-4 sm:px-6 md:px-8">
         <p className="text-[#736E6E] text-sm sm:text-base md:text-md my-2 font-medium">
-          Đã hoàn thành <span className="text-[#3EC474] font-semibold">{completedLessons.length}</span>/{lessonData.length} bài học
+          Đã hoàn thành{" "}
+          <span className="text-[#3EC474] font-semibold">
+            {completedLessons.length}
+          </span>
+          /{lessonData.length} bài học
         </p>
       </div>
 
-      <div className="bg-white px-3 sm:px-4 md:px-5 py-3 sm:py-4 md:py-2 relative rounded-xl mx-2 sm:mx-4 md:mx-0">
-        {/* <div className="hidden lg:flex gap-12 xl:gap-20 absolute top-2 md:top-0 right-[8%] xl:right-[12%]">
-          <Image 
-            src="/rank.gif" 
-            alt="rank" 
-            width={32} 
-            height={32} 
-            className="w-8 h-8 xl:w-10 xl:h-10" 
-          />
-          <Image 
-            src="/rank.gif" 
-            alt="rank" 
-            width={32} 
-            height={32} 
-            className="w-8 h-8 xl:w-10 xl:h-10" 
-          />
-        </div> */}
-        
-        <div className="flex flex-col gap-4 sm:gap-6 md:flex-row md:items-center md:gap-8">
+      <div className="bg-white px-3 sm:px-4 md:p-6 py-3 sm:py-4  relative rounded-xl mx-2 sm:mx-4 md:mx-0">
+        <div className="flex flex-col gap-4 w-full sm:gap-6 md:flex-row md:items-end md:gap-8 md:justify-between ">
           <div className="flex-shrink-0">
             <SectionTitle
               title="Bài giảng hoàn thành"
@@ -72,12 +143,12 @@ function LessonCompleteClient({ lessonData, initialFilterData, fetchFilterData }
               wrapperClassName="border-[#3EC474]"
             />
           </div>
-          
+
           <div className="w-full md:flex-1">
-            <FilterFacet 
-              initialFilterData={initialFilterData} 
-              fetchFilterData={fetchFilterData} 
-              onFilterChange={() => {}} 
+            <FilterFacet
+              initialFilterData={initialFilterData}
+              fetchFilterData={fetchFilterData}
+              onFilterChange={handleFilterChange}
             />
           </div>
         </div>
@@ -88,10 +159,12 @@ function LessonCompleteClient({ lessonData, initialFilterData, fetchFilterData }
               items={completedLessons}
               itemsPerPage={ITEMS_PER_PAGE}
               renderItem={(lessonItem) => (
-                <LessonCard 
+                <LessonCard
                   {...lessonItem}
                   classRoomName={lessonItem.className}
-                  schoolWeekId={lessonItem.schoolWeekId || lessonItem.schoolWeekID || 0}
+                  schoolWeekId={
+                    lessonItem.schoolWeekId || lessonItem.schoolWeekID || 0
+                  }
                 />
               )}
             />

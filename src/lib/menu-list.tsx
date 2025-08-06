@@ -41,7 +41,6 @@ export function useMenuList(
   pathname: string,
   currentTeachingMode: string
 ): Group[] {
-
   const { t } = useTranslation("", "common");
   const [classrooms, setClassrooms] = useState<ClassroomType[]>([]);
 
@@ -63,7 +62,7 @@ export function useMenuList(
         console.error("Failed to fetch classrooms:", error);
       }
     };
-    
+
     fetchClassrooms();
   }, [pathname, session, status]);
 
@@ -128,15 +127,8 @@ export function useMenuList(
               href: "/tien-trinh-giang-day/bai-giang-chua-day",
               label: t("lecturePending"),
               active: pathname === "/tien-trinh-giang-day/bai-giang-chua-day"
-            },
-            {
-              href: "/tien-trinh-giang-day/khoi-tao-lai-bai-giang",
-              label: t("recreateTheLecture"),
-              active:
-                pathname === "/tien-trinh-giang-day/khoi-tao-lai-bai-giang",
-              // disabled: true,
-              disabled: currentTeachingMode === "defaultMode"
             }
+
             // {
             //   href: "/main/khoa-hoc/tieng-anh-lop-5",
             //   label: "Tiếng anh lớp 5",
