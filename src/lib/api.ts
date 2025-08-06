@@ -63,9 +63,6 @@ export async function serverFetch(
 
     let response = await axios(axiosConfig);
 
-    if (endpoint.startsWith("/api/Users/")) {
-      console.log("API response", response.data);
-    }
     if (response.status === 401 && session?.user?.authCookie) {
       try {
         const tokenResponse = await refreshAccessToken(session.user.authCookie);
@@ -78,10 +75,24 @@ export async function serverFetch(
           headers
         };
         response = await axios(retryConfig);
-        console.log("token refresh status", response.status);
       } catch (refreshError) {
         console.error("Token refresh failed:", refreshError);
-        throw refreshError;
+
+        // If refresh token is expired (401), don't retry with old token
+        if (
+          axios.isAxiosError(refreshError) &&
+          refreshError.response?.status === 401
+        ) {
+          throw new Error(
+            "Authentication session expired. Please sign in again."
+          );
+        }
+
+        // For other refresh errors, continue with original response
+        // This allows the request to complete even if refresh fails
+        console.warn(
+          "Continuing with original response due to refresh failure"
+        );
       }
     }
 

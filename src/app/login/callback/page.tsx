@@ -29,7 +29,6 @@ function LoginCallbackContent() {
       })
         .then((res) => res.json())
         .then(async (data) => {
-          console.log("Google callback data:", data);
           if (data.success) {
             // Use the returned data to create a NextAuth session
             const authResult = await signInWithGoogleToken({

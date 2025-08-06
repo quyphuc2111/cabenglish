@@ -19,7 +19,6 @@ export async function GET(request: NextRequest) {
 
     // Get cookies from the incoming request
     const cookieHeader = request.headers.get("cookie") || "";
-    console.log("Cookie header:", cookieHeader);
 
     // Call the Google callback API endpoint
     const response = await fetch(
@@ -36,6 +35,9 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
 
     if (data.success) {
+      // Get the set-cookie header from the response
+      const setCookieHeader = response.headers.get("set-cookie");
+
       const jsonResponse = NextResponse.json({
         success: true,
         message: data.message || "Đăng nhập thành công!",
@@ -44,8 +46,21 @@ export async function GET(request: NextRequest) {
         username: data.username,
         email: data.email,
         roles: data.roles,
-        authCookie: response.headers.get("set-cookie") // Include the auth cookie in the response
+        authCookie: setCookieHeader // Include the auth cookie in the response
       });
+
+      // Forward the cookies from the backend response to the client
+      if (setCookieHeader) {
+        // Split multiple cookies if they exist
+        const cookies = setCookieHeader
+          .split(",")
+          .map((cookie) => cookie.trim());
+        cookies.forEach((cookie) => {
+          if (cookie.includes("bkt_account")) {
+            jsonResponse.headers.append("Set-Cookie", cookie);
+          }
+        });
+      }
 
       // Clear the google_auth_state cookie
       jsonResponse.headers.append(

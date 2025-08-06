@@ -62,6 +62,29 @@ interface Credentials {
 
 const ACC_DOMAIN = process.env.BKT_ACCOUNT_API_URL;
 
+// Simple lock to prevent concurrent refresh attempts
+const refreshLocks = new Map<string, Promise<any>>();
+
+// Helper function to parse JWT expiry with safety buffer
+function getJWTExpiryTime(token: string, fallbackSeconds?: number): number {
+  try {
+    const tokenParts = token.split(".");
+    if (tokenParts.length === 3) {
+      const payload = JSON.parse(atob(tokenParts[1]));
+      if (payload.exp) {
+        // JWT exp is in seconds, convert to milliseconds
+        // Subtract 10 seconds as buffer for clock drift
+        return payload.exp * 1000 - 10000;
+      }
+    }
+  } catch (error) {
+    console.error("Error parsing JWT expiry:", error);
+  }
+  // Fallback
+  const fallback = fallbackSeconds || 45;
+  return Date.now() + fallback * 1000;
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -132,8 +155,24 @@ export const authOptions: NextAuthOptions = {
             }
 
             const authCookie = loginResponse.headers["set-cookie"];
+
             const moodleCookie =
               "MoodleSession=3qfpb47l8gre739bhq3t0q61d0; path=/; secure; HttpOnly; SameSite=None";
+
+            // Extract bkt_account cookie specifically
+            let bktAccountCookie = undefined;
+            if (authCookie && Array.isArray(authCookie)) {
+              const bktCookie = authCookie.find((cookie) =>
+                cookie.includes("bkt_account=")
+              );
+              if (bktCookie) {
+                // Extract just the bkt_account cookie part
+                const match = bktCookie.match(/bkt_account=([^;]+)/);
+                bktAccountCookie = match
+                  ? `bkt_account=${match[1]}`
+                  : bktCookie;
+              }
+            }
 
             const user: User = {
               email: data.email,
@@ -151,7 +190,7 @@ export const authOptions: NextAuthOptions = {
                   | "theme-gold"
                   | "theme-pink"
                   | "theme-red") || "theme-blue",
-              authCookie: authCookie ? authCookie[0] : undefined,
+              authCookie: bktAccountCookie,
               moodleCookie: moodleCookie
             };
 
@@ -226,6 +265,15 @@ export const authOptions: NextAuthOptions = {
               ? parsedRoles
               : undefined;
 
+          // Extract bkt_account cookie specifically
+          let bktAccountCookie = authCookie;
+          if (authCookie && authCookie.includes("bkt_account=")) {
+            const match = authCookie.match(/bkt_account=([^;]+)/);
+            if (match) {
+              bktAccountCookie = `bkt_account=${match[1]}`;
+            }
+          }
+
           const user: User = {
             email: email,
             userId: accountId.toString(),
@@ -241,9 +289,9 @@ export const authOptions: NextAuthOptions = {
                 | "theme-gold"
                 | "theme-pink"
                 | "theme-red") || "theme-blue",
-            authCookie: authCookie, // Add this line to include the auth cookie
+            authCookie: bktAccountCookie,
             moodleCookie:
-              "MoodleSession=3qfpb47l8gre739bhq3t0q61d0; path=/; secure; HttpOnly; SameSite=None" // Add moodle cookie like in the other provider
+              "MoodleSession=3qfpb47l8gre739bhq3t0q61d0; path=/; secure; HttpOnly; SameSite=None"
           };
 
           return user;
@@ -277,7 +325,12 @@ export const authOptions: NextAuthOptions = {
         token.is_firstlogin = user.is_firstlogin;
         token.authCookie = user.authCookie;
         token.moodleCookie = user.moodleCookie;
-        token.accessTokenExpires = Date.now() + 1 * 60 * 1000; // 1 phút
+
+        // Parse JWT to get exact expiry time from backend
+        token.accessTokenExpires = user.accessToken
+          ? getJWTExpiryTime(user.accessToken)
+          : Date.now() + 45 * 1000;
+
         return token;
       }
 
@@ -302,15 +355,92 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (token.authCookie) {
+        // Validate refresh token format before attempting refresh
+        const { isRefreshTokenValid } = await import("@/hooks/client/userApi");
+        if (!isRefreshTokenValid(token.authCookie)) {
+          console.warn("Invalid refresh token format detected");
+          return {
+            ...token,
+            authCookie: undefined,
+            accessTokenExpires: 0
+          };
+        }
+
+        // Check if there's already a refresh in progress for this user
+        const userId = token.userId || "unknown";
+        if (refreshLocks.has(userId)) {
+          console.log("Refresh already in progress for user:", userId);
+          try {
+            const result = await refreshLocks.get(userId);
+            return result;
+          } catch (error) {
+            console.error("Waiting for refresh failed:", error);
+            refreshLocks.delete(userId);
+            // Return original token if concurrent refresh fails
+            return token;
+          }
+        }
+
+        // Start new refresh
+        const refreshPromise = (async () => {
+          try {
+            const { refreshAccessToken } = await import(
+              "@/hooks/client/userApi"
+            );
+            const refreshed = await refreshAccessToken(token.authCookie!);
+
+            // Try to parse JWT expiry, fallback to API response if fails
+            let newExpirationTime;
+            try {
+              newExpirationTime = getJWTExpiryTime(refreshed.accessToken);
+            } catch {
+              // If JWT parsing fails completely, use API response
+              newExpirationTime =
+                Date.now() + refreshed.expiresIn * 1000 - 10000; // 10s buffer
+            }
+
+            const updatedToken = {
+              ...token,
+              accessToken: refreshed.accessToken,
+              accessTokenExpires: newExpirationTime
+            };
+
+            return updatedToken;
+          } catch (refreshError) {
+            // If refresh fails, check if it's 401 (refresh token expired)
+            if (
+              axios.isAxiosError(refreshError) &&
+              refreshError.response?.status === 401
+            ) {
+              console.warn(
+                "Refresh token expired - user needs to re-authenticate"
+              );
+              // Clear the expired refresh token
+              return {
+                ...token,
+                authCookie: undefined,
+                accessTokenExpires: 0 // Force immediate expiration
+              };
+            }
+            // For other errors, return original token and let it try again later
+            throw refreshError;
+          } finally {
+            refreshLocks.delete(userId);
+          }
+        })();
+
+        refreshLocks.set(userId, refreshPromise);
+
         try {
-          const { refreshAccessToken } = await import("@/hooks/client/userApi");
-          const refreshed = await refreshAccessToken(token.authCookie);
-          token.accessToken = refreshed.accessToken;
-          token.accessTokenExpires = Date.now() + refreshed.expiresIn * 1000;
-          return token;
+          return await refreshPromise;
         } catch (error) {
           console.error("Refresh token failed in jwt callback:", error);
-          return token;
+          refreshLocks.delete(userId);
+          // Return original token with a shorter expiry to retry sooner
+          return {
+            ...token,
+            accessTokenExpires: Date.now() + 5 * 60 * 1000 // Retry in 5 minutes
+          };
         }
       }
 

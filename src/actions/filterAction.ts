@@ -51,8 +51,6 @@ export async function fetchFilterData({
     const isValidUnitId =
       unitId && unitId !== "reset" && !isNaN(Number(unitId));
 
-    console.log("fetchFilterData called with:", { classId, unitId, userId });
-
     // Gọi API với error handling riêng biệt
     let classroomsResponse = [];
     let unitsResponse = [];
@@ -60,7 +58,6 @@ export async function fetchFilterData({
 
     try {
       classroomsResponse = await serverFetch(`/api/Classroom/user/${userId}`);
-      console.log("Classrooms API response:", classroomsResponse);
     } catch (error) {
       console.error("Error fetching classrooms:", error);
       // Không throw error, chỉ log và sử dụng empty array
