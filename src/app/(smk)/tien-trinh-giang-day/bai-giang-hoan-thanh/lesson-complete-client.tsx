@@ -247,6 +247,30 @@ function LessonCompleteClient({
     useNavigationStore();
   const { isReturningFromLesson } = useNavigationRestore();
 
+  // Ensure selected lesson cache is reset on entering this page
+  // to avoid stale selection affecting navigation
+  // We import lazily to avoid circular deps at top-level
+  useEffect(() => {
+    let isMounted = true;
+    import("@/store/useSelectLesson")
+      .then(({ useSelectLessonStore }) => {
+        if (!isMounted) return;
+        const { clearSelectedLesson } = useSelectLessonStore.getState();
+        clearSelectedLesson();
+        // Optional: debug
+        // console.log("[lesson-complete] cleared selected-lesson-storage on mount");
+      })
+      .catch((e) => {
+        console.error(
+          "[lesson-complete] failed to clear selected-lesson-storage:",
+          e
+        );
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Local state for filters - no URL params
   const [selectedClassId, setSelectedClassId] = useState(
     lessonCompleteState?.selectedClassId || ""
@@ -270,6 +294,60 @@ function LessonCompleteClient({
   const [schoolWeeks, setSchoolWeeks] = useState<any[]>([]);
   const [loadingUnits, setLoadingUnits] = useState(false);
   const [loadingWeeks, setLoadingWeeks] = useState(false);
+
+  // Hydrate dependent options when coming back with restored filters
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadUnitsIfNeeded = async () => {
+      if (!selectedClassId || units.length > 0) return;
+      try {
+        setLoadingUnits(true);
+        const unitsResponse = await getUnitByClassId(selectedClassId, userId);
+        if (cancelled) return;
+        setUnits(
+          Array.isArray(unitsResponse)
+            ? unitsResponse
+            : unitsResponse?.data || []
+        );
+      } catch (e) {
+        if (!cancelled) {
+          console.error("[lesson-complete] restore units failed:", e);
+          setUnits([]);
+        }
+      } finally {
+        if (!cancelled) setLoadingUnits(false);
+      }
+    };
+
+    const loadWeeksIfNeeded = async () => {
+      if (!selectedUnitId || schoolWeeks.length > 0) return;
+      try {
+        setLoadingWeeks(true);
+        const weeksResponse = await getSchoolWeekByUnitId({
+          unitId: parseInt(selectedUnitId)
+        });
+        if (cancelled) return;
+        setSchoolWeeks(Array.isArray(weeksResponse) ? weeksResponse : []);
+      } catch (e) {
+        if (!cancelled) {
+          console.error("[lesson-complete] restore weeks failed:", e);
+          setSchoolWeeks([]);
+        }
+      } finally {
+        if (!cancelled) setLoadingWeeks(false);
+      }
+    };
+
+    // Only run on initial paint or when returning from lesson with stored state
+    // Populate child dropdowns so labels and disabled states are correct
+    loadUnitsIfNeeded().then(loadWeeksIfNeeded);
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [/* restore hydration */ selectedClassId, selectedUnitId]);
 
   // Restore scroll when returning from lesson and we have stored position
   useEffect(() => {
@@ -370,6 +448,25 @@ function LessonCompleteClient({
         selectedWeekId,
         scrollPosition: window.scrollY
       });
+
+      // Also set the selected lesson explicitly right before navigating
+      import("@/store/useSelectLesson")
+        .then(({ useSelectLessonStore }) => {
+          const { setSelectedLesson } = useSelectLessonStore.getState();
+          setSelectedLesson({
+            ...lessonItem,
+            lessonName: lessonItem.lessonName || "",
+            className: lessonItem.className || "",
+            unitName: lessonItem.unitName || "",
+            imageUrl: lessonItem.imageUrl || ""
+          });
+        })
+        .catch((e) => {
+          console.error(
+            "[lesson-complete] failed to set selected lesson before navigate:",
+            e
+          );
+        });
 
       // Navigate
       router.push(`/lesson/${lessonItem.lessonId}`);
