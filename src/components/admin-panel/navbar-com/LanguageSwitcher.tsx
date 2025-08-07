@@ -120,6 +120,12 @@ export function LanguageSwitcher({ t, userId }: LanguageSwitcherProps) {
       className="relative flex items-center w-full"
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 400, 
+        damping: 25,
+        duration: 0.15
+      }}
       onClick={handleContainerClick}
     >
       <div
@@ -127,7 +133,8 @@ export function LanguageSwitcher({ t, userId }: LanguageSwitcherProps) {
         bg-white px-3 sm:px-4 md:pr-5 
         h-10 sm:h-12 md:h-14 xl:h-12
         shadow-sm hover:shadow-md transition-all duration-200 
-        border border-gray-200 rounded-lg"
+        border border-gray-200 rounded-lg
+        transform-gpu will-change-transform backface-visibility-hidden"
       >
         {isLoading ? (
           <div className="flex items-center gap-3">
@@ -142,13 +149,14 @@ export function LanguageSwitcher({ t, userId }: LanguageSwitcherProps) {
                   ? "/assets/image/navbar/american_flag.webp"
                   : "/assets/image/navbar/vietnam_flag.webp"
               }
-              width={28}
-              height={28}
+              width={40}
+              height={40}
               alt={isChecked ? "american_flag" : "vietnam_flag"}
               className="rounded-sm w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 
-                object-contain flex-shrink-0"
+                object-cover flex-shrink-0 transform-gpu will-change-transform"
               priority
-              quality={90}
+              quality={100}
+              unoptimized={false}
             />
             <Switch
               id="change_language"

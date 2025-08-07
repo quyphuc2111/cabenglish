@@ -20,7 +20,7 @@ export function SheetMenu() {
         </Button>
       </SheetTrigger>
       <SheetContent className="sm:w-[75vw] sm:max-w-[75vw] px-3 h-full flex flex-col" side="left">
-        <SheetHeader className="mb-2">
+        <SheetHeader className="mb-2 flex-shrink-0">
           <div className="flex justify-center items-center w-full">
             <Link href="/" className="no-underline">
               <div className="flex flex-row items-center">
@@ -43,7 +43,9 @@ export function SheetMenu() {
             </Link>
           </div>
         </SheetHeader>
-        <Menu isOpen />
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <Menu isOpen />
+        </div>
       </SheetContent>
     </Sheet>
   );

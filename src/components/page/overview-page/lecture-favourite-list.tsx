@@ -10,7 +10,15 @@ import OptimizeImage from "@/components/common/optimize-image";
 interface LectureFavouriteListProps {
   courseData: any[];
   initialFilterData: any;
-  fetchFilterData: ({classId, unitId, userId}: {classId?: string, unitId?: string, userId?: string}) => Promise<any>;
+  fetchFilterData: ({
+    classId,
+    unitId,
+    userId
+  }: {
+    classId?: string;
+    unitId?: string;
+    userId?: string;
+  }) => Promise<any>;
   onDataRefetch?: () => Promise<void>;
 }
 
@@ -21,18 +29,20 @@ export function LectureFavouriteList({
   onDataRefetch
 }: LectureFavouriteListProps) {
   const [isMounted, setIsMounted] = useState(false);
-  
+
   // Sử dụng cùng format với FilterFacet
   const [filterValues, setFilterValues] = useState({
-    classId: '',
-    unitId: '',
-    userId: '',
-    weekId: '' // Sử dụng weekId để match với FilterFacet
+    classId: "",
+    unitId: "",
+    userId: "",
+    weekId: "" // Sử dụng weekId để match với FilterFacet
   });
 
   // State để track những lesson đang trong quá trình removing
-  const [removingLessons, setRemovingLessons] = useState<Set<number>>(new Set());
-  
+  const [removingLessons, setRemovingLessons] = useState<Set<number>>(
+    new Set()
+  );
+
   const { t } = useTranslation("", "common");
 
   useEffect(() => {
@@ -46,89 +56,89 @@ export function LectureFavouriteList({
   }, [courseData]);
 
   // Callback để trigger fadeout và refetch data từ server
-  const handleLikeUpdate = useCallback(async (lessonId: number, newLikeCount: number) => {
-    // Nếu unlike (newLikeCount = 0), thêm vào removing list và trigger fadeout
-    if (newLikeCount === 0) {
-      setRemovingLessons(prev => new Set([...prev, lessonId]));
-      
-      // Delay để animation fadeout có thời gian chạy
-      setTimeout(async () => {
+  const handleLikeUpdate = useCallback(
+    async (lessonId: number, newLikeCount: number) => {
+      // Nếu unlike (newLikeCount = 0), thêm vào removing list và trigger fadeout
+      if (newLikeCount === 0) {
+        setRemovingLessons((prev) => new Set([...prev, lessonId]));
+
+        // Delay để animation fadeout có thời gian chạy
+        setTimeout(async () => {
+          if (onDataRefetch) {
+            await onDataRefetch();
+          }
+        }, 800); // 800ms để animation fadeout hoàn thành
+      } else {
+        // Nếu like, refetch ngay lập tức
         if (onDataRefetch) {
           await onDataRefetch();
         }
-      }, 800); // 800ms để animation fadeout hoàn thành
-    } else {
-      // Nếu like, refetch ngay lập tức
-      if (onDataRefetch) {
-        await onDataRefetch();
       }
-    }
-  }, [onDataRefetch]);
+    },
+    [onDataRefetch]
+  );
 
   if (!isMounted) {
     return null;
   }
 
-  const filteredLessonData = courseData.filter((item) => {
-    const matchesLocked = !item.isLocked;
-    const matchesProgress = item.numLiked > 0 || removingLessons.has(item.lessonId); // Include removing lessons
-    const matchesClass = !filterValues.classId || item.classId === Number(filterValues.classId);
-    const matchesUnit = !filterValues.unitId || item.unitId === Number(filterValues.unitId);
-    
-    // Thử nhiều cách so sánh school week
-    const matchesSchoolWeek = !filterValues.weekId || 
-      item.schoolWeekId === Number(filterValues.weekId) ||
-      String(item.schoolWeekId) === filterValues.weekId ||
-      item.schoolWeek === Number(filterValues.weekId) ||
-      String(item.schoolWeek) === filterValues.weekId;
+  const filteredLessonData = courseData
+    .filter((item) => {
+      const matchesLocked = !item.isLocked;
+      const matchesProgress =
+        item.numLiked > 0 || removingLessons.has(item.lessonId); // Include removing lessons
+      const matchesClass =
+        !filterValues.classId || item.classId === Number(filterValues.classId);
+      const matchesUnit =
+        !filterValues.unitId || item.unitId === Number(filterValues.unitId);
 
-    return matchesClass && matchesUnit && matchesLocked && matchesSchoolWeek && matchesProgress;
-  })
-  .sort((a, b) => {
-    const dateA = a.updatedAt || a.createdAt || a.lessonId;
-    const dateB = b.updatedAt || b.createdAt || b.lessonId;
-    return dateB - dateA; 
-  })
-  .slice(0, 20);
+      // Thử nhiều cách so sánh school week
+      const matchesSchoolWeek =
+        !filterValues.weekId ||
+        item.schoolWeekId === Number(filterValues.weekId) ||
+        String(item.schoolWeekId) === filterValues.weekId ||
+        item.schoolWeek === Number(filterValues.weekId) ||
+        String(item.schoolWeek) === filterValues.weekId;
+
+      return (
+        matchesClass &&
+        matchesUnit &&
+        matchesLocked &&
+        matchesSchoolWeek &&
+        matchesProgress
+      );
+    })
+    .sort((a, b) => {
+      const dateA = a.updatedAt || a.createdAt || a.lessonId;
+      const dateB = b.updatedAt || b.createdAt || b.lessonId;
+      return dateB - dateA;
+    })
+    .slice(0, 20);
 
   const handleFilterChange = (newFilterValues: typeof filterValues) => {
     setFilterValues(newFilterValues);
   };
 
   return (
-    <div className="px-0 md:px-0">
-      <div className="flex items-center gap-2">
+    <div className="px-0 md:px-0 w-full">
+      {/* Header with title */}
+      <div className="flex items-center w-max gap-3 px-4 pt-3  bg-white rounded-t-xl">
         <Image
-          src="/book.gif"
-          alt="book"
-          width={40}
-          height={40}
-          className="w-8 h-8 md:w-10 md:h-10"
+          src="/favourite.png"
+          alt="favourite"
+          width={30}
+          height={30}
+          className="w-6 h-6 md:w-8 md:h-8"
         />
-        <p className="text-lg md:text-xl text-[#555555] font-medium">
-          {t("listOfLecture")}
-        </p>
+        <h3 className="font-bold text-gray-800 ">{t("favourite")}</h3>
       </div>
-
-      <div className="bg-white px-3 md:px-7 py-3 md:py-5 my-2 relative rounded-xl">
-        {/* Header with title */}
-        <div className="flex items-center gap-3 border-b-4 border-[#EA69AE]/50 w-fit pr-6 pb-1 mb-3">
-          <Image
-            src="/favourite.png"
-            alt="favourite"
-            width={30}
-            height={30}
-            className="w-6 h-6 md:w-8 md:h-8"
-          />
-          <p className="text-base md:text-lg">{t("favourite")}</p>
-        </div>
-
+      <div className="bg-white px-3 md:px-7 py-3 md:py-5  relative rounded-tr-xl rounded-b-xl ">
         {/* Filter section */}
-        <div className="mb-4 md:mb-6">
-          <FilterFacet 
-            initialFilterData={initialFilterData} 
+        <div className="mb-4 md:mb-6 ">
+          <FilterFacet
+            initialFilterData={initialFilterData}
             fetchFilterData={fetchFilterData}
-            onFilterChange={handleFilterChange} 
+            onFilterChange={handleFilterChange}
           />
         </div>
 
@@ -140,8 +150,8 @@ export function LectureFavouriteList({
 
         <div className="relative pt-3">
           {filteredLessonData.length > 0 ? (
-            <CourseCarousel 
-              courseData={filteredLessonData} 
+            <CourseCarousel
+              courseData={filteredLessonData}
               onLikeUpdate={handleLikeUpdate}
               removingLessons={removingLessons}
             />

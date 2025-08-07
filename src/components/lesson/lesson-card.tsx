@@ -182,7 +182,7 @@ function LessonCard({
       scale: 1,
       transition: {
         duration: 0.5,
-        ease: "easeOut"
+        ease: "easeOut" as const
       }
     },
     removing: {
@@ -190,7 +190,7 @@ function LessonCard({
       scale: 0.85,
       transition: {
         duration: 0.8,
-        ease: "easeInOut"
+        ease: "easeInOut" as const
       }
     },
     hover: {

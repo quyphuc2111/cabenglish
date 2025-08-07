@@ -19,7 +19,7 @@ const foregroundThemeClasses: Record<string, string> = {
 export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
   return (
     <motion.div
-      className={`w-full rounded-xl max-h-24 h-20 sm:h-24 ${foregroundThemeClasses[currentTheme]} md:rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative `}
+      className={`w-full 3xl:w-5/6 rounded-xl max-h-24 h-20 sm:h-24 ${foregroundThemeClasses[currentTheme]} md:rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative `}
       variants={navbarAnimations.item}
     >
       <motion.div
