@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, memo, useMemo } from "react";
+import React, { useState, useCallback, memo, useMemo, useEffect } from "react";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import SectionTitle from "@/components/common/section-title";
 import Image from "next/image";
@@ -12,6 +12,9 @@ import { getUnitByClassId } from "@/actions/unitsAction";
 import { getSchoolWeekByUnitId } from "@/actions/schoolWeekAction";
 import { ChevronDown, Users, BookOpen, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { useNavigationStore } from "@/store/navigationStore";
+import { useNavigationRestore } from "@/hooks/useNavigationRestore";
 
 // Memoized stats component
 const LessonStats = memo(
@@ -175,7 +178,14 @@ function LessonPendingClient({
   classrooms: ClassroomType[];
   userId: string;
 }) {
-  // State cho các filter
+  const router = useRouter();
+  const { setPreviousPage } = useNavigationStore();
+  const { isReturningFromLesson } = useNavigationRestore();
+
+  // Keys for sessionStorage persistence
+  const PERSIST_KEY = "lesson_pending_filters_v1";
+
+  // State cho các filter (khôi phục từ sessionStorage nếu có)
   const [selectedClassId, setSelectedClassId] = useState<string>("");
   const [selectedUnitId, setSelectedUnitId] = useState<string>("");
   const [selectedWeekId, setSelectedWeekId] = useState<string>("");
@@ -183,6 +193,118 @@ function LessonPendingClient({
   const [schoolWeeks, setSchoolWeeks] = useState<any[]>([]);
   const [loadingUnits, setLoadingUnits] = useState(false);
   const [loadingWeeks, setLoadingWeeks] = useState(false);
+
+  // Load filters from sessionStorage on mount (and when returning)
+  useEffect(() => {
+    try {
+      const raw =
+        typeof window !== "undefined"
+          ? sessionStorage.getItem(PERSIST_KEY)
+          : null;
+      if (raw) {
+        const parsed = JSON.parse(raw) as {
+          selectedClassId?: string;
+          selectedUnitId?: string;
+          selectedWeekId?: string;
+          scrollPosition?: number;
+        };
+        if (parsed.selectedClassId) setSelectedClassId(parsed.selectedClassId);
+        if (parsed.selectedUnitId) setSelectedUnitId(parsed.selectedUnitId);
+        if (parsed.selectedWeekId) setSelectedWeekId(parsed.selectedWeekId);
+      }
+    } catch {
+      // noop
+    }
+  }, []);
+
+  // Clear stale selected lesson cache when entering this page
+  useEffect(() => {
+    let mounted = true;
+    import("@/store/useSelectLesson")
+      .then(({ useSelectLessonStore }) => {
+        if (!mounted) return;
+        const { clearSelectedLesson } = useSelectLessonStore.getState();
+        clearSelectedLesson();
+      })
+      .catch((e) => {
+        console.error(
+          "[lesson-pending] failed to clear selected-lesson-storage:",
+          e
+        );
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Hydrate dependent options (units, weeks) when filters are restored or changed
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadUnitsIfNeeded = async () => {
+      if (!selectedClassId || units.length > 0) return;
+      try {
+        setLoadingUnits(true);
+        const unitsResponse = await getUnitByClassId(selectedClassId, userId);
+        if (cancelled) return;
+        setUnits(
+          Array.isArray(unitsResponse)
+            ? unitsResponse
+            : (unitsResponse as any)?.data || []
+        );
+      } catch (e) {
+        if (!cancelled) {
+          console.error("[lesson-pending] restore units failed:", e);
+          setUnits([]);
+        }
+      } finally {
+        if (!cancelled) setLoadingUnits(false);
+      }
+    };
+
+    const loadWeeksIfNeeded = async () => {
+      if (!selectedUnitId || schoolWeeks.length > 0) return;
+      try {
+        setLoadingWeeks(true);
+        const weeksResponse = await getSchoolWeekByUnitId({
+          unitId: parseInt(selectedUnitId)
+        });
+        if (cancelled) return;
+        setSchoolWeeks(Array.isArray(weeksResponse) ? weeksResponse : []);
+      } catch (e) {
+        if (!cancelled) {
+          console.error("[lesson-pending] restore weeks failed:", e);
+          setSchoolWeeks([]);
+        }
+      } finally {
+        if (!cancelled) setLoadingWeeks(false);
+      }
+    };
+
+    loadUnitsIfNeeded().then(loadWeeksIfNeeded);
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [/* restore hydration */ selectedClassId, selectedUnitId]);
+
+  // Restore scroll on return (after potential hydration)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (isReturningFromLesson) {
+      try {
+        const raw = sessionStorage.getItem(PERSIST_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        const pos = parsed?.scrollPosition ?? 0;
+        if (pos > 0) {
+          setTimeout(() => window.scrollTo(0, pos), 100);
+        }
+      } catch {
+        // noop
+      }
+    }
+  }, [isReturningFromLesson]);
 
   // Lọc bài học theo các filter
   const filteredLessons = useMemo(() => {
@@ -271,17 +393,92 @@ function LessonPendingClient({
     setSelectedWeekId(weekId);
   }, []);
 
-  // Memoized render function for lesson cards
+  // Điều hướng tới bài học khi không bị khóa + lưu state/trạng thái trước
+  const handleNavigateToLesson = useCallback(
+    (lessonItem: LessonType) => {
+      if (lessonItem.isLocked) {
+        // Locked: giữ nguyên behavior hiện tại (LessonCard có thể tự hiển thị thông báo)
+        return;
+      }
+
+      // Persist filters + scroll to sessionStorage for restoration
+      try {
+        sessionStorage.setItem(
+          PERSIST_KEY,
+          JSON.stringify({
+            selectedClassId,
+            selectedUnitId,
+            selectedWeekId,
+            scrollPosition: window.scrollY
+          })
+        );
+      } catch {
+        // ignore quota or access errors
+      }
+
+      // Lưu previous page (để back về đúng nơi)
+      setPreviousPage({
+        url: "/tien-trinh-giang-day/bai-giang-chua-day",
+        title: "Bài giảng chưa dạy",
+        state: {
+          scrollPosition: window.scrollY,
+          filters: {
+            selectedClassId,
+            selectedUnitId,
+            selectedWeekId
+          }
+        }
+      });
+
+      // Set selected lesson trước khi điều hướng
+      import("@/store/useSelectLesson")
+        .then(({ useSelectLessonStore }) => {
+          const { setSelectedLesson } = useSelectLessonStore.getState();
+          setSelectedLesson({
+            ...lessonItem,
+            lessonName: lessonItem.lessonName || "",
+            className: lessonItem.className || "",
+            unitName: lessonItem.unitName || "",
+            imageUrl: lessonItem.imageUrl || ""
+          });
+        })
+        .catch((e) => {
+          console.error(
+            "[lesson-pending] failed to set selected lesson before navigate:",
+            e
+          );
+        });
+
+      router.push(`/lesson/${lessonItem.lessonId}`);
+    },
+    [router, selectedClassId, selectedUnitId, selectedWeekId, setPreviousPage]
+  );
+
+  // Memoized render function for lesson cards (wrapper clickable như trang hoàn thành)
   const renderLessonCard = useCallback(
     (lessonItem: LessonType) => (
-      <LessonCard
-        {...lessonItem}
-        classRoomName={lessonItem.className}
-        schoolWeekId={lessonItem.schoolWeekId || lessonItem.schoolWeekID || 0}
+      <div
         key={`pending-${lessonItem.lessonId}`}
-      />
+        role="button"
+        tabIndex={0}
+        onClick={() => handleNavigateToLesson(lessonItem)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleNavigateToLesson(lessonItem);
+          }
+        }}
+        className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-xl"
+        style={{ pointerEvents: "auto" }}
+      >
+        <LessonCard
+          {...lessonItem}
+          classRoomName={lessonItem.className}
+          schoolWeekId={lessonItem.schoolWeekId || lessonItem.schoolWeekID || 0}
+        />
+      </div>
     ),
-    []
+    [handleNavigateToLesson]
   );
 
   return (
