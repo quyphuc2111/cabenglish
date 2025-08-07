@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { LessonType } from "@/types/lesson";
 import { ClassroomType } from "@/types/classroom";
 import LessonCard from "@/components/lesson/lesson-card";
+import { useNavigationStore } from "@/store/navigationStore";
+import { useNavigationRestore } from "@/hooks/useNavigationRestore";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
@@ -102,12 +104,22 @@ ClassroomTab.displayName = "ClassroomTab";
 
 // Memoized LessonSlide component để tối ưu hiệu năng
 const LessonSlide = memo(
-  ({ lesson, router }: { lesson: LessonType; router: any }) => {
+  ({
+    lesson,
+    router,
+    onNavigateToLesson
+  }: {
+    lesson: LessonType;
+    router: any;
+    onNavigateToLesson: () => void;
+  }) => {
     const handleClick = useCallback(() => {
       if (!lesson.isLocked) {
+        // Gọi callback để lưu navigation state
+        onNavigateToLesson();
         router.push(`/lesson/${lesson.lessonId}`);
       }
-    }, [lesson.isLocked, lesson.lessonId, router]);
+    }, [lesson.isLocked, lesson.lessonId, router, onNavigateToLesson]);
 
     const customLesson = useMemo(
       () => ({
@@ -220,13 +232,32 @@ function LessonTeachingClient({
   const router = useRouter();
   const breakpoint = useBreakpoint();
 
+  // Navigation store để lưu trạng thái
+  const { lessonTeachingState, setLessonTeachingState, setPreviousPage } =
+    useNavigationStore();
+
+  // Hook để xử lý việc khôi phục state khi quay lại
+  const { isReturningFromLesson } = useNavigationRestore();
+
   // Ensure component is hydrated trên client
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // State local để quản lý activeTab, mặc định là "all"
-  const [activeTab, setActiveTab] = useState<string>("all");
+  // Khôi phục scroll position khi component mount
+  useEffect(() => {
+    if (isClient && lessonTeachingState.scrollPosition > 0) {
+      // Delay để đảm bảo DOM đã render xong
+      setTimeout(() => {
+        window.scrollTo(0, lessonTeachingState.scrollPosition);
+      }, 100);
+    }
+  }, [isClient, lessonTeachingState.scrollPosition]);
+
+  // State local để quản lý activeTab, khôi phục từ store nếu có
+  const [activeTab, setActiveTab] = useState<string>(
+    lessonTeachingState.activeTab || "all"
+  );
 
   // Tính toán slides per view dựa trên breakpoint - memoized
   const slidesPerView = useMemo(() => {
@@ -272,11 +303,16 @@ function LessonTeachingClient({
     [teachingLessons]
   );
 
-  // Function để update activeTab - đơn giản hóa không cần URL params
-  const updateActiveTab = useCallback((tab: string) => {
-    console.log("🔄 Setting active tab:", tab);
-    setActiveTab(tab);
-  }, []);
+  // Function để update activeTab và lưu vào store
+  const updateActiveTab = useCallback(
+    (tab: string) => {
+      console.log("🔄 Setting active tab:", tab);
+      setActiveTab(tab);
+      // Lưu trạng thái vào store
+      setLessonTeachingState({ activeTab: tab });
+    },
+    [setLessonTeachingState]
+  );
 
   // Filter data theo classroom được chọn - memoized
   const getFilteredDataByClassroom = useCallback(
@@ -354,6 +390,25 @@ function LessonTeachingClient({
     },
     [currentSwiper]
   );
+
+  // Callback để lưu navigation state trước khi chuyển trang
+  const handleNavigateToLesson = useCallback(() => {
+    // Lưu thông tin trang hiện tại vào store
+    setPreviousPage({
+      url: "/tien-trinh-giang-day/bai-giang-dang-day",
+      title: "Bài giảng đang dạy",
+      state: {
+        activeTab,
+        scrollPosition: window.scrollY
+      }
+    });
+
+    // Cập nhật lesson teaching state
+    setLessonTeachingState({
+      activeTab,
+      scrollPosition: window.scrollY
+    });
+  }, [activeTab, setPreviousPage, setLessonTeachingState]);
 
   // Classroom tabs memoized với performance optimization
   const classroomTabs = useMemo(() => {
@@ -596,7 +651,11 @@ function LessonTeachingClient({
                       <div className="grid grid-cols-1 gap-4">
                         {filteredTeachingLessons.map((lesson, index) => (
                           <div key={`${lesson.lessonId}-${index}`}>
-                            <LessonSlide lesson={lesson} router={router} />
+                            <LessonSlide
+                              lesson={lesson}
+                              router={router}
+                              onNavigateToLesson={handleNavigateToLesson}
+                            />
                           </div>
                         ))}
                       </div>
@@ -663,7 +722,11 @@ function LessonTeachingClient({
                         >
                           {filteredTeachingLessons.map((lesson, index) => (
                             <SwiperSlide key={`${lesson.lessonId}-${index}`}>
-                              <LessonSlide lesson={lesson} router={router} />
+                              <LessonSlide
+                                lesson={lesson}
+                                router={router}
+                                onNavigateToLesson={handleNavigateToLesson}
+                              />
                             </SwiperSlide>
                           ))}
                         </Swiper>
