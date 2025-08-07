@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import * as Sentry from "@sentry/nextjs";
+
 import { GenericTable } from "@/components/admin/table/common/generic-table";
 import { Button } from "@/components/ui/button";
 import { useSchoolWeek } from "@/hooks/use-schoolweek";
@@ -11,11 +11,13 @@ import { SchoolWeekCombobox } from "@/components/admin/combobox/schoolweek-combo
 import { Download, Plus, Upload } from "lucide-react";
 
 // Xử lý lỗi
-const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
-  Sentry.captureException(error, {
-    tags: { component, operation },
-    extra
-  });
+const handleError = (
+  error: any,
+  component: string,
+  operation: string,
+  extra?: Record<string, any>
+) => {
+  // ...existing code...
 };
 
 interface ActionButtonsProps {
@@ -26,7 +28,13 @@ interface ActionButtonsProps {
   onCreate: () => void;
 }
 
-const ActionButtons = ({ rowSelection, onDelete, onExport, onImport, onCreate }: ActionButtonsProps) => (
+const ActionButtons = ({
+  rowSelection,
+  onDelete,
+  onExport,
+  onImport,
+  onCreate
+}: ActionButtonsProps) => (
   <>
     {Object.keys(rowSelection).length > 0 && (
       <Button variant="destructive" onClick={onDelete}>
@@ -52,9 +60,13 @@ const ActionButtons = ({ rowSelection, onDelete, onExport, onImport, onCreate }:
 );
 
 function SchoolWeekContainerClient() {
-  const [selectedWeekId, setSelectedWeekId] = React.useState<string | null>(null);
-  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
-  
+  const [selectedWeekId, setSelectedWeekId] = React.useState<string | null>(
+    null
+  );
+  const [rowSelection, setRowSelection] = React.useState<
+    Record<string, boolean>
+  >({});
+
   const { data, isLoading, error } = useSchoolWeek();
   const columns = useSchoolWeekColumns();
   const { onOpen } = useModal();
@@ -62,7 +74,7 @@ function SchoolWeekContainerClient() {
   // Xử lý lỗi data fetching
   React.useEffect(() => {
     if (error) {
-      handleError(error, 'SchoolWeekContainerClient', 'data_fetching');
+      handleError(error, "SchoolWeekContainerClient", "data_fetching");
     }
   }, [error]);
 
@@ -70,16 +82,16 @@ function SchoolWeekContainerClient() {
     try {
       onOpen(modalType, options);
     } catch (error) {
-      handleError(error, 'SchoolWeekContainerClient', `open_${modalType}`);
+      handleError(error, "SchoolWeekContainerClient", `open_${modalType}`);
     }
   };
 
   const handleDeleteSchoolWeek = () => {
     const selectedIds = Object.keys(rowSelection);
-    const selectedWeeks = data?.data.filter(week => 
+    const selectedWeeks = data?.data.filter((week) =>
       selectedIds.includes(week.swId.toString())
     );
-    
+
     handleModalOpen("deleteSchoolWeek", {
       schoolWeekIds: selectedIds,
       schoolWeeks: selectedWeeks,
@@ -87,25 +99,25 @@ function SchoolWeekContainerClient() {
     });
   };
 
-
-
   const filteredData = React.useMemo(() => {
     if (!data?.data) return [];
-    
+
     let filtered = [...data.data];
-    
+
     // Lọc theo tuần học được chọn
     if (selectedWeekId) {
-      filtered = filtered.filter(week => week.swId === Number(selectedWeekId));
+      filtered = filtered.filter(
+        (week) => week.swId === Number(selectedWeekId)
+      );
     }
-    
+
     // Mặc định sắp xếp từ thấp đến cao theo giá trị tuần học
     filtered.sort((a, b) => {
-      const valueA = parseInt(a.value) || 0;
-      const valueB = parseInt(b.value) || 0;
+      const valueA = parseInt(String(a.value)) || 0;
+      const valueB = parseInt(String(b.value)) || 0;
       return valueA - valueB;
     });
-    
+
     return filtered;
   }, [data?.data, selectedWeekId]);
 
@@ -116,9 +128,9 @@ function SchoolWeekContainerClient() {
         columns={columns}
         isLoading={isLoading}
         searchComponent={
-          <SchoolWeekCombobox 
-            onSelect={setSelectedWeekId} 
-            placeholder="Tìm kiếm tuần học..." 
+          <SchoolWeekCombobox
+            onSelect={setSelectedWeekId}
+            placeholder="Tìm kiếm tuần học..."
           />
         }
         actionButtons={
@@ -127,7 +139,9 @@ function SchoolWeekContainerClient() {
             onDelete={handleDeleteSchoolWeek}
             onExport={() => handleModalOpen("exportSchoolWeek")}
             onImport={() => handleModalOpen("importSchoolWeek")}
-            onCreate={() => handleModalOpen("createUpdateSchoolWeek", { formType: "create" })}
+            onCreate={() =>
+              handleModalOpen("createUpdateSchoolWeek", { formType: "create" })
+            }
           />
         }
         // filterFunction={filterSchoolWeeks}

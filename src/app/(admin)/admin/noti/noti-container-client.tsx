@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import * as Sentry from "@sentry/nextjs";
+
 import { GenericTable } from "@/components/admin/table/common/generic-table";
 import { Button } from "@/components/ui/button";
 import { ModalData, ModalType, useModal } from "@/hooks/useModalStore";
@@ -12,11 +12,13 @@ import { NotiTypeCombobox } from "@/components/admin/combobox/notitype-combobox"
 import { useNotiStore } from "@/store/useNoti";
 
 // Xử lý lỗi
-const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
-  Sentry.captureException(error, {
-    tags: { component, operation },
-    extra
-  });
+const handleError = (
+  error: any,
+  component: string,
+  operation: string,
+  extra?: Record<string, any>
+) => {
+  // ...existing code...
 };
 
 interface ActionButtonsProps {
@@ -73,8 +75,7 @@ function NotiContainerClient() {
     Record<string, boolean>
   >({});
 
-  const {selectedNotiType, setSelectedNotiType} = useNotiStore();
-
+  const { selectedNotiType, setSelectedNotiType } = useNotiStore();
 
   const columns = useNotiColumns();
   const { onOpen } = useModal();

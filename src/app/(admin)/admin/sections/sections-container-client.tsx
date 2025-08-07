@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import * as Sentry from "@sentry/nextjs";
+// ...existing code...
 import { GenericTable } from "@/components/admin/table/common/generic-table";
 import { Button } from "@/components/ui/button";
 import { useSchoolWeek } from "@/hooks/use-schoolweek";
@@ -13,14 +13,19 @@ import { UnitByClassCombobox } from "@/components/admin/combobox/unitbyclass-com
 import { showToast } from "@/utils/toast-config";
 // import { useUnitByClassId } from "@/hooks/use-units";
 import { LessonCombobox } from "@/components/admin/combobox/lesson-combobox";
-import { useGetSectionByLessonId, useDeleteSection } from "@/hooks/use-sections";
-import { useLessonStore } from '@/store/use-lesson-store';
+import {
+  useGetSectionByLessonId,
+  useDeleteSection
+} from "@/hooks/use-sections";
+import { useLessonStore } from "@/store/use-lesson-store";
 
-const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
-  Sentry.captureException(error, {
-    tags: { component, operation },
-    extra
-  });
+const handleError = (
+  error: any,
+  component: string,
+  operation: string,
+  extra?: Record<string, any>
+) => {
+  // ...existing code...
 };
 
 interface ActionButtonsProps {
@@ -59,7 +64,7 @@ const ActionButtons = ({
       </div>
     ) : (
       <div className="flex flex-row gap-4 items-center flex-wrap justify-end">
-         <Button
+        <Button
           className="bg-blue-500 hover:bg-blue-600 text-white"
           onClick={onCreate}
         >
@@ -67,22 +72,20 @@ const ActionButtons = ({
           Tạo mới Section
         </Button>
         <div className="flex flex-row gap-4 items-center justify-end flex-wrap">
-        {Object.keys(rowSelection).length > 0 && (
-          <Button variant="destructive" onClick={onDelete}>
-            Xóa ({Object.keys(rowSelection).length})
+          {Object.keys(rowSelection).length > 0 && (
+            <Button variant="destructive" onClick={onDelete}>
+              Xóa ({Object.keys(rowSelection).length})
+            </Button>
+          )}
+          <Button variant="outline" onClick={onExport}>
+            <Download className="w-4 h-4 mr-2" />
+            Xuất dữ liệu
           </Button>
-        )}
-        <Button variant="outline" onClick={onExport}>
-          <Download className="w-4 h-4 mr-2" />
-          Xuất dữ liệu
-        </Button>
-        <Button variant="outline" onClick={onImport}>
-          <Upload className="w-4 h-4 mr-2" />
-          Nhập dữ liệu
-        </Button>
+          <Button variant="outline" onClick={onImport}>
+            <Upload className="w-4 h-4 mr-2" />
+            Nhập dữ liệu
+          </Button>
         </div>
-       
-       
       </div>
     )}
   </>
@@ -92,20 +95,24 @@ function SectionsContainerClient() {
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
   >({});
-  const { activeLesson, activateLesson, activateUnit, activateClass } = useLessonStore();
+  const { activeLesson, activateLesson, activateUnit, activateClass } =
+    useLessonStore();
 
   const columns = useSectionColumns();
   const { onOpen } = useModal();
 
   React.useEffect(() => {
-    activateLesson("")
-    activateUnit("")
-    activateClass("")
+    activateLesson("");
+    activateUnit("");
+    activateClass("");
   }, []);
 
-  const { data: sectionData, isLoading: sectionLoading, error: sectionError } =
-    useGetSectionByLessonId(Number(activeLesson.lessonId));
-    
+  const {
+    data: sectionData,
+    isLoading: sectionLoading,
+    error: sectionError
+  } = useGetSectionByLessonId(Number(activeLesson.lessonId));
+
   const { mutate: deleteSection, isPending: isDeleting } = useDeleteSection();
 
   React.useEffect(() => {
@@ -124,7 +131,7 @@ function SectionsContainerClient() {
 
   const handleDeleteSection = () => {
     const selectedIds = Object.keys(rowSelection);
-    
+
     if (selectedIds.length === 0) {
       showToast.error("Vui lòng chọn ít nhất một section để xóa!");
       return;
@@ -158,47 +165,56 @@ function SectionsContainerClient() {
       }
     );
   };
-  const handleSelectClassroom = React.useCallback((value: string) => {
-    activateClass(value);
-    activateUnit("");
-    activateLesson("");
+  const handleSelectClassroom = React.useCallback(
+    (value: string) => {
+      activateClass(value);
+      activateUnit("");
+      activateLesson("");
 
-    if (value) {
-      showToast.success(
-        <div className="flex flex-col gap-1">
-          <p className="font-medium">Đã chọn lớp học!</p>
-        </div>
-      );
-    }
-  }, [activateClass, activateUnit, activateLesson]);
+      if (value) {
+        showToast.success(
+          <div className="flex flex-col gap-1">
+            <p className="font-medium">Đã chọn lớp học!</p>
+          </div>
+        );
+      }
+    },
+    [activateClass, activateUnit, activateLesson]
+  );
 
-  const handleSelectUnit = React.useCallback((value: string) => {
-    activateUnit(value);
-    activateLesson("");
+  const handleSelectUnit = React.useCallback(
+    (value: string) => {
+      activateUnit(value);
+      activateLesson("");
 
-    if (value) {
-      showToast.success(
-        <div className="flex flex-col gap-1">
-          <p className="font-medium">Đã chọn unit!</p>
-        </div>
-      );
-    }
-  }, [activateUnit, activateLesson]);
+      if (value) {
+        showToast.success(
+          <div className="flex flex-col gap-1">
+            <p className="font-medium">Đã chọn unit!</p>
+          </div>
+        );
+      }
+    },
+    [activateUnit, activateLesson]
+  );
 
-  const handleSelectLesson = React.useCallback((value: string) => {
-    activateLesson(value);
-    
-    if (value) {
-      showToast.success(
-        <div className="flex flex-col gap-1">
-          <p className="font-medium">Đã chọn bài học!</p>
-          <p className="text-sm text-gray-600">
-            Bạn có thể bắt đầu tạo section cho bài học này.
-          </p>
-        </div>
-      );
-    }
-  }, [activateLesson]);
+  const handleSelectLesson = React.useCallback(
+    (value: string) => {
+      activateLesson(value);
+
+      if (value) {
+        showToast.success(
+          <div className="flex flex-col gap-1">
+            <p className="font-medium">Đã chọn bài học!</p>
+            <p className="text-sm text-gray-600">
+              Bạn có thể bắt đầu tạo section cho bài học này.
+            </p>
+          </div>
+        );
+      }
+    },
+    [activateLesson]
+  );
 
   const handleCreateSection = () => {
     if (!activeLesson.lessonId || activeLesson.lessonId === "") {

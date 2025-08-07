@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import * as Sentry from "@sentry/nextjs";
+
 import { GenericTable } from "@/components/admin/table/common/generic-table";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/hooks/useModalStore";
@@ -14,11 +14,13 @@ import { Plus, Download, Upload } from "lucide-react";
 import { useLessonStore } from "@/store/use-lesson-store";
 
 // Xử lý lỗi
-const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
-  Sentry.captureException(error, {
-    tags: { component, operation },
-    extra
-  });
+const handleError = (
+  error: any,
+  component: string,
+  operation: string,
+  extra?: Record<string, any>
+) => {
+  // ...existing code...
 };
 
 interface UnitRow {
@@ -34,7 +36,14 @@ interface ActionButtonsProps {
   rowSelection: Record<string, boolean>;
 }
 
-const ActionButtons = ({ rowSelection, onDelete, onExport, onImport, onCreate, isEnabled }: ActionButtonsProps) => (
+const ActionButtons = ({
+  rowSelection,
+  onDelete,
+  onExport,
+  onImport,
+  onCreate,
+  isEnabled
+}: ActionButtonsProps) => (
   <>
     {!isEnabled ? (
       <div className="flex items-center text-gray-500 italic">
@@ -50,8 +59,7 @@ const ActionButtons = ({ rowSelection, onDelete, onExport, onImport, onCreate, i
           Tạo unit mới
         </Button>
         <div className="flex flex-col xl:flex-row gap-4 w-full xl:w-auto">
-       
-          <Button variant="outline" onClick={onExport} >
+          <Button variant="outline" onClick={onExport}>
             <Download className="w-4 h-4 mr-2" />
             Xuất dữ liệu
           </Button>
@@ -59,7 +67,7 @@ const ActionButtons = ({ rowSelection, onDelete, onExport, onImport, onCreate, i
             <Upload className="w-4 h-4 mr-2" />
             Nhập dữ liệu
           </Button>
-             {Object.keys(rowSelection).length > 0 && onDelete && (
+          {Object.keys(rowSelection).length > 0 && onDelete && (
             <Button variant="destructive" onClick={onDelete}>
               Xóa ({Object.keys(rowSelection).length})
             </Button>
@@ -71,9 +79,12 @@ const ActionButtons = ({ rowSelection, onDelete, onExport, onImport, onCreate, i
 );
 
 function UnitsContainerClient() {
-  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
+  const [rowSelection, setRowSelection] = React.useState<
+    Record<string, boolean>
+  >({});
 
-  const { activateClass, activateUnit, activateLesson, activeLesson } = useLessonStore();
+  const { activateClass, activateUnit, activateLesson, activeLesson } =
+    useLessonStore();
 
   const { data, isLoading, error } = useUnitByClassId(activeLesson.classId);
   const columns = useUnitsColumns();
@@ -82,7 +93,7 @@ function UnitsContainerClient() {
   // Xử lý lỗi data fetching
   React.useEffect(() => {
     if (error) {
-      handleError(error, 'UnitsContainerClient', 'data_fetching');
+      handleError(error, "UnitsContainerClient", "data_fetching");
     }
   }, [error]);
 
@@ -93,23 +104,19 @@ function UnitsContainerClient() {
     activateClass("");
   }, [activateLesson, activateUnit, activateClass]);
 
-
   const filteredData = React.useMemo(() => {
     if (!data?.data) return [];
-    
+
     let filtered = [...data.data];
-    
+
     if (activeLesson.unitId) {
       filtered = filtered.filter(
-        unit => unit.unitId === Number(activeLesson.unitId)
+        (unit) => unit.unitId === Number(activeLesson.unitId)
       );
     }
-    
+
     return filtered;
   }, [data?.data, activeLesson.unitId, activeLesson.classId]);
-
-
-
 
   const handleCreateUnits = React.useCallback(() => {
     if (!activeLesson.classId) {
@@ -123,7 +130,7 @@ function UnitsContainerClient() {
       );
       return;
     }
-    
+
     onOpen("createUpdateUnits", {
       formType: "create",
       classroomId: activeLesson.classId
@@ -135,7 +142,7 @@ function UnitsContainerClient() {
   //   setSelectedUnitId("");
 
   //   activateClass(value)
-    
+
   //   if (value) {
   //     toast.success(
   //       <div className="flex flex-col gap-1">
@@ -148,10 +155,10 @@ function UnitsContainerClient() {
   //   }
   // }, []);
 
-   const handleSelectClassroom = React.useCallback((value: string) => {
+  const handleSelectClassroom = React.useCallback((value: string) => {
     activateClass(value);
     activateUnit("");
-    
+
     if (value) {
       toast.success(
         <div className="flex flex-col gap-1">
@@ -172,19 +179,17 @@ function UnitsContainerClient() {
     if (!filter) return data;
     if (!Array.isArray(data)) return [];
 
-    return data.filter((item) => 
+    return data.filter((item) =>
       item.unitName.toLowerCase().includes(filter.toLowerCase())
     );
   }, []);
 
-
-
   const handleDeleteUnits = React.useCallback(() => {
     const selectedIds = Object.keys(rowSelection);
-    const selectedUnits = data?.data?.filter(unit => 
+    const selectedUnits = data?.data?.filter((unit) =>
       selectedIds.includes(unit.unitId.toString())
     );
-    
+
     onOpen("deleteUnits", {
       unitIds: selectedIds,
       units: selectedUnits,
@@ -230,12 +235,16 @@ function UnitsContainerClient() {
           <ActionButtons
             rowSelection={rowSelection}
             onDelete={handleDeleteUnits}
-            onExport={() => onOpen("exportUnits", {
-             selectedClassId: activeLesson.classId
-            })}
-            onImport={() => onOpen("importUnits", {
-              selectedClassId: activeLesson.classId
-            })}
+            onExport={() =>
+              onOpen("exportUnits", {
+                selectedClassId: activeLesson.classId
+              })
+            }
+            onImport={() =>
+              onOpen("importUnits", {
+                selectedClassId: activeLesson.classId
+              })
+            }
             onCreate={handleCreateUnits}
             isEnabled={!!activeLesson.classId}
           />
