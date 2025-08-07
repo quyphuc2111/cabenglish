@@ -282,7 +282,9 @@ function LessonClient({
   // Empty state - không có section nào
   if (!sectionData || sectionData.length === 0) {
     return (
-      <div className={STYLES.container.base}>
+      <div
+        className={`${STYLES.container.base} flex items-center justify-center`}
+      >
         <div className={STYLES.background}></div>
 
         <div className="hidden md:block">
@@ -309,12 +311,9 @@ function LessonClient({
                 nội dung.
               </p>
             </div>
-            <button
-              onClick={() => router.push("/lop-hoc")}
-              className={STYLES.buttonPrimary}
-            >
+            <button onClick={handleBack} className={STYLES.buttonPrimary}>
               <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-              Quay lại lớp học
+              Quay lại
             </button>
           </div>
         </div>
