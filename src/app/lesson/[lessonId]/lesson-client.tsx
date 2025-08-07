@@ -31,6 +31,7 @@ const MotionMascot = dynamic(() => import("@/components/lesson/mascot"), {
 });
 
 interface LessonClientProps {
+  lessonId: string;
   sectionData: SectionType[];
   sectionContentData: SectionContentType[];
   isLoading?: boolean;
@@ -55,6 +56,7 @@ const STYLES = {
 };
 
 function LessonClient({
+  lessonId,
   sectionData,
   sectionContentData,
   isLoading = false,
@@ -95,17 +97,25 @@ function LessonClient({
   const handleCloseSection = useCallback(() => {
     setSelectedSection(null);
     setSectionContentLoading(false);
-    const lessonId = pathname.split("/")[2];
     router.push(`/lesson/${lessonId}`);
-  }, [router, pathname]);
+  }, [router, lessonId]);
 
   const handleBack = useCallback(() => {
     if (!selectedSection) {
-      router.push("/lop-hoc");
+      // Kiểm tra xem có thông tin về trang trước không
+      if (previousPage && previousPage.url) {
+        // Navigate về trang trước với state được lưu
+        console.log("🔙 Navigating back to:", previousPage);
+        clearPreviousPage(); // Clear để tránh loop
+        router.push(previousPage.url);
+      } else {
+        // Fallback về trang mặc định
+        router.push("/lop-hoc");
+      }
     } else {
       router.back();
     }
-  }, [router, selectedSection]);
+  }, [router, selectedSection, previousPage, clearPreviousPage]);
 
   // const handleBack = useCallback(() => {
   //   if (!selectedSection) {
@@ -125,7 +135,6 @@ function LessonClient({
   // }, [router, selectedSection, previousPage, clearPreviousPage]);
 
   const handleShowNextSectionModal = useCallback(() => {
-    const lessonId = pathname.split("/")[2];
     // Tìm section tiếp theo
     const currentSection = sectionData.find(
       (s) => s.sectionId === selectedSection
@@ -144,7 +153,7 @@ function LessonClient({
         }
       }
     });
-  }, [onOpen, router, pathname, selectedSection, sectionData]);
+  }, [onOpen, router, lessonId, selectedSection, sectionData]);
 
   // Effect hooks
   useEffect(() => {
@@ -607,7 +616,9 @@ function LessonClient({
                     )}
                     onShowNextSectionModal={handleShowNextSectionModal}
                     currentLesson={{
-                      lessonId: parseInt(pathname.split("/")[2]),
+                      lessonId: Number.isNaN(parseInt(lessonId as any, 10))
+                        ? 0
+                        : parseInt(lessonId as any, 10),
                       classId: 0, // Sẽ được lấy từ server-side nếu cần
                       unitId: 0, // Sẽ được lấy từ server-side nếu cần
                       lessonOrder: 0

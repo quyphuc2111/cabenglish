@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState, useCallback, memo } from "react";
+import React, { useMemo, useState, useCallback, memo, useEffect } from "react";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import SectionTitle from "@/components/common/section-title";
 import Image from "next/image";
@@ -13,6 +13,9 @@ import { getUnitByClassId } from "@/actions/unitsAction";
 import { getSchoolWeekByUnitId } from "@/actions/schoolWeekAction";
 import { ChevronDown, Users, BookOpen, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { useNavigationStore } from "@/store/navigationStore";
+import { useNavigationRestore } from "@/hooks/useNavigationRestore";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -239,10 +242,21 @@ function LessonCompleteClient({
   classrooms,
   userId
 }: LessonCompleteClientProps) {
+  const router = useRouter();
+  const { lessonCompleteState, setLessonCompleteState, setPreviousPage } =
+    useNavigationStore();
+  const { isReturningFromLesson } = useNavigationRestore();
+
   // Local state for filters - no URL params
-  const [selectedClassId, setSelectedClassId] = useState("");
-  const [selectedUnitId, setSelectedUnitId] = useState("");
-  const [selectedWeekId, setSelectedWeekId] = useState("");
+  const [selectedClassId, setSelectedClassId] = useState(
+    lessonCompleteState?.selectedClassId || ""
+  );
+  const [selectedUnitId, setSelectedUnitId] = useState(
+    lessonCompleteState?.selectedUnitId || ""
+  );
+  const [selectedWeekId, setSelectedWeekId] = useState(
+    lessonCompleteState?.selectedWeekId || ""
+  );
 
   const completedLessons = useLessonFilter(
     lessonData,
@@ -256,6 +270,16 @@ function LessonCompleteClient({
   const [schoolWeeks, setSchoolWeeks] = useState<any[]>([]);
   const [loadingUnits, setLoadingUnits] = useState(false);
   const [loadingWeeks, setLoadingWeeks] = useState(false);
+
+  // Restore scroll when returning from lesson and we have stored position
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (isReturningFromLesson && lessonCompleteState?.scrollPosition) {
+      setTimeout(() => {
+        window.scrollTo(0, lessonCompleteState.scrollPosition || 0);
+      }, 100);
+    }
+  }, [isReturningFromLesson, lessonCompleteState?.scrollPosition]);
 
   // Handle class change
   const handleClassChange = useCallback(
@@ -322,17 +346,70 @@ function LessonCompleteClient({
     [completedLessons.length, lessonData]
   );
 
+  // Handle navigation to a specific lesson with state persistence
+  const handleNavigateToLesson = useCallback(
+    (lessonItem: LessonType) => {
+      // Save previous page with filters and scroll
+      setPreviousPage({
+        url: "/tien-trinh-giang-day/bai-giang-hoan-thanh",
+        title: "Bài giảng hoàn thành",
+        state: {
+          scrollPosition: window.scrollY,
+          filters: {
+            selectedClassId,
+            selectedUnitId,
+            selectedWeekId
+          }
+        }
+      });
+
+      // Persist lesson complete page state
+      setLessonCompleteState({
+        selectedClassId,
+        selectedUnitId,
+        selectedWeekId,
+        scrollPosition: window.scrollY
+      });
+
+      // Navigate
+      router.push(`/lesson/${lessonItem.lessonId}`);
+    },
+    [
+      router,
+      selectedClassId,
+      selectedUnitId,
+      selectedWeekId,
+      setLessonCompleteState,
+      setPreviousPage
+    ]
+  );
+
   // Memoized render function for lesson cards
+  // Wrap LessonCard in a clickable container to ensure click handling regardless of internal implementation
   const renderLessonCard = useCallback(
     (lessonItem: LessonType) => (
-      <LessonCard
-        {...lessonItem}
-        classRoomName={lessonItem.className}
-        schoolWeekId={lessonItem.schoolWeekId || lessonItem.schoolWeekID || 0}
+      <div
         key={`completed-${lessonItem.lessonId}`}
-      />
+        role="button"
+        tabIndex={0}
+        onClick={() => handleNavigateToLesson(lessonItem)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleNavigateToLesson(lessonItem);
+          }
+        }}
+        className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 rounded-xl"
+        style={{ pointerEvents: "auto" }}
+      >
+        <LessonCard
+          {...lessonItem}
+          classRoomName={lessonItem.className}
+          schoolWeekId={lessonItem.schoolWeekId || lessonItem.schoolWeekID || 0}
+        />
+      </div>
     ),
-    []
+    [handleNavigateToLesson]
   );
 
   return (
@@ -452,7 +529,9 @@ function LessonCompleteClient({
         <PerformanceWrapper
           variant="lesson-grid"
           enableContentVisibility={true}
-          className="lesson-grid-container performance-below-fold"
+          enableTouch={false}
+          containLevel="style"
+          className="lesson-grid-container performance-below-fold pointer-events-auto"
         >
           <div className="mt-4 sm:mt-6 md:mt-8">
             {completedLessons.length > 0 ? (
