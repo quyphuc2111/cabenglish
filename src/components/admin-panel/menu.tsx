@@ -80,8 +80,8 @@ export function Menu({ isOpen, disabled }: MenuProps) {
       initial="hidden"
       animate="visible"
     >
-      <ScrollArea className="h-[80vh] 3xl:h-[50vh] w-full pr-2">
-        <motion.ul className="flex flex-col items-start space-y-1 px-2">
+      <ScrollArea className="h-full w-full pr-2">
+        <motion.ul className="flex flex-col items-start space-y-1 px-2 pb-4">
         {menuList.map(({ groupLabel, menus }, index) => (
           <motion.li 
             variants={itemVariants}

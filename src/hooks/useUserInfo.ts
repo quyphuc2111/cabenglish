@@ -1,16 +1,18 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUserInfo } from "@/actions/userAction";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getUserInfo } from '@/actions/userAction';
+import { UserInfo } from '@/types/user';
+
 
 export const useUserInfo = (userId?: string) => {
   return useQuery({
-    queryKey: ["userInfo", userId],
-    queryFn: async () => {
-      if (!userId) throw new Error("UserId is required");
+    queryKey: ['userInfo', userId],
+    queryFn: async () : Promise<UserInfo> => {
+      if (!userId) throw new Error('UserId is required');
       const response = await getUserInfo({ userId });
       if (!response.success) {
         throw new Error(response.error || "Failed to fetch user info");
       }
-      return response.data;
+      return response.data as UserInfo;
     },
     enabled: !!userId,
     staleTime: 0,

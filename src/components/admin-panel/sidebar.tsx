@@ -86,59 +86,68 @@ export function Sidebar({
     >
       <SidebarToggle isOpen={sidebar?.isOpen} setIsOpen={sidebar?.setIsOpen} />
       <div className="relative h-full flex flex-col px-1 py-4">
-        <div className="flex justify-between">
-          <Image
-            src="/bkt_logo.png"
-            width={60}
-            height={40}
-            alt="bkt-logo"
-            priority
-            quality={75}
-          />
-          {sidebar?.isOpen && <Badge variant="secondary">Giáo viên</Badge>}
+        {/* Header Section */}
+        <div className="flex-shrink-0">
+          <div className="flex justify-between">
+            <Image
+              src="/bkt_logo.png"
+              width={60}
+              height={40}
+              alt="bkt-logo"
+              priority
+              quality={75}
+            />
+            {sidebar?.isOpen && <Badge variant="secondary">Giáo viên</Badge>}
+          </div>
+          <AvatarUser sidebar={sidebar} email={session?.user?.email} />
+          <div className="w-full border-t-2 border-white mt-8 relative h-[30px]">
+            <Image
+              src="/menu-icon/ring.png"
+              width={30}
+              height={30}
+              alt="ring"
+              loading="lazy"
+              quality={60}
+              className="absolute left-[0%]"
+            />
+            <Image
+              src="/menu-icon/ring.png"
+              width={30}
+              height={30}
+              alt="ring"
+              className="absolute left-[22%] "
+            />
+            <Image
+              src="/menu-icon/unicorn.png"
+              width={40}
+              height={40}
+              alt="unicorn"
+              className="absolute left-1/2 -translate-x-1/2 -top-4"
+            />
+            <Image
+              src="/menu-icon/ring.png"
+              width={30}
+              height={30}
+              alt="ring"
+              className="absolute right-[22%] "
+            />
+            <Image
+              src="/menu-icon/ring.png"
+              width={30}
+              height={30}
+              alt="ring"
+              className="absolute right-0"
+            />
+          </div>
         </div>
-        <AvatarUser sidebar={sidebar} email={session?.user?.email} />
-        <div className="w-full border-t-2 border-white mt-8 relative h-[30px]">
-          <Image
-            src="/menu-icon/ring.png"
-            width={30}
-            height={30}
-            alt="ring"
-            loading="lazy"
-            quality={60}
-            className="absolute left-[0%]"
-          />
-          <Image
-            src="/menu-icon/ring.png"
-            width={30}
-            height={30}
-            alt="ring"
-            className="absolute left-[22%] "
-          />
-          <Image
-            src="/menu-icon/unicorn.png"
-            width={40}
-            height={40}
-            alt="unicorn"
-            className="absolute left-1/2 -translate-x-1/2 -top-4"
-          />
-          <Image
-            src="/menu-icon/ring.png"
-            width={30}
-            height={30}
-            alt="ring"
-            className="absolute right-[22%] "
-          />
-          <Image
-            src="/menu-icon/ring.png"
-            width={30}
-            height={30}
-            alt="ring"
-            className="absolute right-0"
-          />
+
+        {/* Menu Section - Takes available space */}
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <Menu isOpen={sidebar?.isOpen} />
         </div>
-        <Menu isOpen={sidebar?.isOpen} />
-        <div className="relative h-auto w-full">
+
+        {/* Mascot Section - Fixed at bottom */}
+        <div className="flex-shrink-0 relative h-[140px] sm:h-[150px] md:h-[160px] w-full">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{
@@ -154,7 +163,7 @@ export function Sidebar({
                 ease: "easeInOut"
               }
             }}
-            className="absolute bottom-1 left-[13%] flex items-start gap-3"
+            className="absolute bottom-2 left-[13%] flex items-start gap-3 cursor-pointer"
             onClick={() =>
               onOpen("notification", {
                 notificationList: notificationList

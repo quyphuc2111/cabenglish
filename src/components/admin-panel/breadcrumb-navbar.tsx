@@ -65,7 +65,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
       <div className="flex flex-col lg:flex-row gap-5 items-start lg:items-center justify-between">
         <SheetMenu />
         <motion.div
-          className={`w-full 3xl:w-2/3 max-h-24 h-16 lg:h-24 ${foregroundThemeClasses[currentTheme]} rounded-xl  lg:rounded-bl-md lg:shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
+          className={`w-full xl:w-2/3 2xl:w-2/3 3xl:w-2/3 max-h-24 h-16 lg:h-24 ${foregroundThemeClasses[currentTheme]} rounded-xl  lg:rounded-bl-md lg:shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
           variants={navbarAnimations.item}
         >
           <motion.div
@@ -94,7 +94,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                     />
                   </div>
                   <div className="flex flex-col">
-                    <p className="text-[#555] text-base lg:text-xl font-bold group-hover:text-[#4079CE] transition-colors duration-300">
+                    <p className="text-[#555] text-base lg:text-xl font-bold group-hover:text-[#4079CE] transition-colors duration-300 line-clamp-1 max-w-[100px] lg:max-w-[250px]">
                       Lớp học
                     </p>
                     <div className="h-0.5 w-0 bg-[#4079CE] group-hover:w-full transition-all duration-300" />
