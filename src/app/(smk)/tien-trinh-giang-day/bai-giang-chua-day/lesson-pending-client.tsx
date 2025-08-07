@@ -471,11 +471,16 @@ function LessonPendingClient({
         className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-xl"
         style={{ pointerEvents: "auto" }}
       >
-        <LessonCard
-          {...lessonItem}
-          classRoomName={lessonItem.className}
-          schoolWeekId={lessonItem.schoolWeekId || lessonItem.schoolWeekID || 0}
-        />
+        {/* Standardized sizing wrapper for LessonCard across pages */}
+        <div className="lesson-card-size w-full h-full max-w-[360px] md:max-w-[420px] xl:max-w-[460px] min-h-[220px] md:min-h-[240px] xl:min-h-[260px] mx-auto">
+          <LessonCard
+            {...lessonItem}
+            classRoomName={lessonItem.className}
+            schoolWeekId={
+              lessonItem.schoolWeekId || lessonItem.schoolWeekID || 0
+            }
+          />
+        </div>
       </div>
     ),
     [handleNavigateToLesson]
