@@ -12,6 +12,7 @@ import {
 import { TabsContainer } from "@/components/lesson/tabs-container";
 import { showToast } from "@/utils/toast-config";
 import { useModal } from "@/hooks/useModalStore";
+import { useNavigationStore } from "@/store/navigationStore";
 import dynamic from "next/dynamic";
 import {
   Loader2,
@@ -68,6 +69,7 @@ function LessonClient({
     useUpdateSectionContentLocked();
   const { onOpen } = useModal();
   const { lessonName, setSelectedLesson } = useSelectLessonStore();
+  const { previousPage, clearPreviousPage } = useNavigationStore();
 
   const [selectedSection, setSelectedSection] = useState<number | null>(null);
   const [sectionContentLoading, setSectionContentLoading] = useState(false);
@@ -104,6 +106,23 @@ function LessonClient({
       router.back();
     }
   }, [router, selectedSection]);
+
+  // const handleBack = useCallback(() => {
+  //   if (!selectedSection) {
+  //     // Kiểm tra xem có thông tin về trang trước không
+  //     if (previousPage && previousPage.url) {
+  //       // Navigate về trang trước với state được lưu
+  //       console.log("🔙 Navigating back to:", previousPage);
+  //       clearPreviousPage(); // Clear để tránh loop
+  //       router.push(previousPage.url);
+  //     } else {
+  //       // Fallback về trang mặc định
+  //       router.push("/lop-hoc");
+  //     }
+  //   } else {
+  //     router.back();
+  //   }
+  // }, [router, selectedSection, previousPage, clearPreviousPage]);
 
   const handleShowNextSectionModal = useCallback(() => {
     const lessonId = pathname.split("/")[2];

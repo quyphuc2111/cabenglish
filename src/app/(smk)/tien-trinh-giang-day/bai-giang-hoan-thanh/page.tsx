@@ -3,7 +3,7 @@ import LessonCompleteClient from "./lesson-complete-client";
 import { LessonService } from "@/services/lesson.service";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { FilterService } from "@/services/filter.service";
+import { getAllClassroomDataByUserId } from "@/actions/classroomAction";
 
 async function LessonCompletePage() {
   const session = await getServerSession(authOptions);
@@ -12,16 +12,18 @@ async function LessonCompletePage() {
     redirect("/signin");
   }
 
-  const lessonService = await LessonService.lessonData(session.user.userId);
-  const filterService = await FilterService.fetchFilterData(
-    session.user.userId
-  );
+  const lessonService = await LessonService.lessonData(session.user.userId!);
+
+  // Lấy toàn bộ classroom data theo user id
+  const classroomResponse = await getAllClassroomDataByUserId({
+    userId: session.user.userId!
+  });
 
   return (
     <LessonCompleteClient
       lessonData={lessonService.lessonData}
-      initialFilterData={filterService.initialFilterData}
-      fetchFilterData={filterService.fetchFilterData}
+      classrooms={classroomResponse.data || []}
+      userId={session.user.userId!}
     />
   );
 }

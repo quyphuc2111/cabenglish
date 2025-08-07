@@ -1,0 +1,100 @@
+/* Mobile-first optimizations cho Lesson Teaching */
+
+.teachingContainer {
+  /* GPU acceleration cho smooth scrolling */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.tabsContainer {
+  /* Optimize scrolling trên mobile */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabsContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.swiperContainer {
+  /* GPU acceleration cho Swiper */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.lessonSlide {
+  /* Optimize transition cho lesson cards */
+  contain: layout style paint;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lessonSlide:hover {
+  transform: translateZ(0) scale(1.02);
+}
+
+.classroomTab {
+  /* Optimize button rendering */
+  contain: layout style;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navigationDots {
+  /* Optimize dots animation */
+  contain: layout style paint;
+}
+
+.navigationButton {
+  /* Optimize navigation buttons */
+  contain: layout style;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile specific optimizations */
+@media (max-width: 768px) {
+  .teachingContainer {
+    /* Reduce layout complexity trên mobile */
+    contain: layout style paint;
+  }
+
+  .swiperContainer {
+    /* Optimize memory usage - remove strict containment */
+    contain: layout style paint;
+  }
+
+  .lessonSlide {
+    /* Reduce transition cost trên mobile */
+    transition: transform 0.2s ease-out;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .swiperContainer {
+    /* Better performance cho tablet */
+    contain: layout style paint;
+  }
+}
+
+/* Desktop optimizations */
+@media (min-width: 1024px) {
+  .lessonSlide:hover {
+    /* Enhanced hover effects cho desktop */
+    transform: translateZ(0) scale(1.02) translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Performance optimizations */
+.performanceOptimized {
+  /* Reduce paint và layout thrashing */
+  contain: layout style paint;
+  /* Remove content-visibility cho mobile compatibility */
+}
+
+/* Intersection observer optimizations */
+.lazyLoad {
+  /* Remove content-visibility cho mobile compatibility */
+  contain: layout style paint;
+}
