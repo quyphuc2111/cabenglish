@@ -106,20 +106,16 @@ ClassroomTab.displayName = "ClassroomTab";
 const LessonSlide = memo(
   ({
     lesson,
-    router,
     onNavigateToLesson
   }: {
     lesson: LessonType;
-    router: any;
-    onNavigateToLesson: () => void;
+    onNavigateToLesson: (lesson: LessonType) => void;
   }) => {
-    const handleClick = useCallback(() => {
+    const handleActivate = useCallback(() => {
       if (!lesson.isLocked) {
-        // Gọi callback để lưu navigation state
-        onNavigateToLesson();
-        router.push(`/lesson/${lesson.lessonId}`);
+        onNavigateToLesson(lesson);
       }
-    }, [lesson.isLocked, lesson.lessonId, router, onNavigateToLesson]);
+    }, [lesson, onNavigateToLesson]);
 
     const customLesson = useMemo(
       () => ({
@@ -130,15 +126,29 @@ const LessonSlide = memo(
       [lesson]
     );
 
+    // Wrapper đảm bảo bắt click/keyboard như trang hoàn thành
     return (
-      <LessonCard
-        {...customLesson}
-        className={cn(
-          "transform hover:scale-[1.02] transition-all duration-300",
-          styles.lessonSlide
-        )}
-        onClick={handleClick}
-      />
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={handleActivate}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleActivate();
+          }
+        }}
+        className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-xl"
+        style={{ pointerEvents: "auto" }}
+      >
+        <LessonCard
+          {...customLesson}
+          className={cn(
+            "transform hover:scale-[1.02] transition-all duration-300",
+            styles.lessonSlide
+          )}
+        />
+      </div>
     );
   }
 );
@@ -242,6 +252,26 @@ function LessonTeachingClient({
   // Ensure component is hydrated trên client
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  // Clear stale selected lesson cache on entering this page (avoid leakage)
+  useEffect(() => {
+    let mounted = true;
+    import("@/store/useSelectLesson")
+      .then(({ useSelectLessonStore }) => {
+        if (!mounted) return;
+        const { clearSelectedLesson } = useSelectLessonStore.getState();
+        clearSelectedLesson();
+      })
+      .catch((e) => {
+        console.error(
+          "[lesson-teaching] failed to clear selected-lesson-storage:",
+          e
+        );
+      });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Khôi phục scroll position khi component mount
@@ -392,23 +422,48 @@ function LessonTeachingClient({
   );
 
   // Callback để lưu navigation state trước khi chuyển trang
-  const handleNavigateToLesson = useCallback(() => {
-    // Lưu thông tin trang hiện tại vào store
-    setPreviousPage({
-      url: "/tien-trinh-giang-day/bai-giang-dang-day",
-      title: "Bài giảng đang dạy",
-      state: {
+  const handleNavigateToLesson = useCallback(
+    (lessonItem: LessonType) => {
+      // Lưu thông tin trang hiện tại vào store
+      setPreviousPage({
+        url: "/tien-trinh-giang-day/bai-giang-dang-day",
+        title: "Bài giảng đang dạy",
+        state: {
+          activeTab,
+          scrollPosition: window.scrollY
+        }
+      });
+
+      // Cập nhật lesson teaching state
+      setLessonTeachingState({
         activeTab,
         scrollPosition: window.scrollY
-      }
-    });
+      });
 
-    // Cập nhật lesson teaching state
-    setLessonTeachingState({
-      activeTab,
-      scrollPosition: window.scrollY
-    });
-  }, [activeTab, setPreviousPage, setLessonTeachingState]);
+      // Ghi rõ selected lesson trước khi điều hướng để tránh cache sai
+      import("@/store/useSelectLesson")
+        .then(({ useSelectLessonStore }) => {
+          const { setSelectedLesson } = useSelectLessonStore.getState();
+          setSelectedLesson({
+            ...lessonItem,
+            lessonName: lessonItem.lessonName || "",
+            className: lessonItem.className || "",
+            unitName: lessonItem.unitName || "",
+            imageUrl: lessonItem.imageUrl || ""
+          });
+        })
+        .catch((e) => {
+          console.error(
+            "[lesson-teaching] failed to set selected lesson before navigate:",
+            e
+          );
+        });
+
+      // Điều hướng
+      router.push(`/lesson/${lessonItem.lessonId}`);
+    },
+    [router, activeTab, setLessonTeachingState, setPreviousPage]
+  );
 
   // Classroom tabs memoized với performance optimization
   const classroomTabs = useMemo(() => {
@@ -653,7 +708,6 @@ function LessonTeachingClient({
                           <div key={`${lesson.lessonId}-${index}`}>
                             <LessonSlide
                               lesson={lesson}
-                              router={router}
                               onNavigateToLesson={handleNavigateToLesson}
                             />
                           </div>
@@ -724,7 +778,6 @@ function LessonTeachingClient({
                             <SwiperSlide key={`${lesson.lessonId}-${index}`}>
                               <LessonSlide
                                 lesson={lesson}
-                                router={router}
                                 onNavigateToLesson={handleNavigateToLesson}
                               />
                             </SwiperSlide>
