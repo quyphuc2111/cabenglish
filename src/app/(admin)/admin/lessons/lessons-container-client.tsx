@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import * as Sentry from "@sentry/nextjs";
 import { GenericTable } from "@/components/admin/table/common/generic-table";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/hooks/useModalStore";
@@ -30,10 +29,7 @@ const handleError = (
   operation: string,
   extra?: Record<string, any>
 ) => {
-  Sentry.captureException(error, {
-    tags: { component, operation },
-    extra
-  });
+  // ...existing code...
 };
 
 interface ActionButtonsProps {
@@ -128,7 +124,7 @@ function LessonsContainerClient() {
   const uniqueSchoolWeeks = React.useMemo(() => {
     if (!schoolWeekData?.data) return [];
     return schoolWeekData.data
-      .map(sw => ({
+      .map((sw) => ({
         id: sw.swId,
         value: sw.value,
         label: sw.value
@@ -153,7 +149,9 @@ function LessonsContainerClient() {
     // Lọc theo tuần học
     if (schoolWeekFilter && schoolWeekFilter !== "all") {
       // Tìm schoolWeek object từ filter value
-      const selectedSchoolWeek = uniqueSchoolWeeks.find(sw => sw.id.toString() === schoolWeekFilter);
+      const selectedSchoolWeek = uniqueSchoolWeeks.find(
+        (sw) => sw.id.toString() === schoolWeekFilter
+      );
       if (selectedSchoolWeek) {
         filtered = filtered.filter(
           (lesson) => lesson.schoolWeekID === selectedSchoolWeek.id
@@ -244,10 +242,14 @@ function LessonsContainerClient() {
       </div>
       {activeLesson.classId && activeLesson.unitId && (
         <div className="bg-gray-50 p-4 rounded-lg border">
-          <h3 className="text-sm font-semibold text-gray-800 mb-3">Bộ lọc và tìm kiếm</h3>
+          <h3 className="text-sm font-semibold text-gray-800 mb-3">
+            Bộ lọc và tìm kiếm
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">Tìm kiếm bài học:</label>
+              <label className="text-sm font-medium text-gray-700">
+                Tìm kiếm bài học:
+              </label>
               <Input
                 placeholder="Nhập tên bài học..."
                 value={searchQuery}
@@ -256,8 +258,13 @@ function LessonsContainerClient() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">Tuần học:</label>
-              <Select value={schoolWeekFilter} onValueChange={setSchoolWeekFilter}>
+              <label className="text-sm font-medium text-gray-700">
+                Tuần học:
+              </label>
+              <Select
+                value={schoolWeekFilter}
+                onValueChange={setSchoolWeekFilter}
+              >
                 <SelectTrigger className="w-full bg-white">
                   <SelectValue placeholder="Chọn tuần học" />
                 </SelectTrigger>
@@ -272,7 +279,9 @@ function LessonsContainerClient() {
               </Select>
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">Sắp xếp theo thứ tự:</label>
+              <label className="text-sm font-medium text-gray-700">
+                Sắp xếp theo thứ tự:
+              </label>
               <Select value={orderFilter} onValueChange={setOrderFilter}>
                 <SelectTrigger className="w-full bg-white">
                   <SelectValue placeholder="Chọn thứ tự sắp xếp" />

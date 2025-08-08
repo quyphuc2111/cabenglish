@@ -22,7 +22,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
       className={`w-full 3xl:w-5/6 rounded-xl max-h-24 h-20 sm:h-24 ${foregroundThemeClasses[currentTheme]} md:rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative `}
       variants={navbarAnimations.item}
     >
-      <motion.div
+      {/* <motion.div
         className="absolute -top-2 -left-4 -rotate-12 hidden md:block"
         variants={navbarAnimations.floating}
         initial="initial"
@@ -35,19 +35,19 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
           alt="lixi"
           priority
         />
-      </motion.div>
+      </motion.div> */}
 
       <div className="w-[85%] left-1/2 -translate-x-1/2 flex justify-center md:block md:w-3/4 bg-white absolute top-1/2 -translate-y-1/2 md:left-10  rounded-xl p-2 sm:p-3 md:p-4 px-3 sm:px-6 md:px-8  md:translate-x-0">
         <div className="w-fit relative">
           <LogoSection />
 
-          <motion.div
+          {/* <motion.div
             className="absolute -top-2 -left-8 rotate-1  hidden md:block"
             initial="initial"
             animate="animate"
           >
             <Image src="/navbar/hoa.gif" width={30} height={30} alt="hoa" />
-          </motion.div>
+          </motion.div> */}
 
           <div className="absolute -top-3 -right-12 rotate-12 hidden md:block">
             <OptimizeImage
@@ -70,7 +70,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
           </div>
         </div>
 
-        <motion.div
+        {/* <motion.div
           className="absolute top-0 right-[42%] hidden xl:block"
           initial="initial"
           animate="animate"
@@ -81,8 +81,8 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
             height={30}
             alt="chuong_rung"
           />
-        </motion.div>
-        <div className="absolute top-0 right-[32%] hidden xl:block">
+        </motion.div> */}
+        {/* <div className="absolute top-0 right-[32%] hidden xl:block">
           <Image
             src="/navbar/chuong_rung.gif"
             width={33}
@@ -97,7 +97,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
             height={30}
             alt="chuong_rung"
           />
-        </div>
+        </div> */}
         <div className="absolute bottom-0 right-[13%] hidden md:block">
           <OptimizeImage
             src="/assets/image/navbar/langbac.webp"

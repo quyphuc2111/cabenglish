@@ -106,20 +106,16 @@ ClassroomTab.displayName = "ClassroomTab";
 const LessonSlide = memo(
   ({
     lesson,
-    router,
     onNavigateToLesson
   }: {
     lesson: LessonType;
-    router: any;
-    onNavigateToLesson: () => void;
+    onNavigateToLesson: (lesson: LessonType) => void;
   }) => {
-    const handleClick = useCallback(() => {
+    const handleActivate = useCallback(() => {
       if (!lesson.isLocked) {
-        // Gọi callback để lưu navigation state
-        onNavigateToLesson();
-        router.push(`/lesson/${lesson.lessonId}`);
+        onNavigateToLesson(lesson);
       }
-    }, [lesson.isLocked, lesson.lessonId, router, onNavigateToLesson]);
+    }, [lesson, onNavigateToLesson]);
 
     const customLesson = useMemo(
       () => ({
@@ -130,15 +126,32 @@ const LessonSlide = memo(
       [lesson]
     );
 
+    // Wrapper đảm bảo bắt click/keyboard như trang hoàn thành
     return (
-      <LessonCard
-        {...customLesson}
-        className={cn(
-          "transform hover:scale-[1.02] transition-all duration-300",
-          styles.lessonSlide
-        )}
-        onClick={handleClick}
-      />
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={handleActivate}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleActivate();
+          }
+        }}
+        className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-xl"
+        style={{ pointerEvents: "auto" }}
+      >
+        {/* Standardized sizing wrapper for LessonCard across pages */}
+        <div className="lesson-card-size w-full h-full max-w-[360px] md:max-w-[420px] xl:max-w-[460px] min-h-[220px] md:min-h-[240px] xl:min-h-[260px] mx-auto">
+          <LessonCard
+            {...customLesson}
+            className={cn(
+              "transform hover:scale-[1.02] transition-all duration-300",
+              styles.lessonSlide
+            )}
+          />
+        </div>
+      </div>
     );
   }
 );
@@ -232,6 +245,10 @@ function LessonTeachingClient({
   const router = useRouter();
   const breakpoint = useBreakpoint();
 
+  // Performance: limit total slides in Swiper and lazy-mount around a window
+  const MAX_SLIDES = 60; // cap to avoid hundreds of mounted slides
+  const WINDOW_SIZE = 10; // render +/- WINDOW_SIZE around current index
+
   // Navigation store để lưu trạng thái
   const { lessonTeachingState, setLessonTeachingState, setPreviousPage } =
     useNavigationStore();
@@ -242,6 +259,26 @@ function LessonTeachingClient({
   // Ensure component is hydrated trên client
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  // Clear stale selected lesson cache on entering this page (avoid leakage)
+  useEffect(() => {
+    let mounted = true;
+    import("@/store/useSelectLesson")
+      .then(({ useSelectLessonStore }) => {
+        if (!mounted) return;
+        const { clearSelectedLesson } = useSelectLessonStore.getState();
+        clearSelectedLesson();
+      })
+      .catch((e) => {
+        console.error(
+          "[lesson-teaching] failed to clear selected-lesson-storage:",
+          e
+        );
+      });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Khôi phục scroll position khi component mount
@@ -337,11 +374,7 @@ function LessonTeachingClient({
 
   // Lọc bài giảng đang dạy với memo để tránh re-computation
   const filteredTeachingLessons = useMemo(() => {
-    // Validate input data
-    if (!Array.isArray(teachingLessons)) {
-      console.warn("🐛 teachingLessons is not an array:", teachingLessons);
-      return [];
-    }
+    if (!Array.isArray(teachingLessons)) return [];
 
     const filtered = getFilteredDataByClassroom(teachingLessons);
     const sorted = filtered.sort((a, b) => {
@@ -350,29 +383,13 @@ function LessonTeachingClient({
       return a.lessonId - b.lessonId;
     });
 
-    // Debug logging
-    console.log("🐛 Debug - Teaching Lessons:", {
-      totalTeachingLessons: teachingLessons?.length || 0,
-      activeTab,
-      filteredCount: sorted.length,
-      breakpoint,
-      isClient,
-      classroomsWithLessons:
-        classrooms?.filter(
-          (c) => getTeachingLessonCountByClassId(c.class_id) > 0
-        ).length || 0,
-      teachingLessons: teachingLessons?.slice(0, 3), // Log first 3 lessons
-      selectedClassId: activeTab !== "all" ? parseInt(activeTab) : "all"
-    });
-
     return sorted;
-  }, [
-    getFilteredDataByClassroom,
-    teachingLessons,
-    activeTab,
-    breakpoint,
-    isClient
-  ]);
+  }, [getFilteredDataByClassroom, teachingLessons, activeTab]);
+
+  // Cap slides for Swiper to keep DOM small
+  const cappedTeachingLessons = useMemo(() => {
+    return filteredTeachingLessons.slice(0, MAX_SLIDES);
+  }, [filteredTeachingLessons]);
 
   // Tối ưu callback cho slide navigation
   const handleSlidePrev = useCallback(() => {
@@ -392,23 +409,48 @@ function LessonTeachingClient({
   );
 
   // Callback để lưu navigation state trước khi chuyển trang
-  const handleNavigateToLesson = useCallback(() => {
-    // Lưu thông tin trang hiện tại vào store
-    setPreviousPage({
-      url: "/tien-trinh-giang-day/bai-giang-dang-day",
-      title: "Bài giảng đang dạy",
-      state: {
+  const handleNavigateToLesson = useCallback(
+    (lessonItem: LessonType) => {
+      // Lưu thông tin trang hiện tại vào store
+      setPreviousPage({
+        url: "/tien-trinh-giang-day/bai-giang-dang-day",
+        title: "Bài giảng đang dạy",
+        state: {
+          activeTab,
+          scrollPosition: window.scrollY
+        }
+      });
+
+      // Cập nhật lesson teaching state
+      setLessonTeachingState({
         activeTab,
         scrollPosition: window.scrollY
-      }
-    });
+      });
 
-    // Cập nhật lesson teaching state
-    setLessonTeachingState({
-      activeTab,
-      scrollPosition: window.scrollY
-    });
-  }, [activeTab, setPreviousPage, setLessonTeachingState]);
+      // Ghi rõ selected lesson trước khi điều hướng để tránh cache sai
+      import("@/store/useSelectLesson")
+        .then(({ useSelectLessonStore }) => {
+          const { setSelectedLesson } = useSelectLessonStore.getState();
+          setSelectedLesson({
+            ...lessonItem,
+            lessonName: lessonItem.lessonName || "",
+            className: lessonItem.className || "",
+            unitName: lessonItem.unitName || "",
+            imageUrl: lessonItem.imageUrl || ""
+          });
+        })
+        .catch((e) => {
+          console.error(
+            "[lesson-teaching] failed to set selected lesson before navigate:",
+            e
+          );
+        });
+
+      // Điều hướng
+      router.push(`/lesson/${lessonItem.lessonId}`);
+    },
+    [router, activeTab, setLessonTeachingState, setPreviousPage]
+  );
 
   // Classroom tabs memoized với performance optimization
   const classroomTabs = useMemo(() => {
@@ -646,21 +688,18 @@ function LessonTeachingClient({
                   <div className="relative">
                     {/* Swiper component với fallback cho mobile */}
                     {breakpoint === "mobile" &&
-                    filteredTeachingLessons.length === 1 ? (
-                      // Simple grid fallback cho mobile với 1 lesson
+                    cappedTeachingLessons.length === 1 ? (
                       <div className="grid grid-cols-1 gap-4">
-                        {filteredTeachingLessons.map((lesson, index) => (
+                        {cappedTeachingLessons.map((lesson, index) => (
                           <div key={`${lesson.lessonId}-${index}`}>
                             <LessonSlide
                               lesson={lesson}
-                              router={router}
                               onNavigateToLesson={handleNavigateToLesson}
                             />
                           </div>
                         ))}
                       </div>
                     ) : (
-                      // Swiper cho multiple lessons hoặc desktop
                       <>
                         <Swiper
                           onSwiper={setCurrentSwiper}
@@ -676,39 +715,34 @@ function LessonTeachingClient({
                             disableOnInteraction: false,
                             pauseOnMouseEnter: true
                           }}
-                          watchSlidesProgress={true} // Enable slide progress watching cho performance
+                          watchSlidesProgress={true}
+                          loop={false} // avoid loop cloning DOM nodes
                           breakpoints={{
-                            // Mobile siêu nhỏ
                             320: {
                               slidesPerView: 1,
                               slidesPerGroup: 1,
                               spaceBetween: 8
                             },
-                            // Mobile nhỏ
                             480: {
                               slidesPerView: 1,
                               slidesPerGroup: 1,
                               spaceBetween: 10
                             },
-                            // Mobile lớn / Tablet nhỏ
                             640: {
                               slidesPerView: 2,
                               slidesPerGroup: 2,
                               spaceBetween: 12
                             },
-                            // Tablet
                             768: {
                               slidesPerView: 3,
                               slidesPerGroup: 3,
                               spaceBetween: 16
                             },
-                            // Desktop nhỏ
                             1024: {
                               slidesPerView: 4,
                               slidesPerGroup: 4,
                               spaceBetween: 20
                             },
-                            // Desktop lớn
                             1280: {
                               slidesPerView: 5,
                               slidesPerGroup: 5,
@@ -720,19 +754,28 @@ function LessonTeachingClient({
                             styles.swiperContainer
                           )}
                         >
-                          {filteredTeachingLessons.map((lesson, index) => (
-                            <SwiperSlide key={`${lesson.lessonId}-${index}`}>
-                              <LessonSlide
-                                lesson={lesson}
-                                router={router}
-                                onNavigateToLesson={handleNavigateToLesson}
-                              />
-                            </SwiperSlide>
-                          ))}
+                          {cappedTeachingLessons.map((lesson, index) => {
+                            // Lazy mount within a window around current index
+                            const inWindow =
+                              Math.abs(index - currentSlideIndex) <=
+                              WINDOW_SIZE;
+                            return (
+                              <SwiperSlide key={`${lesson.lessonId}-${index}`}>
+                                {inWindow ? (
+                                  <LessonSlide
+                                    lesson={lesson}
+                                    onNavigateToLesson={handleNavigateToLesson}
+                                  />
+                                ) : (
+                                  <div className="lesson-card-size w-full h-full max-w-[360px] md:max-w-[420px] xl:max-w-[460px] min-h-[220px] md:min-h-[240px] xl:min-h-[260px] mx-auto rounded-xl bg-white shadow-sm" />
+                                )}
+                              </SwiperSlide>
+                            );
+                          })}
                         </Swiper>
 
-                        {/* Navigation buttons - chỉ hiển thị khi có > 1 lesson */}
-                        {filteredTeachingLessons.length > 1 && (
+                        {/* Navigation controls and dots */}
+                        {cappedTeachingLessons.length > 1 && (
                           <div className="flex items-center justify-center gap-2 sm:gap-3 mt-3 sm:mt-4">
                             <Button
                               variant="outline"
@@ -749,9 +792,8 @@ function LessonTeachingClient({
                               <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                             </Button>
 
-                            {/* Optimized Navigation Dots */}
                             <NavigationDots
-                              totalSlides={filteredTeachingLessons.length}
+                              totalSlides={cappedTeachingLessons.length}
                               currentIndex={currentSlideIndex}
                               onDotClick={handleDotClick}
                               slidesPerView={slidesPerView}
@@ -774,6 +816,23 @@ function LessonTeachingClient({
                           </div>
                         )}
                       </>
+                    )}
+
+                    {/* View all action when capped */}
+                    {filteredTeachingLessons.length > MAX_SLIDES && (
+                      <div className="flex justify-center mt-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            // Optional: navigate to an all-lessons page or open modal
+                            // For now, just log to console to keep logic minimal
+                            console.log("View all teaching lessons clicked");
+                          }}
+                        >
+                          Xem tất cả ({filteredTeachingLessons.length})
+                        </Button>
+                      </div>
                     )}
                   </div>
                 ) : (

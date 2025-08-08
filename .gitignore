@@ -48,10 +48,6 @@ videos/*
 !videos/*.ts
 public/_next-video
 
-# Sentry Config File
-.env.sentry-build-plugin
-
-
-
 certificates
 *lock
+pnpm-lock.yaml

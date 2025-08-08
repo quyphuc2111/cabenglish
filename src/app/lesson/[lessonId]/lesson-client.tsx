@@ -1,7 +1,7 @@
 "use client";
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionType, SectionContentType } from "@/types/section";
 import { cn, formatProgress } from "@/lib/utils";
@@ -14,7 +14,7 @@ import { TabsContainer } from "@/components/lesson/tabs-container";
 import { showToast } from "@/utils/toast-config";
 import { useModal } from "@/hooks/useModalStore";
 import { useNavigationStore } from "@/store/navigationStore";
-import dynamic from "next/dynamic";
+
 import {
   Loader2,
   AlertCircle,
@@ -27,11 +27,8 @@ import {
 import OptimizeImage from "@/components/common/optimize-image";
 import { useSelectLessonStore } from "@/store/useSelectLesson";
 
-const MotionMascot = dynamic(() => import("@/components/lesson/mascot"), {
-  ssr: false
-});
-
 interface LessonClientProps {
+  lessonId: string;
   sectionData: SectionType[];
   sectionContentData: SectionContentType[];
   isLoading?: boolean;
@@ -56,6 +53,7 @@ const STYLES = {
 };
 
 function LessonClient({
+  lessonId,
   sectionData,
   sectionContentData,
   isLoading = false,
@@ -63,13 +61,13 @@ function LessonClient({
 }: LessonClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname();
+
   const { mutate: updateProgressSectionContent } =
     useUpdateProgressSectionContent();
   const { mutate: updateSectionContentLocked } =
     useUpdateSectionContentLocked();
   const { onOpen } = useModal();
-  const { lessonName, setSelectedLesson } = useSelectLessonStore();
+  const { lessonName } = useSelectLessonStore();
   const { previousPage, clearPreviousPage } = useNavigationStore();
 
   const [selectedSection, setSelectedSection] = useState<number | null>(null);
@@ -98,17 +96,25 @@ function LessonClient({
   const handleCloseSection = useCallback(() => {
     setSelectedSection(null);
     setSectionContentLoading(false);
-    const lessonId = pathname.split("/")[2];
     router.push(`/lesson/${lessonId}`);
-  }, [router, pathname]);
+  }, [router, lessonId]);
 
   const handleBack = useCallback(() => {
     if (!selectedSection) {
-      router.push("/lop-hoc");
+      // Kiểm tra xem có thông tin về trang trước không
+      if (previousPage && previousPage.url) {
+        // Navigate về trang trước với state được lưu
+        console.log("🔙 Navigating back to:", previousPage);
+        clearPreviousPage(); // Clear để tránh loop
+        router.push(previousPage.url);
+      } else {
+        // Fallback về trang mặc định
+        router.push("/lop-hoc");
+      }
     } else {
       router.back();
     }
-  }, [router, selectedSection]);
+  }, [router, selectedSection, previousPage, clearPreviousPage]);
 
   // const handleBack = useCallback(() => {
   //   if (!selectedSection) {
@@ -128,7 +134,6 @@ function LessonClient({
   // }, [router, selectedSection, previousPage, clearPreviousPage]);
 
   const handleShowNextSectionModal = useCallback(() => {
-    const lessonId = pathname.split("/")[2];
     // Tìm section tiếp theo
     const currentSection = sectionData.find(
       (s) => s.sectionId === selectedSection
@@ -149,7 +154,7 @@ function LessonClient({
         }
       }
     });
-  }, [onOpen, router, pathname, selectedSection, sectionData]);
+  }, [onOpen, router, lessonId, selectedSection, sectionData]);
 
   // Effect hooks
   useEffect(() => {
@@ -278,13 +283,10 @@ function LessonClient({
   // Empty state - không có section nào
   if (!sectionData || sectionData.length === 0) {
     return (
-      <div className={STYLES.container.base}>
+      <div
+        className={`${STYLES.container.base} flex items-center justify-center`}
+      >
         <div className={STYLES.background}></div>
-
-        <div className="hidden md:block">
-          <MotionMascot position="left" />
-          <MotionMascot position="right" />
-        </div>
 
         <div className={`${STYLES.cardWrapper} max-w-lg mx-4`}>
           <div className="flex flex-col items-center gap-4 sm:gap-6">
@@ -305,12 +307,9 @@ function LessonClient({
                 nội dung.
               </p>
             </div>
-            <button
-              onClick={() => router.push("/lop-hoc")}
-              className={STYLES.buttonPrimary}
-            >
+            <button onClick={handleBack} className={STYLES.buttonPrimary}>
               <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-              Quay lại lớp học
+              Quay lại
             </button>
           </div>
         </div>
@@ -343,11 +342,6 @@ function LessonClient({
     <div className={STYLES.container.base}>
       {/* Background overlay */}
       <div className={STYLES.background}></div>
-
-      <div className="hidden md:block">
-        <MotionMascot position="left" />
-        <MotionMascot position="right" />
-      </div>
 
       <div className={mainContentStyles.contentCard}>
         {/* Header */}
@@ -387,7 +381,7 @@ function LessonClient({
               <div className="grid gap-3 sm:gap-6 py-2 sm:py-4 px-2 sm:px-4 md:px-10">
                 {[...sectionData]
                   .sort((a, b) => (a.order || 0) - (b.order || 0))
-                  .map((section, index) => (
+                  .map((section) => (
                     <div
                       key={section.sectionId}
                       onClick={() => handleSectionClick(section.sectionId)}
@@ -612,7 +606,9 @@ function LessonClient({
                     )}
                     onShowNextSectionModal={handleShowNextSectionModal}
                     currentLesson={{
-                      lessonId: parseInt(pathname.split("/")[2]),
+                      lessonId: Number.isNaN(parseInt(lessonId as any, 10))
+                        ? 0
+                        : parseInt(lessonId as any, 10),
                       classId: 0, // Sẽ được lấy từ server-side nếu cần
                       unitId: 0, // Sẽ được lấy từ server-side nếu cần
                       lessonOrder: 0

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import * as Sentry from "@sentry/nextjs";
+
 import { GenericTable } from "@/components/admin/table/common/generic-table";
 import { Button } from "@/components/ui/button";
 import { ModalData, ModalType, useModal } from "@/hooks/useModalStore";
@@ -15,11 +15,13 @@ import { SectionsCombobox } from "@/components/admin/combobox/sections-combox";
 import { useGetSectionContentBySectionId } from "@/hooks/useSectionContent";
 import { useSectionContentColumns } from "@/components/admin/table/secton-content/columns";
 
-const handleError = (error: any, component: string, operation: string, extra?: Record<string, any>) => {
-  Sentry.captureException(error, {
-    tags: { component, operation },
-    extra
-  });
+const handleError = (
+  error: any,
+  component: string,
+  operation: string,
+  extra?: Record<string, any>
+) => {
+  // ...existing code...
 };
 
 interface ActionButtonsProps {
@@ -63,7 +65,6 @@ const ActionButtons = ({
         <p>Vui lòng chọn section</p>
       </div>
     ) : (
-
       <div className="flex flex-row gap-4 items-center flex-wrap justify-end">
         <Button
           className="bg-blue-500 hover:bg-blue-600 text-white"
@@ -109,17 +110,24 @@ function SectionContentContainerClient() {
   const { onOpen } = useModal();
 
   React.useEffect(() => {
-    activateLesson("")
-    activateUnit("")
-    activateClass("")
+    activateLesson("");
+    activateUnit("");
+    activateClass("");
   }, []);
 
-  const { data: sectionContentData, isLoading: sectionContentLoading, error: sectionContentError } =
-    useGetSectionContentBySectionId(Number(activeLesson.sectionId));
+  const {
+    data: sectionContentData,
+    isLoading: sectionContentLoading,
+    error: sectionContentError
+  } = useGetSectionContentBySectionId(Number(activeLesson.sectionId));
 
   React.useEffect(() => {
     if (sectionContentError) {
-      handleError(sectionContentError, "SectionContentContainerClient", "data_fetching");
+      handleError(
+        sectionContentError,
+        "SectionContentContainerClient",
+        "data_fetching"
+      );
     }
   }, [sectionContentError]);
 
@@ -133,9 +141,10 @@ function SectionContentContainerClient() {
 
   const handleDeleteSection = () => {
     const selectedIds = Object.keys(rowSelection);
-    const selectedSections = sectionContentData?.filter((sc) =>
-      selectedIds.includes(sc.sc_id.toString())
-    ) || [];
+    const selectedSections =
+      sectionContentData?.filter((sc) =>
+        selectedIds.includes(sc.sc_id.toString())
+      ) || [];
 
     handleModalOpen("deleteSectionContent", {
       sectionContentIds: selectedIds,
@@ -145,32 +154,38 @@ function SectionContentContainerClient() {
 
     setRowSelection({});
   };
-  const handleSelectClassroom = React.useCallback((value: string) => {
-    activateClass(value);
-    activateUnit("");
-    activateLesson("");
+  const handleSelectClassroom = React.useCallback(
+    (value: string) => {
+      activateClass(value);
+      activateUnit("");
+      activateLesson("");
 
-    if (value) {
-      showToast.success(
-        <div className="flex flex-col gap-1">
-          <p className="font-medium">Đã chọn lớp học!</p>
-        </div>
-      );
-    }
-  }, [activateClass, activateUnit, activateLesson]);
+      if (value) {
+        showToast.success(
+          <div className="flex flex-col gap-1">
+            <p className="font-medium">Đã chọn lớp học!</p>
+          </div>
+        );
+      }
+    },
+    [activateClass, activateUnit, activateLesson]
+  );
 
-  const handleSelectUnit = React.useCallback((value: string) => {
-    activateUnit(value);
-    activateLesson("");
+  const handleSelectUnit = React.useCallback(
+    (value: string) => {
+      activateUnit(value);
+      activateLesson("");
 
-    if (value) {
-      showToast.success(
-        <div className="flex flex-col gap-1">
-          <p className="font-medium">Đã chọn unit!</p>
-        </div>
-      );
-    }
-  }, [activateLesson, activateUnit]);
+      if (value) {
+        showToast.success(
+          <div className="flex flex-col gap-1">
+            <p className="font-medium">Đã chọn unit!</p>
+          </div>
+        );
+      }
+    },
+    [activateLesson, activateUnit]
+  );
 
   const handleSelectLesson = React.useCallback(
     (value: string) => {
@@ -183,26 +198,27 @@ function SectionContentContainerClient() {
           </div>
         );
       }
-
-    
     },
     [activateLesson]
   );
 
-  const handleSelectSection = React.useCallback((value: string) => {
-    activateSection(value);
+  const handleSelectSection = React.useCallback(
+    (value: string) => {
+      activateSection(value);
 
-    if (value) {
-      showToast.success(
-        <div className="flex flex-col gap-1">
-          <p className="font-medium">Đã chọn bài học!</p>
-          <p className="text-sm text-gray-600">
-            Bạn có thể bắt đầu tạo section content cho bài học này.
-          </p>
-        </div>
-      );
-    }
-  }, [activateSection]);
+      if (value) {
+        showToast.success(
+          <div className="flex flex-col gap-1">
+            <p className="font-medium">Đã chọn bài học!</p>
+            <p className="text-sm text-gray-600">
+              Bạn có thể bắt đầu tạo section content cho bài học này.
+            </p>
+          </div>
+        );
+      }
+    },
+    [activateSection]
+  );
 
   const searchComponent = (
     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-wrap">
