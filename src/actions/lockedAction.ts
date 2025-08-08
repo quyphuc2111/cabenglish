@@ -151,9 +151,7 @@ export async function updateLessonLocked({userId, lessonId}: {userId: string, le
       throw new Error("Không nhận được phản hồi từ server");
     }
 
-    return {
-      success: true
-    };
+    return response
   } catch (error) {
     console.error("Lỗi cập nhật locked lesson", {
       error,

@@ -130,7 +130,10 @@ export const useUpdateLessonLocked = () => {
                 lessonId: data.lessonId
             });
 
-            return response;
+            return {
+                ...response,
+                success: true,
+            };
         },
         onSuccess: () => {
             // Invalidate các query liên quan để refresh data

@@ -21,13 +21,15 @@ interface CourseCarouselProps {
   className?: string;
   onLikeUpdate?: (lessonId: number, newLikeCount: number) => void;
   removingLessons?: Set<number>;
+  onLessonClick?: (lessonId: number) => void;
 }
 
 export function CourseCarousel({
   courseData,
   className,
   onLikeUpdate,
-  removingLessons
+  removingLessons,
+  onLessonClick
 }: CourseCarouselProps) {
   const [swiper, setSwiper] = useState<any>(null);
   const [isBeginning, setIsBeginning] = useState(true);
@@ -394,7 +396,9 @@ export function CourseCarousel({
                             <LessonCard
                               {...customCourse}
                               onClick={() =>
-                                router.push(`/lesson/${customCourse.lessonId}`)
+                                onLessonClick 
+                                  ? onLessonClick(customCourse.lessonId)
+                                  : router.push(`/lesson/${customCourse.lessonId}`)
                               }
                               onLikeUpdate={onLikeUpdate}
                               removingLessons={removingLessons}
