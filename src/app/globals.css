@@ -845,7 +845,15 @@ select {
 .performance-mode .lesson-card,
 .performance-mode .lesson-card *,
 .performance-mode .course-swiper .swiper-slide,
-.performance-mode .book-swiper .swiper-slide {
+.performance-mode .book-swiper .swiper-slide,
+.performance-mode .mascot-animation,
+.performance-mode .floating-hearts,
+.performance-mode .sparkle-effects,
+.performance-mode .heart-particle,
+.performance-mode .sparkle-particle,
+.performance-mode .removing-text-animation,
+.performance-mode .sparkles-container,
+.performance-mode .hearts-container {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
@@ -856,9 +864,16 @@ select {
 /* Framer Motion optimizations for non-essential elements */
 .performance-mode .lesson-card [data-framer-motion],
 .performance-mode .course-swiper [data-framer-motion],
-.performance-mode .book-swiper [data-framer-motion] {
+.performance-mode .book-swiper [data-framer-motion],
+.performance-mode .mascot-container [data-framer-motion],
+.performance-mode .floating-animation [data-framer-motion],
+.performance-mode .lesson-card .heart-particle,
+.performance-mode .lesson-card .sparkle-particle,
+.performance-mode .lesson-card .floating-hearts,
+.performance-mode .lesson-card .like-animation {
   animation: none !important;
   transition: none !important;
+  transform: none !important;
 }
 
 /* Swiper optimizations */

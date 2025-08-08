@@ -49,7 +49,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
             <Image src="/navbar/hoa.gif" width={30} height={30} alt="hoa" />
           </motion.div> */}
 
-          <div className="absolute -top-3 -right-12 rotate-12 hidden md:block">
+          {/* <div className="absolute -top-3 -right-12 rotate-12 hidden md:block">
             <OptimizeImage
               src="/assets/image/navbar/banhchung.webp"
               width={40}
@@ -67,7 +67,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
               alt="kilan"
               priority
             />
-          </div>
+          </div> */}
         </div>
 
         {/* <motion.div
@@ -98,7 +98,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
             alt="chuong_rung"
           />
         </div> */}
-        <div className="absolute bottom-0 right-[13%] hidden md:block">
+        {/* <div className="absolute bottom-0 right-[13%] hidden md:block">
           <OptimizeImage
             src="/assets/image/navbar/langbac.webp"
             width={40}
@@ -106,7 +106,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
             alt="langbac"
             priority
           />
-        </div>
+        </div> */}
 
         <div className="absolute top-0 right-0 bottom-0 rounded-r-xl overflow-hidden hidden md:block">
           <OptimizeImage
@@ -120,7 +120,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
           />
         </div>
 
-        <motion.div
+        {/* <motion.div
           className="absolute right-[42%] hidden md:block"
           initial="initial"
           animate="animate"
@@ -132,9 +132,9 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
             alt="ca-left"
             priority
           />
-        </motion.div>
+        </motion.div> */}
 
-        <div className="absolute right-[37%] -bottom-4 hidden md:block">
+        {/* <div className="absolute right-[37%] -bottom-4 hidden md:block">
           <OptimizeImage
             src="/assets/image/navbar/ca-right.webp"
             width={40}
@@ -162,10 +162,10 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
             alt="hoadao"
             priority
           />
-        </motion.div>
+        </motion.div> */}
       </div>
 
-      <motion.div className="absolute right-[11%] -bottom-2 hidden md:block">
+      {/* <motion.div className="absolute right-[11%] -bottom-2 hidden md:block">
         <OptimizeImage
           src="/assets/image/navbar/nguoi1.webp"
           width={40}
@@ -183,9 +183,9 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
           alt="nguoi2"
           priority
         />
-      </div>
+      </div> */}
 
-      <div className="absolute right-[1%] -bottom-2 hidden md:block ">
+      {/* <div className="absolute right-[1%] -bottom-2 hidden md:block ">
         <OptimizeImage
           src="/assets/image/navbar/nguoi3.webp"
           width={40}
@@ -193,7 +193,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
           alt="nguoi3"
           priority
         />
-      </div>
+      </div> */}
 
       {/* <motion.div
         className="absolute right-[12%] -top-4 hidden md:block"
@@ -225,7 +225,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
         />
       </motion.div> */}
 
-      <div className="absolute right-[10%] top-[25%] hidden md:block ">
+      {/* <div className="absolute right-[10%] top-[25%] hidden md:block ">
         <OptimizeImage
           src="/assets/image/navbar/hoa_do.webp"
           width={25}
@@ -263,7 +263,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
           alt="phaono"
           priority
         />
-      </div>
+      </div> */}
     </motion.div>
   );
 }

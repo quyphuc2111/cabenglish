@@ -7,7 +7,6 @@ import AvatarUser from "./avatar-user";
 import Image from "next/image";
 import { Badge } from "../ui/badge";
 import OptimizeImage from "../common/optimize-image";
-import { motion } from "framer-motion";
 import { useModal } from "@/hooks/useModalStore";
 import { NotificationType } from "@/types/notification";
 import { useSocket } from "@/hooks/useSocket";
@@ -148,21 +147,7 @@ export const Sidebar = memo(function Sidebar({
 
         {/* Mascot Section - Fixed at bottom */}
         <div className="flex-shrink-0 relative h-[140px] sm:h-[150px] md:h-[160px] w-full">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{
-              scale: 1,
-              opacity: 1,
-              y: [0, -8, 0]
-            }}
-            transition={{
-              duration: 1.5,
-              y: {
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }
-            }}
+          <div
             className="absolute bottom-2 left-[13%] flex items-start gap-3 cursor-pointer"
             onClick={() =>
               onOpen("notification", {
@@ -197,7 +182,7 @@ export const Sidebar = memo(function Sidebar({
                 }
               </Badge>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </aside>
