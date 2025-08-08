@@ -8,6 +8,7 @@ import {
   getSectionDataByLessonId
 } from "@/actions/sectionAction";
 import type { SectionContentType } from "@/types/section";
+import { getLockedStatusByLessonId } from "@/actions/lessonAction";
 
 export const dynamic = "force-dynamic";
 
@@ -94,13 +95,13 @@ async function LessonPage({ params, searchParams }: PageProps) {
   // Handle error cases
   if (!lockedStatusResponse.success || !lockedStatusResponse.data) {
     console.error("Error getting locked status:", lockedStatusResponse.error);
-   redirect("/tong-quan");
+    redirect("/tong-quan");
   }
 
   // Check if lesson is locked
   if (lockedStatusResponse.data.isLocked) {
     redirect("/tong-quan");
-  } 
+  }
 
   try {
     const sectionData = await getSectionDataByLessonId({

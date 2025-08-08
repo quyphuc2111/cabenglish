@@ -40,6 +40,9 @@ interface PaginatedContentProps<T> {
   className?: string;
   rowPerPage?: number;
   itemInPage?: number[];
+  initialPage?: number;
+  onPageChange?: (page: number) => void;
+  onItemsPerPageChange?: (count: number) => void;
 }
 
 // Memoized empty state component
@@ -204,7 +207,10 @@ export function PaginatedContent<T>({
   renderItem,
   className,
   rowPerPage = 4,
-  itemInPage = []
+  itemInPage = [],
+  initialPage,
+  onPageChange,
+  onItemsPerPageChange
 }: PaginatedContentProps<T>) {
   const [selectedItemPerPage, setSelectedItemPerPage] = useState(itemsPerPage);
   const [pageInput, setPageInput] = useState("");
@@ -224,7 +230,6 @@ export function PaginatedContent<T>({
       setMaxVisiblePages(5);
     }
   }, [isExtraSmall, isSmall]);
-
   const {
     currentPage,
     totalPages,
@@ -235,8 +240,21 @@ export function PaginatedContent<T>({
     endIndex
   } = usePagination({
     totalItems: items.length,
-    itemsPerPage: selectedItemPerPage
+    itemsPerPage: selectedItemPerPage,
+    initialPage: initialPage ?? 1
   });
+
+  // Lift current page to parent when it changes
+  useEffect(() => {
+    onPageChange?.(currentPage);
+    // onPageChange identity from parent may change per render; avoid infinite loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
+
+  // React to parent-driven changes for items per page
+  useEffect(() => {
+    setSelectedItemPerPage(itemsPerPage);
+  }, [itemsPerPage]);
 
   // Memoized current items to avoid unnecessary re-calculations
   const currentItems = useMemo(
@@ -287,9 +305,14 @@ export function PaginatedContent<T>({
   }, [pageInput, totalPages, goToPage]);
 
   // Handle items per page change
-  const handleItemsPerPageChange = useCallback((value: string) => {
-    setSelectedItemPerPage(Number(value));
-  }, []);
+  const handleItemsPerPageChange = useCallback(
+    (value: string) => {
+      const count = Number(value);
+      setSelectedItemPerPage(count);
+      onItemsPerPageChange?.(count);
+    },
+    [onItemsPerPageChange]
+  );
 
   if (items.length === 0) {
     return (

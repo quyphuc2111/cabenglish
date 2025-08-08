@@ -68,7 +68,7 @@ function LessonClient({
     useUpdateSectionContentLocked();
   const { onOpen } = useModal();
   const { lessonName } = useSelectLessonStore();
-  const { previousPage, clearPreviousPage } = useNavigationStore();
+  const { previousPage } = useNavigationStore();
 
   const [selectedSection, setSelectedSection] = useState<number | null>(null);
   const [sectionContentLoading, setSectionContentLoading] = useState(false);
@@ -105,7 +105,6 @@ function LessonClient({
       if (previousPage && previousPage.url) {
         // Navigate về trang trước với state được lưu
         console.log("🔙 Navigating back to:", previousPage);
-        clearPreviousPage(); // Clear để tránh loop
         router.push(previousPage.url);
       } else {
         // Fallback về trang mặc định
@@ -114,7 +113,7 @@ function LessonClient({
     } else {
       router.back();
     }
-  }, [router, selectedSection, previousPage, clearPreviousPage]);
+  }, [router, selectedSection, previousPage]);
 
   // const handleBack = useCallback(() => {
   //   if (!selectedSection) {
@@ -146,7 +145,7 @@ function LessonClient({
       onConfirm: async () => {
         // Navigate to next section if exists, otherwise stay on lesson page
         if (nextSection) {
-          // 
+          //
           console.log("nextSection", nextSection);
           router.push(`?section=${nextSection.sectionId}`);
         } else {
