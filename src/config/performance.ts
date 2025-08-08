@@ -46,6 +46,11 @@ export const PerformanceConfig = {
     ? localStorage.getItem('reducedMotion') === 'true' ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false,
+
+  // Essential UI animations (always enabled for UX)
+  enableToastAnimations: true,
+  enableModalAnimations: true,
+  enableDialogAnimations: true,
 };
 
 // Animation variants based on performance config
@@ -106,7 +111,7 @@ export const shouldEnablePerformanceMonitoring = () => {
          process.env.NODE_ENV === 'development';
 };
 
-// CSS injection for reduced motion
+// CSS injection for reduced motion with essential UI exceptions
 export const injectReducedMotionCSS = () => {
   if (typeof window === 'undefined') return;
 
@@ -117,11 +122,24 @@ export const injectReducedMotionCSS = () => {
     const style = document.createElement('style');
     style.id = 'reduced-motion-style';
     style.textContent = `
-      *, *::before, *::after {
+      /* Disable non-essential animations */
+      .lesson-card, .lesson-card *,
+      .course-swiper .swiper-slide,
+      .book-swiper .swiper-slide {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
+      }
+
+      /* Keep essential UI animations */
+      .Toastify__toast-container,
+      .Toastify__toast,
+      [role="dialog"],
+      [data-state="open"],
+      .notification-modal {
+        animation-duration: 0.3s !important;
+        transition-duration: 0.3s !important;
       }
 
       .motion-reduce {

@@ -841,10 +841,11 @@ select {
 
 /* Performance optimizations - Inline CSS to avoid import issues */
 
-/* Disable animations globally when performance mode is on */
-.performance-mode *,
-.performance-mode *::before,
-.performance-mode *::after {
+/* Disable non-essential animations when performance mode is on */
+.performance-mode .lesson-card,
+.performance-mode .lesson-card *,
+.performance-mode .course-swiper .swiper-slide,
+.performance-mode .book-swiper .swiper-slide {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
@@ -852,8 +853,10 @@ select {
   scroll-behavior: auto !important;
 }
 
-/* Framer Motion specific optimizations */
-.performance-mode [data-framer-motion] {
+/* Framer Motion optimizations for non-essential elements */
+.performance-mode .lesson-card [data-framer-motion],
+.performance-mode .course-swiper [data-framer-motion],
+.performance-mode .book-swiper [data-framer-motion] {
   animation: none !important;
   transition: none !important;
 }
@@ -894,36 +897,86 @@ select {
   transition: none !important;
 }
 
-/* Static mode - maximum performance */
-.static-mode * {
+/* Static mode - selective performance optimization */
+.static-mode .lesson-card,
+.static-mode .course-swiper .swiper-slide,
+.static-mode .book-swiper .swiper-slide,
+.static-mode .animate-bounce-subtle,
+.static-mode .animate-text-shine {
   animation: none !important;
   transition: none !important;
   transform: none !important;
 }
 
-/* Global performance mode - disable all motion */
+/* Keep essential UI interactions working in static mode */
+.static-mode .toast-container,
+.static-mode [role="dialog"],
+.static-mode .notification-modal,
+.static-mode [data-state="open"],
+.static-mode aside[class*="translate-x"] {
+  animation: initial !important;
+  transition: initial !important;
+}
+
+/* Global performance mode - selective motion disable */
 body.performance-mode * {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
   transition-delay: 0s !important;
-  transform: none !important;
 }
 
-/* Force static rendering for all motion elements */
-body.performance-mode [data-framer-motion],
-body.performance-mode .motion-div,
-body.performance-mode .motion-button,
-body.performance-mode .motion-span {
+/* Allow essential UI animations to work */
+body.performance-mode .toast-container,
+body.performance-mode .toast-container *,
+body.performance-mode [role="dialog"],
+body.performance-mode [role="dialog"] *,
+body.performance-mode .notification-modal,
+body.performance-mode .notification-modal *,
+body.performance-mode [data-state="open"],
+body.performance-mode [data-state="open"] * {
+  animation-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
+}
+
+/* Force static rendering for non-essential motion elements */
+body.performance-mode .lesson-card [data-framer-motion],
+body.performance-mode .course-swiper [data-framer-motion],
+body.performance-mode .book-swiper [data-framer-motion] {
   animation: none !important;
   transition: none !important;
   transform: none !important;
 }
 
-/* Exception: Allow sidebar responsive transforms to work */
+/* Exceptions: Allow essential UI animations to work */
 body.performance-mode aside[class*="translate-x"] {
   transition: transform 0.3s ease-in-out, width 0.3s ease-in-out !important;
   transform: var(--sidebar-transform) !important;
+}
+
+/* Toast notifications must work */
+body.performance-mode .Toastify__toast-container,
+body.performance-mode .Toastify__toast,
+body.performance-mode .Toastify__toast-body,
+body.performance-mode .Toastify__progress-bar {
+  animation-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
+}
+
+/* Dialog and modal animations must work */
+body.performance-mode [data-radix-dialog-overlay],
+body.performance-mode [data-radix-dialog-content],
+body.performance-mode .dialog-overlay,
+body.performance-mode .dialog-content {
+  animation-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
+}
+
+/* Notification modal specific */
+body.performance-mode .notification-modal,
+body.performance-mode .notification-modal * {
+  animation-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
 }
 
 /* Set CSS variables for sidebar transforms */
@@ -937,4 +990,32 @@ body.performance-mode aside[class*="translate-x"] {
   body.performance-mode aside[class*="-translate-x-full"] {
     --sidebar-transform: translateX(-100%);
   }
+}
+
+/* Utility classes for manual performance control */
+.force-enable-animations * {
+  animation-duration: initial !important;
+  transition-duration: initial !important;
+}
+
+.force-disable-animations * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Specific overrides for toast libraries */
+.toast-enabled .Toastify__toast-container,
+.toast-enabled .Toastify__toast,
+.toast-enabled .react-hot-toast {
+  animation-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
+}
+
+/* Modal and dialog overrides */
+.modal-enabled [role="dialog"],
+.modal-enabled [data-state="open"],
+.modal-enabled .dialog-overlay,
+.modal-enabled .dialog-content {
+  animation-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
 }

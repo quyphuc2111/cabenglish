@@ -56,7 +56,7 @@ export default async function RootLayout({
     <html lang={currentLang} suppressHydrationWarning className="h-full">
       <head>{/* Use Next.js metadata instead of direct meta tags */}</head>
       <body
-        className={`${inter.className} ${inter.variable} font-inter h-full overscroll-none performance-mode static-mode`}
+        className={`${inter.className} ${inter.variable} font-inter h-full overscroll-none performance-mode toast-enabled modal-enabled`}
       >
         <Providers translations={translations}>
           <div className="min-h-full flex flex-col">{children}</div>

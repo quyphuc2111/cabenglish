@@ -42,6 +42,15 @@ export function SimplePerformanceProvider({
       document.body.classList.add("static-mode");
     }
 
+    // Always enable essential UI animations
+    if (PerformanceConfig.enableToastAnimations) {
+      document.body.classList.add("toast-enabled");
+    }
+
+    if (PerformanceConfig.enableModalAnimations) {
+      document.body.classList.add("modal-enabled");
+    }
+
     // Log performance config
     logPerformanceConfig();
   }, []);
