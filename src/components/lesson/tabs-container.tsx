@@ -14,7 +14,7 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 import OptimizeImage from "@/components/common/optimize-image";
-import { useUpdateSectionLockedFromLocked } from "@/hooks/client/useLesson";
+import { useUpdateLessonLocked, useUpdateSectionLockedFromLocked } from "@/hooks/client/useLesson";
 import { ArrowLeft, CheckCircle, FullscreenIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getNextLessonByLessonId } from "@/actions/nextLessonAction";
@@ -116,6 +116,7 @@ export const TabsContainer = ({
   const iframeContainerRef = useRef<HTMLDivElement | null>(null);
 
   const { mutate: updateSectionLocked } = useUpdateSectionLockedFromLocked();
+  const { mutate: updateLessonLocked } = useUpdateLessonLocked();
 
   useEffect(() => {
     const lastItem = sectionContents.reduce(
@@ -327,9 +328,14 @@ export const TabsContainer = ({
                       useSelectLessonStore.getState();
                     setSelectedLesson(nextLessonResult.nextLesson);
                   }
-                  router.push(
-                    `/lesson/${nextLessonResult.nextLesson!.lessonId}`
-                  );
+
+                 await updateLessonLocked({ lessonId: Number(nextLessonResult.nextLesson!.lessonId) }, {
+                  onSuccess: () => {
+                    router.push(
+                      `/lesson/${nextLessonResult.nextLesson!.lessonId}`
+                    );
+                  }
+                 });
                 }
               });
             } else {

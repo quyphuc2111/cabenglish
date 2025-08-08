@@ -2,7 +2,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import { getServerSession } from "next-auth";
 import LessonClient from "./lesson-client";
 import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import {
   getSectionContentDataBSectionId,
   getSectionDataByLessonId
@@ -85,6 +85,22 @@ async function LessonPage({ params, searchParams }: PageProps) {
   if (!session) {
     redirect("/signin");
   }
+
+  const lockedStatusResponse = await getLockedStatusByLessonId({
+    userId: session.user.userId,
+    lessonId
+  });
+
+  // Handle error cases
+  if (!lockedStatusResponse.success || !lockedStatusResponse.data) {
+    console.error("Error getting locked status:", lockedStatusResponse.error);
+   redirect("/tong-quan");
+  }
+
+  // Check if lesson is locked
+  if (lockedStatusResponse.data.isLocked) {
+    redirect("/tong-quan");
+  } 
 
   try {
     const sectionData = await getSectionDataByLessonId({

@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionType, SectionContentType } from "@/types/section";
 import { cn, formatProgress } from "@/lib/utils";
 import {
+  useUpdateLessonLocked,
   useUpdateProgressSectionContent,
   useUpdateSectionContentLocked
 } from "@/hooks/client/useLesson";
@@ -74,6 +75,8 @@ function LessonClient({
   const [mounted, setMounted] = useState(false);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
 
+  const { mutate: updateLessonLocked } = useUpdateLessonLocked();
+
   const handleSectionClick = useCallback(
     (sectionId: number) => {
       const section = sectionData?.find((s) => s.sectionId === sectionId);
@@ -140,9 +143,11 @@ function LessonClient({
     );
 
     onOpen("nextSection", {
-      onConfirm: () => {
+      onConfirm: async () => {
         // Navigate to next section if exists, otherwise stay on lesson page
         if (nextSection) {
+          // 
+          console.log("nextSection", nextSection);
           router.push(`?section=${nextSection.sectionId}`);
         } else {
           router.push(`/lesson/${lessonId}`);
