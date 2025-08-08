@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, memo } from "react";
 import dynamic from "next/dynamic";
 import { ClassroomType } from "@/types/classroom";
 import { useModal } from "@/hooks/useModalStore";
@@ -40,7 +40,7 @@ interface OverviewPageProps {
   classroomData: ClassroomType[];
 }
 
-function OverviewPage({
+const OverviewPage = memo(function OverviewPage({
   courseData: initialCourseData,
   initialFilterData,
   fetchFilterData,
@@ -104,6 +104,6 @@ function OverviewPage({
       />
     </div>
   );
-}
+});
 
 export default OverviewPage;

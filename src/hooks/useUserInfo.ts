@@ -15,11 +15,11 @@ export const useUserInfo = (userId?: string) => {
       return response.data as UserInfo;
     },
     enabled: !!userId,
-    staleTime: 0,
+    staleTime: 5 * 60 * 1000, // 5 phút cache - giảm từ 0
     gcTime: 10 * 60 * 1000,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60 * 1000
+    refetchOnWindowFocus: false, // Tắt refetch khi focus - giảm CPU
+    refetchOnMount: false, // Tắt refetch khi mount - sử dụng cache
+    // refetchInterval: 60 * 1000 // Tắt polling - giảm CPU đáng kể
   });
 };
 

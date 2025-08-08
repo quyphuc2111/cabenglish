@@ -1,13 +1,13 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, memo } from "react";
 
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import CurrentLecture from "./overview-current-lesson";
 import NextLecture from "./overview-next-lesson";
 
-function CurrentAndNextLecture({
+const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
   courseData,
   t,
   classroomData,
@@ -19,10 +19,6 @@ function CurrentAndNextLecture({
   userId: string | undefined;
 }) {
   const router = useRouter();
-
-  // Use refs for swiper instances to prevent re-renders when updating them
-  const currentSwiperRef = React.useRef<any>(null);
-  const nextSwiperRef = React.useRef<any>(null);
   const { data: userInfo } = useUserInfo(userId);
 
   // Thêm breakpoint cho màn hình siêu nhỏ (mobile nhỏ)
@@ -468,6 +464,6 @@ function CurrentAndNextLecture({
       </div>
     </>
   );
-}
+});
 
 export default CurrentAndNextLecture;

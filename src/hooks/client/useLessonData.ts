@@ -34,24 +34,24 @@ export function useLessonData({
       if (!session?.user?.userId) {
         throw new Error('User not authenticated');
       }
-      
+
       const response = await getAllLessonDataByUserId({
         userId: session.user.userId,
         mode
       });
-      
+
       if (!response.success) {
         throw new Error(response.error || 'Failed to fetch lessons');
       }
-      
+
       return response.data;
     },
     enabled: enabled && !!session?.user?.userId,
-    staleTime: 0, 
-    gcTime: 1000 * 60 * 5, 
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchOnReconnect: true
+    staleTime: 2 * 60 * 1000, // 2 phút cache - tăng từ 0
+    gcTime: 1000 * 60 * 10, // 10 phút - tăng từ 5 phút
+    refetchOnWindowFocus: false, // Tắt refetch khi focus - giảm CPU
+    refetchOnMount: false, // Tắt refetch khi mount - sử dụng cache
+    refetchOnReconnect: true // Giữ lại để sync khi mất kết nối
   });
 
   // Filter lessons by classname if provided

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo, memo } from "react";
 import Image from "next/image";
 import { useTranslation } from "@/hooks/useTranslation";
 import FilterFacet from "@/components/common/filter-facet";
@@ -22,7 +22,7 @@ interface LectureFavouriteListProps {
   onDataRefetch?: () => Promise<void>;
 }
 
-export function LectureFavouriteList({
+const LectureFavouriteList = memo(function LectureFavouriteList({
   courseData,
   initialFilterData,
   fetchFilterData,
@@ -78,42 +78,46 @@ export function LectureFavouriteList({
     [onDataRefetch]
   );
 
+  // Memoize filtered data để tránh re-computation không cần thiết
+  const filteredLessonData = useMemo(() => {
+    return courseData
+      .filter((item) => {
+        const matchesLocked = !item.isLocked;
+        const matchesProgress =
+          item.numLiked > 0 || removingLessons.has(item.lessonId); // Include removing lessons
+        const matchesClass =
+          !filterValues.classId ||
+          item.classId === Number(filterValues.classId);
+        const matchesUnit =
+          !filterValues.unitId || item.unitId === Number(filterValues.unitId);
+
+        // Thử nhiều cách so sánh school week
+        const matchesSchoolWeek =
+          !filterValues.weekId ||
+          item.schoolWeekId === Number(filterValues.weekId) ||
+          String(item.schoolWeekId) === filterValues.weekId ||
+          item.schoolWeek === Number(filterValues.weekId) ||
+          String(item.schoolWeek) === filterValues.weekId;
+
+        return (
+          matchesClass &&
+          matchesUnit &&
+          matchesLocked &&
+          matchesSchoolWeek &&
+          matchesProgress
+        );
+      })
+      .sort((a, b) => {
+        const dateA = a.updatedAt || a.createdAt || a.lessonId;
+        const dateB = b.updatedAt || b.createdAt || b.lessonId;
+        return dateB - dateA;
+      })
+      .slice(0, 20);
+  }, [courseData, filterValues, removingLessons]);
+
   if (!isMounted) {
     return null;
   }
-
-  const filteredLessonData = courseData
-    .filter((item) => {
-      const matchesLocked = !item.isLocked;
-      const matchesProgress =
-        item.numLiked > 0 || removingLessons.has(item.lessonId); // Include removing lessons
-      const matchesClass =
-        !filterValues.classId || item.classId === Number(filterValues.classId);
-      const matchesUnit =
-        !filterValues.unitId || item.unitId === Number(filterValues.unitId);
-
-      // Thử nhiều cách so sánh school week
-      const matchesSchoolWeek =
-        !filterValues.weekId ||
-        item.schoolWeekId === Number(filterValues.weekId) ||
-        String(item.schoolWeekId) === filterValues.weekId ||
-        item.schoolWeek === Number(filterValues.weekId) ||
-        String(item.schoolWeek) === filterValues.weekId;
-
-      return (
-        matchesClass &&
-        matchesUnit &&
-        matchesLocked &&
-        matchesSchoolWeek &&
-        matchesProgress
-      );
-    })
-    .sort((a, b) => {
-      const dateA = a.updatedAt || a.createdAt || a.lessonId;
-      const dateB = b.updatedAt || b.createdAt || b.lessonId;
-      return dateB - dateA;
-    })
-    .slice(0, 20);
 
   const handleFilterChange = (newFilterValues: typeof filterValues) => {
     setFilterValues(newFilterValues);
@@ -173,4 +177,6 @@ export function LectureFavouriteList({
       </div>
     </div>
   );
-}
+});
+
+export { LectureFavouriteList };

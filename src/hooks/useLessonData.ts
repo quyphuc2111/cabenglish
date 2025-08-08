@@ -54,11 +54,11 @@ export const useLessonData = (userId?: string) => {
       return Array.isArray(response.data) ? response.data : [];
     },
     enabled: !!currentUserId && !!userInfo,
-    staleTime: 30 * 1000, // 30 seconds
-    gcTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchOnReconnect: true,
+    staleTime: 3 * 60 * 1000, // 3 phút cache - tăng từ 30 giây
+    gcTime: 10 * 60 * 1000, // 10 phút - tăng từ 5 phút
+    refetchOnWindowFocus: false, // Tắt refetch khi focus - giảm CPU
+    refetchOnMount: false, // Tắt refetch khi mount - sử dụng cache
+    refetchOnReconnect: true, // Giữ lại để sync khi mất kết nối
   });
 
   // Helper functions

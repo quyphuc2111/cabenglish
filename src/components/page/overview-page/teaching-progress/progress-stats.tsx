@@ -1,6 +1,6 @@
 import { ModalData, ModalType } from "@/hooks/useModalStore";
 import Image from "next/image";
-import { useState, useMemo } from "react";
+import { useState, useMemo, memo, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +25,7 @@ interface ProgressStatsProps {
   onDataRefetch?: () => Promise<void>;
 }
 
-export function ProgressStats({
+export const ProgressStats = memo(function ProgressStats({
   onOpen,
   t,
   courseData,
@@ -503,4 +503,4 @@ export function ProgressStats({
       </Dialog>
     </motion.div>
   );
-}
+});
