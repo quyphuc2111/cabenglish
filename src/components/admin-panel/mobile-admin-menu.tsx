@@ -29,7 +29,7 @@ export function MobileAdminMenu() {
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden fixed top-4 left-4 z-50 bg-[#c35690]/90 backdrop-blur-sm text-white hover:bg-[#c35690] border border-white/20 shadow-lg"
+          className="lg:hidden fixed top-4 left-4 z-50 bg-[#c35690]/90 backdrop-blur-sm text-white hover:bg-[#c35690] border border-white/20 shadow-lg"
         >
           <Menu className="h-6 w-6" />
         </Button>

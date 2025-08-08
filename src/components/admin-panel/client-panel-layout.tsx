@@ -56,7 +56,7 @@ const ClientPanelLayoutContent = memo(function ClientPanelLayoutContent({
   if (!sidebar) return null;
 
   return (
-    <div className={themeClasses[currentTheme]}>
+    <div className={cn(themeClasses[currentTheme], "overflow-hidden")}>
       <Sidebar notificationList={notificationList} />
       <main
         className={cn(

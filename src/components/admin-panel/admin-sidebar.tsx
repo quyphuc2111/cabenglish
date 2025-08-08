@@ -25,9 +25,12 @@ export function AdminSidebar() {
     <aside
       className={cn(
         "fixed top-0 left-0 z-20 h-screen transition-[width] ease-in-out duration-300 bg-[#c35690] text-white bg-menu-texture",
-        "hidden md:block",
+        "hidden lg:block",
         sidebar?.isOpen === false ? "w-[100px]" : "w-72"
       )}
+      style={{
+        display: window.innerWidth >= 1024 ? "block" : "none"
+      }}
     >
       <div className="relative h-full flex flex-col">
         {/* Header với logo */}

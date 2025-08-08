@@ -919,3 +919,22 @@ body.performance-mode .motion-span {
   transition: none !important;
   transform: none !important;
 }
+
+/* Exception: Allow sidebar responsive transforms to work */
+body.performance-mode aside[class*="translate-x"] {
+  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out !important;
+  transform: var(--sidebar-transform) !important;
+}
+
+/* Set CSS variables for sidebar transforms */
+@media (min-width: 1024px) {
+  body.performance-mode aside[class*="-translate-x-full"] {
+    --sidebar-transform: translateX(0);
+  }
+}
+
+@media (max-width: 1023px) {
+  body.performance-mode aside[class*="-translate-x-full"] {
+    --sidebar-transform: translateX(-100%);
+  }
+}
