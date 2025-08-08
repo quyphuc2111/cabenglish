@@ -1,7 +1,7 @@
 "use client";
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionType, SectionContentType } from "@/types/section";
 import { cn, formatProgress } from "@/lib/utils";
@@ -13,7 +13,7 @@ import { TabsContainer } from "@/components/lesson/tabs-container";
 import { showToast } from "@/utils/toast-config";
 import { useModal } from "@/hooks/useModalStore";
 import { useNavigationStore } from "@/store/navigationStore";
-import dynamic from "next/dynamic";
+
 import {
   Loader2,
   AlertCircle,
@@ -25,10 +25,6 @@ import {
 } from "lucide-react";
 import OptimizeImage from "@/components/common/optimize-image";
 import { useSelectLessonStore } from "@/store/useSelectLesson";
-
-const MotionMascot = dynamic(() => import("@/components/lesson/mascot"), {
-  ssr: false
-});
 
 interface LessonClientProps {
   lessonId: string;
@@ -64,13 +60,13 @@ function LessonClient({
 }: LessonClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname();
+
   const { mutate: updateProgressSectionContent } =
     useUpdateProgressSectionContent();
   const { mutate: updateSectionContentLocked } =
     useUpdateSectionContentLocked();
   const { onOpen } = useModal();
-  const { lessonName, setSelectedLesson } = useSelectLessonStore();
+  const { lessonName } = useSelectLessonStore();
   const { previousPage, clearPreviousPage } = useNavigationStore();
 
   const [selectedSection, setSelectedSection] = useState<number | null>(null);
@@ -287,11 +283,6 @@ function LessonClient({
       >
         <div className={STYLES.background}></div>
 
-        <div className="hidden md:block">
-          <MotionMascot position="left" />
-          <MotionMascot position="right" />
-        </div>
-
         <div className={`${STYLES.cardWrapper} max-w-lg mx-4`}>
           <div className="flex flex-col items-center gap-4 sm:gap-6">
             <div className="relative">
@@ -347,11 +338,6 @@ function LessonClient({
       {/* Background overlay */}
       <div className={STYLES.background}></div>
 
-      <div className="hidden md:block">
-        <MotionMascot position="left" />
-        <MotionMascot position="right" />
-      </div>
-
       <div className={mainContentStyles.contentCard}>
         {/* Header */}
         <div className="absolute -top-5 md:-top-6 lg:-top-7 left-0 right-0 flex justify-between gap-5 sm:gap-0 items-center px-3 sm:px-6">
@@ -390,7 +376,7 @@ function LessonClient({
               <div className="grid gap-3 sm:gap-6 py-2 sm:py-4 px-2 sm:px-4 md:px-10">
                 {[...sectionData]
                   .sort((a, b) => (a.order || 0) - (b.order || 0))
-                  .map((section, index) => (
+                  .map((section) => (
                     <div
                       key={section.sectionId}
                       onClick={() => handleSectionClick(section.sectionId)}
