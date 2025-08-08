@@ -55,8 +55,6 @@ function OverviewPage({
   const [courseData, setCourseData] = useState(initialCourseData);
   const [isRefetching, setIsRefetching] = useState(false);
 
-  console.log("📚 OverviewPage rendered with courseData:", courseData);
-
   useEffect(() => {
     if (session && session.user.is_firstlogin) {
       onOpen("teachingMode");

@@ -230,13 +230,6 @@ function FilterFacet({
       newFilters.unitId !== prevFiltersRef.current.unitId ||
       newFilters.weekId !== prevFiltersRef.current.weekId ||
       newFilters.userId !== prevFiltersRef.current.userId;
-
-    if (hasChanged) {
-      console.log("🔄 URL params changed, updating filters:", newFilters);
-      console.log("🔍 Previous URL filters:", prevFiltersRef.current);
-      setFilters(newFilters);
-      // ❌ KHÔNG gọi API từ đây, để API effect xử lý
-    }
   }, [searchParams, session?.user?.userId]); // Loại bỏ isInitialLoad để tránh conflict
 
   // Khởi tạo filters khi session có userId (chỉ chạy 1 lần)

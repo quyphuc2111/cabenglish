@@ -364,15 +364,15 @@ export const authOptions: NextAuthOptions = {
       }
 
       // log xem có phải refresh token không
-      // console.log("🔄 [JWT Callback] Refreshing access token...");
-      // console.log("Current token:", token);
-      // console.log("Current time:", Date.now().toLocaleString());
-      // console.log(
-      //   "Token expires at:",
-      //   token.accessTokenExpires !== undefined
-      //     ? new Date(token.accessTokenExpires).toLocaleString()
-      //     : "undefined"
-      // );
+      console.log("🔄 [JWT Callback] Refreshing access token...");
+      console.log("Current token:", token);
+      console.log("Current time:", Date.now().toLocaleString());
+      console.log(
+        "Token expires at:",
+        token.accessTokenExpires !== undefined
+          ? new Date(token.accessTokenExpires).toLocaleString()
+          : "undefined"
+      );
 
       if (token.authCookie) {
         // Validate refresh token format before attempting refresh
@@ -425,10 +425,10 @@ export const authOptions: NextAuthOptions = {
               accessTokenExpires: newExpirationTime
             };
 
-            console.log(
-              "🔄 [JWT Callback] Access token refreshed successfully",
-              updatedToken
-            );
+            // console.log(
+            //   "🔄 [JWT Callback] Access token refreshed successfully",
+            //   updatedToken
+            // );
 
             return updatedToken;
           } catch (refreshError) {

@@ -623,7 +623,7 @@ function LessonCard({
 
                     {/* Floating particles khi hover */}
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      {[...Array(3)].map((_, i) => (
+                      {/* {[...Array(3)].map((_, i) => (
                         <motion.div
                           key={i}
                           animate={{
@@ -644,7 +644,7 @@ function LessonCard({
                         >
                           {["❤️", "💕", "💖"][i]}
                         </motion.div>
-                      ))}
+                      ))} */}
                     </div>
                   </div>
                 )}
