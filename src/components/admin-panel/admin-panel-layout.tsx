@@ -33,7 +33,6 @@ export default function AdminPanelLayout({
 
   if (!sidebar) return null;
 
-
   return (
     <div className={themeClasses["theme-red"]}>
       <AdminSidebar />
@@ -43,14 +42,16 @@ export default function AdminPanelLayout({
           `min-h-screen transition-[margin-left] ease-in-out duration-300 px-3
            flex-1 h-full ${themeSecondaryClasses["theme-red"]} lg:rounded-l-[48px] 
            overflow-y-hidden `,
-          sidebar?.isOpen === false ? "ml-0 md:ml-[100px] pl-5" : "ml-0 md:ml-72"
+          sidebar?.isOpen === false
+            ? "ml-0 md:ml-[100px] pl-5"
+            : "ml-0 md:ml-72"
         )}
       >
         {children}
       </main>
       {/* <ModalProvider /> */}
       <AdminModalProvider />
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}

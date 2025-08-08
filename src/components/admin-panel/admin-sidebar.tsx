@@ -43,15 +43,18 @@ export function AdminSidebar() {
             className="transition-all duration-300"
           />
         </div>
-        
+
         {/* Menu - sử dụng flex-1 để chiếm không gian còn lại */}
         <div className="flex-1 overflow-hidden">
           <AdminMenu isOpen={sidebar?.isOpen} />
         </div>
-        
+
         {/* Toggle button ở dưới cùng */}
         <div className="mt-auto mb-4">
-          <AdminSidebarToggle isOpen={sidebar?.isOpen} setIsOpen={sidebar?.setIsOpen} />
+          <AdminSidebarToggle
+            isOpen={sidebar?.isOpen}
+            setIsOpen={sidebar?.setIsOpen}
+          />
         </div>
       </div>
     </aside>

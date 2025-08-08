@@ -8,7 +8,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
+  SheetTrigger
 } from "@/components/ui/sheet";
 import { AdminMenu } from "./admin-menu";
 import { AdminSidebarToggle } from "./admin-sidebar-toggle";
@@ -34,8 +34,8 @@ export function MobileAdminMenu() {
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent 
-        side="left" 
+      <SheetContent
+        side="left"
         className="w-80 p-0 !bg-[#c35690] text-white border-r-0 bg-menu-texture "
       >
         <div className="h-full flex flex-col">
@@ -57,26 +57,26 @@ export function MobileAdminMenu() {
               </div>
             </SheetTitle>
           </SheetHeader>
-          
+
           {/* Menu content */}
           <div className="flex-1 overflow-hidden">
             <ScrollArea className="h-full">
               <AdminMenu isOpen={true} />
             </ScrollArea>
           </div>
-          
+
           {/* Toggle button ở dưới cùng */}
           <div className="mt-auto mb-4">
-            <AdminSidebarToggle 
-              isOpen={sidebar?.isOpen} 
+            <AdminSidebarToggle
+              isOpen={sidebar?.isOpen}
               setIsOpen={() => {
                 sidebar?.setIsOpen();
                 setIsOpen(false); // Đóng sheet khi toggle
-              }} 
+              }}
             />
           </div>
         </div>
       </SheetContent>
     </Sheet>
   );
-} 
+}
