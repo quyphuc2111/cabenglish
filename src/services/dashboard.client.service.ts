@@ -7,21 +7,23 @@ import { getAllClassroomDataByUserId } from "@/actions/classroomAction";
 export const DashboardClientService = {
   async fetchDashboardData(userId: string, mode: "default" | "free" = "default") {
     try {
-      const [courseData, filterData, lockedData, classroomData, progressData] =
+
+      console.log("📚 Fetching dashboard data with userId:", userId, "and mode:", mode);
+      const [lockedData, progressData, courseData, filterData,  classroomData ] =
         await Promise.all([
+          initializeLocked({ userId, mode }),
+          initializeProgress(userId),
           getAllLessonDataByUserId({ userId }),
           fetchFilterData({ userId }),
-          initializeLocked({ userId, mode }),
-          getAllClassroomDataByUserId({ userId }),
-          initializeProgress(userId)
+          getAllClassroomDataByUserId({ userId })
         ]);
 
       return {
+        lockedData,
+        progressData,
         courseData: courseData.data,
         filterData,
-        lockedData,
         classroomData: classroomData.data,
-        progressData
       };
     } catch (error) {
       console.error("Error fetching dashboard data:", error);

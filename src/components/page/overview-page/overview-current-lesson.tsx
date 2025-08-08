@@ -1,8 +1,7 @@
 import LessonCard from "@/components/lesson/lesson-card";
 import Image from "next/image";
-import React, { useState } from "react";
-import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import React from "react";
+import { CourseCarousel } from "@/components/carousel/course-carousel";
 
 interface CurrentLectureProps {
   lectures: any[];
@@ -19,37 +18,6 @@ const CurrentLecture = ({
   isExtraSmall,
   t
 }: CurrentLectureProps) => {
-  const [currentPage, setCurrentPage] = useState(0);
-  const [direction, setDirection] = useState(0);
-  const itemsPerPage = isExtraSmall ? 2 : 1; // 2 items below lg (640px), 1 item on lg+ (1024px+)
-
-  const totalPages = Math.ceil(lectures.length / itemsPerPage);
-  const startIndex = currentPage * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentLecturesData = lectures.slice(startIndex, endIndex);
-
-  const handlePrevious = () => {
-    setDirection(-1);
-    setCurrentPage((prev) => Math.max(0, prev - 1));
-  };
-
-  const handleNext = () => {
-    setDirection(1);
-    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
-  };
-
-  const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? "100%" : "-100%"
-    }),
-    center: {
-      x: 0
-    },
-    exit: (direction: number) => ({
-      x: direction < 0 ? "100%" : "-100%"
-    })
-  };
-
   return (
     <div className="w-full lg:w-4/12 flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
       <div className="flex items-center gap-2 sm:gap-3">
@@ -91,91 +59,13 @@ const CurrentLecture = ({
           </div>
         </div>
       ) : (
-        <>
-          <div className="relative overflow-hidden lesson-container min-h-[230px] sm:min-h-[320px] md:min-h-[370px] lg:min-h-[330px] h-[230px] sm:h-[320px] md:h-[370px] lg:h-[330px]">
-            <AnimatePresence initial={false} custom={direction} mode="wait">
-              <motion.div
-                key={currentPage}
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{
-                  x: { type: "spring", stiffness: 300, damping: 30 }
-                }}
-                className="flex flex-row gap-1 sm:gap-2 md:gap-3 w-full"
-              >
-                {currentLecturesData.map((courseItem, index) => {
-                  const customCourse = {
-                    ...courseItem,
-                    classRoomName: courseItem.className
-                  };
-                  return (
-                    <div key={index} className="px-0.5 flex-1">
-                      <div
-                        className={cn(
-                          "h-full",
-                          isExtraSmall && "transform scale-[0.98]"
-                        )}
-                      >
-                        <LessonCard
-                          {...customCourse}
-                          onClick={() => handleLessonClick(courseItem.lessonId)}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Simple pagination with only next/previous */}
-          {totalPages >= 1 && (
-            <div className="flex justify-center items-center gap-2 mt-3">
-              {/* Nút đầu trang */}
-              <button
-                onClick={() => setCurrentPage(0)}
-                disabled={currentPage === 0}
-                className="px-2 py-1 text-xs rounded-md bg-gray-100 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 transition-colors"
-                title="Trang đầu"
-              >
-                ⟪
-              </button>
-
-              <button
-                onClick={handlePrevious}
-                disabled={currentPage === 0}
-                className="px-3 py-1 text-xs rounded-md bg-gray-100 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 transition-colors"
-              >
-                ← Trước
-              </button>
-
-              <span className="text-xs text-gray-600">
-                {currentPage + 1} / {totalPages}
-              </span>
-
-              <button
-                onClick={handleNext}
-                disabled={currentPage === totalPages - 1}
-                className="px-3 py-1 text-xs rounded-md bg-gray-100 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 transition-colors"
-              >
-                Sau →
-              </button>
-
-              {/* Nút cuối trang */}
-              <button
-                onClick={() => setCurrentPage(totalPages - 1)}
-                disabled={currentPage === totalPages - 1}
-                className="px-2 py-1 text-xs rounded-md bg-gray-100 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 transition-colors"
-                title="Trang cuối"
-              >
-                ⟫
-              </button>
-            </div>
-          )}
-        </>
+        <div className="min-h-[230px] sm:min-h-[320px] md:min-h-[370px] lg:min-h-[330px]">
+          <CourseCarousel
+            courseData={lectures}
+            className="h-full"
+            onLessonClick={handleLessonClick}
+          />
+        </div>
       )}
     </div>
   );

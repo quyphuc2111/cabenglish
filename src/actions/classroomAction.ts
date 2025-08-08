@@ -25,6 +25,7 @@ export async function getAllClassroomDataByUserId({ userId }: { userId: any }) {
 
   try {
     await initializeProgress(userId)
+    // await initializeLocked({ userId, mode: "default" })
     const data = await serverFetch(`/api/Classroom/user/${userId}`);
 
     if (!Array.isArray(data)) {
