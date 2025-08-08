@@ -1,20 +1,13 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import CourseCard from "@/components/course-card/course-card";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import LessonCard from "../lesson/lesson-card";
 import { useRouter } from "next/navigation";
+import { VirtualizedCarousel } from "./virtualized-carousel";
+
+// Lazy loading component
+const LazyLessonCard = React.lazy(() => import("../lesson/lesson-card"));
 
 interface CourseCarouselProps {
   courseData: any[];
@@ -31,11 +24,10 @@ export function CourseCarousel({
   removingLessons,
   onLessonClick
 }: CourseCarouselProps) {
-  const [swiper, setSwiper] = useState<any>(null);
-  const [isBeginning, setIsBeginning] = useState(true);
-  const [isEnd, setIsEnd] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(1);
   const [visibleItems, setVisibleItems] = useState(courseData);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Thêm breakpoint cho màn hình siêu nhỏ (mobile nhỏ)
   const isExtraSmall = useMediaQuery("(max-width: 480px)");
@@ -45,86 +37,70 @@ export function CourseCarousel({
   const isLargeScreen = useMediaQuery("(min-width: 1536px)");
   const router = useRouter();
 
-  // Điều chỉnh slidesPerView cho từng kích thước màn hình - hiển thị gần như full 1 slide trên mobile
-  const slidesPerView = isExtraSmall
-    ? 1.5
-    : isMobile
-    ? 2.5
-    : isSmallTablet
-    ? 2.5
-    : isTablet
-    ? 2.5
-    : isLargeScreen
-    ? 4
-    : 3;
+  // Memoize slidesPerView calculation
+  const slidesPerView = useMemo(() => {
+    if (isExtraSmall) return 1.5;
+    if (isMobile) return 2.5;
+    if (isSmallTablet) return 2.5;
+    if (isTablet) return 2.5;
+    if (isLargeScreen) return 4;
+    return 3;
+  }, [isExtraSmall, isMobile, isSmallTablet, isTablet, isLargeScreen]);
 
-  const effectiveSlidesPerView = Math.floor(slidesPerView);
+  // Render item function for VirtualizedCarousel
+  const renderLessonCard = useCallback(
+    (course: any, index: number) => {
+      const customCourse = {
+        ...course,
+        classRoomName: course.className
+      };
+
+      return (
+        <React.Suspense
+          fallback={
+            <div className="h-48 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center">
+              <div className="text-gray-400 text-sm">Đang tải...</div>
+            </div>
+          }
+        >
+          <LazyLessonCard
+            {...customCourse}
+            onClick={() =>
+              onLessonClick
+                ? onLessonClick(customCourse.lessonId)
+                : router.push(`/lesson/${customCourse.lessonId}`)
+            }
+            onLikeUpdate={onLikeUpdate}
+            removingLessons={removingLessons}
+            delay={0}
+          />
+        </React.Suspense>
+      );
+    },
+    [onLessonClick, onLikeUpdate, removingLessons, router]
+  );
 
   // Điều chỉnh spaceBetween cho từng kích thước màn hình
-  const getSpaceBetween = () => {
-    if (isExtraSmall) return 6; // Giảm khoảng cách cho màn hình rất nhỏ
-    if (isMobile) return 8; // Giảm khoảng cách cho mobile
-    if (isSmallTablet) return 12; // Khoảng cách cho tablet nhỏ
-    if (isTablet) return 16; // Giữ nguyên cho tablet
-    return 20; // Mặc định cho màn hình lớn
-  };
+  const spaceBetween = useMemo(() => {
+    if (isExtraSmall) return 6;
+    if (isMobile) return 8;
+    if (isSmallTablet) return 12;
+    if (isTablet) return 16;
+    return 20;
+  }, [isExtraSmall, isMobile, isSmallTablet, isTablet]);
 
   // Update visible items khi courseData thay đổi
   useEffect(() => {
     setVisibleItems(courseData);
   }, [courseData]);
 
-  // Smooth update pagination khi items thay đổi
-  useEffect(() => {
-    if (swiper) {
-      const totalPages = Math.ceil(
-        visibleItems.length / effectiveSlidesPerView
-      );
-      const currentActiveIndex = swiper.activeIndex;
-
-      // Adjust active slide if needed
-      if (
-        currentActiveIndex >= visibleItems.length &&
-        visibleItems.length > 0
-      ) {
-        swiper.slideTo(Math.max(0, visibleItems.length - 1));
-      }
-
-      swiper.update();
-    }
-  }, [visibleItems.length, swiper, effectiveSlidesPerView]);
-
-  const totalPages = Math.ceil(visibleItems.length / slidesPerView);
-
   const getCurrentPage = (activeIndex: number) => {
-    // Tính toán chính xác hơn với slidesPerView có thể là số thập phân
+    const totalPages = Math.ceil(visibleItems.length / slidesPerView);
     const calculatedPage = Math.min(
       Math.ceil((activeIndex + 1) / slidesPerView),
       totalPages
     );
     return Math.max(1, calculatedPage);
-  };
-
-  // Thêm state để track current page chính xác hơn
-  const [currentPage, setCurrentPage] = useState(1);
-
-  // Simplified animation variants cho carousel items
-  const itemVariants = {
-    hidden: {
-      opacity: 0
-    },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.3
-      }
-    },
-    exit: {
-      opacity: 0,
-      transition: {
-        duration: 0.2
-      }
-    }
   };
 
   return (
@@ -328,254 +304,22 @@ export function CourseCarousel({
             </motion.div>
           </AnimatePresence>
         ) : (
-          /* Normal Swiper Display */
-          <>
-            {/* Cải thiện container với padding phù hợp cho từng thiết bị */}
-            <div
-              className={cn(
-                "swiper-container w-full",
-                isExtraSmall ? "px-0 mx-0" : isMobile ? "px-0.5 mx-0.5" : "px-0" // Giảm padding đối với mobile
-              )}
-            >
-              <Swiper
-                onSwiper={setSwiper}
-                modules={[Navigation, Pagination]}
-                spaceBetween={getSpaceBetween()}
-                slidesPerView={slidesPerView}
-                centeredSlides={false}
-                loop={false}
-                slideToClickedSlide={true}
-                watchSlidesProgress={true}
-                observer={true}
-                observeParents={true}
-                observeSlideChildren={true}
-                resizeObserver={true}
-                updateOnWindowResize={true}
-                pagination={{
-                  clickable: true,
-                  el: ".swiper-pagination",
-                  dynamicBullets: isMobile ? true : false
-                }}
-                onSlideChange={(swiper) => {
-                  setIsBeginning(swiper.isBeginning);
-                  setIsEnd(swiper.isEnd);
-                  const newPage = getCurrentPage(swiper.activeIndex);
-                  setCurrentSlide(newPage);
-                  setCurrentPage(newPage);
-                }}
-                className="course-swiper" // Loại bỏ padding-bottom
-              >
-                <AnimatePresence>
-                  {visibleItems.map((course, index) => {
-                    const customCourse = {
-                      ...course,
-                      classRoomName: course.className
-                    };
-
-                    const isRemoving =
-                      removingLessons?.has(course.lessonId) || false;
-
-                    return (
-                      <SwiperSlide
-                        key={`lesson-${course.lessonId}`}
-                        className="transition-all duration-300 ease-in-out pb-1.5 w-full" // Giảm padding-bottom
-                      >
-                        <div
-                          className={cn(
-                            "px-0.5", // Thêm padding nhỏ cho card
-                            isExtraSmall && "transform scale-[0.98]" // Thu nhỏ một chút cho màn hình rất nhỏ
-                          )}
-                        >
-                          <motion.div
-                            variants={itemVariants}
-                            initial="hidden"
-                            animate="visible"
-                            exit="exit"
-                            className="h-full"
-                          >
-                            <LessonCard
-                              {...customCourse}
-                              onClick={() =>
-                                onLessonClick 
-                                  ? onLessonClick(customCourse.lessonId)
-                                  : router.push(`/lesson/${customCourse.lessonId}`)
-                              }
-                              onLikeUpdate={onLikeUpdate}
-                              removingLessons={removingLessons}
-                              delay={0}
-                            />
-                          </motion.div>
-                        </div>
-                      </SwiperSlide>
-                    );
-                  })}
-                </AnimatePresence>
-              </Swiper>
-
-              {/* Điểm phân trang cho mobile */}
-              {isMobile && visibleItems.length > effectiveSlidesPerView && (
-                <div className="swiper-pagination flex justify-center mt-1"></div>
-              )}
-            </div>
-
-            {/* Enhanced Navigation - hiển thị trên tablet và desktop */}
-            {!isMobile && visibleItems.length > effectiveSlidesPerView && (
-              <div className="flex items-center justify-center gap-4 -mt-2">
-                <Button
-                  variant="outline"
-                  size={isSmallTablet ? "default" : "xl"}
-                  className={cn(
-                    "rounded-full bg-white hover:bg-gray-50 transition-all duration-300 disabled:opacity-50",
-                    "border-2 border-gray-200 hover:border-gray-300 hover:shadow-md",
-                    "hover:scale-105 active:scale-95",
-                    isBeginning && "opacity-50"
-                  )}
-                  onClick={() => swiper?.slidePrev()}
-                  disabled={isBeginning}
-                >
-                  <ChevronLeft
-                    className={cn(
-                      isSmallTablet ? "h-5 w-5" : "h-6 w-6",
-                      "text-gray-700"
-                    )}
-                  />
-                </Button>
-
-                {/* Custom Dots Pagination */}
-                <div className="flex items-center gap-2">
-                  {(() => {
-                    const maxDots = 6;
-                    const dots = [];
-
-                    if (totalPages <= maxDots) {
-                      // Hiển thị tất cả dots nếu tổng số trang <= 6
-                      for (let i = 1; i <= totalPages; i++) {
-                        dots.push(
-                          <button
-                            key={i}
-                            onClick={() => {
-                              const targetIndex = Math.floor(
-                                (i - 1) * slidesPerView
-                              );
-                              swiper?.slideTo(targetIndex);
-                            }}
-                            className={cn(
-                              "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
-                              currentPage === i
-                                ? "bg-pink-500 scale-110"
-                                : "bg-gray-300 hover:bg-gray-400"
-                            )}
-                          />
-                        );
-                      }
-                    } else {
-                      // Logic cho trường hợp có nhiều hơn 6 trang
-                      const halfMax = Math.floor(maxDots / 2);
-
-                      // Luôn hiển thị trang đầu
-                      dots.push(
-                        <button
-                          key={1}
-                          onClick={() => {
-                            swiper?.slideTo(0);
-                          }}
-                          className={cn(
-                            "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
-                            currentPage === 1
-                              ? "bg-pink-500 scale-110"
-                              : "bg-gray-300 hover:bg-gray-400"
-                          )}
-                        />
-                      );
-
-                      // Tính toán range để hiển thị
-                      let startPage = Math.max(2, currentPage - halfMax);
-                      let endPage = Math.min(
-                        totalPages - 1,
-                        currentPage + halfMax
-                      );
-
-                      // Điều chỉnh nếu range quá ngắn
-                      if (endPage - startPage < maxDots - 3) {
-                        if (startPage === 2) {
-                          endPage = Math.min(
-                            totalPages - 1,
-                            startPage + maxDots - 3
-                          );
-                        } else {
-                          startPage = Math.max(2, endPage - maxDots + 3);
-                        }
-                      }
-
-                      // Thêm dots cho các trang ở giữa
-                      for (let i = startPage; i <= endPage; i++) {
-                        dots.push(
-                          <button
-                            key={i}
-                            onClick={() => {
-                              const targetIndex = Math.floor(
-                                (i - 1) * slidesPerView
-                              );
-                              swiper?.slideTo(targetIndex);
-                            }}
-                            className={cn(
-                              "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
-                              currentPage === i
-                                ? "bg-pink-500 scale-110"
-                                : "bg-gray-300 hover:bg-gray-400"
-                            )}
-                          />
-                        );
-                      }
-
-                      // Luôn hiển thị trang cuối nếu có nhiều hơn 1 trang
-                      if (totalPages > 1) {
-                        dots.push(
-                          <button
-                            key={totalPages}
-                            onClick={() => {
-                              const targetIndex = Math.floor(
-                                (totalPages - 1) * slidesPerView
-                              );
-                              swiper?.slideTo(targetIndex);
-                            }}
-                            className={cn(
-                              "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
-                              currentPage === totalPages
-                                ? "bg-pink-500 scale-110"
-                                : "bg-gray-300 hover:bg-gray-400"
-                            )}
-                          />
-                        );
-                      }
-                    }
-
-                    return dots;
-                  })()}
-                </div>
-
-                <Button
-                  variant="outline"
-                  size={isSmallTablet ? "default" : "xl"}
-                  className={cn(
-                    "rounded-full bg-white hover:bg-gray-50 transition-all duration-300 disabled:opacity-50",
-                    "border-2 border-gray-200 hover:border-gray-300 hover:shadow-md",
-                    "hover:scale-105 active:scale-95",
-                    isEnd && "opacity-50"
-                  )}
-                  onClick={() => swiper?.slideNext()}
-                  disabled={isEnd}
-                >
-                  <ChevronRight
-                    className={cn(
-                      isSmallTablet ? "h-5 w-5" : "h-6 w-6",
-                      "text-gray-700"
-                    )}
-                  />
-                </Button>
-              </div>
-            )}
-          </>
+          /* Virtualized Carousel Display */
+          <VirtualizedCarousel
+            items={visibleItems}
+            className=""
+            slidesPerView={slidesPerView}
+            spaceBetween={spaceBetween}
+            renderItem={renderLessonCard}
+            onSlideChange={(activeIndex) => {
+              setActiveIndex(activeIndex);
+              const newPage = getCurrentPage(activeIndex);
+              setCurrentSlide(newPage);
+              setCurrentPage(newPage);
+            }}
+            isMobile={isMobile}
+            isExtraSmall={isExtraSmall}
+          />
         )}
       </div>
     </>
