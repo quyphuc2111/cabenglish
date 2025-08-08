@@ -838,3 +838,84 @@ select {
   max-width: 100%;
   overflow: hidden;
 }
+
+/* Performance optimizations - Inline CSS to avoid import issues */
+
+/* Disable animations globally when performance mode is on */
+.performance-mode *,
+.performance-mode *::before,
+.performance-mode *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+
+/* Framer Motion specific optimizations */
+.performance-mode [data-framer-motion] {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Swiper optimizations */
+.performance-mode .swiper-wrapper {
+  transition-duration: 0ms !important;
+}
+
+.performance-mode .swiper-slide {
+  transition-duration: 0ms !important;
+}
+
+/* Common animation classes disabled */
+.performance-mode .animate-spin,
+.performance-mode .animate-pulse,
+.performance-mode .animate-bounce,
+.performance-mode .animate-text-shine,
+.performance-mode .animate-bounce-subtle {
+  animation: none !important;
+}
+
+/* Motion reduce class */
+.motion-reduce {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Disable hover effects in performance mode */
+.performance-mode *:hover {
+  transition: none !important;
+}
+
+/* Disable complex animations */
+.performance-mode .course-swiper .swiper-slide,
+.performance-mode .book-swiper .swiper-slide {
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Static mode - maximum performance */
+.static-mode * {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+/* Global performance mode - disable all motion */
+body.performance-mode * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  transform: none !important;
+}
+
+/* Force static rendering for all motion elements */
+body.performance-mode [data-framer-motion],
+body.performance-mode .motion-div,
+body.performance-mode .motion-button,
+body.performance-mode .motion-span {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}

@@ -371,7 +371,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
 
       <div className="flex items-center gap-2 p-3 sm:p-4 w-full bg-white rounded-xl mb-3 sm:mb-4">
         <Image
-          src="/book.gif"
+          src="/book_multi.png"
           alt="book"
           width={40}
           height={40}

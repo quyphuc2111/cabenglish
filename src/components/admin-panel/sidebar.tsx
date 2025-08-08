@@ -12,9 +12,9 @@ import { useModal } from "@/hooks/useModalStore";
 import { NotificationType } from "@/types/notification";
 import { useSocket } from "@/hooks/useSocket";
 import { showToast } from "@/utils/toast-config";
-import { useEffect } from "react";
+import { useEffect, memo } from "react";
 import { useSession } from "next-auth/react";
-export function Sidebar({
+export const Sidebar = memo(function Sidebar({
   notificationList
 }: {
   notificationList: NotificationType[];
@@ -202,4 +202,4 @@ export function Sidebar({
       </div>
     </aside>
   );
-}
+});

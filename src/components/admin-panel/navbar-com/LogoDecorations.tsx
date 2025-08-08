@@ -195,7 +195,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
         />
       </div>
 
-      <motion.div
+      {/* <motion.div
         className="absolute right-[12%] -top-4 hidden md:block"
         variants={navbarAnimations.firework}
         initial="initial"
@@ -208,9 +208,9 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
           alt="phaohoa1"
           priority
         />
-      </motion.div>
+      </motion.div> */}
 
-      <motion.div
+      {/* <motion.div
         variants={navbarAnimations.firework}
         initial="initial"
         animate="animate"
@@ -223,7 +223,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
           alt="phaohoa1"
           priority
         />
-      </motion.div>
+      </motion.div> */}
 
       <div className="absolute right-[10%] top-[25%] hidden md:block ">
         <OptimizeImage

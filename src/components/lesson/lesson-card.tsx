@@ -10,8 +10,9 @@ import React, {
 } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { cn, formatProgress, validateImageUrl } from "@/lib/utils";
+import { shouldDisableAnimations } from "@/config/performance";
 import { toast } from "react-toastify";
 import { useLessonLike } from "@/hooks/client/useLesson";
 import PerformanceWrapper from "@/components/common/performance-wrapper";
@@ -341,9 +342,15 @@ function LessonCard({
         animate={isRemoving ? "removing" : "visible"}
         whileHover={isLocked || isRemoving ? undefined : "hover"}
         whileTap={isLocked || isRemoving ? undefined : "tap"}
-        transition={{ delay: isRemoving ? 0 : delay }}
+        transition={{
+          delay: isRemoving ? 0 : delay,
+          duration: 0.2, // Giảm duration để animation nhanh hơn
+          ease: "easeOut" // Sử dụng easing đơn giản hơn
+        }}
         onClick={handleChooseCourse}
         className={cardClasses}
+        // Optimize rendering
+        style={{ willChange: isRemoving ? "transform, opacity" : "auto" }}
       >
         {/* Removing Effects Overlay */}
         <AnimatePresence>
