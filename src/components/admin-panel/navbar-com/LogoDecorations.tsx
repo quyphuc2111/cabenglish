@@ -37,7 +37,7 @@ export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
         />
       </motion.div> */}
 
-      <div className="w-[85%] left-1/2 -translate-x-1/2 flex justify-center md:block md:w-3/4 bg-white absolute top-1/2 -translate-y-1/2 md:left-10  rounded-xl p-2 sm:p-3 md:p-4 px-3 sm:px-6 md:px-8  md:translate-x-0">
+      <div className="w-[85%] flex justify-center md:block md:w-3/4 bg-white absolute md:left-10 top-3 rounded-xl p-2 sm:p-3 md:p-4 px-3 sm:px-6 md:px-8  md:translate-x-0">
         <div className="w-fit relative">
           <LogoSection />
 
