@@ -108,6 +108,7 @@ const OverviewPage = memo(function OverviewPage({
         initialFilterData={initialFilterData}
         fetchFilterData={fetchFilterData}
         onDataRefetch={refetchCourseData}
+        classrooms={classroomData}
       />
       <TeachingProgress
         courseData={courseData}

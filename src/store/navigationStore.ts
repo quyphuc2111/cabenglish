@@ -50,6 +50,19 @@ interface NavigationState {
   setOverviewState: (
     state: Partial<NavigationState["overviewState"]>
   ) => void;
+
+  // Lecture favourite list specific state (filters + scroll)
+  lectureFavouriteState: {
+    selectedClassId: string;
+    selectedUnitId: string;
+    selectedWeekId: string;
+    scrollPosition: number;
+    lastVisited: number;
+  };
+
+  setLectureFavouriteState: (
+    state: Partial<NavigationState["lectureFavouriteState"]>
+  ) => void;
 }
 
 export const useNavigationStore = create<NavigationState>()(
@@ -69,6 +82,13 @@ export const useNavigationStore = create<NavigationState>()(
         lastVisited: Date.now()
       },
       overviewState: {
+        scrollPosition: 0,
+        lastVisited: Date.now()
+      },
+      lectureFavouriteState: {
+        selectedClassId: "",
+        selectedUnitId: "",
+        selectedWeekId: "",
         scrollPosition: 0,
         lastVisited: Date.now()
       },
@@ -109,6 +129,16 @@ export const useNavigationStore = create<NavigationState>()(
             lastVisited: Date.now()
           }
         }));
+      },
+
+      setLectureFavouriteState: (newState) => {
+        set((state) => ({
+          lectureFavouriteState: {
+            ...state.lectureFavouriteState,
+            ...newState,
+            lastVisited: Date.now()
+          }
+        }));
       }
     }),
     {
@@ -118,7 +148,8 @@ export const useNavigationStore = create<NavigationState>()(
         previousPage: state.previousPage,
         lessonTeachingState: state.lessonTeachingState,
         lessonCompleteState: state.lessonCompleteState,
-        overviewState: state.overviewState
+        overviewState: state.overviewState,
+        lectureFavouriteState: state.lectureFavouriteState
       })
     }
   )
