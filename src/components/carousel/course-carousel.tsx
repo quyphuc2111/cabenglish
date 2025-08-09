@@ -13,7 +13,6 @@ import {
   CarouselPrevious,
   type CarouselApi
 } from "@/components/ui/carousel";
-import { Button } from "@/components/ui/button";
 
 // Lazy loading component
 const LazyLessonCard = React.lazy(() => import("../lesson/lesson-card"));
@@ -27,6 +26,7 @@ interface CourseCarouselProps {
   classroomData?: any[];
   containerType?: "current" | "next";
   onSlideChange?: (activeIndex: number) => void;
+  showArrows?: boolean; // New prop to control arrow visibility
 }
 
 export function CourseCarousel({
@@ -37,7 +37,8 @@ export function CourseCarousel({
   onLessonClick,
   classroomData,
   containerType = "next",
-  onSlideChange
+  onSlideChange,
+  showArrows = false // Default to false (arrows hidden)
 }: CourseCarouselProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
@@ -242,8 +243,8 @@ export function CourseCarousel({
           ))}
         </CarouselContent>
 
-        {/* Navigation - only show on desktop and when there are enough items */}
-        {!isMobile && visibleItems.length > 2 && (
+        {/* Navigation arrows - controlled by showArrows prop */}
+        {showArrows && !isMobile && visibleItems.length > 2 && (
           <>
             <CarouselPrevious className="hidden lg:flex -left-12" />
             <CarouselNext className="hidden lg:flex -right-12" />

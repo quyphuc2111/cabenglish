@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { CourseCarousel as CourseCarouselV1 } from "@/components/carousel/course-carousel-v1-backup";
 import { CourseCarousel } from "@/components/carousel/course-carousel";
 
 // Mock data
@@ -67,6 +66,7 @@ export default function TestCarouselV2Page() {
     new Set()
   );
   const [showLoading, setShowLoading] = useState(false);
+  const [showArrows, setShowArrows] = useState(false);
 
   const handleToggleLoading = () => {
     if (showLoading) {
@@ -97,12 +97,21 @@ export default function TestCarouselV2Page() {
             Compare the old CourseCarousel with the new shadcn-based version
           </p>
 
-          <button
-            onClick={handleToggleLoading}
-            className="px-6 py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
-          >
-            {showLoading ? "Hide Loading State" : "Show Loading State"}
-          </button>
+          <div className="flex gap-4 flex-wrap justify-center">
+            <button
+              onClick={handleToggleLoading}
+              className="px-6 py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
+            >
+              {showLoading ? "Hide Loading State" : "Show Loading State"}
+            </button>
+
+            <button
+              onClick={() => setShowArrows(!showArrows)}
+              className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              {showArrows ? "Hide Arrows" : "Show Arrows"}
+            </button>
+          </div>
         </div>
 
         {/* Version 1 - Original */}
@@ -110,15 +119,6 @@ export default function TestCarouselV2Page() {
           <h2 className="text-xl font-semibold mb-4 text-blue-600">
             Version 1 - Original (Swiper-based)
           </h2>
-          <div className="min-h-[300px]">
-            <CourseCarouselV1
-              courseData={mockData}
-              containerType="next"
-              removingLessons={showLoading ? removingLessons : undefined}
-              onLikeUpdate={handleLikeUpdate}
-              onLessonClick={handleLessonClick}
-            />
-          </div>
         </div>
 
         {/* Version 2 - New */}
@@ -133,6 +133,7 @@ export default function TestCarouselV2Page() {
               removingLessons={showLoading ? removingLessons : undefined}
               onLikeUpdate={handleLikeUpdate}
               onLessonClick={handleLessonClick}
+              showArrows={showArrows}
             />
           </div>
         </div>
@@ -143,14 +144,6 @@ export default function TestCarouselV2Page() {
             <h3 className="text-lg font-semibold mb-4 text-blue-600">
               V1 - Current Container
             </h3>
-            <div className="lg:w-4/12 mx-auto">
-              <CourseCarouselV1
-                courseData={mockData}
-                containerType="current"
-                onLikeUpdate={handleLikeUpdate}
-                onLessonClick={handleLessonClick}
-              />
-            </div>
           </div>
 
           <div className="bg-white rounded-lg p-6 shadow-lg">
@@ -163,6 +156,7 @@ export default function TestCarouselV2Page() {
                 containerType="current"
                 onLikeUpdate={handleLikeUpdate}
                 onLessonClick={handleLessonClick}
+                showArrows={showArrows}
               />
             </div>
           </div>

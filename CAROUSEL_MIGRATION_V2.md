@@ -9,16 +9,19 @@ Successfully migrated from Swiper-based CourseCarousel to Shadcn Carousel (Embla
 ### ✅ Completed Actions
 
 1. **Installed Shadcn Carousel**
+
    ```bash
    npx shadcn@latest add carousel
    ```
 
 2. **Created CourseCarousel V2**
+
    - File: `src/components/carousel/course-carousel-v2.tsx`
    - Based on Shadcn Carousel (Embla)
    - Maintains 100% API compatibility
 
 3. **Backup & Replace**
+
    - Backed up original: `course-carousel.tsx` → `course-carousel-v1-backup.tsx`
    - Replaced with V2: `course-carousel-v2.tsx` → `course-carousel.tsx`
    - Removed: `virtualized-carousel.tsx` (no longer needed)
@@ -30,40 +33,45 @@ Successfully migrated from Swiper-based CourseCarousel to Shadcn Carousel (Embla
 ## 🎯 Key Improvements
 
 ### **Performance**
+
 - ✅ **Smaller Bundle**: Embla (~15KB) vs Swiper (~50KB)
 - ✅ **Better Tree Shaking**: Only imports what's needed
 - ✅ **Faster Initialization**: Simpler setup, less overhead
 
 ### **Developer Experience**
+
 - ✅ **Better TypeScript**: Full type safety with Embla API
 - ✅ **Simpler Configuration**: Less complex options
 - ✅ **Consistent Design**: Matches Shadcn design system
 
 ### **Accessibility**
+
 - ✅ **ARIA Support**: Built-in accessibility features
 - ✅ **Keyboard Navigation**: Arrow keys, focus management
 - ✅ **Screen Reader**: Proper role and aria-roledescription
 
 ### **Responsive Design**
+
 - ✅ **Mobile-First**: Better mobile experience
 - ✅ **Flexible Sizing**: Percentage-based slide widths
 - ✅ **Adaptive Navigation**: Shows/hides based on screen size
 
 ## 📱 Responsive Behavior
 
-| Screen Size | Slide Width | Navigation |
-|-------------|-------------|------------|
-| ≤480px (Extra Small) | 33% | Dots only |
-| 481-640px (Mobile) | 40% | Dots only |
-| 641-768px (Small Tablet) | 40% | Dots only |
-| 769-1024px (Tablet) | 40% | Arrows + Dots |
-| >1024px (Desktop) | 33%/50%* | Arrows + Dots |
+| Screen Size              | Slide Width | Navigation    |
+| ------------------------ | ----------- | ------------- |
+| ≤480px (Extra Small)     | 33%         | Dots only     |
+| 481-640px (Mobile)       | 40%         | Dots only     |
+| 641-768px (Small Tablet) | 40%         | Dots only     |
+| 769-1024px (Tablet)      | 40%         | Arrows + Dots |
+| >1024px (Desktop)        | 33%/50%\*   | Arrows + Dots |
 
-*Depends on `containerType`: "current" = 50%, "next" = 33%
+\*Depends on `containerType`: "current" = 50%, "next" = 33%
 
 ## 🔧 API Compatibility
 
-### **Props (100% Compatible)**
+### **Props (Enhanced)**
+
 ```typescript
 interface CourseCarouselProps {
   courseData: any[];
@@ -74,12 +82,14 @@ interface CourseCarouselProps {
   classroomData?: any[];
   containerType?: "current" | "next";
   onSlideChange?: (activeIndex: number) => void;
+  showArrows?: boolean; // NEW: Control arrow visibility (default: false)
 }
 ```
 
-### **Usage (No Changes Required)**
+### **Usage**
+
 ```tsx
-// Before & After - Same API
+// Basic usage (arrows hidden by default)
 <CourseCarousel
   courseData={lessons}
   containerType="next"
@@ -87,17 +97,28 @@ interface CourseCarouselProps {
   onLessonClick={handleLessonClick}
   removingLessons={removingSet}
 />
+
+// With arrows enabled
+<CourseCarousel
+  courseData={lessons}
+  containerType="next"
+  showArrows={true}
+  onLikeUpdate={handleLikeUpdate}
+  onLessonClick={handleLessonClick}
+/>
 ```
 
 ## 🧪 Testing
 
 ### **Test Pages**
+
 1. **`/test-carousel-v2`**: V1 vs V2 comparison
 2. **`/test-mobile-pagination`**: Mobile pagination testing
 3. **`/test-carousel-dots`**: Dots behavior testing
 4. **`/`**: Main overview page (production usage)
 
 ### **Test Scenarios**
+
 - ✅ Desktop navigation (arrows + dots)
 - ✅ Mobile pagination (dots only)
 - ✅ Loading states (removing lessons)
@@ -119,11 +140,13 @@ src/components/carousel/
 ## 🚫 Removed Features
 
 ### **Virtual Scrolling**
+
 - **Reason**: Not needed for typical use cases (<100 items)
 - **Impact**: Minimal - most carousels have <20 items
 - **Alternative**: Can be added later if needed
 
 ### **Complex Swiper Options**
+
 - **Reason**: Simplified API is easier to maintain
 - **Impact**: None - all required features maintained
 - **Benefit**: Less configuration, fewer bugs
@@ -141,6 +164,7 @@ All components automatically use V2 (no code changes required):
 ## 🎨 Styling
 
 ### **Maintained Features**
+
 - ✅ Loading animations
 - ✅ Progress dots
 - ✅ Responsive spacing
@@ -148,6 +172,7 @@ All components automatically use V2 (no code changes required):
 - ✅ Active states
 
 ### **Improved Features**
+
 - ✅ Better focus indicators
 - ✅ Smoother transitions
 - ✅ Consistent button styling
@@ -156,12 +181,15 @@ All components automatically use V2 (no code changes required):
 ## 🐛 Known Issues & Solutions
 
 ### **Issue**: Missing virtual scrolling
+
 **Solution**: Monitor usage - add if needed for large datasets
 
 ### **Issue**: Different animation timing
+
 **Solution**: Adjust Embla options if needed
 
 ### **Issue**: Slightly different navigation behavior
+
 **Solution**: Expected - Embla has different UX patterns
 
 ## 🚀 Next Steps
