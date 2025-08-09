@@ -17,6 +17,7 @@ interface CourseCarouselProps {
   onLessonClick?: (lessonId: number) => void;
   classroomData?: any[];
   containerType?: "current" | "next"; // Để phân biệt container type
+  onSlideChange?: (activeIndex: number) => void;
 }
 
 export function CourseCarousel({
@@ -26,7 +27,8 @@ export function CourseCarousel({
   removingLessons,
   onLessonClick,
   classroomData,
-  containerType = "next"
+  containerType = "next",
+  onSlideChange
 }: CourseCarouselProps) {
   const [currentSlide, setCurrentSlide] = useState(1);
   const [visibleItems, setVisibleItems] = useState(courseData);
@@ -193,14 +195,32 @@ export function CourseCarousel({
           overflow: visible;
         }
 
-        /* Cải thiện hiển thị nút điều hướng trên mobile */
-        @media (max-width: 640px) {
+        /* Cải thiện hiển thị nút điều hướng trên mobile - Responsive */
+        @media (max-width: 480px) {
+          .swiper-pagination-bullet {
+            width: 3px;
+            height: 3px;
+            margin: 0 1.5px;
+          }
+        }
+
+        @media (min-width: 481px) and (max-width: 640px) {
           .swiper-pagination-bullet {
             width: 4px;
             height: 4px;
             margin: 0 2px;
           }
+        }
 
+        @media (min-width: 641px) and (max-width: 768px) {
+          .swiper-pagination-bullet {
+            width: 5px;
+            height: 5px;
+            margin: 0 2.5px;
+          }
+        }
+
+        @media (max-width: 768px) {
           .swiper-container {
             padding: 0 1px;
             overflow: hidden;
@@ -231,15 +251,15 @@ export function CourseCarousel({
               transition={{ duration: 0.3, ease: "easeOut" }}
               className="flex flex-col items-center justify-center py-16 px-4"
             >
-              {/* Main loading container - centered */}
-              <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-xl p-6 max-w-md w-full animate-glow">
-                <div className="flex flex-col items-center gap-4">
-                  {/* Large animated dots spinner */}
-                  <div className="flex gap-2">
+              {/* Main loading container - responsive */}
+              <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-xl p-4 sm:p-6 max-w-sm sm:max-w-md w-full animate-glow">
+                <div className="flex flex-col items-center gap-3 sm:gap-4">
+                  {/* Responsive animated dots spinner */}
+                  <div className="flex gap-1.5 sm:gap-2">
                     {[...Array(3)].map((_, i) => (
                       <div
                         key={i}
-                        className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full animate-bounce"
+                        className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full animate-bounce"
                         style={{
                           animationDelay: `${i * 0.15}s`,
                           animationDuration: "0.8s"
@@ -248,12 +268,12 @@ export function CourseCarousel({
                     ))}
                   </div>
 
-                  {/* Loading text - centered */}
+                  {/* Responsive loading text */}
                   <div className="text-center">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-1 sm:mb-2">
                       Đang cập nhật dữ liệu
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs sm:text-sm text-gray-600">
                       Đang xử lý{" "}
                       <span className="text-pink-600 font-semibold">
                         {removingLessons.size}
@@ -262,32 +282,36 @@ export function CourseCarousel({
                     </p>
                   </div>
 
-                  {/* Progress dots display */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">Tiến độ:</span>
-                    <div className="flex gap-1">
-                      {[...Array(Math.min(removingLessons.size, 8))].map(
-                        (_, i) => (
-                          <div
-                            key={i}
-                            className="w-2 h-2 bg-pink-300 rounded-full animate-pulse"
-                            style={{
-                              animationDelay: `${i * 0.2}s`,
-                              animationDuration: "1.5s"
-                            }}
-                          />
+                  {/* Progress dots display - Responsive */}
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <span className="text-xs text-gray-500 hidden sm:inline">
+                      Tiến độ:
+                    </span>
+                    <div className="flex gap-0.5 sm:gap-1">
+                      {[
+                        ...Array(
+                          Math.min(removingLessons.size, isMobile ? 6 : 8)
                         )
-                      )}
-                      {removingLessons.size > 8 && (
-                        <span className="text-xs text-gray-500 ml-1">
-                          +{removingLessons.size - 8}
+                      ].map((_, i) => (
+                        <div
+                          key={i}
+                          className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-pink-300 rounded-full animate-pulse"
+                          style={{
+                            animationDelay: `${i * 0.2}s`,
+                            animationDuration: "1.5s"
+                          }}
+                        />
+                      ))}
+                      {removingLessons.size > (isMobile ? 6 : 8) && (
+                        <span className="text-xs text-gray-500 ml-0.5 sm:ml-1">
+                          +{removingLessons.size - (isMobile ? 6 : 8)}
                         </span>
                       )}
                     </div>
                   </div>
 
-                  {/* Enhanced progress bar */}
-                  <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                  {/* Responsive enhanced progress bar */}
+                  <div className="w-full h-1.5 sm:h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div className="h-full bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 rounded-full relative">
                       {/* Shimmer effect */}
                       <div
@@ -336,6 +360,7 @@ export function CourseCarousel({
               const newPage = getCurrentPage(activeIndex);
               setCurrentSlide(newPage);
               setCurrentPage(newPage);
+              onSlideChange?.(activeIndex);
             }}
             isMobile={isMobile}
             isExtraSmall={isExtraSmall}
