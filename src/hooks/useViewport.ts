@@ -10,6 +10,15 @@ export function useViewportHeight() {
       // Tính toán chiều cao viewport thực tế
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty("--vh", `${vh}px`);
+      
+      // Special handling for mobile landscape
+      if (window.innerWidth > window.innerHeight && window.innerWidth <= 896) {
+        // Mobile landscape mode
+        document.documentElement.style.setProperty("--mobile-landscape", "true");
+        document.documentElement.style.setProperty("--vh-landscape", `${vh}px`);
+      } else {
+        document.documentElement.style.setProperty("--mobile-landscape", "false");
+      }
     };
 
     // Set initial value
@@ -18,21 +27,36 @@ export function useViewportHeight() {
     // Update on resize and orientation change
     const handleResize = () => {
       // Debounce để tránh quá nhiều update
-      setTimeout(setVH, 100);
+      clearTimeout((window as any)._vhTimeout);
+      (window as any)._vhTimeout = setTimeout(setVH, 100);
     };
 
     const handleOrientationChange = () => {
       // Delay để đảm bảo orientation đã thay đổi hoàn toàn
-      setTimeout(setVH, 300);
+      // Increase delay for landscape change
+      clearTimeout((window as any)._orientationTimeout);
+      (window as any)._orientationTimeout = setTimeout(() => {
+        setVH();
+        // Force re-calculation after orientation change
+        setTimeout(setVH, 100);
+      }, 500);
     };
 
     window.addEventListener("resize", handleResize);
     window.addEventListener("orientationchange", handleOrientationChange);
+    
+    // Additional event for mobile browsers
+    window.addEventListener("load", setVH);
+    document.addEventListener("DOMContentLoaded", setVH);
 
     // Cleanup
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("orientationchange", handleOrientationChange);
+      window.removeEventListener("load", setVH);
+      document.removeEventListener("DOMContentLoaded", setVH);
+      clearTimeout((window as any)._vhTimeout);
+      clearTimeout((window as any)._orientationTimeout);
     };
   }, []);
 }

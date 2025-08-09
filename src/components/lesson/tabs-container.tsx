@@ -135,17 +135,6 @@ export const TabsContainer = ({
 
   // Auto unlock first content if section is unlocked
   useEffect(() => {
-    console.log("Section unlock check:", {
-      sectionIsLocked: sectionInfo.isLocked,
-      sectionContentsLength: sectionContents.length,
-      sectionContents: sectionContents.map((content) => ({
-        sc_id: content.sc_id,
-        title: content.title,
-        isLocked: content.isLocked,
-        order: content.order
-      }))
-    });
-
     if (
       !sectionInfo.isLocked &&
       sectionContents.length > 0 &&
@@ -155,8 +144,6 @@ export const TabsContainer = ({
         (content) => content.order === 0
       );
       if (firstContent && firstContent.isLocked) {
-        console.log("Auto unlocking first content:", firstContent.sc_id);
-
         // Update local state immediately for better UX
         setLocalUnlockedContents(
           (prev) => new Set([...prev, firstContent.sc_id])
@@ -169,7 +156,6 @@ export const TabsContainer = ({
           },
           {
             onSuccess: () => {
-              console.log("Successfully unlocked first content on server");
               router.refresh();
             },
             onError: (error: any) => {
@@ -311,11 +297,6 @@ export const TabsContainer = ({
                 isLastLesson: false,
                 nextLessonId: nextLessonResult.nextLesson.lessonId,
                 onConfirm: async () => {
-                  console.log(
-                    "Chuyển sang lesson tiếp theo:",
-                    nextLessonResult.nextLesson
-                  );
-
                   // Invalidate lesson data để refresh dữ liệu
                   if (session?.user?.userId && currentLesson?.classId) {
                     try {
@@ -556,25 +537,27 @@ export const TabsContainer = ({
                   >
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger className="flex gap-0.5 landscape:gap-1 sm:gap-2 items-center min-w-0">
-                          <div className="w-4 h-4 landscape:w-5 landscape:h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 flex-shrink-0 relative overflow-hidden rounded">
-                            <Image
-                              src={content.icon_url || "/assets/image/sc1.png"}
-                              alt="content-icon"
-                              width={40}
-                              height={40}
-                              className="w-full h-full object-cover"
-                              unoptimized
-                            />
+                        <TooltipTrigger asChild>
+                          <div className="flex gap-0.5 landscape:gap-1 sm:gap-2 items-center min-w-0 w-full">
+                            <div className="w-4 h-4 landscape:w-5 landscape:h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 flex-shrink-0 relative overflow-hidden rounded">
+                              <Image
+                                src={content.icon_url || "/assets/image/sc1.png"}
+                                alt="content-icon"
+                                width={40}
+                                height={40}
+                                className="w-full h-full object-cover"
+                                unoptimized
+                              />
+                            </div>
+                            <p
+                              className={cn(
+                                "font-medium truncate text-[10px] landscape:text-xs sm:text-sm line-clamp-1 min-w-0",
+                                isContentLocked(content) ? "opacity-50" : ""
+                              )}
+                            >
+                              {content.title}
+                            </p>
                           </div>
-                          <p
-                            className={cn(
-                              "font-medium truncate text-[10px] landscape:text-xs sm:text-sm line-clamp-1 min-w-0",
-                              isContentLocked(content) ? "opacity-50" : ""
-                            )}
-                          >
-                            {content.title}
-                          </p>
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>{content.title}</p>
@@ -626,7 +609,7 @@ export const TabsContainer = ({
           <span>Hoàn thành</span>
         </motion.button>
       </div>
-
+      
       {/* Content tabs */}
       {sectionContents
         .sort((a, b) => a.order - b.order)

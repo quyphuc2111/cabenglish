@@ -102,46 +102,79 @@
 }
 
 /* Mobile Landscape - Maximize horizontal space */
-@media screen and (orientation: landscape) and (max-width: 1023px) {
+@media screen and (orientation: landscape) and (max-width: 767px) {
   .lesson-container {
-    padding: calc(var(--safe-area-inset-top) + 2px) calc(var(--safe-area-inset-right) + 2px) calc(var(--safe-area-inset-bottom) + 2px) calc(var(--safe-area-inset-left) + 2px) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Force body and html to use full width */
+  body {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .lesson-tabs-container {
-    height: calc(100vh - var(--safe-area-inset-top) - var(--safe-area-inset-bottom) - 4px) !important;
+    height: calc(100vh - var(--safe-area-inset-top) - var(--safe-area-inset-bottom) - 2px) !important;
+    min-height: 100vh !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+  }
+
+  /* Force main content card to full width in mobile landscape */
+  .lesson-main-content {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    left: 0 !important;
+    transform: translateY(-50%) !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .lesson-iframe-container {
-    height: calc(100% - 88px) !important; /* Subtract tabs and controls height */
+    height: calc(100% - 72px) !important; /* Reduced for landscape mode */
+    width: 100vw !important;
+    max-width: 100vw !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   /* Compact tab list for landscape */
   .lesson-tab-list {
-    min-height: 36px !important;
-    padding: 4px !important;
+    min-height: 28px !important;
+    padding: 2px 8px !important;
   }
 
   .lesson-tab-trigger {
-    padding: 4px 8px !important;
-    font-size: 12px !important;
-    min-height: 28px !important;
+    padding: 2px 6px !important;
+    font-size: 11px !important;
+    min-height: 24px !important;
   }
 
   /* Ensure mobile controls are visible in landscape */
   .lesson-mobile-controls {
-    min-height: 40px !important;
-    padding: 6px 12px !important;
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(8px) !important;
+    min-height: 32px !important;
+    padding: 3px 8px !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px) !important;
     border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
     position: relative !important;
-    z-index: 20 !important;
+    z-index: 30 !important;
   }
 
   .lesson-mobile-controls button {
-    min-height: 32px !important;
-    font-size: 13px !important;
+    min-height: 26px !important;
+    font-size: 11px !important;
     font-weight: 500 !important;
+    padding: 3px 8px !important;
   }
 }
 
@@ -163,6 +196,48 @@
   .lesson-mobile-controls button {
     min-height: 36px !important;
     font-size: 14px !important;
+  }
+}
+
+/* Tablet Landscape */
+@media screen and (orientation: landscape) and (min-width: 768px) and (max-width: 1023px) {
+  .lesson-container {
+    padding: calc(var(--safe-area-inset-top) + 3px) calc(var(--safe-area-inset-right) + 3px) calc(var(--safe-area-inset-bottom) + 3px) calc(var(--safe-area-inset-left) + 3px) !important;
+  }
+
+  .lesson-tabs-container {
+    height: calc(100vh - var(--safe-area-inset-top) - var(--safe-area-inset-bottom) - 6px) !important;
+  }
+
+  .lesson-iframe-container {
+    height: calc(100% - 92px) !important;
+  }
+
+  .lesson-tab-list {
+    min-height: 40px !important;
+    padding: 4px !important;
+  }
+
+  .lesson-tab-trigger {
+    padding: 4px 10px !important;
+    font-size: 13px !important;
+    min-height: 32px !important;
+  }
+
+  .lesson-mobile-controls {
+    min-height: 44px !important;
+    padding: 8px 16px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+    position: relative !important;
+    z-index: 25 !important;
+  }
+
+  .lesson-mobile-controls button {
+    min-height: 36px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
   }
 }
 
@@ -188,37 +263,74 @@
 }
 
 /* Ultra-wide displays */
-@media screen and (min-aspect-ratio: 21/9) {
+/* @media screen and (min-aspect-ratio: 21/9) {
   .lesson-container {
     max-width: 90vw !important;
     margin: 0 auto !important;
   }
-}
+} */
 
-/* Very small screens */
+/* Very small screens and mobile landscape specific fixes */
 @media screen and (max-height: 500px) {
   .lesson-tabs-container {
     height: 100vh !important;
+    height: calc(var(--vh, 1vh) * 100) !important;
   }
 
   .lesson-iframe-container {
-    height: calc(100% - 70px) !important;
+    height: calc(100% - 60px) !important;
   }
 
   .lesson-tab-list {
-    min-height: 28px !important;
-    padding: 2px !important;
+    min-height: 24px !important;
+    padding: 1px !important;
   }
 
   .lesson-mobile-controls {
-    min-height: 32px !important;
-    padding: 4px 8px !important;
+    min-height: 28px !important;
+    padding: 2px 6px !important;
+  }
+
+  .lesson-mobile-controls button {
+    min-height: 20px !important;
+    font-size: 10px !important;
+    padding: 2px 6px !important;
+  }
+}
+
+/* Mobile landscape height fix */
+@media screen and (orientation: landscape) and (max-height: 600px) {
+  .lesson-tabs-container {
+    height: 100vh !important;
+    height: calc(var(--vh, 1vh) * 100) !important;
+    max-height: 100vh !important;
+  }
+
+  .lesson-iframe-container {
+    height: calc(100% - 65px) !important;
+  }
+
+  /* Override Tailwind classes for mobile landscape */
+  .lesson-tab-list {
+    min-height: 26px !important;
+    padding: 2px !important;
+  }
+
+  .lesson-tab-trigger {
+    min-height: 22px !important;
+    padding: 1px 4px !important;
+    font-size: 10px !important;
+  }
+
+  .lesson-mobile-controls {
+    min-height: 30px !important;
+    padding: 3px 6px !important;
   }
 
   .lesson-mobile-controls button {
     min-height: 24px !important;
-    font-size: 11px !important;
-    padding: 3px 8px !important;
+    font-size: 10px !important;
+    padding: 2px 6px !important;
   }
 }
 
@@ -267,12 +379,44 @@
   .lesson-tabs-container {
     height: -webkit-fill-available !important;
   }
+  
+  /* iOS Safari landscape fix */
+  @media screen and (orientation: landscape) {
+    .lesson-tabs-container {
+      height: 100vh !important;
+      height: -webkit-fill-available !important;
+      min-height: -webkit-fill-available !important;
+    }
+    
+    .lesson-iframe-container {
+      height: calc(100% - 60px) !important;
+      min-height: 0 !important;
+      flex: 1 !important;
+    }
+  }
 }
 
 /* Android Chrome address bar fix */
 @media screen and (max-width: 768px) {
   .lesson-tabs-container {
     height: calc(var(--vh, 1vh) * 100) !important;
+    min-height: calc(var(--vh, 1vh) * 100) !important;
+  }
+  
+  /* Android landscape specific */
+  @media screen and (orientation: landscape) {
+    .lesson-tabs-container {
+      height: 100vh !important;
+      height: calc(var(--vh, 1vh) * 100) !important;
+      max-height: 100vh !important;
+      min-height: 100vh !important;
+    }
+    
+    .lesson-iframe-container {
+      height: calc(100% - 60px) !important;
+      flex: 1 !important;
+      min-height: 0 !important;
+    }
   }
 }
 

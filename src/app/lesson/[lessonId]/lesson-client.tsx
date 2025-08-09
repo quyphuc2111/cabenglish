@@ -319,11 +319,11 @@ function LessonClient({
   // Main content styles
   const mainContentStyles = {
     contentCard: cn(
-      "z-10 bg-white/95 backdrop-blur-xl w-[98%] landscape:w-[96%] sm:w-[90%] lg:w-[85%] mx-auto",
-      "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg landscape:rounded-xl sm:rounded-2xl lg:rounded-3xl",
+      "lesson-main-content z-10 bg-white/95 backdrop-blur-xl w-[98%] portrait:w-[98%] landscape:w-full landscape:max-w-full sm:landscape:w-[96%] md:w-[90%] lg:w-[85%] mx-auto landscape:mx-0",
+      "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg portrait:rounded-lg landscape:rounded-none sm:landscape:rounded-xl lg:rounded-3xl",
       "shadow-2xl border border-white/20",
-      "max-h-[98vh] landscape:max-h-[96vh] sm:max-h-[92vh] lg:max-h-[90vh]",
-      selectedSection ? "h-full" : "h-[92vh] landscape:h-[90vh] sm:h-[85vh] py-2 landscape:py-3 sm:py-4 md:py-6"
+      "max-h-[98vh] landscape:max-h-full sm:landscape:max-h-[96vh] lg:max-h-[90vh]",
+      selectedSection ? "h-full" : "h-[92vh] landscape:h-full sm:landscape:h-[90vh] lg:h-[85vh] py-2 landscape:py-0 sm:landscape:py-3 md:py-6"
     ),
     sectionList: `w-full transition-all duration-500 ${
       selectedSection
