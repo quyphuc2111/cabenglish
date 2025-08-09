@@ -96,19 +96,47 @@ export function CourseCarousel({
     setVisibleItems(courseData);
   }, [courseData]);
 
+  // Calculate optimal dots count based on items per view
+  const calculateDotsCount = useMemo(() => {
+    if (visibleItems.length <= 2) return 0;
+
+    // Parse slides per view percentage to get items visible at once
+    const viewPercentage = parseFloat(slidesPerView.replace("%", ""));
+    const itemsPerView = Math.floor(100 / viewPercentage);
+
+    // Calculate how many "pages" we need
+    const totalPages = Math.ceil(visibleItems.length / itemsPerView);
+
+    // Limit dots to maximum 8 for UX
+    const maxDots = 8;
+    const optimalDots = Math.min(totalPages, maxDots);
+
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `[${containerType}] Items: ${visibleItems.length}, ItemsPerView: ${itemsPerView}, TotalPages: ${totalPages}, OptimalDots: ${optimalDots}, SlidesPerView: ${slidesPerView}`
+      );
+    }
+
+    return optimalDots;
+  }, [visibleItems.length, slidesPerView, containerType]);
+
   // Setup carousel API
   useEffect(() => {
     if (!api) return;
 
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap() + 1);
+    const snapCount = api.scrollSnapList().length;
+    const currentSnap = api.selectedScrollSnap();
+
+    // Use calculated dots count instead of snap count
+    setCount(calculateDotsCount);
+    setCurrent(currentSnap);
 
     api.on("select", () => {
       const newCurrent = api.selectedScrollSnap();
-      setCurrent(newCurrent + 1);
+      setCurrent(newCurrent);
       onSlideChange?.(newCurrent);
     });
-  }, [api, onSlideChange]);
+  }, [api, onSlideChange, calculateDotsCount]);
 
   // Render lesson card
   const renderLessonCard = useCallback(
@@ -280,38 +308,72 @@ export function CourseCarousel({
       </Carousel>
 
       {/* Custom dots pagination for mobile */}
-      {isMobile && visibleItems.length > 2 && (
+      {isMobile && count > 0 && (
         <div className="flex justify-center mt-4 gap-2">
-          {Array.from({ length: Math.min(count, 6) }, (_, i) => (
-            <button
-              key={i}
-              onClick={() => api?.scrollTo(i)}
-              className={cn(
-                "w-2 h-2 rounded-full transition-all duration-300",
-                current === i + 1
-                  ? "bg-pink-500 scale-110"
-                  : "bg-gray-300 hover:bg-gray-400"
-              )}
-            />
-          ))}
+          {Array.from({ length: count }, (_, i) => {
+            // Calculate which snap point this dot should scroll to
+            const viewPercentage = parseFloat(slidesPerView.replace("%", ""));
+            const itemsPerView = Math.floor(100 / viewPercentage);
+            const snapListLength = api?.scrollSnapList().length || 0;
+            const targetSnapIndex = Math.min(
+              i * itemsPerView,
+              snapListLength - 1
+            );
+
+            // Calculate if this dot should be active
+            const isActive =
+              Math.floor(
+                current / Math.max(1, Math.floor(snapListLength / count))
+              ) === i;
+
+            return (
+              <button
+                key={i}
+                onClick={() => api?.scrollTo(targetSnapIndex)}
+                className={cn(
+                  "w-2 h-2 rounded-full transition-all duration-300",
+                  isActive
+                    ? "bg-pink-500 scale-110"
+                    : "bg-gray-300 hover:bg-gray-400"
+                )}
+              />
+            );
+          })}
         </div>
       )}
 
       {/* Custom dots pagination for desktop */}
-      {!isMobile && visibleItems.length > 2 && (
+      {!isMobile && count > 0 && (
         <div className="flex justify-center mt-4 gap-2">
-          {Array.from({ length: Math.min(count, 6) }, (_, i) => (
-            <button
-              key={i}
-              onClick={() => api?.scrollTo(i)}
-              className={cn(
-                "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
-                current === i + 1
-                  ? "bg-pink-500 scale-110 shadow-lg"
-                  : "bg-gray-300 hover:bg-gray-400"
-              )}
-            />
-          ))}
+          {Array.from({ length: count }, (_, i) => {
+            // Calculate which snap point this dot should scroll to
+            const viewPercentage = parseFloat(slidesPerView.replace("%", ""));
+            const itemsPerView = Math.floor(100 / viewPercentage);
+            const snapListLength = api?.scrollSnapList().length || 0;
+            const targetSnapIndex = Math.min(
+              i * itemsPerView,
+              snapListLength - 1
+            );
+
+            // Calculate if this dot should be active
+            const isActive =
+              Math.floor(
+                current / Math.max(1, Math.floor(snapListLength / count))
+              ) === i;
+
+            return (
+              <button
+                key={i}
+                onClick={() => api?.scrollTo(targetSnapIndex)}
+                className={cn(
+                  "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
+                  isActive
+                    ? "bg-pink-500 scale-110 shadow-lg"
+                    : "bg-gray-300 hover:bg-gray-400"
+                )}
+              />
+            );
+          })}
         </div>
       )}
     </div>
