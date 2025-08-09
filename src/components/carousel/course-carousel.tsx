@@ -252,12 +252,10 @@ export function CourseCarousel({
           <div className="text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full">
             <span className="font-medium text-gray-800">{visibleItems.length}</span> bài học
           </div>
-          {/* Current position indicator for desktop */}
-          {!isMobile && (
-            <div className="text-xs text-gray-500">
-              {current + 1} / {Math.max(count, 1)}
-            </div>
-          )}
+          {/* Current position indicator for all devices */}
+          <div className="text-xs text-gray-500">
+            {current + 1} / {Math.max(count, 1)}
+          </div>
         </div>
       )}
 
@@ -283,7 +281,7 @@ export function CourseCarousel({
         </CarouselContent>
 
         {/* Navigation arrows positioned below carousel - inside Carousel component */}
-        {showArrows && !isMobile && visibleItems.length > 2 && (
+        {showArrows && visibleItems.length > 2 && (
           <div className="flex justify-center gap-4 mt-4">
             <CarouselPrevious className="relative left-0 top-0 transform-none bg-white shadow-lg hover:bg-gray-50 border-2 border-gray-200 hover:border-pink-300 transition-all duration-200" />
             <CarouselNext className="relative right-0 top-0 transform-none bg-white shadow-lg hover:bg-gray-50 border-2 border-gray-200 hover:border-pink-300 transition-all duration-200" />
