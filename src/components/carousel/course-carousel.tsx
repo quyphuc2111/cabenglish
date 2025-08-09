@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useRouter } from "next/navigation";
+import { useSelectLessonStore } from "@/store/useSelectLesson";
 import {
   Carousel,
   CarouselContent,
@@ -45,6 +46,7 @@ export function CourseCarousel({
   const [count, setCount] = useState(0);
   const [visibleItems, setVisibleItems] = useState(courseData);
   const router = useRouter();
+  const { setSelectedLesson } = useSelectLessonStore();
 
   // Media queries for responsive behavior
   const isExtraSmall = useMediaQuery("(max-width: 480px)");
@@ -104,6 +106,23 @@ export function CourseCarousel({
         classRoomName: course.className
       };
 
+      const handleLessonClick = () => {
+        // Set selected lesson trước khi navigate
+        setSelectedLesson({
+          ...customCourse,
+          lessonName: customCourse.lessonName || "",
+          className: customCourse.className || "",
+          unitName: customCourse.unitName || "",
+          imageUrl: customCourse.imageUrl || ""
+        });
+
+        if (onLessonClick) {
+          onLessonClick(customCourse.lessonId);
+        } else {
+          router.push(`/lesson/${customCourse.lessonId}`);
+        }
+      };
+
       return (
         <React.Suspense
           fallback={
@@ -114,11 +133,7 @@ export function CourseCarousel({
         >
           <LazyLessonCard
             {...customCourse}
-            onClick={() =>
-              onLessonClick
-                ? onLessonClick(customCourse.lessonId)
-                : router.push(`/lesson/${customCourse.lessonId}`)
-            }
+            onClick={handleLessonClick}
             onLikeUpdate={onLikeUpdate}
             removingLessons={removingLessons}
             delay={0}
@@ -126,7 +141,7 @@ export function CourseCarousel({
         </React.Suspense>
       );
     },
-    [onLessonClick, onLikeUpdate, removingLessons, router]
+    [onLessonClick, onLikeUpdate, removingLessons, router, setSelectedLesson]
   );
 
   // Show loading state when removing lessons

@@ -4,6 +4,7 @@ import React, { useMemo, useCallback, memo } from "react";
 
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useNavigationStore } from "@/store/navigationStore";
 import CurrentLecture from "./overview-current-lesson";
 import NextLecture from "./overview-next-lesson";
 
@@ -20,15 +21,34 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
 }) {
   const router = useRouter();
   const { data: userInfo } = useUserInfo(userId);
+  const { setPreviousPage, setOverviewState } = useNavigationStore();
 
   // Thêm breakpoint cho màn hình siêu nhỏ (mobile nhỏ)
   const isExtraSmall = useMediaQuery("(max-width: 1023px)");
 
   const handleLessonClick = useCallback(
     async (lessonId: number) => {
+      // Lưu trạng thái trang tổng quan trước khi chuyển trang
+      const scrollPosition = window.scrollY;
+
+      // Lưu thông tin trang trước
+      setPreviousPage({
+        url: "/tong-quan",
+        title: "Tổng quan",
+        state: {
+          scrollPosition
+        }
+      });
+
+      // Lưu trạng thái trang tổng quan
+      setOverviewState({
+        scrollPosition
+      });
+
+      // Chuyển trang
       router.push(`/lesson/${lessonId}`);
     },
-    [router]
+    [router, setPreviousPage, setOverviewState]
   );
 
   // Memoize computed data to prevent recalculation on re-renders

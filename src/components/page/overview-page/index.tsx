@@ -7,9 +7,10 @@ import { useModal } from "@/hooks/useModalStore";
 import { useSession } from "next-auth/react";
 import { DashboardClientService } from "@/services/dashboard.client.service";
 import { useUserInfo } from "@/hooks/useUserInfo";
+import { useNavigationStore } from "@/store/navigationStore";
+import { useNavigationRestore } from "@/hooks/useNavigationRestore";
 import CurrentAndNextLecture from "./current-and-next-lecture";
 import { useTranslation } from "react-i18next";
-import Image from "next/image";
 
 const LectureFavouriteList = dynamic(
   () =>
@@ -51,6 +52,8 @@ const OverviewPage = memo(function OverviewPage({
   const { data: userInfo } = useUserInfo(session?.user?.userId);
   const currentTheme = userInfo?.theme;
   const { t } = useTranslation();
+  const { overviewState } = useNavigationStore();
+  const { isReturningFromLesson } = useNavigationRestore();
 
   const [courseData, setCourseData] = useState(initialCourseData);
   const [isRefetching, setIsRefetching] = useState(false);
@@ -60,6 +63,16 @@ const OverviewPage = memo(function OverviewPage({
       onOpen("teachingMode");
     }
   }, [session]);
+
+  // Khôi phục scroll position khi quay lại từ lesson
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (isReturningFromLesson && overviewState?.scrollPosition) {
+      setTimeout(() => {
+        window.scrollTo(0, overviewState.scrollPosition || 0);
+      }, 100);
+    }
+  }, [isReturningFromLesson, overviewState?.scrollPosition]);
 
   const refetchCourseData = useCallback(async () => {
     if (!session?.user?.userId || isRefetching) {
