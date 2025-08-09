@@ -319,11 +319,11 @@ function LessonClient({
   // Main content styles
   const mainContentStyles = {
     contentCard: cn(
-      "z-10 bg-white/95 backdrop-blur-xl w-[95%] sm:w-[80%] mx-auto",
-      "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-xl sm:rounded-2xl md:rounded-3xl",
+      "z-10 bg-white/95 backdrop-blur-xl w-[98%] landscape:w-[96%] sm:w-[90%] lg:w-[85%] mx-auto",
+      "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg landscape:rounded-xl sm:rounded-2xl lg:rounded-3xl",
       "shadow-2xl border border-white/20",
-      "max-h-[90vh] sm:max-h-[85vh] md:max-h-[80vh] lg:max-h-[90vh]",
-      selectedSection ? "h-full" : "h-[85vh] py-4 sm:py-6 md:py-8"
+      "max-h-[98vh] landscape:max-h-[96vh] sm:max-h-[92vh] lg:max-h-[90vh]",
+      selectedSection ? "h-full" : "h-[92vh] landscape:h-[90vh] sm:h-[85vh] py-2 landscape:py-3 sm:py-4 md:py-6"
     ),
     sectionList: `w-full transition-all duration-500 ${
       selectedSection
@@ -338,33 +338,33 @@ function LessonClient({
   };
 
   return (
-    <div className={STYLES.container.base}>
+    <div className={`${STYLES.container.base} lesson-container`}>
       {/* Background overlay */}
       <div className={STYLES.background}></div>
 
       <div className={mainContentStyles.contentCard}>
         {/* Header */}
-        <div className="absolute -top-5 md:-top-6 lg:-top-7 left-0 right-0 flex justify-between gap-5 sm:gap-0 items-center px-3 sm:px-6">
+        <div className="absolute -top-3 landscape:-top-4 sm:-top-5 md:-top-6 lg:-top-7 left-0 right-0 flex justify-between gap-3 landscape:gap-4 sm:gap-5 items-center px-2 landscape:px-3 sm:px-6">
           {!selectedSection && (
             <>
               <button
                 onClick={handleBack}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-2 sm:p-3 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-110 group "
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-1.5 landscape:p-2 sm:p-3 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-110 group "
               >
-                <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 group-hover:translate-x-[-2px] transition-transform" />
+                <ArrowLeft className="h-3 w-3 landscape:h-4 landscape:w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 group-hover:translate-x-[-2px] transition-transform" />
               </button>
 
-              <div className="bg-white/90 backdrop-blur-sm px-4 sm:px-6 py-2 sm:py-3 rounded-full shadow-lg border border-white/30 max-w-[85%] overflow-hidden">
-                <h1 className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent truncate">
+              <div className="bg-white/90 backdrop-blur-sm px-2 landscape:px-3 sm:px-4 md:px-6 py-1 landscape:py-1.5 sm:py-2 md:py-3 rounded-full shadow-lg border border-white/30 max-w-[70%] landscape:max-w-[75%] sm:max-w-[85%] overflow-hidden">
+                <h1 className="text-sm landscape:text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent truncate">
                   {lessonName}
                 </h1>
               </div>
-              <div className="w-8 sm:w-12"></div>
+              <div className="w-6 landscape:w-7 sm:w-8 md:w-12"></div>
             </>
           )}
         </div>
 
-        <div className={`flex relative h-full pt-2 sm:pt-6`}>
+        <div className={`flex relative h-full pt-1 landscape:pt-2 sm:pt-4 md:pt-6`}>
           <div className={mainContentStyles.sectionList}>
             <ScrollArea
               className="w-full px-3 sm:px-6 h-full"

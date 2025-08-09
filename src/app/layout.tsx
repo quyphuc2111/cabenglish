@@ -13,6 +13,7 @@ const inter = Inter({
 
 import "react-toastify/dist/ReactToastify.css";
 import "../app/globals.css";
+import "../styles/lesson-optimize.css";
 import Providers from "@/providers/providers";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
