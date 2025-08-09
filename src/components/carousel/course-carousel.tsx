@@ -40,7 +40,7 @@ export function CourseCarousel({
   classroomData,
   containerType = "next",
   onSlideChange,
-  showArrows = false // Default to false (arrows hidden)
+  showArrows = true // Default to true (arrows visible)
 }: CourseCarouselProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
@@ -96,30 +96,6 @@ export function CourseCarousel({
     setVisibleItems(courseData);
   }, [courseData]);
 
-  // Calculate optimal dots count based on items per view
-  const calculateDotsCount = useMemo(() => {
-    if (visibleItems.length <= 2) return 0;
-
-    // Parse slides per view percentage to get items visible at once
-    const viewPercentage = parseFloat(slidesPerView.replace("%", ""));
-    const itemsPerView = Math.floor(100 / viewPercentage);
-
-    // Calculate how many "pages" we need
-    const totalPages = Math.ceil(visibleItems.length / itemsPerView);
-
-    // Limit dots to maximum 8 for UX
-    const maxDots = 8;
-    const optimalDots = Math.min(totalPages, maxDots);
-
-    if (process.env.NODE_ENV === "development") {
-      console.log(
-        `[${containerType}] Items: ${visibleItems.length}, ItemsPerView: ${itemsPerView}, TotalPages: ${totalPages}, OptimalDots: ${optimalDots}, SlidesPerView: ${slidesPerView}`
-      );
-    }
-
-    return optimalDots;
-  }, [visibleItems.length, slidesPerView, containerType]);
-
   // Setup carousel API
   useEffect(() => {
     if (!api) return;
@@ -127,8 +103,8 @@ export function CourseCarousel({
     const snapCount = api.scrollSnapList().length;
     const currentSnap = api.selectedScrollSnap();
 
-    // Use calculated dots count instead of snap count
-    setCount(calculateDotsCount);
+    // Use actual snap count from carousel API
+    setCount(snapCount);
     setCurrent(currentSnap);
 
     api.on("select", () => {
@@ -136,7 +112,7 @@ export function CourseCarousel({
       setCurrent(newCurrent);
       onSlideChange?.(newCurrent);
     });
-  }, [api, onSlideChange, calculateDotsCount]);
+  }, [api, onSlideChange]);
 
   // Render lesson card
   const renderLessonCard = useCallback(
@@ -270,6 +246,21 @@ export function CourseCarousel({
 
   return (
     <div className={cn("relative group w-full", className)}>
+      {/* Item count indicator */}
+      {visibleItems.length > 0 && (
+        <div className="flex justify-between items-center mb-3">
+          <div className="text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full">
+            <span className="font-medium text-gray-800">{visibleItems.length}</span> bài học
+          </div>
+          {/* Current position indicator for desktop */}
+          {!isMobile && (
+            <div className="text-xs text-gray-500">
+              {current + 1} / {Math.max(count, 1)}
+            </div>
+          )}
+        </div>
+      )}
+
       <Carousel
         setApi={setApi}
         className="w-full"
@@ -282,100 +273,23 @@ export function CourseCarousel({
           {visibleItems.map((item, index) => (
             <CarouselItem
               key={item.lessonId || index}
-              className={cn("pl-2 md:pl-4")}
+              className={cn("pl-2 md:pl-4 h-full")}
               style={{ flexBasis: slidesPerView }}
               data-carousel-item="true"
             >
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="h-full"
-              >
-                {renderLessonCard(item, index)}
-              </motion.div>
+              {renderLessonCard(item, index)}
             </CarouselItem>
           ))}
         </CarouselContent>
 
-        {/* Navigation arrows - controlled by showArrows prop */}
+        {/* Navigation arrows positioned below carousel - inside Carousel component */}
         {showArrows && !isMobile && visibleItems.length > 2 && (
-          <>
-            <CarouselPrevious className="hidden lg:flex -left-12" />
-            <CarouselNext className="hidden lg:flex -right-12" />
-          </>
+          <div className="flex justify-center gap-4 mt-4">
+            <CarouselPrevious className="relative left-0 top-0 transform-none bg-white shadow-lg hover:bg-gray-50 border-2 border-gray-200 hover:border-pink-300 transition-all duration-200" />
+            <CarouselNext className="relative right-0 top-0 transform-none bg-white shadow-lg hover:bg-gray-50 border-2 border-gray-200 hover:border-pink-300 transition-all duration-200" />
+          </div>
         )}
       </Carousel>
-
-      {/* Custom dots pagination for mobile */}
-      {isMobile && count > 0 && (
-        <div className="flex justify-center mt-4 gap-2">
-          {Array.from({ length: count }, (_, i) => {
-            // Calculate which snap point this dot should scroll to
-            const viewPercentage = parseFloat(slidesPerView.replace("%", ""));
-            const itemsPerView = Math.floor(100 / viewPercentage);
-            const snapListLength = api?.scrollSnapList().length || 0;
-            const targetSnapIndex = Math.min(
-              i * itemsPerView,
-              snapListLength - 1
-            );
-
-            // Calculate if this dot should be active
-            const isActive =
-              Math.floor(
-                current / Math.max(1, Math.floor(snapListLength / count))
-              ) === i;
-
-            return (
-              <button
-                key={i}
-                onClick={() => api?.scrollTo(targetSnapIndex)}
-                className={cn(
-                  "w-2 h-2 rounded-full transition-all duration-300",
-                  isActive
-                    ? "bg-pink-500 scale-110"
-                    : "bg-gray-300 hover:bg-gray-400"
-                )}
-              />
-            );
-          })}
-        </div>
-      )}
-
-      {/* Custom dots pagination for desktop */}
-      {!isMobile && count > 0 && (
-        <div className="flex justify-center mt-4 gap-2">
-          {Array.from({ length: count }, (_, i) => {
-            // Calculate which snap point this dot should scroll to
-            const viewPercentage = parseFloat(slidesPerView.replace("%", ""));
-            const itemsPerView = Math.floor(100 / viewPercentage);
-            const snapListLength = api?.scrollSnapList().length || 0;
-            const targetSnapIndex = Math.min(
-              i * itemsPerView,
-              snapListLength - 1
-            );
-
-            // Calculate if this dot should be active
-            const isActive =
-              Math.floor(
-                current / Math.max(1, Math.floor(snapListLength / count))
-              ) === i;
-
-            return (
-              <button
-                key={i}
-                onClick={() => api?.scrollTo(targetSnapIndex)}
-                className={cn(
-                  "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
-                  isActive
-                    ? "bg-pink-500 scale-110 shadow-lg"
-                    : "bg-gray-300 hover:bg-gray-400"
-                )}
-              />
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 }
