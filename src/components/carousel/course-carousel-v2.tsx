@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 // Lazy loading component
 const LazyLessonCard = React.lazy(() => import("../lesson/lesson-card"));
 
-interface CourseCarouselProps {
+interface CourseCarouselV2Props {
   courseData: any[];
   className?: string;
   onLikeUpdate?: (lessonId: number, newLikeCount: number) => void;
@@ -29,7 +29,7 @@ interface CourseCarouselProps {
   onSlideChange?: (activeIndex: number) => void;
 }
 
-export function CourseCarousel({
+export function CourseCarouselV2({
   courseData,
   className,
   onLikeUpdate,
@@ -38,7 +38,7 @@ export function CourseCarousel({
   classroomData,
   containerType = "next",
   onSlideChange
-}: CourseCarouselProps) {
+}: CourseCarouselV2Props) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
@@ -219,8 +219,7 @@ export function CourseCarousel({
         className="w-full"
         opts={{
           align: "start",
-          loop: false,
-          containScroll: "trimSnaps"
+          loop: false
         }}
       >
         <CarouselContent className="-ml-2 md:-ml-4">
@@ -289,3 +288,6 @@ export function CourseCarousel({
     </div>
   );
 }
+
+// Export alias for easy migration
+export { CourseCarouselV2 as CourseCarousel };
