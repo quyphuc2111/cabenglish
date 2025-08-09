@@ -18,10 +18,12 @@ const ToastContainerClient = dynamic(
 
 function Providers({
   children,
-  translations
+  translations,
+  currentLanguage = "vi"
 }: {
   children: React.ReactNode;
   translations: any;
+  currentLanguage?: string;
 }) {
   return (
     <Fragment>
@@ -33,7 +35,10 @@ function Providers({
           <QueryProvider>
             {/* <SocketProvider> */}
             <ThemeProvider>
-              <TranslationProvider translations={translations}>
+              <TranslationProvider
+                translations={translations}
+                currentLanguage={currentLanguage}
+              >
                 {children}
               </TranslationProvider>
             </ThemeProvider>

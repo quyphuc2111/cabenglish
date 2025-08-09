@@ -58,7 +58,7 @@ export default async function RootLayout({
       <body
         className={`${inter.className} ${inter.variable} font-inter h-full overscroll-none performance-mode toast-enabled modal-enabled`}
       >
-        <Providers translations={translations}>
+        <Providers translations={translations} currentLanguage={currentLang}>
           <div className="min-h-full flex flex-col">{children}</div>
         </Providers>
       </body>
