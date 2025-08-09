@@ -868,6 +868,26 @@ select {
   scroll-behavior: smooth !important;
 }
 
+/* Optimize carousel images for smooth scrolling */
+[data-embla-carousel] .lesson-card img {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  image-rendering: optimizeSpeed;
+  content-visibility: auto;
+  contain-intrinsic-size: 300px 169px;
+}
+
+/* Preload images in viewport */
+[data-embla-carousel] .lesson-card {
+  contain: layout style paint;
+}
+
+/* Reduce layout shifts during image loading */
+[data-embla-carousel] .aspect-\[16\/9\] {
+  contain-intrinsic-size: 300px 169px;
+}
+
 /* Framer Motion optimizations for non-essential elements */
 .performance-mode .lesson-card [data-framer-motion],
 .performance-mode .course-swiper [data-framer-motion],

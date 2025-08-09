@@ -14,6 +14,7 @@ import {
   CarouselPrevious,
   type CarouselApi
 } from "@/components/ui/carousel";
+import { useImagePreloader } from "@/hooks/useImagePreloader";
 
 // Lazy loading component
 const LazyLessonCard = React.lazy(() => import("../lesson/lesson-card"));
@@ -47,6 +48,17 @@ export function CourseCarousel({
   const [visibleItems, setVisibleItems] = useState(courseData);
   const router = useRouter();
   const { setSelectedLesson } = useSelectLessonStore();
+
+  // Preload images for smooth carousel scrolling
+  const imageUrls = useMemo(
+    () => courseData.map((item) => item.imageUrl).filter(Boolean),
+    [courseData]
+  );
+
+  useImagePreloader(imageUrls, {
+    enabled: courseData.length > 0,
+    priority: containerType === "next" // Prioritize next lectures
+  });
 
   // Media queries for responsive behavior
   const isExtraSmall = useMediaQuery("(max-width: 480px)");
@@ -244,6 +256,7 @@ export function CourseCarousel({
               key={item.lessonId || index}
               className={cn("pl-2 md:pl-4")}
               style={{ flexBasis: slidesPerView }}
+              data-carousel-item="true"
             >
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
