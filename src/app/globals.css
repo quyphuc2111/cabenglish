@@ -861,6 +861,13 @@ select {
   scroll-behavior: auto !important;
 }
 
+/* Allow Embla Carousel smooth transitions even in performance mode */
+.performance-mode [data-embla-carousel],
+.performance-mode [data-embla-carousel] * {
+  transition-duration: 0.1s !important;
+  scroll-behavior: smooth !important;
+}
+
 /* Framer Motion optimizations for non-essential elements */
 .performance-mode .lesson-card [data-framer-motion],
 .performance-mode .course-swiper [data-framer-motion],

@@ -11,7 +11,7 @@ export const PerformanceConfig = {
     : true,
     
   enableAnimations: typeof window !== 'undefined'
-    ? localStorage.getItem('disableAnimations') !== 'true' 
+    ? localStorage.getItem('disableAnimations') !== 'true'
     : true,
     
   enableSwiper: typeof window !== 'undefined'
@@ -43,8 +43,8 @@ export const PerformanceConfig = {
     
   // Reduced motion
   reducedMotion: typeof window !== 'undefined'
-    ? localStorage.getItem('reducedMotion') === 'true' ||
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? localStorage.getItem('reducedMotion') === 'true'
+    // Temporarily disable auto-detection: || window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false,
 
   // Essential UI animations (always enabled for UX)

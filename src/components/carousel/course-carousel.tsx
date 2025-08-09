@@ -235,8 +235,7 @@ export function CourseCarousel({
         className="w-full"
         opts={{
           align: "start",
-          loop: false,
-          containScroll: "trimSnaps"
+          loop: false
         }}
       >
         <CarouselContent className="-ml-2 md:-ml-4">
