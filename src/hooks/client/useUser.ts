@@ -33,12 +33,46 @@ export const useUpdateUserInfo = () => {
         userInfo: data.userInfo
       });
     },
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ 
-        queryKey: ["userInfo", variables.userId] 
+    // ✅ Thêm optimistic update để UI phản hồi ngay lập tức
+    onMutate: async (variables) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["userInfo", variables.userId] });
+
+      // Snapshot the previous value
+      const previousUserInfo = queryClient.getQueryData(["userInfo", variables.userId]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(["userInfo", variables.userId], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          ...variables.userInfo
+        };
       });
-      
+
+      // Return a context object with the snapshotted value
+      return { previousUserInfo };
+    },
+    onSuccess: (data, variables) => {
+      // ✅ Force invalidate để đảm bảo data fresh từ server
+      queryClient.invalidateQueries({
+        queryKey: ["userInfo", variables.userId],
+        exact: true
+      });
+
+      // ✅ Refetch ngay lập tức để đảm bảo sync
+      queryClient.refetchQueries({
+        queryKey: ["userInfo", variables.userId],
+        exact: true
+      });
+
       broadcastUpdate(variables.userId);
+    },
+    // ✅ Rollback optimistic update nếu có lỗi
+    onError: (err, variables, context) => {
+      if (context?.previousUserInfo) {
+        queryClient.setQueryData(["userInfo", variables.userId], context.previousUserInfo);
+      }
     }
   });
 };
