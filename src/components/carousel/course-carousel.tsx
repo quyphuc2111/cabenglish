@@ -15,6 +15,8 @@ interface CourseCarouselProps {
   onLikeUpdate?: (lessonId: number, newLikeCount: number) => void;
   removingLessons?: Set<number>;
   onLessonClick?: (lessonId: number) => void;
+  classroomData?: any[];
+  containerType?: "current" | "next"; // Để phân biệt container type
 }
 
 export function CourseCarousel({
@@ -22,7 +24,9 @@ export function CourseCarousel({
   className,
   onLikeUpdate,
   removingLessons,
-  onLessonClick
+  onLessonClick,
+  classroomData,
+  containerType = "next"
 }: CourseCarouselProps) {
   const [currentSlide, setCurrentSlide] = useState(1);
   const [visibleItems, setVisibleItems] = useState(courseData);
@@ -37,15 +41,31 @@ export function CourseCarousel({
   const isLargeScreen = useMediaQuery("(min-width: 1536px)");
   const router = useRouter();
 
-  // Memoize slidesPerView calculation
+  // Memoize slidesPerView calculation based on container type
   const slidesPerView = useMemo(() => {
     if (isExtraSmall) return 1.5;
     if (isMobile) return 2.5;
     if (isSmallTablet) return 2.5;
     if (isTablet) return 2.5;
-    if (isLargeScreen) return 4;
-    return 3;
-  }, [isExtraSmall, isMobile, isSmallTablet, isTablet, isLargeScreen]);
+
+    // Điều chỉnh slidesPerView cho desktop dựa trên container type
+    if (containerType === "current") {
+      // CurrentLecture có container nhỏ hơn (lg:w-4/12), hiển thị ít slides hơn
+      if (isLargeScreen) return 2;
+      return 1.5;
+    } else {
+      // NextLecture có container lớn hơn (lg:w-8/12), hiển thị nhiều slides hơn
+      if (isLargeScreen) return 3;
+      return 2.5;
+    }
+  }, [
+    isExtraSmall,
+    isMobile,
+    isSmallTablet,
+    isTablet,
+    isLargeScreen,
+    containerType
+  ]);
 
   // Render item function for VirtualizedCarousel
   const renderLessonCard = useCallback(

@@ -251,33 +251,49 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
           }
         }
 
-        /* Tối ưu hóa hiển thị cho các loại màn hình */
-        .lesson-card {
-          width: 320px !important;
-          min-width: 320px !important;
-          max-width: 320px !important;
-          box-sizing: border-box;
-          overflow: hidden !important;
-          height: 100% !important;
-          display: flex !important;
-          flex-direction: column !important;
+        /* Tối ưu hóa hiển thị cho các loại màn hình - Desktop */
+        @media (min-width: 1024px) {
+          .lesson-card {
+            width: 280px !important;
+            min-width: 280px !important;
+            max-width: 280px !important;
+            box-sizing: border-box;
+            overflow: hidden !important;
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+          }
+
+          /* Đảm bảo tất cả card có cùng chiều cao và width cố định */
+          .lesson-container {
+            display: flex !important;
+            align-items: stretch !important;
+            min-height: 300px !important;
+          }
+
+          .lesson-container > div {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            height: 100% !important;
+            width: 280px !important;
+            min-width: 280px !important;
+            max-width: 280px !important;
+          }
         }
 
-        /* Đảm bảo tất cả card có cùng chiều cao và width cố định */
-        .lesson-container {
-          display: flex !important;
-          align-items: stretch !important;
-          min-height: 300px !important;
-        }
-
-        .lesson-container > div {
-          flex: 1 !important;
-          display: flex !important;
-          flex-direction: column !important;
-          height: 100% !important;
-          width: 320px !important;
-          min-width: 320px !important;
-          max-width: 320px !important;
+        /* Tablet và màn hình vừa */
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .lesson-card {
+            width: 240px !important;
+            min-width: 240px !important;
+            max-width: 240px !important;
+            box-sizing: border-box;
+            overflow: hidden !important;
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+          }
         }
 
         /* Đảm bảo nội dung card có chiều cao nhất quán */
@@ -431,6 +447,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                       handleLessonClick={handleLessonClick}
                       isExtraSmall={isExtraSmall}
                       t={t}
+                      classroomData={classroomData}
                     />
 
                     {/* Responsive divider */}
@@ -454,6 +471,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                       handleLessonClick={handleLessonClick}
                       isExtraSmall={isExtraSmall}
                       t={t}
+                      classroomData={classroomData}
                     />
                   </div>
                 </div>

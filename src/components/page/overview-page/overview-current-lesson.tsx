@@ -9,6 +9,7 @@ interface CurrentLectureProps {
   handleLessonClick: (lessonId: number) => void;
   isExtraSmall: boolean;
   t: any;
+  classroomData?: any[];
 }
 
 const CurrentLecture = ({
@@ -16,7 +17,8 @@ const CurrentLecture = ({
   classId,
   handleLessonClick,
   isExtraSmall,
-  t
+  t,
+  classroomData
 }: CurrentLectureProps) => {
   return (
     <div className="w-full lg:w-4/12 flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
@@ -64,6 +66,8 @@ const CurrentLecture = ({
             courseData={lectures}
             className="h-full"
             onLessonClick={handleLessonClick}
+            classroomData={classroomData}
+            containerType="current"
           />
         </div>
       )}

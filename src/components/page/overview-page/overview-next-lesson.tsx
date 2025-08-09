@@ -9,6 +9,7 @@ interface NextLectureProps {
   handleLessonClick: (lessonId: number) => void;
   isExtraSmall: boolean;
   t: any;
+  classroomData?: any[];
 }
 
 const NextLecture = ({
@@ -16,7 +17,8 @@ const NextLecture = ({
   classId,
   handleLessonClick,
   isExtraSmall,
-  t
+  t,
+  classroomData
 }: NextLectureProps) => {
   if (nextLectures.length === 0) {
     return (
@@ -87,6 +89,8 @@ const NextLecture = ({
           courseData={nextLectures}
           className="h-full"
           onLessonClick={handleLessonClick}
+          classroomData={classroomData}
+          containerType="next"
         />
       </div>
     </div>
