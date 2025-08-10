@@ -109,9 +109,6 @@ async function LessonPage({ params, searchParams }: PageProps) {
       userId: session.user.userId as string
     });
 
-    console.log("lessonID:", lessonId);
-    console.log("sectionData:", sectionData);
-
     // Always normalize section contents to SectionContentType[]
     let sectionContents: SectionContentType[] = [];
 

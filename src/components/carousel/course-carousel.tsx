@@ -103,10 +103,12 @@ export function CourseCarousel({
     isLargeScreen
   ]);
 
-  // Calculate total pages based on items per view
-  const totalPages = useMemo(() => {
+  // Calculate total scroll positions based on items per view
+  const totalPositions = useMemo(() => {
     if (visibleItems.length === 0) return 1;
-    return Math.ceil(visibleItems.length / Math.floor(itemsPerView));
+    const itemsVisible = Math.floor(itemsPerView);
+    // Formula: totalItems - itemsPerView + 1 (minimum 1)
+    return Math.max(1, visibleItems.length - itemsVisible + 1);
   }, [visibleItems.length, itemsPerView]);
 
   // Update visible items when courseData changes
@@ -272,7 +274,7 @@ export function CourseCarousel({
           </div>
           {/* Current position indicator for all devices */}
           <div className="text-xs text-gray-500">
-            {current + 1} / {totalPages}
+            {current + 1} / {totalPositions}
           </div>
         </div>
       )}
