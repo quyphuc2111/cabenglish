@@ -2,6 +2,7 @@ import LessonCard from "@/components/lesson/lesson-card";
 import Image from "next/image";
 import React from "react";
 import { CourseCarousel } from "@/components/carousel/course-carousel";
+import { PaginatedContent } from "@/components/common/paginated-content";
 
 interface CurrentLectureProps {
   lectures: any[];
@@ -62,12 +63,41 @@ const CurrentLecture = ({
         </div>
       ) : (
         <div className="min-h-[230px] sm:min-h-[320px] md:min-h-[370px] lg:min-h-[330px]">
+          {/* Comment: CourseCarousel cũ - đã thay thế bằng PaginatedContent
           <CourseCarousel
             courseData={lectures}
             className="h-full"
             onLessonClick={handleLessonClick}
             classroomData={classroomData}
             containerType="current"
+          />
+          */}
+
+          {/* Grid/List + Pagination mới */}
+          <PaginatedContent
+            items={lectures}
+            itemsPerPage={4}
+            renderItem={(lecture) => (
+              <LessonCard
+                key={lecture.lessonId}
+                classId={lecture.classId || classId}
+                unitId={lecture.unitId}
+                schoolWeekId={lecture.schoolWeekId}
+                unitName={lecture.unitName}
+                imageUrl={lecture.imageUrl}
+                schoolWeek={lecture.schoolWeek}
+                classRoomName={lecture.className}
+                lessonName={lecture.lessonName}
+                progress={lecture.progress}
+                numLiked={lecture.numLiked}
+                isLocked={lecture.isLocked}
+                lessonId={lecture.lessonId}
+                onClick={() => handleLessonClick(lecture.lessonId)}
+              />
+            )}
+            rowPerPage={2} // 2 cột để phù hợp với layout chia đôi
+            itemInPage={[4, 8, 12]} // Options cho items per page
+            className="h-full"
           />
         </div>
       )}
