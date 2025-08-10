@@ -10,7 +10,7 @@ interface SidebarToggleProps {
 
 export function SidebarToggle({ isOpen, setIsOpen }: SidebarToggleProps) {
   return (
-    <div className={`invisible transition-all lg:visible absolute top-24  z-20 text-black ${isOpen ? "right-0" : "-right-11"}`}>
+    <div className={`invisible lg:visible absolute top-24  z-20 text-black ${isOpen ? "right-0" : "-right-11"}`}>
       <Button
         onClick={() => setIsOpen?.()}
         className={` w-11 h-14 ${isOpen ? "rounded-s-xl" : "rounded-e-xl"}`}
@@ -19,7 +19,7 @@ export function SidebarToggle({ isOpen, setIsOpen }: SidebarToggleProps) {
       >
         <ChevronLeft
           className={cn(
-            "h-4 w-4 transition-transform ease-in-out duration-700",
+            "h-4 w-4",
             isOpen === false ? "rotate-180" : "rotate-0"
           )}
         />
