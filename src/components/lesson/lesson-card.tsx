@@ -655,6 +655,25 @@ const likeButtonStyles = `
     box-sizing: border-box;
     overflow: hidden !important;
   }
+
+  /* Giới hạn kích thước trên desktop và tablet lớn */
+  @media (min-width: 1024px) {
+    .lesson-card {
+      max-width: 320px !important;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .lesson-card {
+      max-width: 340px !important;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .lesson-card {
+      max-width: 360px !important;
+    }
+  }
 `;
 
 // Inject styles

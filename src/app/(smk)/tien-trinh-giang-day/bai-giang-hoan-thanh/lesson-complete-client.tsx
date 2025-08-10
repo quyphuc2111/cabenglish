@@ -500,7 +500,7 @@ function LessonCompleteClient({
         style={{ pointerEvents: "auto" }}
       >
         {/* Standardized sizing wrapper for LessonCard across pages */}
-        <div className="lesson-card-size w-full h-full max-w-[360px] md:max-w-[420px] xl:max-w-[460px] min-h-[220px] md:min-h-[240px] xl:min-h-[260px] mx-auto">
+        <div className="lesson-card-size w-full h-full max-w-[360px] md:max-w-[380px] lg:max-w-[320px] xl:max-w-[340px] min-h-[220px] md:min-h-[240px] lg:min-h-[200px] xl:min-h-[220px] mx-auto">
           <LessonCard
             {...lessonItem}
             classRoomName={lessonItem.className}
@@ -641,7 +641,7 @@ function LessonCompleteClient({
                 items={completedLessons}
                 itemsPerPage={ITEMS_PER_PAGE}
                 renderItem={renderLessonCard}
-                rowPerPage={4} // Grid responsive: 2 cột trên mobile, 4 cột trên desktop
+                rowPerPage={3} // Grid responsive: 2 cột trên mobile, 4 cột trên desktop
                 itemInPage={[8, 16, 24, 32]} // Options cho items per page
               />
             ) : (

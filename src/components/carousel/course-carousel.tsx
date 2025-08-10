@@ -74,13 +74,13 @@ export function CourseCarousel({
     if (isSmallTablet) return "40%";
     if (isTablet) return "40%";
 
-    // Adjust for container type on desktop
+    // Adjust for container type on desktop - make cards smaller
     if (containerType === "current") {
-      if (isLargeScreen) return "50%";
-      return "66%";
+      if (isLargeScreen) return "33%"; // Changed from 50% to 33%
+      return "50%"; // Changed from 66% to 50%
     } else {
-      if (isLargeScreen) return "33%";
-      return "40%";
+      if (isLargeScreen) return "25%"; // Changed from 33% to 25%
+      return "33%"; // Changed from 40% to 33%
     }
   }, [
     isExtraSmall,
