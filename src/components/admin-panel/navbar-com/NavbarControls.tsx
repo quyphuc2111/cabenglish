@@ -1,5 +1,4 @@
 "use client";
-import { motion, AnimatePresence } from "framer-motion";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { TeachingModeSwitcher } from "./TeachingModeSwitcher";
@@ -84,13 +83,7 @@ export function NavbarControls({
   return (
     <>
       <div className="hidden xl:block relative">
-        <motion.div
-          className="grid grid-cols-3 gap-4 xl:gap-6 w-full md:w-auto items-center"
-          variants={{
-            hidden: { opacity: 0, y: -20 },
-            visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.1 } }
-          }}
-        >
+        <div className="grid grid-cols-3 gap-4 xl:gap-6 w-full md:w-auto items-center">
           <Button
             className="bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 flex items-center gap-2"
             onClick={() => router.push("/")}
@@ -108,95 +101,68 @@ export function NavbarControls({
             }}
           />
           <LogoutButton onLogout={onLogout} t={t} />
-        </motion.div>
+        </div>
       </div>
 
       <div
         className="fixed bottom-0 right-0 z-50 xl:hidden"
         style={{ pointerEvents: "none" }}
       >
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
-              style={{ pointerEvents: "auto" }}
-            />
-          )}
-        </AnimatePresence>
+        {isOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
+            onClick={() => setIsOpen(false)}
+            style={{ pointerEvents: "auto" }}
+          />
+        )}
 
         <div
           className="fixed bottom-3 right-3 z-50"
           style={{ pointerEvents: "auto" }}
         >
-          <AnimatePresence>
-            {isOpen && (
-              <motion.div
-                className="absolute bottom-16 right-0 flex flex-col-reverse gap-2 sm:gap-3 min-w-max max-w-[calc(100vw-2rem)]"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-              >
-                {menuItems.map((item, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{
-                      delay: index * 0.05,
-                      duration: 0.2,
-                      ease: "easeOut"
-                    }}
-                    className="flex items-center gap-2 sm:gap-3"
-                  >
-                    <div className="bg-white text-gray-800 px-2 py-2 rounded-lg text-xs sm:text-sm font-medium shadow-lg border border-gray-200 max-w-[120px] sm:max-w-none">
-                      <span className="whitespace-nowrap overflow-hidden text-ellipsis block">
-                        {item.label}
-                      </span>
-                    </div>
+          {isOpen && (
+            <div className="absolute bottom-16 right-0 flex flex-col-reverse gap-2 sm:gap-3 min-w-max max-w-[calc(100vw-2rem)]">
+              {menuItems.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 sm:gap-3"
+                >
+                  <div className="bg-white text-gray-800 px-2 py-2 rounded-lg text-xs sm:text-sm font-medium shadow-lg border border-gray-200 max-w-[120px] sm:max-w-none">
+                    <span className="whitespace-nowrap overflow-hidden text-ellipsis block">
+                      {item.label}
+                    </span>
+                  </div>
 
-                    {item.component ? (
-                      <div className="w-fit min-w-[200px] sm:min-w-[240px] h-12 rounded-lg bg-white shadow-lg border border-gray-200 flex items-center justify-center overflow-hidden">
-                        <div className="scale-75 sm:scale-90 w-full">
-                          {item.component}
-                        </div>
+                  {item.component ? (
+                    <div className="w-fit min-w-[200px] sm:min-w-[240px] h-12 rounded-lg bg-white shadow-lg border border-gray-200 flex items-center justify-center overflow-hidden">
+                      <div className="scale-75 sm:scale-90 w-full">
+                        {item.component}
                       </div>
-                    ) : (
-                      <button
-                        className={`w-12 h-12 rounded-lg ${
-                          item.color || "bg-gray-600"
-                        } text-white shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow duration-200`}
-                        onClick={() => {
-                          item.onClick?.();
-                          setIsOpen(false);
-                        }}
-                      >
-                        <item.icon size={18} />
-                      </button>
-                    )}
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+                    </div>
+                  ) : (
+                    <button
+                      className={`w-12 h-12 rounded-lg ${
+                        item.color || "bg-gray-600"
+                      } text-white shadow-lg flex items-center justify-center hover:shadow-xl`}
+                      onClick={() => {
+                        item.onClick?.();
+                        setIsOpen(false);
+                      }}
+                    >
+                      <item.icon size={18} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
 
-          <motion.button
+          <button
             className={`w-12 h-12 rounded-full ${themeClasses[currentTheme]} text-white shadow-lg flex items-center justify-center`}
             onClick={() => setIsOpen(!isOpen)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            animate={{
-              rotate: isOpen ? 45 : 0
-            }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
           >
             <SettingsIcon size={20} />
-          </motion.button>
+          </button>
         </div>
       </div>
     </>
