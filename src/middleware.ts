@@ -8,7 +8,7 @@ const ROUTES = {
   OVERVIEW: "/tong-quan",
   PROFILE: "/profile",
   COURSES: "/khoa-hoc",
-  LOGIN: "/signin",
+  LOGIN: "/signin-v2",
   LANDING_PAGE: "/",
   LOGIN_CALLBACK: "/login/callback"
 };
@@ -79,6 +79,11 @@ export default withAuth(
       const token = req.nextauth.token;
       const path = new URL(req.url).pathname;
 
+      // Chặn truy cập vào trang /signin cũ và chuyển hướng tới /signin-v2
+      if (path === "/signin") {
+        return NextResponse.redirect(new URL("/signin-v2", req.url));
+      }
+
       if (path === ROUTES.LANDING_PAGE || path === ROUTES.LOGIN_CALLBACK) {
         return null;
       }
@@ -121,6 +126,7 @@ export default withAuth(
 export const config = {
   matcher: [
     "/",
+    "/signin",
     "/tong-quan/:path*",
     "/khoa-hoc/:path*",
     "/profile/:path*",

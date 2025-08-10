@@ -9,7 +9,7 @@ async function BaiGiangChuaDayPage() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/signin");
+    redirect("/signin-v2");
   }
 
   // Lấy toàn bộ lesson data theo user id

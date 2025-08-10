@@ -84,7 +84,7 @@ async function LessonPage({ params, searchParams }: PageProps) {
   const { section: sectionId } = resolvedSearchParams;
 
   if (!session) {
-    redirect("/signin");
+    redirect("/signin-v2");
   }
 
   const lockedStatusResponse = await getLockedStatusByLessonId({

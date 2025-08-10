@@ -10,7 +10,7 @@ async function LessonTeachingPage() {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user?.userId) {
-    redirect("/signin");
+    redirect("/signin-v2");
   }
 
   const userId = session.user.userId;

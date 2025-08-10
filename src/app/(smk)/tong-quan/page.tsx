@@ -18,7 +18,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (status === "loading") return; // Đợi session load
     if (!session) {
-      redirect("/signin");
+      redirect("/signin-v2");
     }
   }, [session, status]);
 
@@ -33,7 +33,7 @@ export default function DashboardPage() {
 
   // Redirect nếu không có session
   if (!session) {
-    redirect("/signin");
+    redirect("/signin-v2");
     return null;
   }
 
