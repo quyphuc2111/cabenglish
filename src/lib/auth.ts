@@ -490,7 +490,7 @@ export const authOptions: NextAuthOptions = {
         session.user.theme = token.theme;
         session.user.language = token.language;
         session.user.is_firstlogin = token.is_firstlogin;
-        // session.user.authCookie = token.authCookie;
+        session.user.authCookie = token.authCookie;
         // session.user.moodleCookie = token.moodleCookie;
       }
       return session;
