@@ -552,7 +552,7 @@ function LessonTeachingClient({
               </div>
 
               {/* Content area với responsive padding */}
-              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 md:p-6">
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 md:p-6 mb-2">
                 {filteredTeachingLessons.length > 0 ? (
                   <div className="relative">
                     {/* CourseCarousel component */}

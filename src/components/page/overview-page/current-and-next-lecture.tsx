@@ -457,7 +457,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                 <div className="relative z-10 p-3 sm:p-4 md:p-6 bg-white rounded-tr-xl overflow-hidden">
                   {/* Grid Container for this classroom */}
                   <div
-                    className={`flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 xl:gap-12 min-w-0 justify-start 
+                    className={`flex flex-col xl:flex-row gap-4 sm:gap-6 lg:gap-8 xl:gap-12 min-w-0 justify-start
                      `}
                   >
                     {/* Current Lectures */}
@@ -472,14 +472,14 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
 
                     {/* Responsive divider */}
                     <div
-                      className={`hidden lg:block border-r-2 ${getThemeColor(
+                      className={`hidden xl:block border-r-2 ${getThemeColor(
                         userInfo?.theme || ""
                       )} `}
                     ></div>
 
                     {/* Mobile divider */}
                     <div
-                      className={`lg:hidden w-full h-px border-b ${getThemeColor(
+                      className={`xl:hidden w-full h-px border-b ${getThemeColor(
                         userInfo?.theme || ""
                       )}`}
                     ></div>

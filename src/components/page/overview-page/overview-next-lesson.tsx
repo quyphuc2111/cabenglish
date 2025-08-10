@@ -22,7 +22,7 @@ const NextLecture = ({
 }: NextLectureProps) => {
   if (nextLectures.length === 0) {
     return (
-      <div className="w-full lg:w-8/12 flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
+      <div className="w-full xl:w-full flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
         <div className="flex items-center gap-2 sm:gap-3">
           <Image
             src="/person_rank.png"
@@ -66,7 +66,7 @@ const NextLecture = ({
   }
 
   return (
-    <div className="w-full lg:w-8/12 flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
+    <div className="w-full flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
       <div className="flex items-center gap-2 sm:gap-3">
         <Image
           src="/person_rank.png"

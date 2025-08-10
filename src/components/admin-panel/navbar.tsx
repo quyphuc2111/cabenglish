@@ -31,7 +31,7 @@ export function Navbar() {
       initial="hidden"
       animate="visible"
     >
-      <div className="flex xl:flex-row flex-col xl:align-center  xl:items-center justify-between gap-2 sm:gap-4 md:gap-6 lg:gap-10">
+      <div className="flex xl:flex-row flex-col xl:align-center xl:items-center justify-between gap-2 sm:gap-4 md:gap-6 lg:gap-10">
         <SheetMenu />
         <div className="flex-1 w-full">
           <LogoDecorations currentTheme={currentTheme} />

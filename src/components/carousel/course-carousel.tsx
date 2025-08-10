@@ -67,29 +67,47 @@ export function CourseCarousel({
   const isTablet = useMediaQuery("(max-width: 1024px)");
   const isLargeScreen = useMediaQuery("(min-width: 1536px)");
 
-  // Calculate slides per view based on container type and screen size
+  // Calculate slides per view based on screen size - same for both current and next
   const slidesPerView = useMemo(() => {
     if (isExtraSmall) return "33%";
     if (isMobile) return "40%";
     if (isSmallTablet) return "40%";
     if (isTablet) return "40%";
 
-    // Adjust for container type on desktop - make cards smaller
-    if (containerType === "current") {
-      if (isLargeScreen) return "33%"; // Changed from 50% to 33%
-      return "50%"; // Changed from 66% to 50%
-    } else {
-      if (isLargeScreen) return "25%"; // Changed from 33% to 25%
-      return "33%"; // Changed from 40% to 33%
-    }
+    // Desktop sizes - same for both current and next lectures
+    if (isLargeScreen) return "25%"; // 2xl: 4 items
+    return "33%"; // lg,xl: 3 items
   }, [
     isExtraSmall,
     isMobile,
     isSmallTablet,
     isTablet,
-    isLargeScreen,
-    containerType
+    isLargeScreen
   ]);
+
+  // Calculate items per view for pagination
+  const itemsPerView = useMemo(() => {
+    if (isExtraSmall) return 3;
+    if (isMobile) return 2.5;
+    if (isSmallTablet) return 2.5;
+    if (isTablet) return 2.5;
+
+    // Desktop sizes
+    if (isLargeScreen) return 4; // 2xl: 4 items
+    return 3; // lg,xl: 3 items
+  }, [
+    isExtraSmall,
+    isMobile,
+    isSmallTablet,
+    isTablet,
+    isLargeScreen
+  ]);
+
+  // Calculate total pages based on items per view
+  const totalPages = useMemo(() => {
+    if (visibleItems.length === 0) return 1;
+    return Math.ceil(visibleItems.length / Math.floor(itemsPerView));
+  }, [visibleItems.length, itemsPerView]);
 
   // Update visible items when courseData changes
   useEffect(() => {
@@ -254,7 +272,7 @@ export function CourseCarousel({
           </div>
           {/* Current position indicator for all devices */}
           <div className="text-xs text-gray-500">
-            {current + 1} / {Math.max(count, 1)}
+            {current + 1} / {totalPages}
           </div>
         </div>
       )}
@@ -282,7 +300,7 @@ export function CourseCarousel({
 
         {/* Navigation arrows positioned below carousel - inside Carousel component */}
         {showArrows && visibleItems.length > 2 && (
-          <div className="flex justify-center gap-4 mt-4">
+          <div className="flex justify-center gap-4 mt-4 mb-2">
             <CarouselPrevious className="relative left-0 top-0 transform-none bg-white shadow-lg hover:bg-gray-50 border-2 border-gray-200 hover:border-pink-300 transition-all duration-200" />
             <CarouselNext className="relative right-0 top-0 transform-none bg-white shadow-lg hover:bg-gray-50 border-2 border-gray-200 hover:border-pink-300 transition-all duration-200" />
           </div>

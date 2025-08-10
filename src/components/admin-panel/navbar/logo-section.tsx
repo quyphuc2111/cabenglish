@@ -7,7 +7,8 @@ export const LogoSection = () => {
         <div className={cn(
           "font-extrabold text-[21px] tracking-[4.20px]",
           "bg-gradient-to-r from-blue-600 via-pink-500 to-purple-600",
-          "text-transparent bg-clip-text animate-text-shine"
+          "text-transparent bg-clip-text animate-text-shine",
+          "lg:text-[20px] xl:text-[13px] 2xl:text-[22px]"
         )}>
           SMART KID
         </div>
@@ -15,7 +16,8 @@ export const LogoSection = () => {
         <span className={cn(
           "ml-1 text-[21px] font-black tracking-[4.20px]",
           "bg-gradient-to-br from-amber-500 to-pink-600",
-          "text-transparent bg-clip-text"
+          "text-transparent bg-clip-text",
+          "lg:text-[20px] xl:text-[13px] 2xl:text-[22px]"
         )}>
           {new Date().getFullYear()}
         </span>
