@@ -1,7 +1,5 @@
 "use client";
 import { SheetMenu } from "@/components/admin-panel/sheet-menu";
-import { motion } from "framer-motion";
-import { navbarAnimations } from "@/constants/animation-variants";
 import { useModal } from "@/hooks/useModalStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { NavbarControls } from "./navbar-com/NavbarControls";
@@ -25,12 +23,7 @@ export function Navbar() {
   };
 
   return (
-    <motion.header
-      className="z-10 w-full max-w-[1920px] mx-auto"
-      variants={navbarAnimations.container}
-      initial="hidden"
-      animate="visible"
-    >
+    <header className="z-10 w-full max-w-[1920px] mx-auto">
       <div className="flex xl:flex-row flex-col xl:align-center xl:items-center justify-between gap-2 sm:gap-4 md:gap-6 lg:gap-10">
         <SheetMenu />
         <div className="flex-1 w-full">
@@ -43,6 +36,6 @@ export function Navbar() {
           userId={session?.user.userId}
         />
       </div>
-    </motion.header>
+    </header>
   );
 }
