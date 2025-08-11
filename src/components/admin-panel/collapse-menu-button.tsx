@@ -124,13 +124,12 @@ export function CollapseMenuButton({
             >
               <ChevronDown
                 size={18}
-                className="transition-transform duration-200"
               />
             </div>
           </div>
         </Button>
       </CollapsibleTrigger>
-      <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+      <CollapsibleContent className="overflow-hidden">
         {submenus.map(({ href, label, active, disabled }, index) => {
           return disabled ? (
             <Button

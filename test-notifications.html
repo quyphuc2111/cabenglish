@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Notifications & Performance</title>
+    <style>
+        /* Simulate the performance mode CSS */
+        body.performance-mode * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            transition-delay: 0s !important;
+        }
+
+        /* Allow essential UI animations to work */
+        body.performance-mode .toast-container,
+        body.performance-mode .toast-container *,
+        body.performance-mode [role="dialog"],
+        body.performance-mode [role="dialog"] *,
+        body.performance-mode .notification-modal,
+        body.performance-mode .notification-modal *,
+        body.performance-mode [data-state="open"],
+        body.performance-mode [data-state="open"] * {
+            animation-duration: 0.3s !important;
+            transition-duration: 0.3s !important;
+        }
+
+        /* Toast notifications must work */
+        body.performance-mode .Toastify__toast-container,
+        body.performance-mode .Toastify__toast,
+        body.performance-mode .Toastify__toast-body,
+        body.performance-mode .Toastify__progress-bar {
+            animation-duration: 0.3s !important;
+            transition-duration: 0.3s !important;
+        }
+
+        /* Test styles */
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .test-button:hover {
+            background: #0056b3;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: #28a745;
+            color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            opacity: 0;
+            animation: slideIn 0.3s ease-in-out forwards;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            transform: scale(0.8);
+            transition: transform 0.3s;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .close-button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            float: right;
+        }
+
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .lesson-card {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 10px;
+            border-radius: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="performance-mode toast-enabled modal-enabled">
+    <div class="test-container">
+        <h1>🧪 Test Notifications & Performance Mode</h1>
+        
+        <div class="status">
+            <strong>Current Mode:</strong> Performance Mode Enabled<br>
+            <strong>Toast Animations:</strong> <span id="toast-status">Enabled</span><br>
+            <strong>Modal Animations:</strong> <span id="modal-status">Enabled</span><br>
+            <strong>Lesson Card Animations:</strong> <span id="lesson-status">Disabled</span>
+        </div>
+
+        <h2>🍞 Toast Notifications</h2>
+        <button class="test-button" onclick="showToast('success')">Show Success Toast</button>
+        <button class="test-button" onclick="showToast('error')">Show Error Toast</button>
+        
+        <h2>📋 Modal Dialog</h2>
+        <button class="test-button" onclick="showModal()">Show Modal</button>
+        
+        <h2>📚 Lesson Cards (Should NOT animate in performance mode)</h2>
+        <div class="lesson-card" onclick="animateCard(this)">
+            <h3>Sample Lesson Card</h3>
+            <p>This should NOT animate on hover in performance mode</p>
+        </div>
+
+        <h2>🎛️ Performance Controls</h2>
+        <button class="test-button" onclick="togglePerformanceMode()">Toggle Performance Mode</button>
+        <button class="test-button" onclick="testAnimationDurations()">Test Animation Durations</button>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Modal -->
+    <div class="modal" id="testModal" role="dialog">
+        <div class="modal-content">
+            <button class="close-button" onclick="hideModal()">×</button>
+            <h3>🔔 Notification Modal</h3>
+            <p>This modal should animate properly even in performance mode!</p>
+            <p>The animations are essential for user experience.</p>
+        </div>
+    </div>
+
+    <script>
+        let toastCounter = 0;
+
+        function showToast(type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = `${type === 'success' ? '✅' : '❌'} Test ${type} notification #${++toastCounter}`;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Auto remove
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease-in-out forwards';
+                setTimeout(() => container.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        function showModal() {
+            const modal = document.getElementById('testModal');
+            modal.classList.add('show');
+        }
+
+        function hideModal() {
+            const modal = document.getElementById('testModal');
+            modal.classList.remove('show');
+        }
+
+        function animateCard(card) {
+            // This should be disabled in performance mode
+            card.style.transform = 'scale(1.05) rotate(2deg)';
+            setTimeout(() => {
+                card.style.transform = '';
+            }, 200);
+        }
+
+        function togglePerformanceMode() {
+            const body = document.body;
+            const isPerformanceMode = body.classList.contains('performance-mode');
+            
+            if (isPerformanceMode) {
+                body.classList.remove('performance-mode');
+                updateStatus('Disabled', 'Enabled', 'Enabled', 'Enabled');
+            } else {
+                body.classList.add('performance-mode');
+                updateStatus('Enabled', 'Enabled', 'Enabled', 'Disabled');
+            }
+        }
+
+        function updateStatus(mode, toast, modal, lesson) {
+            document.querySelector('.status strong:first-child').nextSibling.textContent = ` Performance Mode ${mode}`;
+            document.getElementById('toast-status').textContent = toast;
+            document.getElementById('modal-status').textContent = modal;
+            document.getElementById('lesson-status').textContent = lesson;
+        }
+
+        function testAnimationDurations() {
+            const results = [];
+            
+            // Test toast animation duration
+            const toast = document.querySelector('.toast');
+            if (toast) {
+                const toastDuration = getComputedStyle(toast).animationDuration;
+                results.push(`Toast: ${toastDuration}`);
+            }
+            
+            // Test modal animation duration
+            const modal = document.querySelector('.modal');
+            const modalDuration = getComputedStyle(modal).transitionDuration;
+            results.push(`Modal: ${modalDuration}`);
+            
+            // Test lesson card animation duration
+            const lessonCard = document.querySelector('.lesson-card');
+            const lessonDuration = getComputedStyle(lessonCard).transitionDuration;
+            results.push(`Lesson Card: ${lessonDuration}`);
+            
+            alert('Animation Durations:\n' + results.join('\n'));
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            console.log('🧪 Performance Mode Test Loaded');
+            console.log('Body classes:', document.body.className);
+            
+            // Show initial toast
+            setTimeout(() => showToast('success'), 1000);
+        });
+    </script>
+</body>
+</html>

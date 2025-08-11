@@ -84,7 +84,7 @@ async function LessonPage({ params, searchParams }: PageProps) {
   const { section: sectionId } = resolvedSearchParams;
 
   if (!session) {
-    redirect("/signin");
+    redirect("/signin-v2");
   }
 
   const lockedStatusResponse = await getLockedStatusByLessonId({
@@ -108,9 +108,6 @@ async function LessonPage({ params, searchParams }: PageProps) {
       lessonId,
       userId: session.user.userId as string
     });
-
-    console.log("lessonID:", lessonId);
-    console.log("sectionData:", sectionData);
 
     // Always normalize section contents to SectionContentType[]
     let sectionContents: SectionContentType[] = [];

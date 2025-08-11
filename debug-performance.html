@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Performance Settings</title>
+</head>
+<body>
+    <h1>Performance Settings Debug</h1>
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        // Check localStorage values
+        const settings = {
+            disableAnimations: localStorage.getItem('disableAnimations'),
+            reducedMotion: localStorage.getItem('reducedMotion'),
+            staticMode: localStorage.getItem('staticMode'),
+            disableFramerMotion: localStorage.getItem('disableFramerMotion'),
+            'smartkids-performance-settings': localStorage.getItem('smartkids-performance-settings')
+        };
+        
+        // Check media query
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        
+        // Check body classes
+        const bodyClasses = Array.from(document.body.classList);
+        
+        output.innerHTML = `
+            <h2>LocalStorage Settings:</h2>
+            <pre>${JSON.stringify(settings, null, 2)}</pre>
+            
+            <h2>Media Query:</h2>
+            <p>prefers-reduced-motion: ${prefersReducedMotion}</p>
+            
+            <h2>Body Classes:</h2>
+            <p>${bodyClasses.join(', ')}</p>
+            
+            <h2>Actions:</h2>
+            <button onclick="clearPerformanceSettings()">Clear All Performance Settings</button>
+            <button onclick="enableAnimations()">Enable Animations</button>
+        `;
+        
+        window.clearPerformanceSettings = function() {
+            localStorage.removeItem('disableAnimations');
+            localStorage.removeItem('reducedMotion');
+            localStorage.removeItem('staticMode');
+            localStorage.removeItem('disableFramerMotion');
+            localStorage.removeItem('smartkids-performance-settings');
+            alert('Performance settings cleared! Refresh the page.');
+        };
+        
+        window.enableAnimations = function() {
+            localStorage.setItem('disableAnimations', 'false');
+            localStorage.setItem('reducedMotion', 'false');
+            localStorage.setItem('staticMode', 'false');
+            localStorage.setItem('disableFramerMotion', 'false');
+            alert('Animations enabled! Refresh the page.');
+        };
+    </script>
+</body>
+</html>

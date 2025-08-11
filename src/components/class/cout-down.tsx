@@ -22,7 +22,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ targetDate }) => {
         days: Math.floor(difference / (1000 * 60 * 60 * 24)),
         hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
         minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
+        seconds: Math.floor((difference / 1000) % 60)
       };
     }
 
@@ -32,11 +32,26 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ targetDate }) => {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft());
 
   useEffect(() => {
+    // Chỉ update khi tab đang active để giảm CPU
     const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
+      if (document.visibilityState === "visible") {
+        setTimeLeft(calculateTimeLeft());
+      }
     }, 1000);
 
-    return () => clearInterval(timer);
+    // Pause timer khi tab không active
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        setTimeLeft(calculateTimeLeft());
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [targetDate]);
 
   return (

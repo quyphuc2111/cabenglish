@@ -15,11 +15,12 @@ export const useUserInfo = (userId?: string) => {
       return response.data as UserInfo;
     },
     enabled: !!userId,
-    staleTime: 0,
+    staleTime: 2 * 60 * 1000, // ✅ Giảm cache từ 5 phút xuống 2 phút để theme update nhanh hơn
     gcTime: 10 * 60 * 1000,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60 * 1000
+    refetchOnWindowFocus: false, // Tắt refetch khi focus - giảm CPU
+    refetchOnMount: false, // Tắt refetch khi mount - sử dụng cache
+    refetchOnReconnect: true, // ✅ Giữ lại để sync khi mất kết nối
+    // refetchInterval: 60 * 1000 // Tắt polling - giảm CPU đáng kể
   });
 };
 

@@ -1,13 +1,14 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, memo } from "react";
 
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useNavigationStore } from "@/store/navigationStore";
 import CurrentLecture from "./overview-current-lesson";
 import NextLecture from "./overview-next-lesson";
 
-function CurrentAndNextLecture({
+const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
   courseData,
   t,
   classroomData,
@@ -19,20 +20,35 @@ function CurrentAndNextLecture({
   userId: string | undefined;
 }) {
   const router = useRouter();
-
-  // Use refs for swiper instances to prevent re-renders when updating them
-  const currentSwiperRef = React.useRef<any>(null);
-  const nextSwiperRef = React.useRef<any>(null);
   const { data: userInfo } = useUserInfo(userId);
+  const { setPreviousPage, setOverviewState } = useNavigationStore();
 
   // Thêm breakpoint cho màn hình siêu nhỏ (mobile nhỏ)
   const isExtraSmall = useMediaQuery("(max-width: 1023px)");
 
   const handleLessonClick = useCallback(
     async (lessonId: number) => {
+      // Lưu trạng thái trang tổng quan trước khi chuyển trang
+      const scrollPosition = window.scrollY;
+
+      // Lưu thông tin trang trước
+      setPreviousPage({
+        url: "/tong-quan",
+        title: "Tổng quan",
+        state: {
+          scrollPosition
+        }
+      });
+
+      // Lưu trạng thái trang tổng quan
+      setOverviewState({
+        scrollPosition
+      });
+
+      // Chuyển trang
       router.push(`/lesson/${lessonId}`);
     },
-    [router]
+    [router, setPreviousPage, setOverviewState]
   );
 
   // Memoize computed data to prevent recalculation on re-renders
@@ -255,33 +271,49 @@ function CurrentAndNextLecture({
           }
         }
 
-        /* Tối ưu hóa hiển thị cho các loại màn hình */
-        .lesson-card {
-          width: 320px !important;
-          min-width: 320px !important;
-          max-width: 320px !important;
-          box-sizing: border-box;
-          overflow: hidden !important;
-          height: 100% !important;
-          display: flex !important;
-          flex-direction: column !important;
+        /* Tối ưu hóa hiển thị cho các loại màn hình - Desktop */
+        @media (min-width: 1024px) {
+          .lesson-card {
+            width: 280px !important;
+            min-width: 280px !important;
+            max-width: 280px !important;
+            box-sizing: border-box;
+            overflow: hidden !important;
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+          }
+
+          /* Đảm bảo tất cả card có cùng chiều cao và width cố định */
+          .lesson-container {
+            display: flex !important;
+            align-items: stretch !important;
+            min-height: 300px !important;
+          }
+
+          .lesson-container > div {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            height: 100% !important;
+            width: 280px !important;
+            min-width: 280px !important;
+            max-width: 280px !important;
+          }
         }
 
-        /* Đảm bảo tất cả card có cùng chiều cao và width cố định */
-        .lesson-container {
-          display: flex !important;
-          align-items: stretch !important;
-          min-height: 300px !important;
-        }
-
-        .lesson-container > div {
-          flex: 1 !important;
-          display: flex !important;
-          flex-direction: column !important;
-          height: 100% !important;
-          width: 320px !important;
-          min-width: 320px !important;
-          max-width: 320px !important;
+        /* Tablet và màn hình vừa */
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .lesson-card {
+            width: 240px !important;
+            min-width: 240px !important;
+            max-width: 240px !important;
+            box-sizing: border-box;
+            overflow: hidden !important;
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+          }
         }
 
         /* Đảm bảo nội dung card có chiều cao nhất quán */
@@ -375,7 +407,7 @@ function CurrentAndNextLecture({
 
       <div className="flex items-center gap-2 p-3 sm:p-4 w-full bg-white rounded-xl mb-3 sm:mb-4">
         <Image
-          src="/book.gif"
+          src="/book_multi.png"
           alt="book"
           width={40}
           height={40}
@@ -425,7 +457,7 @@ function CurrentAndNextLecture({
                 <div className="relative z-10 p-3 sm:p-4 md:p-6 bg-white rounded-tr-xl overflow-hidden">
                   {/* Grid Container for this classroom */}
                   <div
-                    className={`flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 xl:gap-12 min-w-0 justify-start 
+                    className={`flex flex-col xl:flex-row gap-4 sm:gap-6 lg:gap-8 xl:gap-12 min-w-0 justify-start
                      `}
                   >
                     {/* Current Lectures */}
@@ -435,18 +467,19 @@ function CurrentAndNextLecture({
                       handleLessonClick={handleLessonClick}
                       isExtraSmall={isExtraSmall}
                       t={t}
+                      classroomData={classroomData}
                     />
 
                     {/* Responsive divider */}
                     <div
-                      className={`hidden lg:block border-r-2 ${getThemeColor(
+                      className={`hidden xl:block border-r-2 ${getThemeColor(
                         userInfo?.theme || ""
                       )} `}
                     ></div>
 
                     {/* Mobile divider */}
                     <div
-                      className={`lg:hidden w-full h-px border-b ${getThemeColor(
+                      className={`xl:hidden w-full h-px border-b ${getThemeColor(
                         userInfo?.theme || ""
                       )}`}
                     ></div>
@@ -458,6 +491,7 @@ function CurrentAndNextLecture({
                       handleLessonClick={handleLessonClick}
                       isExtraSmall={isExtraSmall}
                       t={t}
+                      classroomData={classroomData}
                     />
                   </div>
                 </div>
@@ -468,6 +502,6 @@ function CurrentAndNextLecture({
       </div>
     </>
   );
-}
+});
 
 export default CurrentAndNextLecture;

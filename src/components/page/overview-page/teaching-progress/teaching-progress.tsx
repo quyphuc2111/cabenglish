@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import { memo } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useModal } from "@/hooks/useModalStore";
 import { ProgressStats } from "./progress-stats";
-import CurrentAndNextLecture from "./current-and-next-lecture";
 import { ClassroomType } from "@/types/classroom";
 
 interface TeachingProgressProps {
@@ -14,7 +14,7 @@ interface TeachingProgressProps {
   onDataRefetch?: () => Promise<void>;
 }
 
-export function TeachingProgress({
+export const TeachingProgress = memo(function TeachingProgress({
   courseData,
   classroomData,
   currentTheme = "theme-red",
@@ -110,4 +110,4 @@ export function TeachingProgress({
       </div>
     </div>
   );
-}
+});

@@ -81,10 +81,25 @@ export function isRefreshTokenValid(authCookie?: string): boolean {
   if (!authCookie) return false;
 
   // Check if cookie has the expected format
-  const hasValidFormat =
-    authCookie.includes("bkt_account=") && authCookie.length > 20;
+  const hasValidFormat = authCookie.includes("bkt_account=") && authCookie.length > 20;
 
-  return hasValidFormat;
+  // Additional validation: check if it's not obviously expired or malformed
+  try {
+    // Extract the cookie value
+    const match = authCookie.match(/bkt_account=([^;,]+)/);
+    if (!match) return false;
+
+    const cookieValue = match[1];
+
+    // Basic checks for cookie value format
+    if (cookieValue.length < 10) return false; // Too short
+    if (!/^[A-Za-z0-9+/=%-]+$/.test(cookieValue)) return false; // Invalid characters
+
+    return hasValidFormat;
+  } catch (error) {
+    console.error("Error validating refresh token:", error);
+    return false;
+  }
 }
 
 export async function logout(): Promise<{ message: string }> {

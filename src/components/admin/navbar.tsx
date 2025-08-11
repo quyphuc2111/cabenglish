@@ -64,7 +64,7 @@ function Navbar({ breadcrumb }: NavbarProps) {
   };
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/signin' });
+    await signOut({ callbackUrl: '/signin-v2' });
   };
 
   return (

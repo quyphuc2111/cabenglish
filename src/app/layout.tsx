@@ -3,16 +3,17 @@ import { Inter } from "next/font/google";
 
 import initTranslations from "@/locales/i18n";
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin", "latin-ext"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-inter",
   display: "swap",
-  preload: true,
+  preload: true
 });
 
 import "react-toastify/dist/ReactToastify.css";
 import "../app/globals.css";
+import "../styles/lesson-optimize.css";
 import Providers from "@/providers/providers";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
@@ -29,12 +30,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  viewportFit: 'cover',
-}
+  viewportFit: "cover"
+};
 
 export default async function RootLayout({
   children,
@@ -47,21 +48,19 @@ export default async function RootLayout({
   // Ưu tiên ngôn ngữ từ session nếu có, sau đó đến params, cuối cùng là mặc định
   const sessionLang = session?.user?.language;
   const currentLang = sessionLang || lang || "vi";
-  
+
   const { t, resources } = await initTranslations(currentLang, ["common"]);
 
   const translations = resources?.[currentLang]?.common || {};
 
   return (
     <html lang={currentLang} suppressHydrationWarning className="h-full">
-      <head>
-        {/* Use Next.js metadata instead of direct meta tags */}
-      </head>
-      <body className={`${inter.className} ${inter.variable} font-inter h-full overscroll-none`}>
-        <Providers translations={translations}>
-          <div className="min-h-full flex flex-col">
-            {children}
-          </div>
+      <head>{/* Use Next.js metadata instead of direct meta tags */}</head>
+      <body
+        className={`${inter.className} ${inter.variable} font-inter h-full overscroll-none performance-mode toast-enabled modal-enabled`}
+      >
+        <Providers translations={translations} currentLanguage={currentLang}>
+          <div className="min-h-full flex flex-col">{children}</div>
         </Providers>
       </body>
     </html>

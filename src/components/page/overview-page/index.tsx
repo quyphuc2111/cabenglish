@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, memo } from "react";
 import dynamic from "next/dynamic";
 import { ClassroomType } from "@/types/classroom";
 import { useModal } from "@/hooks/useModalStore";
 import { useSession } from "next-auth/react";
 import { DashboardClientService } from "@/services/dashboard.client.service";
 import { useUserInfo } from "@/hooks/useUserInfo";
+import { useNavigationStore } from "@/store/navigationStore";
+import { useNavigationRestore } from "@/hooks/useNavigationRestore";
 import CurrentAndNextLecture from "./current-and-next-lecture";
 import { useTranslation } from "react-i18next";
-import Image from "next/image";
 
 const LectureFavouriteList = dynamic(
   () =>
@@ -40,7 +41,7 @@ interface OverviewPageProps {
   classroomData: ClassroomType[];
 }
 
-function OverviewPage({
+const OverviewPage = memo(function OverviewPage({
   courseData: initialCourseData,
   initialFilterData,
   fetchFilterData,
@@ -51,17 +52,27 @@ function OverviewPage({
   const { data: userInfo } = useUserInfo(session?.user?.userId);
   const currentTheme = userInfo?.theme;
   const { t } = useTranslation();
+  const { overviewState } = useNavigationStore();
+  const { isReturningFromLesson } = useNavigationRestore();
 
   const [courseData, setCourseData] = useState(initialCourseData);
   const [isRefetching, setIsRefetching] = useState(false);
-
-  console.log("📚 OverviewPage rendered with courseData:", courseData);
 
   useEffect(() => {
     if (session && session.user.is_firstlogin) {
       onOpen("teachingMode");
     }
   }, [session]);
+
+  // Khôi phục scroll position khi quay lại từ lesson
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (isReturningFromLesson && overviewState?.scrollPosition) {
+      setTimeout(() => {
+        window.scrollTo(0, overviewState.scrollPosition || 0);
+      }, 100);
+    }
+  }, [isReturningFromLesson, overviewState?.scrollPosition]);
 
   const refetchCourseData = useCallback(async () => {
     if (!session?.user?.userId || isRefetching) {
@@ -97,6 +108,7 @@ function OverviewPage({
         initialFilterData={initialFilterData}
         fetchFilterData={fetchFilterData}
         onDataRefetch={refetchCourseData}
+        classrooms={classroomData}
       />
       <TeachingProgress
         courseData={courseData}
@@ -106,6 +118,6 @@ function OverviewPage({
       />
     </div>
   );
-}
+});
 
 export default OverviewPage;

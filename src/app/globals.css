@@ -838,3 +838,226 @@ select {
   max-width: 100%;
   overflow: hidden;
 }
+
+/* Performance optimizations - Inline CSS to avoid import issues */
+
+/* Disable non-essential animations when performance mode is on */
+.performance-mode .lesson-card,
+.performance-mode .lesson-card *,
+.performance-mode .course-swiper .swiper-slide,
+.performance-mode .book-swiper .swiper-slide,
+.performance-mode .mascot-animation,
+.performance-mode .floating-hearts,
+.performance-mode .sparkle-effects,
+.performance-mode .heart-particle,
+.performance-mode .sparkle-particle,
+.performance-mode .removing-text-animation,
+.performance-mode .sparkles-container,
+.performance-mode .hearts-container {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+
+/* Allow Embla Carousel smooth transitions even in performance mode */
+.performance-mode [data-embla-carousel],
+.performance-mode [data-embla-carousel] * {
+  transition-duration: 0.1s !important;
+  scroll-behavior: smooth !important;
+}
+
+/* Optimize carousel images for smooth scrolling */
+[data-embla-carousel] .lesson-card img {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  image-rendering: optimizeSpeed;
+  content-visibility: auto;
+  contain-intrinsic-size: 300px 169px;
+}
+
+/* Preload images in viewport */
+[data-embla-carousel] .lesson-card {
+  contain: layout style paint;
+}
+
+/* Reduce layout shifts during image loading */
+[data-embla-carousel] .aspect-\[16\/9\] {
+  contain-intrinsic-size: 300px 169px;
+}
+
+/* Framer Motion optimizations for non-essential elements */
+.performance-mode .lesson-card [data-framer-motion],
+.performance-mode .course-swiper [data-framer-motion],
+.performance-mode .book-swiper [data-framer-motion],
+.performance-mode .mascot-container [data-framer-motion],
+.performance-mode .floating-animation [data-framer-motion],
+.performance-mode .lesson-card .heart-particle,
+.performance-mode .lesson-card .sparkle-particle,
+.performance-mode .lesson-card .floating-hearts,
+.performance-mode .lesson-card .like-animation {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+/* Swiper optimizations */
+.performance-mode .swiper-wrapper {
+  transition-duration: 0ms !important;
+}
+
+.performance-mode .swiper-slide {
+  transition-duration: 0ms !important;
+}
+
+/* Common animation classes disabled */
+.performance-mode .animate-spin,
+.performance-mode .animate-pulse,
+.performance-mode .animate-bounce,
+.performance-mode .animate-text-shine,
+.performance-mode .animate-bounce-subtle {
+  animation: none !important;
+}
+
+/* Motion reduce class */
+.motion-reduce {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Disable hover effects in performance mode */
+.performance-mode *:hover {
+  transition: none !important;
+}
+
+/* Disable complex animations */
+.performance-mode .course-swiper .swiper-slide,
+.performance-mode .book-swiper .swiper-slide {
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Static mode - selective performance optimization */
+.static-mode .lesson-card,
+.static-mode .course-swiper .swiper-slide,
+.static-mode .book-swiper .swiper-slide,
+.static-mode .animate-bounce-subtle,
+.static-mode .animate-text-shine {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+/* Keep essential UI interactions working in static mode */
+.static-mode .toast-container,
+.static-mode [role="dialog"],
+.static-mode .notification-modal,
+.static-mode [data-state="open"],
+.static-mode aside[class*="translate-x"] {
+  animation: initial !important;
+  transition: initial !important;
+}
+
+/* Global performance mode - selective motion disable */
+body.performance-mode * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+}
+
+/* Allow essential UI animations to work */
+body.performance-mode .toast-container,
+body.performance-mode .toast-container *,
+body.performance-mode [role="dialog"],
+body.performance-mode [role="dialog"] *,
+body.performance-mode .notification-modal,
+body.performance-mode .notification-modal *,
+body.performance-mode [data-state="open"],
+body.performance-mode [data-state="open"] * {
+  animation-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
+}
+
+/* Force static rendering for non-essential motion elements */
+body.performance-mode .lesson-card [data-framer-motion],
+body.performance-mode .course-swiper [data-framer-motion],
+body.performance-mode .book-swiper [data-framer-motion] {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+/* Exceptions: Allow essential UI animations to work */
+body.performance-mode aside[class*="translate-x"] {
+  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out !important;
+  transform: var(--sidebar-transform) !important;
+}
+
+/* Toast notifications must work */
+body.performance-mode .Toastify__toast-container,
+body.performance-mode .Toastify__toast,
+body.performance-mode .Toastify__toast-body,
+body.performance-mode .Toastify__progress-bar {
+  animation-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
+}
+
+/* Dialog and modal animations must work */
+body.performance-mode [data-radix-dialog-overlay],
+body.performance-mode [data-radix-dialog-content],
+body.performance-mode .dialog-overlay,
+body.performance-mode .dialog-content {
+  animation-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
+}
+
+/* Notification modal specific */
+body.performance-mode .notification-modal,
+body.performance-mode .notification-modal * {
+  animation-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
+}
+
+/* Set CSS variables for sidebar transforms */
+@media (min-width: 1024px) {
+  body.performance-mode aside[class*="-translate-x-full"] {
+    --sidebar-transform: translateX(0);
+  }
+}
+
+@media (max-width: 1023px) {
+  body.performance-mode aside[class*="-translate-x-full"] {
+    --sidebar-transform: translateX(-100%);
+  }
+}
+
+/* Utility classes for manual performance control */
+.force-enable-animations * {
+  animation-duration: initial !important;
+  transition-duration: initial !important;
+}
+
+.force-disable-animations * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Specific overrides for toast libraries */
+.toast-enabled .Toastify__toast-container,
+.toast-enabled .Toastify__toast,
+.toast-enabled .react-hot-toast {
+  animation-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
+}
+
+/* Modal and dialog overrides */
+.modal-enabled [role="dialog"],
+.modal-enabled [data-state="open"],
+.modal-enabled .dialog-overlay,
+.modal-enabled .dialog-content {
+  animation-duration: 0.3s !important;
+  transition-duration: 0.3s !important;
+}

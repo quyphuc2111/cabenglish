@@ -2,6 +2,7 @@ import LessonCard from "@/components/lesson/lesson-card";
 import Image from "next/image";
 import React from "react";
 import { CourseCarousel } from "@/components/carousel/course-carousel";
+import { PaginatedContent } from "@/components/common/paginated-content";
 
 interface CurrentLectureProps {
   lectures: any[];
@@ -9,6 +10,7 @@ interface CurrentLectureProps {
   handleLessonClick: (lessonId: number) => void;
   isExtraSmall: boolean;
   t: any;
+  classroomData?: any[];
 }
 
 const CurrentLecture = ({
@@ -16,10 +18,11 @@ const CurrentLecture = ({
   classId,
   handleLessonClick,
   isExtraSmall,
-  t
+  t,
+  classroomData
 }: CurrentLectureProps) => {
   return (
-    <div className="w-full lg:w-4/12 flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
+    <div className="w-full xl:w-full flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
       <div className="flex items-center gap-2 sm:gap-3">
         <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center">
           <Image
@@ -60,10 +63,41 @@ const CurrentLecture = ({
         </div>
       ) : (
         <div className="min-h-[230px] sm:min-h-[320px] md:min-h-[370px] lg:min-h-[330px]">
+          {/* Comment: CourseCarousel cũ - đã thay thế bằng PaginatedContent
           <CourseCarousel
             courseData={lectures}
             className="h-full"
             onLessonClick={handleLessonClick}
+            classroomData={classroomData}
+            containerType="current"
+          />
+          */}
+
+          {/* Grid/List + Pagination mới */}
+          <PaginatedContent
+            items={lectures}
+            itemsPerPage={4}
+            renderItem={(lecture) => (
+              <LessonCard
+                key={lecture.lessonId}
+                classId={lecture.classId || classId}
+                unitId={lecture.unitId}
+                schoolWeekId={lecture.schoolWeekId}
+                unitName={lecture.unitName}
+                imageUrl={lecture.imageUrl}
+                schoolWeek={lecture.schoolWeek}
+                classRoomName={lecture.className}
+                lessonName={lecture.lessonName}
+                progress={lecture.progress}
+                numLiked={lecture.numLiked}
+                isLocked={lecture.isLocked}
+                lessonId={lecture.lessonId}
+                onClick={() => handleLessonClick(lecture.lessonId)}
+              />
+            )}
+            rowPerPage={2} // 2 cột để phù hợp với layout chia đôi
+            itemInPage={[4, 8, 12]} // Options cho items per page
+            className="h-full"
           />
         </div>
       )}

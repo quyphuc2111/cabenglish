@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sidebar Responsive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-menu-texture {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        }
+
+        /* Mô phỏng performance mode */
+        body.performance-mode * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            transition-delay: 0s !important;
+            transform: none !important;
+        }
+
+        /* Exception cho sidebar */
+        body.performance-mode .sidebar-responsive {
+            transition: transform 0.3s ease-in-out !important, width 0.3s ease-in-out !important;
+        }
+
+        @media (min-width: 1024px) {
+            body.performance-mode .sidebar-responsive {
+                transform: translateX(0) !important;
+            }
+        }
+
+        @media (max-width: 1023px) {
+            body.performance-mode .sidebar-responsive {
+                transform: translateX(-100%) !important;
+            }
+        }
+
+        .force-responsive-transform {
+            transition: transform 0.3s ease-in-out !important;
+        }
+
+        @media (min-width: 1024px) {
+            .force-responsive-transform.-translate-x-full {
+                transform: translateX(0) !important;
+            }
+        }
+
+        @media (max-width: 1023px) {
+            .force-responsive-transform.-translate-x-full {
+                transform: translateX(-100%) !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="bg-red-400 overflow-hidden">
+        <!-- Client Sidebar (đã fix performance mode) -->
+        <aside class="sidebar-responsive force-responsive-transform fixed top-0 left-0 z-20 h-screen -translate-x-full lg:translate-x-0 transition-[width,transform] ease-in-out duration-300 bg-[#c35690] text-white bg-menu-texture w-72">
+            <div class="relative h-full flex flex-col">
+                <!-- Header với logo -->
+                <div class="flex justify-between px-4 py-4">
+                    <div class="w-[70px] h-[50px] bg-white/20 rounded flex items-center justify-center">
+                        LOGO
+                    </div>
+                </div>
+
+                <!-- Menu -->
+                <div class="flex-1 overflow-hidden px-4">
+                    <div class="space-y-2">
+                        <div class="p-3 bg-white/10 rounded-lg">📊 Tổng quan</div>
+                        <div class="p-3 bg-white/10 rounded-lg">👥 Lớp học</div>
+                        <div class="p-3 bg-white/10 rounded-lg">📚 Tiến trình giảng dạy</div>
+                        <div class="p-3 bg-white/10 rounded-lg">⚙️ Cài đặt chế độ giảng dạy</div>
+                    </div>
+                </div>
+
+                <!-- Toggle button ở dưới cùng -->
+                <div class="mt-auto mb-4 px-4">
+                    <div class="border-t border-white/20 mb-4"></div>
+                    <button class="w-full h-12 bg-white/10 hover:bg-white/20 text-white border-white/20 hover:border-white/30 transition-all duration-300 flex items-center justify-between px-4 rounded-lg">
+                        <span class="text-sm font-medium">Ẩn sidebar</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Mobile Menu Button (hiển thị khi sidebar ẩn) -->
+        <button class="lg:hidden fixed top-4 left-4 z-50 bg-[#c35690]/90 backdrop-blur-sm text-white hover:bg-[#c35690] border border-white/20 shadow-lg w-10 h-10 rounded flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+
+        <!-- Main Content -->
+        <main class="min-h-screen transition-[margin-left] ease-in-out duration-300 px-3 flex-1 h-full bg-red-200 lg:rounded-l-[48px] overflow-y-hidden ml-0 lg:ml-72">
+            <div class="p-8">
+                <h1 class="text-3xl font-bold mb-6">Test Client Sidebar Responsive</h1>
+                
+                <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+                    <h2 class="text-xl font-semibold mb-4">Hướng dẫn test:</h2>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li>Mở trang này trên desktop (width ≥ 1024px) - Sidebar sẽ slide vào từ trái</li>
+                        <li>Thu nhỏ width xuống dưới 1024px - Sidebar sẽ slide ra ngoài trái</li>
+                        <li>Khi sidebar ẩn, nút menu mobile sẽ xuất hiện ở góc trái trên</li>
+                        <li>Main content sẽ tự động điều chỉnh margin-left</li>
+                        <li><strong>Lưu ý:</strong> Container có overflow-hidden để ẩn sidebar khi slide ra ngoài</li>
+                    </ol>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+                    <h2 class="text-xl font-semibold mb-4">Breakpoints:</h2>
+                    <ul class="space-y-2">
+                        <li><strong>lg:</strong> ≥ 1024px - Sidebar: <code>translate-x-0</code> (hiển thị)</li>
+                        <li><strong>&lt; lg:</strong> &lt; 1024px - Sidebar: <code>-translate-x-full</code> (ẩn), mobile menu hiển thị</li>
+                        <li><strong>Container:</strong> <code>overflow-hidden</code> để ẩn sidebar khi slide ra ngoài</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-xl font-semibold mb-4">Current Screen Size:</h2>
+                    <div id="screen-info" class="text-lg font-mono"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function updateScreenInfo() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const breakpoint = width >= 1024 ? 'lg (Desktop)' : 
+                             width >= 768 ? 'md (Tablet)' : 
+                             width >= 640 ? 'sm (Large Mobile)' : 
+                             'xs (Mobile)';
+            
+            document.getElementById('screen-info').innerHTML = `
+                Width: ${width}px<br>
+                Height: ${height}px<br>
+                Breakpoint: ${breakpoint}<br>
+                Sidebar: ${width >= 1024 ? 'Visible' : 'Hidden'}
+            `;
+        }
+
+        window.addEventListener('resize', updateScreenInfo);
+        updateScreenInfo();
+    </script>
+</body>
+</html>

@@ -8,7 +8,7 @@ const ROUTES = {
   OVERVIEW: "/tong-quan",
   PROFILE: "/profile",
   COURSES: "/khoa-hoc",
-  LOGIN: "/signin",
+  LOGIN: "/signin-v2",
   LANDING_PAGE: "/",
   LOGIN_CALLBACK: "/login/callback"
 };
@@ -21,22 +21,33 @@ const ROLES = {
 const isAdminRoute = (path: string) => path.startsWith(ROUTES.ADMIN);
 
 
-const handleLocale = async (request: NextRequest) => {
+const handleLocale = async (request: NextRequest, token: any) => {
   const url = new URL(request.url);
   const { pathname, searchParams } = url;
-  
-  let lang = searchParams.get("lang");
+
   const validLocales = i18NextConfig.i18n.locales;
   const defaultLocale = i18NextConfig.i18n.defaultLocale;
-  
-  const locale = lang && validLocales.includes(lang) ? lang : defaultLocale;
+
+  // Ưu tiên ngôn ngữ từ: user session > URL params > default
+  let lang = searchParams.get("lang");
+  const userLang = token?.language;
+
+  // Xác định ngôn ngữ cuối cùng
+  const finalLang = (userLang && validLocales.includes(userLang))
+    ? userLang
+    : (lang && validLocales.includes(lang))
+      ? lang
+      : defaultLocale;
 
   const newUrl = new URL(pathname, request.url);
+
+  // Preserve tất cả search params hiện tại
   searchParams.forEach((value, key) => {
     newUrl.searchParams.set(key, value);
   });
 
-  newUrl.searchParams.set("lang", locale);
+  // Set hoặc update lang param
+  newUrl.searchParams.set("lang", finalLang);
 
   return newUrl;
 };
@@ -68,6 +79,11 @@ export default withAuth(
       const token = req.nextauth.token;
       const path = new URL(req.url).pathname;
 
+      // Chặn truy cập vào trang /signin cũ và chuyển hướng tới /signin-v2
+      if (path === "/signin") {
+        return NextResponse.redirect(new URL("/signin-v2", req.url));
+      }
+
       if (path === ROUTES.LANDING_PAGE || path === ROUTES.LOGIN_CALLBACK) {
         return null;
       }
@@ -80,7 +96,7 @@ export default withAuth(
         return null;
       }
 
-      const localeUrl = await handleLocale(req as unknown as NextRequest);
+      const localeUrl = await handleLocale(req as unknown as NextRequest, token);
 
       const authRedirect = handleAuth(req as unknown as NextRequest, token);
       if (authRedirect) return authRedirect;
@@ -110,6 +126,7 @@ export default withAuth(
 export const config = {
   matcher: [
     "/",
+    "/signin",
     "/tong-quan/:path*",
     "/khoa-hoc/:path*",
     "/profile/:path*",

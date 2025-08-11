@@ -7,14 +7,13 @@ import AvatarUser from "./avatar-user";
 import Image from "next/image";
 import { Badge } from "../ui/badge";
 import OptimizeImage from "../common/optimize-image";
-import { motion } from "framer-motion";
 import { useModal } from "@/hooks/useModalStore";
 import { NotificationType } from "@/types/notification";
 import { useSocket } from "@/hooks/useSocket";
 import { showToast } from "@/utils/toast-config";
-import { useEffect } from "react";
+import { useEffect, memo } from "react";
 import { useSession } from "next-auth/react";
-export function Sidebar({
+export const Sidebar = memo(function Sidebar({
   notificationList
 }: {
   notificationList: NotificationType[];
@@ -80,7 +79,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed top-0 left-0 z-20 h-screen -translate-x-full lg:translate-x-0 transition-[width] ease-in-out duration-300 bg-[#c35690] text-white bg-menu-texture",
+        "sidebar-responsive force-responsive-transform fixed top-0 left-0 z-20 h-screen -translate-x-full lg:translate-x-0 bg-[#c35690] text-white bg-menu-texture",
         sidebar?.isOpen === false ? "w-[100px]" : "w-72"
       )}
     >
@@ -148,21 +147,7 @@ export function Sidebar({
 
         {/* Mascot Section - Fixed at bottom */}
         <div className="flex-shrink-0 relative h-[140px] sm:h-[150px] md:h-[160px] w-full">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{
-              scale: 1,
-              opacity: 1,
-              y: [0, -8, 0]
-            }}
-            transition={{
-              duration: 1.5,
-              y: {
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }
-            }}
+          <div
             className="absolute bottom-2 left-[13%] flex items-start gap-3 cursor-pointer"
             onClick={() =>
               onOpen("notification", {
@@ -197,9 +182,9 @@ export function Sidebar({
                 }
               </Badge>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </aside>
   );
-}
+});

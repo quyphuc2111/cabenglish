@@ -20,12 +20,12 @@ async function ClassroomPage({ searchParams }: PageProps) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/signin");
+    redirect("/signin-v2");
   }
 
   if (!session.user || !session.user.userId) {
     console.error("User ID is missing from session", session);
-    redirect("/signin");
+    redirect("/signin-v2");
   }
 
   const classroomData = await getAllClassroomDataByUserId({

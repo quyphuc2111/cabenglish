@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { Switch } from "../../ui/switch";
 import { motion } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import i18next from "i18next";
 import { useSession } from "next-auth/react";
@@ -20,92 +20,140 @@ export function LanguageSwitcher({ t, userId }: LanguageSwitcherProps) {
   const [isChecked, setIsChecked] = useState(false);
   const { data: userInfo, isLoading, error } = useUserInfo(userId);
   const { mutate: updateUserInfo, isPending } = useUpdateUserInfo();
-  const { broadcastUpdate } = useBroadcastSync(); 
+  const { broadcastUpdate } = useBroadcastSync();
   const router = useRouter();
   const { data: session, update } = useSession();
   const isChangingRef = useRef(false);
 
-  useEffect(() => {
+  // Xác định ngôn ngữ hiện tại từ nhiều nguồn
+  const getCurrentLanguage = useCallback(() => {
+    // Ưu tiên: userInfo > URL params > default
     if (userInfo?.language) {
-      const userLanguage = userInfo.language;
-      setIsChecked(userLanguage === "en");
-      i18next.changeLanguage(userLanguage);
-    } else if (!isLoading && !userId) {
+      return userInfo.language;
+    }
 
+    if (typeof window !== "undefined") {
       const searchParams = new URLSearchParams(window.location.search);
-      const currentLang = searchParams.get("lang") || "vi";
-      setIsChecked(currentLang === "en");
+      return searchParams.get("lang") || "vi";
+    }
+
+    return "vi";
+  }, [userInfo?.language]);
+
+  // Sync UI state với actual language
+  useEffect(() => {
+    const currentLang = getCurrentLanguage();
+    const shouldBeChecked = currentLang === "en";
+
+    if (isChecked !== shouldBeChecked) {
+      setIsChecked(shouldBeChecked);
+    }
+
+    // Đảm bảo i18next sync với language hiện tại
+    if (i18next.resolvedLanguage !== currentLang) {
       i18next.changeLanguage(currentLang);
     }
-  }, [userInfo, isLoading, userId]);
+  }, [userInfo?.language, isLoading, userId, isChecked, getCurrentLanguage]);
 
+  // Xử lý error case
   useEffect(() => {
     if (error) {
       console.error("Error fetching user language:", error);
-
-      const searchParams = new URLSearchParams(window.location.search);
-      const currentLang = searchParams.get("lang") || "vi";
+      // Fallback về URL params hoặc default
+      const currentLang = getCurrentLanguage();
       setIsChecked(currentLang === "en");
       i18next.changeLanguage(currentLang);
     }
-  }, [error]);
+  }, [error, getCurrentLanguage]);
 
   const handleLanguageChange = async () => {
-
-    if (isChangingRef.current) return;
+    if (isChangingRef.current || isPending) return;
     isChangingRef.current = true;
-    
+
     try {
+      const currentLang = getCurrentLanguage();
+      const newLang = currentLang === "vi" ? "en" : "vi";
+      const newCheckedState = newLang === "en";
 
-      const newCheckedState = !isChecked;
-      const newLang = newCheckedState ? "en" : "vi";
-      
-
-      if (userId && session?.user) {
-        updateUserInfo({
-          userId: userId,
-          userInfo: {
-            email: userInfo?.email || "",
-            language: newLang,
-            theme: userInfo?.theme || "",
-            mode: userInfo?.mode || "",
-            is_firstlogin: userInfo?.is_firstlogin || false,
-          }
-        }, {
-          onSuccess: async () => {
-
-            broadcastUpdate(userId);
-            
-            toast.success(
-              `Đã chuyển sang ngôn ngữ ${newLang === "en" ? "tiếng Anh" : "tiếng Việt"}!`,
-              {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true
-              }
-            );
-          },
-          onError: (error) => {
-            console.error("Không thể cập nhật ngôn ngữ cho người dùng:", error);
-            toast.error("Có lỗi xảy ra khi chuyển ngôn ngữ");
-          }
-        });
-      }
-      
-
-      const currentPath = window.location.pathname;
-      const newUrl = `${currentPath}?lang=${newLang}`;
-      i18next.changeLanguage(newLang);
-      router.push(newUrl);
-      router.refresh();
+      // Cập nhật UI state ngay lập tức để responsive
       setIsChecked(newCheckedState);
-    } finally {
 
+      // Cập nhật i18next ngay lập tức
+      await i18next.changeLanguage(newLang);
+
+      // Cập nhật URL
+      const currentPath = window.location.pathname;
+      const searchParams = new URLSearchParams(window.location.search);
+      searchParams.set("lang", newLang);
+      const newUrl = `${currentPath}?${searchParams.toString()}`;
+
+      // Cập nhật user info nếu có user
+      if (userId && session?.user) {
+        updateUserInfo(
+          {
+            userId: userId,
+            userInfo: {
+              email: userInfo?.email || "",
+              language: newLang,
+              theme: userInfo?.theme || "",
+              mode: userInfo?.mode || "",
+              is_firstlogin: userInfo?.is_firstlogin || false
+            }
+          },
+          {
+            onSuccess: async () => {
+              // Broadcast update để sync với các tab khác
+              broadcastUpdate(userId);
+
+              // Update session để sync
+              await update({
+                ...session,
+                user: {
+                  ...session.user,
+                  language: newLang
+                }
+              });
+
+              toast.success(
+                `Đã chuyển sang ngôn ngữ ${
+                  newLang === "en" ? "tiếng Anh" : "tiếng Việt"
+                }!`,
+                {
+                  position: "top-right",
+                  autoClose: 2000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true
+                }
+              );
+            },
+            onError: (error) => {
+              console.error(
+                "Không thể cập nhật ngôn ngữ cho người dùng:",
+                error
+              );
+              // Revert UI state nếu có lỗi
+              setIsChecked(currentLang === "en");
+              i18next.changeLanguage(currentLang);
+              toast.error("Có lỗi xảy ra khi chuyển ngôn ngữ");
+            }
+          }
+        );
+      }
+
+      // Navigate với URL mới
+      router.push(newUrl);
+    } catch (error) {
+      console.error("Error changing language:", error);
+      // Revert state nếu có lỗi
+      const currentLang = getCurrentLanguage();
+      setIsChecked(currentLang === "en");
+      toast.error("Có lỗi xảy ra khi chuyển ngôn ngữ");
+    } finally {
+      // Reset flag sau một khoảng thời gian ngắn
       setTimeout(() => {
         isChangingRef.current = false;
-      }, 300);
+      }, 500);
     }
   };
 
@@ -120,9 +168,9 @@ export function LanguageSwitcher({ t, userId }: LanguageSwitcherProps) {
       className="relative flex items-center w-full"
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      transition={{ 
-        type: "spring", 
-        stiffness: 400, 
+      transition={{
+        type: "spring",
+        stiffness: 400,
         damping: 25,
         duration: 0.15
       }}

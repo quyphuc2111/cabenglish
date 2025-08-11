@@ -1,20 +1,23 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import CourseCard from "@/components/course-card/course-card";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import LessonCard from "../lesson/lesson-card";
 import { useRouter } from "next/navigation";
+import { useSelectLessonStore } from "@/store/useSelectLesson";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi
+} from "@/components/ui/carousel";
+import { useImagePreloader } from "@/hooks/useImagePreloader";
+
+// Lazy loading component
+const LazyLessonCard = React.lazy(() => import("../lesson/lesson-card"));
 
 interface CourseCarouselProps {
   courseData: any[];
@@ -22,6 +25,10 @@ interface CourseCarouselProps {
   onLikeUpdate?: (lessonId: number, newLikeCount: number) => void;
   removingLessons?: Set<number>;
   onLessonClick?: (lessonId: number) => void;
+  classroomData?: any[];
+  containerType?: "current" | "next";
+  onSlideChange?: (activeIndex: number) => void;
+  showArrows?: boolean; // New prop to control arrow visibility
 }
 
 export function CourseCarousel({
@@ -29,555 +36,278 @@ export function CourseCarousel({
   className,
   onLikeUpdate,
   removingLessons,
-  onLessonClick
+  onLessonClick,
+  classroomData,
+  containerType = "next",
+  onSlideChange,
+  showArrows = true // Default to true (arrows visible)
 }: CourseCarouselProps) {
-  const [swiper, setSwiper] = useState<any>(null);
-  const [isBeginning, setIsBeginning] = useState(true);
-  const [isEnd, setIsEnd] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(1);
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
   const [visibleItems, setVisibleItems] = useState(courseData);
+  const router = useRouter();
+  const { setSelectedLesson } = useSelectLessonStore();
 
-  // Thêm breakpoint cho màn hình siêu nhỏ (mobile nhỏ)
+  // Preload images for smooth carousel scrolling
+  const imageUrls = useMemo(
+    () => courseData.map((item) => item.imageUrl).filter(Boolean),
+    [courseData]
+  );
+
+  useImagePreloader(imageUrls, {
+    enabled: courseData.length > 0,
+    priority: containerType === "next" // Prioritize next lectures
+  });
+
+  // Media queries for responsive behavior
   const isExtraSmall = useMediaQuery("(max-width: 480px)");
   const isMobile = useMediaQuery("(max-width: 640px)");
   const isSmallTablet = useMediaQuery("(max-width: 768px)");
   const isTablet = useMediaQuery("(max-width: 1024px)");
   const isLargeScreen = useMediaQuery("(min-width: 1536px)");
-  const router = useRouter();
 
-  // Điều chỉnh slidesPerView cho từng kích thước màn hình - hiển thị gần như full 1 slide trên mobile
-  const slidesPerView = isExtraSmall
-    ? 1.5
-    : isMobile
-    ? 2.5
-    : isSmallTablet
-    ? 2.5
-    : isTablet
-    ? 2.5
-    : isLargeScreen
-    ? 4
-    : 3;
+  // Calculate slides per view based on screen size - same for both current and next
+  const slidesPerView = useMemo(() => {
+    if (isExtraSmall) return "33%";
+    if (isMobile) return "40%";
+    if (isSmallTablet) return "40%";
+    if (isTablet) return "40%";
 
-  const effectiveSlidesPerView = Math.floor(slidesPerView);
+    // Desktop sizes - same for both current and next lectures
+    if (isLargeScreen) return "25%"; // 2xl: 4 items
+    return "33%"; // lg,xl: 3 items
+  }, [
+    isExtraSmall,
+    isMobile,
+    isSmallTablet,
+    isTablet,
+    isLargeScreen
+  ]);
 
-  // Điều chỉnh spaceBetween cho từng kích thước màn hình
-  const getSpaceBetween = () => {
-    if (isExtraSmall) return 6; // Giảm khoảng cách cho màn hình rất nhỏ
-    if (isMobile) return 8; // Giảm khoảng cách cho mobile
-    if (isSmallTablet) return 12; // Khoảng cách cho tablet nhỏ
-    if (isTablet) return 16; // Giữ nguyên cho tablet
-    return 20; // Mặc định cho màn hình lớn
-  };
+  // Calculate items per view for pagination
+  const itemsPerView = useMemo(() => {
+    if (isExtraSmall) return 3;
+    if (isMobile) return 2.5;
+    if (isSmallTablet) return 2.5;
+    if (isTablet) return 2.5;
 
-  // Update visible items khi courseData thay đổi
+    // Desktop sizes
+    if (isLargeScreen) return 4; // 2xl: 4 items
+    return 3; // lg,xl: 3 items
+  }, [
+    isExtraSmall,
+    isMobile,
+    isSmallTablet,
+    isTablet,
+    isLargeScreen
+  ]);
+
+  // Calculate total scroll positions based on items per view
+  const totalPositions = useMemo(() => {
+    if (visibleItems.length === 0) return 1;
+    const itemsVisible = Math.floor(itemsPerView);
+    // Formula: totalItems - itemsPerView + 1 (minimum 1)
+    return Math.max(1, visibleItems.length - itemsVisible + 1);
+  }, [visibleItems.length, itemsPerView]);
+
+  // Update visible items when courseData changes
   useEffect(() => {
     setVisibleItems(courseData);
   }, [courseData]);
 
-  // Smooth update pagination khi items thay đổi
+  // Setup carousel API
   useEffect(() => {
-    if (swiper) {
-      const totalPages = Math.ceil(
-        visibleItems.length / effectiveSlidesPerView
+    if (!api) return;
+
+    const snapCount = api.scrollSnapList().length;
+    const currentSnap = api.selectedScrollSnap();
+
+    // Use actual snap count from carousel API
+    setCount(snapCount);
+    setCurrent(currentSnap);
+
+    api.on("select", () => {
+      const newCurrent = api.selectedScrollSnap();
+      setCurrent(newCurrent);
+      onSlideChange?.(newCurrent);
+    });
+  }, [api, onSlideChange]);
+
+  // Render lesson card
+  const renderLessonCard = useCallback(
+    (course: any, index: number) => {
+      const customCourse = {
+        ...course,
+        classRoomName: course.className
+      };
+
+      const handleLessonClick = () => {
+        // Set selected lesson trước khi navigate
+        setSelectedLesson({
+          ...customCourse,
+          lessonName: customCourse.lessonName || "",
+          className: customCourse.className || "",
+          unitName: customCourse.unitName || "",
+          imageUrl: customCourse.imageUrl || ""
+        });
+
+        if (onLessonClick) {
+          onLessonClick(customCourse.lessonId);
+        } else {
+          router.push(`/lesson/${customCourse.lessonId}`);
+        }
+      };
+
+      return (
+        <React.Suspense
+          fallback={
+            <div className="h-48 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center">
+              <div className="text-gray-400 text-sm">Đang tải...</div>
+            </div>
+          }
+        >
+          <LazyLessonCard
+            {...customCourse}
+            onClick={handleLessonClick}
+            onLikeUpdate={onLikeUpdate}
+            removingLessons={removingLessons}
+            delay={0}
+          />
+        </React.Suspense>
       );
-      const currentActiveIndex = swiper.activeIndex;
-
-      // Adjust active slide if needed
-      if (
-        currentActiveIndex >= visibleItems.length &&
-        visibleItems.length > 0
-      ) {
-        swiper.slideTo(Math.max(0, visibleItems.length - 1));
-      }
-
-      swiper.update();
-    }
-  }, [visibleItems.length, swiper, effectiveSlidesPerView]);
-
-  const totalPages = Math.ceil(visibleItems.length / slidesPerView);
-
-  const getCurrentPage = (activeIndex: number) => {
-    // Tính toán chính xác hơn với slidesPerView có thể là số thập phân
-    const calculatedPage = Math.min(
-      Math.ceil((activeIndex + 1) / slidesPerView),
-      totalPages
-    );
-    return Math.max(1, calculatedPage);
-  };
-
-  // Thêm state để track current page chính xác hơn
-  const [currentPage, setCurrentPage] = useState(1);
-
-  // Simplified animation variants cho carousel items
-  const itemVariants = {
-    hidden: {
-      opacity: 0
     },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.3
-      }
-    },
-    exit: {
-      opacity: 0,
-      transition: {
-        duration: 0.2
-      }
-    }
-  };
+    [onLessonClick, onLikeUpdate, removingLessons, router, setSelectedLesson]
+  );
 
-  return (
-    <>
-      {/* CSS Animations for loading effects */}
-      <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            background-position: -200% 0;
-          }
-          100% {
-            background-position: 200% 0;
-          }
-        }
+  // Show loading state when removing lessons
+  if (removingLessons && removingLessons.size > 0) {
+    return (
+      <div className={cn("relative group w-full", className)}>
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="flex flex-col items-center justify-center py-16 px-4"
+          >
+            <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-xl p-4 sm:p-6 max-w-sm sm:max-w-md w-full">
+              <div className="flex flex-col items-center gap-3 sm:gap-4">
+                {/* Animated loading dots */}
+                <div className="flex gap-1.5 sm:gap-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full animate-bounce"
+                      style={{
+                        animationDelay: `${i * 0.15}s`,
+                        animationDuration: "0.8s"
+                      }}
+                    />
+                  ))}
+                </div>
 
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0) scale(1);
-            opacity: 0.6;
-          }
-          50% {
-            transform: translateY(-15px) scale(1.1);
-            opacity: 1;
-          }
-        }
+                {/* Loading text */}
+                <div className="text-center">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-1 sm:mb-2">
+                    Đang cập nhật dữ liệu
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-600">
+                    Đang xử lý{" "}
+                    <span className="text-pink-600 font-semibold">
+                      {removingLessons.size}
+                    </span>{" "}
+                    bài học
+                  </p>
+                </div>
 
-        @keyframes glowPulse {
-          0%,
-          100% {
-            box-shadow: 0 0 5px rgba(236, 72, 153, 0.3);
-          }
-          50% {
-            box-shadow: 0 0 20px rgba(236, 72, 153, 0.6);
-          }
-        }
-
-        .animate-shimmer {
-          animation: shimmer 1.5s infinite linear;
-        }
-
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-
-        .animate-glow {
-          animation: glowPulse 2s ease-in-out infinite;
-        }
-
-        /* Enhanced bounce for dots */
-        .animate-bounce {
-          animation: bounce 0.8s ease-in-out infinite;
-        }
-
-        @keyframes bounce {
-          0%,
-          100% {
-            transform: translateY(0) scale(1);
-          }
-          50% {
-            transform: translateY(-8px) scale(1.1);
-          }
-        }
-
-        /* Thêm CSS cho responsive swiper */
-        .course-swiper {
-          width: 100%;
-          height: auto;
-          margin: 0 auto;
-          overflow: visible;
-        }
-
-        /* Cải thiện hiển thị nút điều hướng trên mobile */
-        @media (max-width: 640px) {
-          .swiper-pagination-bullet {
-            width: 4px;
-            height: 4px;
-            margin: 0 2px;
-          }
-
-          .swiper-container {
-            padding: 0 1px;
-            overflow: hidden;
-          }
-
-          .swiper-slide {
-            overflow: visible;
-          }
-        }
-
-        /* Thêm wrapper style để ngăn overflow */
-        .carousel-wrapper {
-          overflow: hidden;
-          width: 100%;
-          position: relative;
-        }
-      `}</style>
-
-      <div className={cn("relative group w-full carousel-wrapper", className)}>
-        {/* Show loading when updating, hide swiper */}
-        {removingLessons && removingLessons.size > 0 ? (
-          /* Beautiful Loading Center Display */
-          <AnimatePresence>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="flex flex-col items-center justify-center py-16 px-4"
-            >
-              {/* Main loading container - centered */}
-              <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-xl p-6 max-w-md w-full animate-glow">
-                <div className="flex flex-col items-center gap-4">
-                  {/* Large animated dots spinner */}
-                  <div className="flex gap-2">
-                    {[...Array(3)].map((_, i) => (
+                {/* Progress dots */}
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="text-xs text-gray-500 hidden sm:inline">
+                    Tiến độ:
+                  </span>
+                  <div className="flex gap-0.5 sm:gap-1">
+                    {[
+                      ...Array(Math.min(removingLessons.size, isMobile ? 6 : 8))
+                    ].map((_, i) => (
                       <div
                         key={i}
-                        className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full animate-bounce"
+                        className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-pink-300 rounded-full animate-pulse"
                         style={{
-                          animationDelay: `${i * 0.15}s`,
-                          animationDuration: "0.8s"
+                          animationDelay: `${i * 0.2}s`,
+                          animationDuration: "1.5s"
                         }}
                       />
                     ))}
                   </div>
-
-                  {/* Loading text - centered */}
-                  <div className="text-center">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                      Đang cập nhật dữ liệu
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Đang xử lý{" "}
-                      <span className="text-pink-600 font-semibold">
-                        {removingLessons.size}
-                      </span>{" "}
-                      bài học
-                    </p>
-                  </div>
-
-                  {/* Progress dots display */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">Tiến độ:</span>
-                    <div className="flex gap-1">
-                      {[...Array(Math.min(removingLessons.size, 8))].map(
-                        (_, i) => (
-                          <div
-                            key={i}
-                            className="w-2 h-2 bg-pink-300 rounded-full animate-pulse"
-                            style={{
-                              animationDelay: `${i * 0.2}s`,
-                              animationDuration: "1.5s"
-                            }}
-                          />
-                        )
-                      )}
-                      {removingLessons.size > 8 && (
-                        <span className="text-xs text-gray-500 ml-1">
-                          +{removingLessons.size - 8}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Enhanced progress bar */}
-                  <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 rounded-full relative">
-                      {/* Shimmer effect */}
-                      <div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shimmer"
-                        style={{
-                          backgroundSize: "200% 100%"
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Status message */}
-                  <p className="text-xs text-gray-500 text-center">
-                    Vui lòng đợi trong giây lát...
-                  </p>
                 </div>
+
+                {/* Progress bar */}
+                <div className="w-full h-1.5 sm:h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 rounded-full relative">
+                    <div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-pulse"
+                      style={{ backgroundSize: "200% 100%" }}
+                    />
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-500 text-center">
+                  Vui lòng đợi trong giây lát...
+                </p>
               </div>
-
-              {/* Floating particles effect around loading */}
-              <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                {[...Array(isMobile ? 6 : 12)].map((_, i) => (
-                  <div
-                    key={`loading-particle-${i}`}
-                    className="absolute w-1 h-1 sm:w-1.5 sm:h-1.5 bg-pink-400/40 rounded-full animate-float"
-                    style={{
-                      left: `${15 + i * 8}%`,
-                      top: `${30 + (i % 4) * 20}%`,
-                      animationDelay: `${i * 0.3}s`,
-                      animationDuration: "4s"
-                    }}
-                  />
-                ))}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        ) : (
-          /* Normal Swiper Display */
-          <>
-            {/* Cải thiện container với padding phù hợp cho từng thiết bị */}
-            <div
-              className={cn(
-                "swiper-container w-full",
-                isExtraSmall ? "px-0 mx-0" : isMobile ? "px-0.5 mx-0.5" : "px-0" // Giảm padding đối với mobile
-              )}
-            >
-              <Swiper
-                onSwiper={setSwiper}
-                modules={[Navigation, Pagination]}
-                spaceBetween={getSpaceBetween()}
-                slidesPerView={slidesPerView}
-                centeredSlides={false}
-                loop={false}
-                slideToClickedSlide={true}
-                watchSlidesProgress={true}
-                observer={true}
-                observeParents={true}
-                observeSlideChildren={true}
-                resizeObserver={true}
-                updateOnWindowResize={true}
-                pagination={{
-                  clickable: true,
-                  el: ".swiper-pagination",
-                  dynamicBullets: isMobile ? true : false
-                }}
-                onSlideChange={(swiper) => {
-                  setIsBeginning(swiper.isBeginning);
-                  setIsEnd(swiper.isEnd);
-                  const newPage = getCurrentPage(swiper.activeIndex);
-                  setCurrentSlide(newPage);
-                  setCurrentPage(newPage);
-                }}
-                className="course-swiper" // Loại bỏ padding-bottom
-              >
-                <AnimatePresence>
-                  {visibleItems.map((course, index) => {
-                    const customCourse = {
-                      ...course,
-                      classRoomName: course.className
-                    };
-
-                    const isRemoving =
-                      removingLessons?.has(course.lessonId) || false;
-
-                    return (
-                      <SwiperSlide
-                        key={`lesson-${course.lessonId}`}
-                        className="transition-all duration-300 ease-in-out pb-1.5 w-full" // Giảm padding-bottom
-                      >
-                        <div
-                          className={cn(
-                            "px-0.5", // Thêm padding nhỏ cho card
-                            isExtraSmall && "transform scale-[0.98]" // Thu nhỏ một chút cho màn hình rất nhỏ
-                          )}
-                        >
-                          <motion.div
-                            variants={itemVariants}
-                            initial="hidden"
-                            animate="visible"
-                            exit="exit"
-                            className="h-full"
-                          >
-                            <LessonCard
-                              {...customCourse}
-                              onClick={() =>
-                                onLessonClick 
-                                  ? onLessonClick(customCourse.lessonId)
-                                  : router.push(`/lesson/${customCourse.lessonId}`)
-                              }
-                              onLikeUpdate={onLikeUpdate}
-                              removingLessons={removingLessons}
-                              delay={0}
-                            />
-                          </motion.div>
-                        </div>
-                      </SwiperSlide>
-                    );
-                  })}
-                </AnimatePresence>
-              </Swiper>
-
-              {/* Điểm phân trang cho mobile */}
-              {isMobile && visibleItems.length > effectiveSlidesPerView && (
-                <div className="swiper-pagination flex justify-center mt-1"></div>
-              )}
             </div>
-
-            {/* Enhanced Navigation - hiển thị trên tablet và desktop */}
-            {!isMobile && visibleItems.length > effectiveSlidesPerView && (
-              <div className="flex items-center justify-center gap-4 -mt-2">
-                <Button
-                  variant="outline"
-                  size={isSmallTablet ? "default" : "xl"}
-                  className={cn(
-                    "rounded-full bg-white hover:bg-gray-50 transition-all duration-300 disabled:opacity-50",
-                    "border-2 border-gray-200 hover:border-gray-300 hover:shadow-md",
-                    "hover:scale-105 active:scale-95",
-                    isBeginning && "opacity-50"
-                  )}
-                  onClick={() => swiper?.slidePrev()}
-                  disabled={isBeginning}
-                >
-                  <ChevronLeft
-                    className={cn(
-                      isSmallTablet ? "h-5 w-5" : "h-6 w-6",
-                      "text-gray-700"
-                    )}
-                  />
-                </Button>
-
-                {/* Custom Dots Pagination */}
-                <div className="flex items-center gap-2">
-                  {(() => {
-                    const maxDots = 6;
-                    const dots = [];
-
-                    if (totalPages <= maxDots) {
-                      // Hiển thị tất cả dots nếu tổng số trang <= 6
-                      for (let i = 1; i <= totalPages; i++) {
-                        dots.push(
-                          <button
-                            key={i}
-                            onClick={() => {
-                              const targetIndex = Math.floor(
-                                (i - 1) * slidesPerView
-                              );
-                              swiper?.slideTo(targetIndex);
-                            }}
-                            className={cn(
-                              "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
-                              currentPage === i
-                                ? "bg-pink-500 scale-110"
-                                : "bg-gray-300 hover:bg-gray-400"
-                            )}
-                          />
-                        );
-                      }
-                    } else {
-                      // Logic cho trường hợp có nhiều hơn 6 trang
-                      const halfMax = Math.floor(maxDots / 2);
-
-                      // Luôn hiển thị trang đầu
-                      dots.push(
-                        <button
-                          key={1}
-                          onClick={() => {
-                            swiper?.slideTo(0);
-                          }}
-                          className={cn(
-                            "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
-                            currentPage === 1
-                              ? "bg-pink-500 scale-110"
-                              : "bg-gray-300 hover:bg-gray-400"
-                          )}
-                        />
-                      );
-
-                      // Tính toán range để hiển thị
-                      let startPage = Math.max(2, currentPage - halfMax);
-                      let endPage = Math.min(
-                        totalPages - 1,
-                        currentPage + halfMax
-                      );
-
-                      // Điều chỉnh nếu range quá ngắn
-                      if (endPage - startPage < maxDots - 3) {
-                        if (startPage === 2) {
-                          endPage = Math.min(
-                            totalPages - 1,
-                            startPage + maxDots - 3
-                          );
-                        } else {
-                          startPage = Math.max(2, endPage - maxDots + 3);
-                        }
-                      }
-
-                      // Thêm dots cho các trang ở giữa
-                      for (let i = startPage; i <= endPage; i++) {
-                        dots.push(
-                          <button
-                            key={i}
-                            onClick={() => {
-                              const targetIndex = Math.floor(
-                                (i - 1) * slidesPerView
-                              );
-                              swiper?.slideTo(targetIndex);
-                            }}
-                            className={cn(
-                              "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
-                              currentPage === i
-                                ? "bg-pink-500 scale-110"
-                                : "bg-gray-300 hover:bg-gray-400"
-                            )}
-                          />
-                        );
-                      }
-
-                      // Luôn hiển thị trang cuối nếu có nhiều hơn 1 trang
-                      if (totalPages > 1) {
-                        dots.push(
-                          <button
-                            key={totalPages}
-                            onClick={() => {
-                              const targetIndex = Math.floor(
-                                (totalPages - 1) * slidesPerView
-                              );
-                              swiper?.slideTo(targetIndex);
-                            }}
-                            className={cn(
-                              "w-3 h-3 rounded-full transition-all duration-300 hover:scale-110",
-                              currentPage === totalPages
-                                ? "bg-pink-500 scale-110"
-                                : "bg-gray-300 hover:bg-gray-400"
-                            )}
-                          />
-                        );
-                      }
-                    }
-
-                    return dots;
-                  })()}
-                </div>
-
-                <Button
-                  variant="outline"
-                  size={isSmallTablet ? "default" : "xl"}
-                  className={cn(
-                    "rounded-full bg-white hover:bg-gray-50 transition-all duration-300 disabled:opacity-50",
-                    "border-2 border-gray-200 hover:border-gray-300 hover:shadow-md",
-                    "hover:scale-105 active:scale-95",
-                    isEnd && "opacity-50"
-                  )}
-                  onClick={() => swiper?.slideNext()}
-                  disabled={isEnd}
-                >
-                  <ChevronRight
-                    className={cn(
-                      isSmallTablet ? "h-5 w-5" : "h-6 w-6",
-                      "text-gray-700"
-                    )}
-                  />
-                </Button>
-              </div>
-            )}
-          </>
-        )}
+          </motion.div>
+        </AnimatePresence>
       </div>
-    </>
+    );
+  }
+
+  return (
+    <div className={cn("relative group w-full", className)}>
+      {/* Item count indicator */}
+      {visibleItems.length > 0 && (
+        <div className="flex justify-between items-center mb-3">
+          <div className="text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full">
+            <span className="font-medium text-gray-800">{visibleItems.length}</span> bài học
+          </div>
+          {/* Current position indicator for all devices */}
+          <div className="text-xs text-gray-500">
+            {current + 1} / {totalPositions}
+          </div>
+        </div>
+      )}
+
+      <Carousel
+        setApi={setApi}
+        className="w-full"
+        opts={{
+          align: "start",
+          loop: false
+        }}
+      >
+        <CarouselContent className="-ml-2 md:-ml-4">
+          {visibleItems.map((item, index) => (
+            <CarouselItem
+              key={item.lessonId || index}
+              className={cn("pl-2 md:pl-4 h-full")}
+              style={{ flexBasis: slidesPerView }}
+              data-carousel-item="true"
+            >
+              {renderLessonCard(item, index)}
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+
+        {/* Navigation arrows positioned below carousel - inside Carousel component */}
+        {showArrows && visibleItems.length > 2 && (
+          <div className="flex justify-center gap-4 mt-4 mb-2">
+            <CarouselPrevious className="relative left-0 top-0 transform-none bg-white shadow-lg hover:bg-gray-50 border-2 border-gray-200 hover:border-pink-300 transition-all duration-200" />
+            <CarouselNext className="relative right-0 top-0 transform-none bg-white shadow-lg hover:bg-gray-50 border-2 border-gray-200 hover:border-pink-300 transition-all duration-200" />
+          </div>
+        )}
+      </Carousel>
+    </div>
   );
 }

@@ -47,7 +47,7 @@ async function Page({ params, searchParams }: PageProps) {
   const session = await getServerSession(authOptions);
   const { slug } = await params;
 
-  if (!session) redirect("/signin");
+  if (!session) redirect("/signin-v2");
 
   const classname = decodeURIComponent(slug);
 

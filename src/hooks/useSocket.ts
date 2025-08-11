@@ -1,6 +1,7 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
+import { PerformanceConfig } from '@/config/performance';
 
 interface NotificationMessage {
   notificationId: number;
@@ -25,6 +26,12 @@ export const useSocket = () => {
   const token = session?.accessToken;
 
   const connect = useCallback(() => {
+    // ❌ DISABLE WebSocket nếu performance config tắt
+    if (!PerformanceConfig.enableBroadcastSync) {
+      console.log('WebSocket disabled for performance');
+      return;
+    }
+
     if (retryTimeoutId) {
       clearTimeout(retryTimeoutId);
       setRetryTimeoutId(null);
@@ -171,17 +178,32 @@ export const useSocket = () => {
   }, [token]);
 
   useEffect(() => {
+    // Chỉ ping khi tab đang active và socket thực sự cần
     const pingInterval = setInterval(() => {
-      if (socket && socket.readyState === WebSocket.OPEN) {
+      if (socket &&
+          socket.readyState === WebSocket.OPEN &&
+          document.visibilityState === 'visible') {
         try {
           socket.send(JSON.stringify({ type: 'ping' }));
         } catch (error) {
           console.error('Lỗi khi gửi ping:', error);
         }
       }
-    }, 14400000);
+    }, 14400000); // 4 giờ - có thể tăng lên để giảm CPU
 
-    return () => clearInterval(pingInterval);
+    // Pause ping khi tab không active
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        // Có thể tạm dừng ping khi tab không active
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(pingInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [socket]);
 
   const sendMessage = (message: any) => {
