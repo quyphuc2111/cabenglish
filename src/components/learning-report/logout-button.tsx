@@ -1,9 +1,14 @@
 "use client";
 import React from "react";
 import LogoutIcon from "../icon/logout-icon";
+import { useModal } from "@/hooks/useModalStore";
 
 function LogoutButton() {
-  const handleLogout = () => {};
+  const { onOpen } = useModal();
+
+  const handleLogout = () => {
+    onOpen("logout");
+  };
 
   return (
     <div

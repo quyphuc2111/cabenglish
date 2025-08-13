@@ -1,20 +1,37 @@
 "use client";
 
-import React from 'react'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '../ui/breadcrumb';
-import { HomeIcon, ChevronRight, Bell, Settings, LogOut, User, Mail, Shield } from 'lucide-react';
+import React from "react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from "../ui/breadcrumb";
+import {
+  HomeIcon,
+  ChevronRight,
+  Bell,
+  Settings,
+  LogOut,
+  User,
+  Mail,
+  Shield
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { useSession, signOut } from 'next-auth/react';
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useSession, signOut } from "next-auth/react";
+import { useUserStore } from "@/store/useUserStore";
 
 interface NavbarProps {
   breadcrumb: {
@@ -25,71 +42,94 @@ interface NavbarProps {
 
 function Navbar({ breadcrumb }: NavbarProps) {
   const { data: session } = useSession();
+  const { logout: logoutFromStore } = useUserStore();
 
   const user = session?.user;
-  
+
   // Tạo avatar fallback từ email
   const getInitials = (email: string) => {
-    if (!email) return 'AD';
-    const name = email.split('@')[0];
-    return name.charAt(0).toUpperCase() + (name.charAt(1) || '').toUpperCase();
+    if (!email) return "AD";
+    const name = email.split("@")[0];
+    return name.charAt(0).toUpperCase() + (name.charAt(1) || "").toUpperCase();
   };
 
   // Định dạng role
   const formatRole = (role: string | string[]) => {
-    if (!role) return 'Admin';
-    
+    if (!role) return "Admin";
+
     if (Array.isArray(role)) {
-      if (role.length === 0) return 'Admin';
-      return role.map(r => r.charAt(0).toUpperCase() + r.slice(1).toLowerCase()).join(', ');
+      if (role.length === 0) return "Admin";
+      return role
+        .map((r) => r.charAt(0).toUpperCase() + r.slice(1).toLowerCase())
+        .join(", ");
     }
-    
+
     return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
   };
 
   // Lấy màu badge dựa trên role
   const getRoleBadgeVariant = (role: string | string[]) => {
-    const roleToCheck = Array.isArray(role) ? role[0]?.toLowerCase() : role?.toLowerCase();
-    
+    const roleToCheck = Array.isArray(role)
+      ? role[0]?.toLowerCase()
+      : role?.toLowerCase();
+
     switch (roleToCheck) {
-      case 'administrator':
-        return 'destructive';
-      case 'teacher':
-        return 'default';
-      case 'user':
-        return 'secondary';
+      case "administrator":
+        return "destructive";
+      case "teacher":
+        return "default";
+      case "user":
+        return "secondary";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/signin' });
+    try {
+      // Gọi logout action để xử lý backend logout
+      const { logoutAction } = await import("@/actions/authAction");
+      await logoutAction();
+
+      // Clear Zustand store
+      logoutFromStore();
+
+      // Sau đó gọi signOut của NextAuth
+      await signOut({ callbackUrl: "/signin" });
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Nếu có lỗi, vẫn clear store và gọi signOut để đảm bảo user được logout
+      logoutFromStore();
+      await signOut({ callbackUrl: "/signin" });
+    }
   };
 
   return (
-    <div className='bg-white border-b border-gray-200 px-6 py-4 shadow-sm'>
-      <div className='flex items-center justify-between'>
+    <div className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
+      <div className="flex items-center justify-between">
         {/* Breadcrumb section */}
-        <div className='flex-1'>
+        <div className="flex-1">
           <Breadcrumb>
             <BreadcrumbList className="text-base">
               <BreadcrumbItem>
-                <BreadcrumbLink href="/admin/dashboard" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <BreadcrumbLink
+                  href="/admin/dashboard"
+                  className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+                >
                   <HomeIcon className="h-5 w-5" />
                   <span>Trang chủ</span>
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              
+
               {breadcrumb.map((item, index) => (
                 <React.Fragment key={item.link || index}>
                   <BreadcrumbSeparator>
                     <ChevronRight className="h-5 w-5" />
                   </BreadcrumbSeparator>
-                  
+
                   <BreadcrumbItem>
                     {item.link ? (
-                      <BreadcrumbLink 
+                      <BreadcrumbLink
                         href={item.link}
                         className="text-muted-foreground hover:text-primary transition-colors text-base"
                       >
@@ -108,7 +148,7 @@ function Navbar({ breadcrumb }: NavbarProps) {
         </div>
 
         {/* Account section */}
-        <div className='flex items-center gap-3'>
+        <div className="flex items-center gap-3">
           {/* Avatar Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none">
@@ -116,16 +156,19 @@ function Navbar({ breadcrumb }: NavbarProps) {
                 <Avatar className="h-9 w-9 ring-2 ring-gray-200">
                   <AvatarImage src="" alt="avatar" />
                   <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white font-semibold">
-                    {getInitials(user?.email || '')}
+                    {getInitials(user?.email || "")}
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden md:block text-left">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium text-gray-900">
-                      {formatRole(user?.role || 'admin')}
+                      {formatRole(user?.role || "admin")}
                     </p>
-                    <Badge variant={getRoleBadgeVariant(user?.role || 'admin')} className="text-xs">
-                      {formatRole(user?.role || 'admin')}
+                    <Badge
+                      variant={getRoleBadgeVariant(user?.role || "admin")}
+                      className="text-xs"
+                    >
+                      {formatRole(user?.role || "admin")}
                     </Badge>
                   </div>
                   <p className="text-xs text-gray-500 flex items-center gap-1">
@@ -148,10 +191,8 @@ function Navbar({ breadcrumb }: NavbarProps) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              
-              
-              
-              <DropdownMenuItem 
+
+              <DropdownMenuItem
                 className="cursor-pointer text-destructive text-sm focus:text-destructive"
                 onClick={handleSignOut}
               >
@@ -163,7 +204,7 @@ function Navbar({ breadcrumb }: NavbarProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;
