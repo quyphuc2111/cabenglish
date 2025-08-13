@@ -2,32 +2,32 @@ import Image from "next/image";
 import React from "react";
 import BKT_Image from "@/assets/bkt.png";
 
-import {MapPinnedIcon, PhoneCall, Mail, Globe} from 'lucide-react'
+import { MapPinnedIcon, PhoneCall, Mail, Globe } from "lucide-react";
 
 const OfficeData = [
   {
     title: "Address",
-    text: "Liền kề C39 Embassy Garden, Đ. Hoàng Minh Thảo, Khu đô thị Tây Hồ Tây, Bắc Từ Liêm, Hà Nội",
+    text: "LK C39 Embassy Garden, Đ. Hoàng Minh Thảo, Phường Xuân Đỉnh, TP. Hà Nội",
     icon: <MapPinnedIcon className="w-6 h-6" />,
-    link: 'https://maps.app.goo.gl/rq76hcPDX914jLiNA'
+    link: "https://maps.app.goo.gl/rq76hcPDX914jLiNA"
   },
   {
     title: "Hotline",
     text: "0243 752 5253",
     icon: <PhoneCall className="w-6 h-6" />,
-    link: "tel:02437525253",
+    link: "tel:02437525253"
   },
   {
     title: "Information",
     text: "bktjsc@gmail.com",
-    icon:  <Mail className="w-6 h-6" />,
-    link: "mailto:bktjsc@gmail.com",
+    icon: <Mail className="w-6 h-6" />,
+    link: "mailto:bktjsc@gmail.com"
   },
   {
     title: "Website",
     text: "bkt.net.vn",
-    icon:  <Globe className="w-6 h-6" />,
-    link: "https://bkt.net.vn/",
+    icon: <Globe className="w-6 h-6" />,
+    link: "https://bkt.net.vn/"
   }
 ];
 
@@ -40,33 +40,31 @@ function OfficeSection() {
             Văn phòng của BKT
           </h2>
           <div>
-              {OfficeData &&
-                OfficeData.map((item, index) => {
-                  return (
-                    <div key={index} className="flex items-center gap-5 py-1">
-                      <div>
-                        {item.icon}
-                      </div>
-                      <div>
-                       
-                        <p className="text-xl font-semibold">{item.title}</p>
-                        {
-                            item.link ? (
-                              <a href={item.link} target="_blank" rel="noopener noreferrer">
-                                <span className="text-blue-500 hover:text-blue-600">
-                                <p className="text-md">{item.text}</p>
-                                </span>
-                              </a>
-                            ) : (
-                                <p className="text-md">{item.text}</p>
-                            )
-                        }
-                        
-                      </div>
+            {OfficeData &&
+              OfficeData.map((item, index) => {
+                return (
+                  <div key={index} className="flex items-center gap-5 py-1">
+                    <div>{item.icon}</div>
+                    <div>
+                      <p className="text-xl font-semibold">{item.title}</p>
+                      {item.link ? (
+                        <a
+                          href={item.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <span className="text-blue-500 hover:text-blue-600">
+                            <p className="text-md">{item.text}</p>
+                          </span>
+                        </a>
+                      ) : (
+                        <p className="text-md">{item.text}</p>
+                      )}
                     </div>
-                  );
-                })}
-            </div>
+                  </div>
+                );
+              })}
+          </div>
         </div>
         <div className="relative w-[450px] h-[500px] -ml-10 rounded-xl overflow-hidden shadow-lg hidden md:block">
           <Image

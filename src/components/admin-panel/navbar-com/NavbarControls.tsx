@@ -17,7 +17,7 @@ import {
 import { useUserInfo } from "@/hooks/useUserInfo";
 
 interface NavbarControlsProps {
-  t: (key: string) => string;
+  t: (key: string, options?: any) => string | object;
   onChangeTheme: () => void;
   onLogout: () => void;
   userId?: string;
@@ -46,28 +46,34 @@ export function NavbarControls({
   const menuItems = [
     {
       icon: Home,
-      label: t("homepage"),
+      label: t("homepage") as string,
       onClick: () => router.push("/"),
       color: "bg-blue-500 hover:bg-blue-600"
     },
     {
       icon: Globe,
-      label: t("language"),
-      component: <LanguageSwitcher t={t} userId={userId} />
+      label: t("language") as string,
+      component: (
+        <LanguageSwitcher t={t as (key: string) => string} userId={userId} />
+      )
     },
     {
       icon: Palette,
-      label: t("changeTheme"),
+      label: t("changeTheme") as string,
       component: (
-        <ThemeSwitcher onChangeTheme={onChangeTheme} t={t} userId={userId} />
+        <ThemeSwitcher
+          onChangeTheme={onChangeTheme}
+          t={t as (key: string) => string}
+          userId={userId}
+        />
       )
     },
     {
       icon: Settings,
-      label: t("teachingMode"),
+      label: t("teachingMode") as string,
       component: (
         <TeachingModeSwitcher
-          t={t}
+          t={t as (key: string) => string}
           userId={userId}
           onClick={() => router.push("/che-do-giang-day")}
         />
@@ -75,8 +81,10 @@ export function NavbarControls({
     },
     {
       icon: LogOut,
-      label: t("logout"),
-      component: <LogoutButton onLogout={onLogout} t={t} />
+      label: t("logout") as string,
+      component: (
+        <LogoutButton onLogout={onLogout} t={t as (key: string) => string} />
+      )
     }
   ];
 
@@ -89,18 +97,22 @@ export function NavbarControls({
             onClick={() => router.push("/")}
           >
             <Home size={16} />
-            {t("homepage")}
+            {t("homepage") as string}
           </Button>
-          <LanguageSwitcher t={t} userId={userId} />
-          <ThemeSwitcher onChangeTheme={onChangeTheme} t={t} userId={userId} />
+          <LanguageSwitcher t={t as (key: string) => string} userId={userId} />
+          <ThemeSwitcher
+            onChangeTheme={onChangeTheme}
+            t={t as (key: string) => string}
+            userId={userId}
+          />
           <TeachingModeSwitcher
-            t={t}
+            t={t as (key: string) => string}
             userId={userId}
             onClick={() => {
               router.push("/che-do-giang-day");
             }}
           />
-          <LogoutButton onLogout={onLogout} t={t} />
+          <LogoutButton onLogout={onLogout} t={t as (key: string) => string} />
         </div>
       </div>
 
@@ -123,10 +135,7 @@ export function NavbarControls({
           {isOpen && (
             <div className="absolute bottom-16 right-0 flex flex-col-reverse gap-2 sm:gap-3 min-w-max max-w-[calc(100vw-2rem)]">
               {menuItems.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-2 sm:gap-3"
-                >
+                <div key={index} className="flex items-center gap-2 sm:gap-3">
                   <div className="bg-white text-gray-800 px-2 py-2 rounded-lg text-xs sm:text-sm font-medium shadow-lg border border-gray-200 max-w-[120px] sm:max-w-none">
                     <span className="whitespace-nowrap overflow-hidden text-ellipsis block">
                       {item.label}

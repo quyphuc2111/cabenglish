@@ -31,7 +31,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSession, signOut } from "next-auth/react";
-import { useUserStore } from "@/store/useUserStore";
+import { useLogout } from "@/hooks/useLogout";
 
 interface NavbarProps {
   breadcrumb: {
@@ -42,7 +42,7 @@ interface NavbarProps {
 
 function Navbar({ breadcrumb }: NavbarProps) {
   const { data: session } = useSession();
-  const { logout: logoutFromStore } = useUserStore();
+  const { logout } = useLogout();
 
   const user = session?.user;
 
@@ -86,22 +86,10 @@ function Navbar({ breadcrumb }: NavbarProps) {
   };
 
   const handleSignOut = async () => {
-    try {
-      // Gọi logout action để xử lý backend logout
-      const { logoutAction } = await import("@/actions/authAction");
-      await logoutAction();
-
-      // Clear Zustand store
-      logoutFromStore();
-
-      // Sau đó gọi signOut của NextAuth
-      await signOut({ callbackUrl: "/signin" });
-    } catch (error) {
-      console.error("Logout error:", error);
-      // Nếu có lỗi, vẫn clear store và gọi signOut để đảm bảo user được logout
-      logoutFromStore();
-      await signOut({ callbackUrl: "/signin" });
-    }
+    await logout({
+      callbackUrl: "/signin-v2",
+      showToastMessages: true
+    });
   };
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 import { SheetMenu } from "@/components/admin-panel/sheet-menu";
 import { useModal } from "@/hooks/useModalStore";
+import { useLogout } from "@/hooks/useLogout";
 import { useTranslation } from "@/hooks/useTranslation";
 import { NavbarControls } from "./navbar-com/NavbarControls";
 import { LogoDecorations } from "./navbar-com/LogoDecorations";
@@ -13,13 +14,17 @@ export function Navbar() {
   const { data: userInfo } = useUserInfo(session?.user?.userId);
   const currentTheme = userInfo?.theme ?? "theme-red";
   const { onOpen } = useModal();
+  const { logout } = useLogout();
 
   const handleChangeTheme = () => {
     onOpen("changeTheme");
   };
 
   const handleLogout = async () => {
-    onOpen("logout");
+    await logout({
+      callbackUrl: "/",
+      showToastMessages: true
+    });
   };
 
   return (

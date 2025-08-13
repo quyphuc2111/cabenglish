@@ -3,16 +3,11 @@
 import React from "react";
 import { Dialog, DialogContent, DialogTitle, DialogHeader } from "../ui/dialog";
 import { useModal } from "@/hooks/useModalStore";
-import { useUserStore } from "@/store/useUserStore";
+import { useLogout } from "@/hooks/useLogout";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../ui/button";
-import { logoutAction } from "@/actions/authAction";
-import axios from "axios";
-import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { showToast } from "@/utils/toast-config";
 
 // Thêm các animation variants
 const modalVariants = {
@@ -66,79 +61,21 @@ const buttonVariants = {
 
 function LogoutModal() {
   const { isOpen, onClose, type } = useModal();
-  const { logout: logoutFromStore } = useUserStore();
+  const { logout } = useLogout();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const router = useRouter();
 
   const handleLogout = async () => {
     if (isLoggingOut) return; // Prevent multiple clicks
     setIsLoggingOut(true);
 
-    try {
-      // Hiển thị loading state
-      const result = await logoutAction();
-      if (!result.success) {
-        console.error("Server action logout failed:", result.message);
-        // Vẫn tiếp tục với Moodle logout và client logout
-      } else {
-        console.log("Server action logout successful.");
-      }
-    } catch (error) {
-      console.error("Error calling logout action:", error);
-      // Vẫn tiếp tục với các bước logout khác
-    }
-
-    // Logout từ Moodle
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_BKT_ACCOUNT_API_URL || "";
-      if (apiUrl) {
-        const response = await axios.post(
-          `${apiUrl}/api/Moodle/logout-default`,
-          {},
-          {
-            withCredentials: true
-          }
-        );
-
-        if (response.data.success) {
-          console.log("Moodle logout successful:", response.data.message);
-        } else {
-          console.error("Moodle logout failed:", response.data.message);
-        }
-      }
-    } catch (error) {
-      console.error("Error calling logout-default API:", error);
-      // Không block logout process nếu Moodle logout failed
-    }
-
-    // Clear Zustand store
-    try {
-      logoutFromStore();
-      console.log("Zustand store cleared.");
-    } catch (error) {
-      console.error("Error clearing Zustand store:", error);
-    }
-
-    // NextAuth signOut
-    try {
-      console.log("Performing client-side signOut...");
-      await signOut({ redirect: false });
-      console.log("Client-side signOut successful.");
-      showToast.success("Đăng xuất thành công!");
-    } catch (error) {
-      console.error("Next-auth signOut failed:", error);
-      showToast.error("Có lỗi xảy ra khi đăng xuất");
-    }
-
-    // Đóng modal và redirect
+    // Đóng modal trước khi logout
     onClose();
-    setIsLoggingOut(false);
 
-    // Delay redirect slightly to allow toast to show
-    setTimeout(() => {
-      router.push("/");
-      router.refresh();
-    }, 500);
+    // Sử dụng custom logout hook
+    await logout({
+      callbackUrl: "/",
+      showToastMessages: true
+    });
   };
 
   const handleClose = () => {
