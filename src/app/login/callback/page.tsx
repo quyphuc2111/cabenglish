@@ -10,11 +10,22 @@ function LoginCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleBackToLogin = () => {
+    router.push("/signin-v2");
+  };
 
   useEffect(() => {
     if (!searchParams) {
       console.error("Search params not available");
+      const errorMsg = "Không thể tải thông tin xác thực";
+      setErrorMessage(errorMsg);
       setIsProcessing(false);
+      // Auto redirect back to login page after showing error
+      setTimeout(() => {
+        router.push("/signin-v2");
+      }, 5000);
       return;
     }
 
@@ -45,25 +56,48 @@ function LoginCallbackContent() {
               // Redirect to the dashboard or home page
               router.push("/tong-quan");
             } else {
-              toast.error(
+              const errorMsg =
                 "Không thể tạo phiên đăng nhập: " +
-                  (authResult.error || "Lỗi không xác định")
-              );
+                (authResult.error || "Lỗi không xác định");
+              toast.error(errorMsg);
+              setErrorMessage(errorMsg);
               setIsProcessing(false);
+              // Auto redirect back to login page after showing error
+              setTimeout(() => {
+                router.push("/signin-v2");
+              }, 5000);
             }
           } else {
-            toast.error(data.message || "Đăng nhập thất bại");
+            const errorMsg = data.message || "Đăng nhập thất bại";
+            toast.error(errorMsg);
+            setErrorMessage(errorMsg);
             setIsProcessing(false);
+            // Auto redirect back to login page after showing error
+            setTimeout(() => {
+              router.push("/signin-v2");
+            }, 5000);
           }
         })
         .catch((err) => {
           console.error("Google callback error:", err);
-          toast.error("Không thể xử lý đăng nhập Google");
+          const errorMsg = "Không thể xử lý đăng nhập Google";
+          toast.error(errorMsg);
+          setErrorMessage(errorMsg);
           setIsProcessing(false);
+          // Auto redirect back to login page after showing error
+          setTimeout(() => {
+            router.push("/signin-v2");
+          }, 5000);
         });
     } else {
-      toast.error("Thiếu thông tin xác thực cần thiết");
+      const errorMsg = "Thiếu thông tin xác thực cần thiết";
+      toast.error(errorMsg);
+      setErrorMessage(errorMsg);
       setIsProcessing(false);
+      // Auto redirect back to login page after showing error
+      setTimeout(() => {
+        router.push("/signin-v2");
+      }, 5000);
     }
   }, [searchParams, router]);
 
@@ -112,7 +146,7 @@ function LoginCallbackContent() {
             fontWeight: "600"
           }}
         >
-          Đang xử lý đăng nhập...
+          {isProcessing ? "Đang xử lý đăng nhập..." : "Đăng nhập thất bại"}
         </h1>
 
         <p
@@ -122,22 +156,67 @@ function LoginCallbackContent() {
             fontSize: "16px"
           }}
         >
-          Vui lòng đợi trong khi chúng tôi đang xác thực thông tin của bạn.
+          {isProcessing
+            ? "Vui lòng đợi trong khi chúng tôi đang xác thực thông tin của bạn."
+            : "Có lỗi xảy ra trong quá trình đăng nhập. Bạn sẽ được chuyển về trang đăng nhập."}
         </p>
 
-        {/* Loading spinner */}
-        <div
-          style={{
-            display: "inline-block",
-            width: "50px",
-            height: "50px",
-            border: "5px solid rgba(74, 111, 165, 0.2)",
-            borderRadius: "50%",
-            borderTop: "5px solid #4a6fa5",
-            animation: "spin 1s linear infinite",
-            marginTop: "10px"
-          }}
-        ></div>
+        {errorMessage && !isProcessing && (
+          <div
+            style={{
+              background: "#fee2e2",
+              border: "1px solid #fecaca",
+              borderRadius: "8px",
+              padding: "12px",
+              marginBottom: "20px",
+              color: "#dc2626",
+              fontSize: "14px"
+            }}
+          >
+            {errorMessage}
+          </div>
+        )}
+
+        {isProcessing ? (
+          // Loading spinner
+          <div
+            style={{
+              display: "inline-block",
+              width: "50px",
+              height: "50px",
+              border: "5px solid rgba(74, 111, 165, 0.2)",
+              borderRadius: "50%",
+              borderTop: "5px solid #4a6fa5",
+              animation: "spin 1s linear infinite",
+              marginTop: "10px"
+            }}
+          ></div>
+        ) : (
+          // Error state with manual redirect button
+          <button
+            onClick={handleBackToLogin}
+            style={{
+              backgroundColor: "#4a6fa5",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              padding: "12px 24px",
+              fontSize: "16px",
+              fontWeight: "600",
+              cursor: "pointer",
+              transition: "background-color 0.2s",
+              marginTop: "10px"
+            }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.backgroundColor = "#3d5a94")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.backgroundColor = "#4a6fa5")
+            }
+          >
+            Quay về trang đăng nhập
+          </button>
+        )}
 
         {/* Add keyframes for the spinner animation */}
         <style jsx>{`
