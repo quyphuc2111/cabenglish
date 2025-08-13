@@ -35,20 +35,12 @@ export async function generateMetadata(
 
   // DEBUG logs for metadata
   try {
-    console.log(
-      "[lesson/[lessonId]] generateMetadata -> params:",
-      resolvedParams
-    );
     const previousImages = (await parent).openGraph?.images || [];
 
     const preload = await getSectionDataByLessonId({
       lessonId,
       userId: session.user.userId as string
     });
-    console.log(
-      "[lesson/[lessonId]] generateMetadata -> preload keys:",
-      preload
-    );
 
     return {
       title: `Bài học ${lessonId}`,
