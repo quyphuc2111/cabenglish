@@ -800,8 +800,8 @@ select {
 }
 
 .ProseMirror h2 {
-    font-size: 1.25em;
-    font-weight: bold;
+  font-size: 1.25em;
+  font-weight: bold;
 }
 
 /* Custom scrollbar cho horizontal scroll */
@@ -886,6 +886,31 @@ select {
 /* Reduce layout shifts during image loading */
 [data-embla-carousel] .aspect-\[16\/9\] {
   contain-intrinsic-size: 300px 169px;
+}
+
+/* Smooth carousel transitions for document reference page */
+[data-embla-carousel] {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+[data-embla-carousel] .embla__container {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Optimize carousel items for smooth scrolling */
+[data-embla-carousel] [data-carousel-item] {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Fix carousel overflow for document reference page */
+.tai-lieu-carousel [data-embla-carousel] {
+  overflow: visible !important;
+}
+
+.tai-lieu-carousel [data-embla-carousel] .embla__viewport {
+  overflow: visible !important;
 }
 
 /* Framer Motion optimizations for non-essential elements */
