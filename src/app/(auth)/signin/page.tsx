@@ -1,14 +1,9 @@
 
-import React from "react";
-import AuthContainer from "@/components/auth/AuthContainer";
+import { redirect } from "next/navigation";
 
 async function Auth() {
-  
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-light-blue bg-gradient-to-r from-gradient-start to-gradient-end">
-      <AuthContainer />
-    </div>
-  );
+  // Chặn truy cập vào trang /signin và chuyển hướng tới /signin-v2
+  redirect("/signin-v2");
 }
 
 export default Auth;

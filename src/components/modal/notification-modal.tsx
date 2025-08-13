@@ -80,7 +80,9 @@ function NotificationModal() {
     }
   }, [socketNotifications, queryClient]);
 
-  const unreadCount = notifications.filter((n: NotificationType) => !n.isRead).length;
+  const unreadCount = notifications.filter(
+    (n: NotificationType) => !n.isRead
+  ).length;
 
   const handleNotificationClick = (notification: NotificationType) => {
     setSelectedNotification(notification);
@@ -103,7 +105,11 @@ function NotificationModal() {
       <ScrollArea className="h-[400px] px-2 py-4 bg-[#E48B8B]/60 ">
         <div className="space-y-3">
           {notifications
-            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+            )
             .map((notification) => (
               <motion.div
                 key={notification.notificationId}
@@ -116,7 +122,9 @@ function NotificationModal() {
                 }}
               >
                 <div className="flex items-center justify-between">
-                  <p className="font-medium line-clamp-1 max-w-[500px]">{notification.title}</p>
+                  <p className="font-medium line-clamp-1 max-w-[500px]">
+                    {notification.title}
+                  </p>
                   {!notification.isRead && (
                     <div className="w-2 h-2 rounded-full bg-blue-600" />
                   )}
@@ -187,14 +195,7 @@ function NotificationModal() {
 
                     <div className="grid grid-cols-4 gap-6">
                       <div className="col-span-1">
-                        <motion.div
-                          animate={{ y: [0, -8, 0] }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        >
+                        <div>
                           <OptimizeImage
                             src="/assets/image/bkt_mascot.webp"
                             width={120}
@@ -203,7 +204,7 @@ function NotificationModal() {
                             className="object-contain"
                             priority={true}
                           />
-                        </motion.div>
+                        </div>
                       </div>
 
                       <div className="col-span-3 bg-[#E48B8B]/60 rounded-lg p-6">
@@ -263,16 +264,7 @@ function NotificationModal() {
 
                     <div className="grid grid-cols-4 gap-6">
                       <div className="col-span-1">
-                        <motion.div
-                          animate={{
-                            y: [0, -8, 0]
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        >
+                        <div>
                           <OptimizeImage
                             src="/assets/image/bkt_mascot.webp"
                             width={120}
@@ -281,12 +273,10 @@ function NotificationModal() {
                             className="object-contain"
                             priority={true}
                           />
-                        </motion.div>
+                        </div>
                       </div>
 
-                      <div className="col-span-3">
-                        {renderContent()}
-                      </div>
+                      <div className="col-span-3">{renderContent()}</div>
                     </div>
                   </motion.div>
                 )}

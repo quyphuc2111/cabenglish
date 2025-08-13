@@ -17,15 +17,15 @@ export function LogoutButton({ onLogout, t }: LogoutButtonProps) {
         hover:bg-[#E25762] transform-gpu will-change-transform backface-visibility-hidden"
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      transition={{ 
-        type: "spring", 
-        stiffness: 400, 
+      transition={{
+        type: "spring",
+        stiffness: 400,
         damping: 25,
         duration: 0.15
       }}
       onClick={onLogout}
     >
-      <div className="flex items-center gap-2 sm:gap-1 md:gap-2 flex-nowrap w-full justify-end">
+      <div className="flex items-center gap-2 sm:gap-1 md:gap-2 flex-nowrap w-full">
         <Image
           src="/assets/image/navbar/logout_icon.webp"
           width={28}

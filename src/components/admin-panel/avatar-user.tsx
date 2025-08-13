@@ -26,7 +26,7 @@ function AvatarUser({ avatarUrl, email, sidebar }: any) {
           />
         </div>
         {sidebar?.isOpen && (
-          <Badge className="bg-[#1ACAEF] rounded-full absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center flex items-center justify-center">
+          <Badge className="bg-[#1ACAEF] -left-11 rounded-full absolute bottom-0 text-center flex items-center justify-center">
             {email || "Bê Ka Tê"}
           </Badge>
         )}

@@ -18,7 +18,6 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { Search, X } from "lucide-react";
-import { useAutoUnlockNextLesson } from "@/hooks/client/useLesson";
 import { useSelectLessonStore } from "@/store/useSelectLesson";
 import { useUnitsOrder } from "@/hooks/client/useUnitsOrder";
 import { getSchoolWeekByUnitId } from "@/actions/schoolWeekAction";
@@ -26,6 +25,8 @@ import { useClassroomLessons } from "@/hooks/useLessonData";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SchoolWeekType } from "@/types/schoolweek";
 import { useSession } from "next-auth/react";
+import { useNavigationStore } from "@/store/navigationStore";
+import { useNavigationRestore } from "@/hooks/useNavigationRestore";
 
 function ClassroomChildClient({
   slug,
@@ -45,6 +46,63 @@ function ClassroomChildClient({
     []
   );
 
+  // Pagination state to persist/restore
+  const [pageState, setPageState] = React.useState<number>(() => {
+    // Check if we're returning from lesson and have saved pagination state
+    if (typeof window !== "undefined") {
+      const isReturning = document.referrer.includes("/lesson/");
+      if (isReturning) {
+        try {
+          const stored = localStorage.getItem("navigation-store");
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            const savedPage =
+              parsed?.state?.previousPage?.state?.filters?.pagination
+                ?.currentPage;
+            if (
+              savedPage &&
+              parsed?.state?.previousPage?.url === `/lop-hoc/${slug}`
+            ) {
+              return savedPage;
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to restore pagination state:", e);
+        }
+      }
+    }
+    return 1;
+  });
+  const [itemsPerPageState, setItemsPerPageState] = React.useState<number>(
+    () => {
+      // Check if we're returning from lesson and have saved pagination state
+      if (typeof window !== "undefined") {
+        const isReturning = document.referrer.includes("/lesson/");
+        if (isReturning) {
+          try {
+            const stored = localStorage.getItem("navigation-store");
+            if (stored) {
+              const parsed = JSON.parse(stored);
+              const savedItemsPerPage =
+                parsed?.state?.previousPage?.state?.filters?.pagination
+                  ?.itemsPerPage;
+              if (
+                savedItemsPerPage &&
+                parsed?.state?.previousPage?.url === `/lop-hoc/${slug}`
+              ) {
+                return savedItemsPerPage;
+              }
+            }
+          } catch (e) {
+            console.warn("Failed to restore pagination state:", e);
+          }
+        }
+      }
+      return 6;
+    }
+  );
+  const [paginationKey, setPaginationKey] = React.useState<number>(0);
+
   // State để track lessons đang being removed (khi unlike)
   const [removingLessons, setRemovingLessons] = React.useState<Set<number>>(
     new Set()
@@ -53,6 +111,8 @@ function ClassroomChildClient({
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { setPreviousPage } = useNavigationStore();
+  const { isReturningFromLesson, previousPageInfo } = useNavigationRestore();
 
   // Decode classname từ slug
   const classname = React.useMemo(() => {
@@ -78,7 +138,6 @@ function ClassroomChildClient({
     return currentLessons;
   }, [currentLessons, lessonData, lessonsLoading]);
 
-  const { checkAndUnlockNextLesson } = useAutoUnlockNextLesson(localLessonData);
   const { setSelectedLesson } = useSelectLessonStore();
 
   // Use units order hook to get sorted lessons
@@ -116,6 +175,43 @@ function ClassroomChildClient({
 
     return () => clearTimeout(timeoutId);
   }, [selectedUnit]);
+
+  // Restore filters, pagination and scroll when returning from lesson
+  React.useEffect(() => {
+    if (!isReturningFromLesson || !previousPageInfo) return;
+    // Ensure we only restore when coming back to the same classroom page and slug
+    if (previousPageInfo.url !== `/lop-hoc/${slug}`) return;
+
+    console.log("🔄 Restoring classroom state:", {
+      url: previousPageInfo.url,
+      filters: previousPageInfo.state?.filters,
+      pagination: previousPageInfo.state?.filters?.pagination
+    });
+
+    const filters = previousPageInfo.state?.filters || {};
+    setSearchQuery(filters.searchQuery || "");
+    setDebouncedSearchQuery(filters.searchQuery || "");
+    setSelectedUnit(filters.selectedUnit || "");
+    setSelectedWeek(filters.selectedWeek || "");
+
+    const pagination = filters.pagination || {};
+    setItemsPerPageState(pagination.itemsPerPage || 6);
+    setPageState(pagination.currentPage || 1);
+
+    // Force re-render of PaginatedContent to ensure pagination state is applied
+    setPaginationKey((prev) => prev + 1);
+
+    console.log("✅ Restored pagination state:", {
+      currentPage: pagination.currentPage || 1,
+      itemsPerPage: pagination.itemsPerPage || 6
+    });
+
+    // Restore scroll slightly after paint
+    const t = setTimeout(() => {
+      window.scrollTo(0, previousPageInfo.state?.scrollPosition || 0);
+    }, 100);
+    return () => clearTimeout(t);
+  }, [isReturningFromLesson, previousPageInfo, slug]);
 
   const updateLessonLike = React.useCallback(
     (lessonId: number, newLikeCount: number) => {
@@ -172,9 +268,39 @@ function ClassroomChildClient({
         setSelectedLesson(selectedLesson);
       }
 
+      // Save previous page state (URL, filters, scroll) before navigating
+      setPreviousPage({
+        url: `/lop-hoc/${slug}`,
+        title: `Lớp học ${classname}`,
+        state: {
+          scrollPosition: typeof window !== "undefined" ? window.scrollY : 0,
+          filters: {
+            searchQuery,
+            selectedUnit,
+            selectedWeek,
+            pagination: {
+              currentPage: pageState,
+              itemsPerPage: itemsPerPageState
+            }
+          }
+        }
+      });
+
       router.push(`/lesson/${lessonId}`);
     },
-    [localLessonData, setSelectedLesson, router]
+    [
+      localLessonData,
+      setSelectedLesson,
+      router,
+      setPreviousPage,
+      slug,
+      classname,
+      searchQuery,
+      selectedUnit,
+      selectedWeek,
+      pageState,
+      itemsPerPageState
+    ]
   );
 
   // Debounced search với delay lớn hơn cho mobile
@@ -485,11 +611,15 @@ function ClassroomChildClient({
           </div>
         ) : sortedLessons && sortedLessons.length > 0 ? (
           <PaginatedContent
+            key={`pagination-${paginationKey}`}
             items={filteredLessons}
-            itemsPerPage={6} // Giảm từ 8 xuống 6 để giảm tải cho mobile
+            itemsPerPage={itemsPerPageState}
+            initialPage={pageState}
+            onPageChange={(p) => setPageState(p)}
+            onItemsPerPageChange={(count) => setItemsPerPageState(count)}
             renderItem={renderLessonItem}
-            itemInPage={[6, 12, 18, 24]} // Điều chỉnh số lượng phù hợp mobile
-            rowPerPage={3} // Giảm từ 4 xuống 3 row per page
+            itemInPage={[6, 12, 18, 24]}
+            rowPerPage={3}
           />
         ) : (
           <div className="flex justify-center items-center py-8">

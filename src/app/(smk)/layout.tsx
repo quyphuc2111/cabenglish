@@ -13,7 +13,7 @@ export default async function ClientLayout({
 }) {
   const session = await getServerSession(authOptions);
   if (!session) {
-    redirect("/signin");
+    redirect("/signin-v2");
   }
   const userId = session.user.userId as string;
   const queryClient = new QueryClient();

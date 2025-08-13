@@ -144,7 +144,7 @@ const SignInV2Container = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="text-white text-sm font-medium hover:underline"
-              onClick={() => router.push("/signin")}
+              onClick={() => router.push("/signin-v2")}
             >
               Đăng ký ngay
             </motion.button>

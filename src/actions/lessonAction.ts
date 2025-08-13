@@ -36,7 +36,7 @@ export async function getAllLessonDataByUserId({
 
   try {
     await initializeProgress(userId)
-    // await initializeLocked({userId, mode: mode })
+    await initializeLocked({userId, mode: mode })
     const data = await serverFetch(`/api/Lesson/user/${userId}`);
 
     if (!Array.isArray(data)) {
@@ -59,47 +59,64 @@ export async function getAllLessonDataByUserId({
   }
 }
 
+interface LockedStatusResponse {
+  data: {
+    userId: string;
+    lessonId: string;
+    isLocked: boolean;
+  } | null;
+  error?: string;
+  success: boolean;
+}
+
 export async function getLockedStatusByLessonId({
   userId,
   lessonId
 }: {
   userId: string;
   lessonId: string;
-}): Promise<LessonResponse> {
+}): Promise<LockedStatusResponse> {
+  // Validate input parameters
   if (!userId) {
     return {
-      data: [],
-      error: "UserId không được để trống",
+      data: null,
+      error: "User ID is required",
       success: false
     };
   }
 
   if (!lessonId) {
     return {
-      data: [],
-      error: "LessonId không được để trống",
+      data: null,
+      error: "Lesson ID is required", 
       success: false
     };
   }
 
   try {
-    const data = await serverFetch(`/api/Lesson/locked-status${userId}/${lessonId}/`);
+    const response = await serverFetch(`/api/Lesson/locked-status/${userId}/${lessonId}`);
 
-    if (!Array.isArray(data)) {
-      throw new Error("Dữ liệu không đúng định dạng");
+    if (!response) {
+      return {
+        data: null,
+        error: "Không tìm thấy dữ liệu trạng thái bài học",
+        success: false
+      };
     }
 
     return {
-      data: data as LessonType[],
-      error: undefined,
+      data: {
+        userId: response.userId,
+        lessonId: response.lessonId,
+        isLocked: response.isLocked
+      },
       success: true
     };
   } catch (error) {
     console.error("Lỗi khi lấy dữ liệu trạng thái bài học:", error);
     return {
-      data: [],
-      error:
-        error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu trạng thái bài học",
+      data: null,
+      error: error instanceof Error ? error.message : "Có lỗi xảy ra khi lấy dữ liệu trạng thái bài học",
       success: false
     };
   }

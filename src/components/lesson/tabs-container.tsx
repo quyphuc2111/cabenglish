@@ -14,12 +14,15 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 import OptimizeImage from "@/components/common/optimize-image";
-import { useUpdateSectionLockedFromLocked } from "@/hooks/client/useLesson";
+import { useUpdateLessonLocked, useUpdateSectionLockedFromLocked } from "@/hooks/client/useLesson";
 import { ArrowLeft, CheckCircle, FullscreenIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getNextLessonByLessonId } from "@/actions/nextLessonAction";
 import { useLessonData } from "@/hooks/useLessonData";
 import { useSession } from "next-auth/react";
+
+import { OptimizedIframe } from "./optimized-iframe";
+import { useViewportHeight } from "@/hooks/useViewport";
 
 // Định nghĩa interface cho H5P global
 interface H5PInstance {
@@ -102,6 +105,9 @@ export const TabsContainer = ({
   const { onOpen, onClose: onCloseModal } = useModal();
   const { data: session } = useSession();
 
+  // Use viewport height hook for mobile optimization
+  useViewportHeight();
+
   const lastToastTimeRef = useRef<number>(0);
   const [currentContentIndex, setCurrentContentIndex] = useState(0);
   const [iframeLoading, setIframeLoading] = useState(true);
@@ -116,6 +122,7 @@ export const TabsContainer = ({
   const iframeContainerRef = useRef<HTMLDivElement | null>(null);
 
   const { mutate: updateSectionLocked } = useUpdateSectionLockedFromLocked();
+  const { mutate: updateLessonLocked } = useUpdateLessonLocked();
 
   useEffect(() => {
     const lastItem = sectionContents.reduce(
@@ -128,17 +135,6 @@ export const TabsContainer = ({
 
   // Auto unlock first content if section is unlocked
   useEffect(() => {
-    console.log("Section unlock check:", {
-      sectionIsLocked: sectionInfo.isLocked,
-      sectionContentsLength: sectionContents.length,
-      sectionContents: sectionContents.map((content) => ({
-        sc_id: content.sc_id,
-        title: content.title,
-        isLocked: content.isLocked,
-        order: content.order
-      }))
-    });
-
     if (
       !sectionInfo.isLocked &&
       sectionContents.length > 0 &&
@@ -148,8 +144,6 @@ export const TabsContainer = ({
         (content) => content.order === 0
       );
       if (firstContent && firstContent.isLocked) {
-        console.log("Auto unlocking first content:", firstContent.sc_id);
-
         // Update local state immediately for better UX
         setLocalUnlockedContents(
           (prev) => new Set([...prev, firstContent.sc_id])
@@ -162,7 +156,6 @@ export const TabsContainer = ({
           },
           {
             onSuccess: () => {
-              console.log("Successfully unlocked first content on server");
               router.refresh();
             },
             onError: (error: any) => {
@@ -304,11 +297,6 @@ export const TabsContainer = ({
                 isLastLesson: false,
                 nextLessonId: nextLessonResult.nextLesson.lessonId,
                 onConfirm: async () => {
-                  console.log(
-                    "Chuyển sang lesson tiếp theo:",
-                    nextLessonResult.nextLesson
-                  );
-
                   // Invalidate lesson data để refresh dữ liệu
                   if (session?.user?.userId && currentLesson?.classId) {
                     try {
@@ -327,9 +315,14 @@ export const TabsContainer = ({
                       useSelectLessonStore.getState();
                     setSelectedLesson(nextLessonResult.nextLesson);
                   }
-                  router.push(
-                    `/lesson/${nextLessonResult.nextLesson!.lessonId}`
-                  );
+
+                 await updateLessonLocked({ lessonId: Number(nextLessonResult.nextLesson!.lessonId) }, {
+                  onSuccess: () => {
+                    router.push(
+                      `/lesson/${nextLessonResult.nextLesson!.lessonId}`
+                    );
+                  }
+                 });
                 }
               });
             } else {
@@ -505,31 +498,14 @@ export const TabsContainer = ({
     };
   }, [isFullscreen]);
 
-  // Handle viewport height for mobile devices
-  useEffect(() => {
-    const setVH = () => {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty("--vh", `${vh}px`);
-    };
-
-    setVH();
-    window.addEventListener("resize", setVH);
-    window.addEventListener("orientationchange", setVH);
-
-    return () => {
-      window.removeEventListener("resize", setVH);
-      window.removeEventListener("orientationchange", setVH);
-    };
-  }, []);
-
   return (
     <Tabs
       value={currentContentIndex.toString()}
-      className="w-full h-full flex flex-col"
+      className="w-full h-full flex flex-col lesson-tabs-container"
     >
-      <TabsList className="bg-[#f5fcff] w-full flex h-auto p-0 flex-shrink-0 justify-start items-start overflow-x-auto">
-        <div className="flex items-center gap-1 sm:gap-2 md:gap-3 h-full bg-[#56B165] rounded-md p-1 sm:p-2 min-w-[25%] landscape:min-w-[15%] sm:min-w-0 sm:w-1/4 lg:w-1/5">
-          <div className="w-5 h-5 landscape:w-6 landscape:h-6 sm:w-10 sm:h-10 md:w-12 md:h-12 flex-shrink-0">
+      <TabsList className="bg-[#f5fcff] w-full flex h-auto p-0 flex-shrink-0 justify-start items-start overflow-x-auto lesson-tab-list min-h-[32px] landscape:min-h-[40px] sm:min-h-[48px]">
+        <div className="flex items-center gap-1 landscape:gap-2 sm:gap-2 md:gap-3 h-full bg-[#56B165] rounded-md p-0.5 landscape:p-1 sm:p-2 min-w-[20%] landscape:min-w-[12%] sm:min-w-0 sm:w-1/4 lg:w-1/5">
+          <div className="w-4 h-4 landscape:w-5 landscape:h-5 sm:w-8 sm:h-8 md:w-10 md:h-10 flex-shrink-0">
             <OptimizeImage
               src={sectionInfo.iconUrl}
               width={64}
@@ -537,12 +513,12 @@ export const TabsContainer = ({
               alt="section_icon"
             />
           </div>
-          <h5 className="text-xs landscape:text-sm sm:text-base md:text-lg font-medium text-white truncate">
+          <h5 className="text-[10px] landscape:text-xs sm:text-sm md:text-base font-medium text-white truncate">
             {sectionInfo?.sectionName}
           </h5>
         </div>
         <ScrollArea className="w-full">
-          <div className="flex gap-1 landscape:gap-2 sm:gap-2 pb-1 sm:pb-2 mb-1 sm:mb-2 mt-1 sm:mt-2">
+          <div className="flex gap-0.5 landscape:gap-1 sm:gap-2 pb-0.5 landscape:pb-1 sm:pb-2 mb-0.5 landscape:mb-1 sm:mb-2 mt-0.5 landscape:mt-1 sm:mt-2">
             {sectionContents
               .sort((a, b) => a.order - b.order)
               .map((content, index) => (
@@ -554,32 +530,34 @@ export const TabsContainer = ({
                   <TabsTrigger
                     value={index.toString()}
                     className={cn(
-                      "flex gap-1 landscape:gap-2 sm:gap-2 items-center py-1 landscape:py-2 sm:py-2 relative min-w-0",
+                      "flex gap-0.5 landscape:gap-1 sm:gap-2 items-center py-0.5 landscape:py-1 sm:py-2 relative min-w-0 h-6 landscape:h-8 sm:h-10 lesson-tab-trigger",
                       ""
                     )}
                     disabled={isContentLocked(content)}
                   >
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger className="flex gap-1 landscape:gap-2 sm:gap-2 items-center min-w-0">
-                          <div className="w-5 h-5 landscape:w-7 landscape:h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 flex-shrink-0 relative overflow-hidden rounded">
-                            <Image
-                              src={content.icon_url || "/assets/image/sc1.png"}
-                              alt="content-icon"
-                              width={40}
-                              height={40}
-                              className="w-full h-full object-cover"
-                              unoptimized
-                            />
+                        <TooltipTrigger asChild>
+                          <div className="flex gap-0.5 landscape:gap-1 sm:gap-2 items-center min-w-0 w-full">
+                            <div className="w-4 h-4 landscape:w-5 landscape:h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 flex-shrink-0 relative overflow-hidden rounded">
+                              <Image
+                                src={content.icon_url || "/assets/image/sc1.png"}
+                                alt="content-icon"
+                                width={40}
+                                height={40}
+                                className="w-full h-full object-cover"
+                                unoptimized
+                              />
+                            </div>
+                            <p
+                              className={cn(
+                                "font-medium truncate text-[10px] landscape:text-xs sm:text-sm line-clamp-1 min-w-0",
+                                isContentLocked(content) ? "opacity-50" : ""
+                              )}
+                            >
+                              {content.title}
+                            </p>
                           </div>
-                          <p
-                            className={cn(
-                              "font-medium truncate text-xs landscape:text-sm sm:text-sm line-clamp-1 min-w-0",
-                              isContentLocked(content) ? "opacity-50" : ""
-                            )}
-                          >
-                            {content.title}
-                          </p>
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>{content.title}</p>
@@ -599,7 +577,7 @@ export const TabsContainer = ({
                           width={20}
                           height={20}
                           alt="lock"
-                          className="w-4 h-4 landscape:w-5 landscape:h-5 sm:w-6 sm:h-6"
+                          className="w-3 h-3 landscape:w-4 landscape:h-4 sm:w-5 sm:h-5"
                         />
                       </motion.div>
                     )}
@@ -611,65 +589,27 @@ export const TabsContainer = ({
         </ScrollArea>
       </TabsList>
 
-      {/* Control buttons for mobile */}
-      <div className="flex justify-between px-2 landscape:px-4 py-1 landscape:py-2 lg:hidden bg-gray-100/50">
+      {/* Control buttons - Responsive for all screen sizes */}
+      <div className="flex justify-between px-2 landscape:px-3 lg:px-6 py-1 landscape:py-1.5 lg:py-2 bg-white/90 backdrop-blur-sm lesson-mobile-controls min-h-[36px] landscape:min-h-[40px] sm:min-h-[44px] lg:min-h-[48px] items-center border-t border-gray-200 z-10">
         <motion.button
           onClick={onClose}
           whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-1 landscape:gap-2 bg-gray-200 rounded-md px-2 landscape:px-3 py-1 landscape:py-2 text-gray-700 text-xs landscape:text-sm"
+          className="flex items-center gap-1.5 landscape:gap-2 lg:gap-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg px-3 landscape:px-4 lg:px-6 py-1.5 landscape:py-2 lg:py-2.5 text-xs landscape:text-sm lg:text-base font-medium shadow-md transition-colors"
         >
-          <ArrowLeft size={14} className="landscape:w-4 landscape:h-4" />
+          <ArrowLeft size={14} className="landscape:w-4 landscape:h-4 lg:w-5 lg:h-5" />
           <span>Quay lại</span>
         </motion.button>
 
         <motion.button
           onClick={handleNextContent}
           whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-1 landscape:gap-2 bg-green-500 rounded-md px-2 landscape:px-3 py-1 landscape:py-2 text-white text-xs landscape:text-sm"
+          className="flex items-center gap-1.5 landscape:gap-2 lg:gap-3 bg-green-500 hover:bg-green-600 text-white rounded-lg px-3 landscape:px-4 lg:px-6 py-1.5 landscape:py-2 lg:py-2.5 text-xs landscape:text-sm lg:text-base font-medium shadow-md transition-colors"
         >
-          <CheckCircle size={14} className="landscape:w-4 landscape:h-4" />
+          <CheckCircle size={14} className="landscape:w-4 landscape:h-4 lg:w-5 lg:h-5" />
           <span>Hoàn thành</span>
         </motion.button>
       </div>
-
-      {/* Back button - Desktop only */}
-      <div className="hidden lg:block fixed top-4 -left-28 z-50">
-        <motion.div
-          onClick={onClose}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          className="relative group cursor-pointer"
-        >
-          <div className="bg-gradient-to-r from-gray-500 to-gray-600 rounded-full p-3 md:p-4 shadow-lg hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10">
-              <ArrowLeft className="w-full h-full text-white" />
-            </div>
-          </div>
-          <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            Quay lại
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Complete lesson button - Desktop only */}
-      <div className="hidden lg:block fixed top-4 -right-28 z-50">
-        <motion.div
-          onClick={handleNextContent}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          className="relative group cursor-pointer"
-        >
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-full p-3 md:p-4 shadow-lg hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10">
-              <CheckCircle className="w-full h-full text-white" />
-            </div>
-          </div>
-          <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            Hoàn thành
-          </div>
-        </motion.div>
-      </div>
-
+      
       {/* Content tabs */}
       {sectionContents
         .sort((a, b) => a.order - b.order)
@@ -689,8 +629,8 @@ export const TabsContainer = ({
               {/* Iframe Container */}
               <div
                 ref={iframeContainerRef}
-                className={`relative flex-1 min-h-0 p-1 landscape:p-2 sm:p-4 md:p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 ${
-                  isFullscreen ? "fullscreen-container" : ""
+                className={`relative flex-1 min-h-0 lesson-iframe-container p-0.5 landscape:p-1 sm:p-2 md:p-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 ${
+                  isFullscreen ? "lesson-fullscreen fullscreen-container" : ""
                 }`}
               >
                 {/* Exit Fullscreen Button */}
@@ -724,39 +664,20 @@ export const TabsContainer = ({
                   </button>
                 )}
                 {content.iframe_url.startsWith("http") ? (
-                  <div className="w-full h-full relative">
-                    {iframeLoading && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
-                        <div className="flex flex-col items-center gap-1 landscape:gap-2">
-                          <div className="animate-spin rounded-full h-5 w-5 landscape:h-6 landscape:w-6 sm:h-8 sm:w-8 border-b-2 border-[#56B165]"></div>
-                          <p className="text-gray-500 text-xs landscape:text-sm sm:text-sm">
-                            Đang tải bài học...
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                    <iframe
-                      ref={iframeRef}
-                      src={content.iframe_url}
-                      className={`w-full h-full border-none rounded-t-md ${
-                        isFullscreen ? "fullscreen-iframe" : ""
-                      }`}
-                      title={content.title}
-                      allowFullScreen
-                      allow="geolocation *; microphone *; camera *; midi *; encrypted-media *"
-                      sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-downloads"
-                      onLoad={() => {
-                        setIframeLoading(false);
-                      }}
-                    />
-                  </div>
+                  <OptimizedIframe
+                    src={content.iframe_url}
+                    title={content.title}
+                    isFullscreen={isFullscreen}
+                    onLoad={() => setIframeLoading(false)}
+                    className={isFullscreen ? "fullscreen-iframe" : ""}
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-100">
                     <div className="text-center">
-                      <div className="text-2xl landscape:text-3xl sm:text-4xl mb-2 landscape:mb-3 sm:mb-4">
+                      <div className="text-xl landscape:text-2xl sm:text-3xl mb-1 landscape:mb-2 sm:mb-3">
                         ⚠️
                       </div>
-                      <p className="text-gray-500 text-xs landscape:text-sm sm:text-lg">
+                      <p className="text-gray-500 text-[10px] landscape:text-xs sm:text-sm">
                         Đường dẫn bài học không hợp lệ
                       </p>
                     </div>
@@ -764,21 +685,33 @@ export const TabsContainer = ({
                 )}
               </div>
 
-              {/* Description và controls */}
-              <div className="p-1 landscape:p-2 sm:p-4 md:p-6 flex flex-col landscape:flex-row sm:flex-row gap-1 landscape:gap-2 sm:gap-0 landscape:items-center sm:items-center justify-between">
-                <div className="text-xs landscape:text-sm sm:text-sm text-gray-500 max-w-lg line-clamp-1 landscape:line-clamp-2 sm:line-clamp-3">
+              {/* Description và controls - Ẩn trên mobile portrait, hiện minimal trên landscape */}
+              <div className="hidden landscape:flex sm:flex p-0.5 landscape:p-1 sm:p-2 md:p-4 gap-1 landscape:gap-2 sm:gap-4 items-center justify-between min-h-[32px] landscape:min-h-[36px] sm:min-h-[40px]">
+                <div className="text-[10px] landscape:text-xs sm:text-sm text-gray-500 max-w-lg line-clamp-1 truncate">
                   {content.description}
                 </div>
                 <button
                   onClick={
                     isFullscreen ? handleExitFullScreen : handleFullScreen
                   }
-                  className="flex items-center justify-center landscape:justify-start sm:justify-start gap-1 landscape:gap-2 sm:gap-3 bg-gray-100 p-1 landscape:p-2 sm:p-2 rounded-md text-xs landscape:text-sm sm:text-sm hover:bg-gray-200 transition-colors flex-shrink-0"
+                  className="flex items-center justify-center gap-1 bg-gray-100 p-1 landscape:p-1.5 sm:p-2 rounded-md text-[10px] landscape:text-xs sm:text-sm hover:bg-gray-200 transition-colors flex-shrink-0"
                 >
-                  <FullscreenIcon className="w-3 h-3 landscape:w-4 landscape:h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-                  <span className="hidden landscape:inline xs:inline">
+                  <FullscreenIcon className="w-3 h-3 landscape:w-4 landscape:h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">
                     {isFullscreen ? "Thoát toàn màn hình" : "Toàn màn hình"}
                   </span>
+                </button>
+              </div>
+
+              {/* Mobile portrait - chỉ hiện nút fullscreen */}
+              <div className="flex landscape:hidden sm:hidden justify-end p-0.5">
+                <button
+                  onClick={
+                    isFullscreen ? handleExitFullScreen : handleFullScreen
+                  }
+                  className="flex items-center justify-center bg-gray-100 p-1 rounded-md hover:bg-gray-200 transition-colors"
+                >
+                  <FullscreenIcon className="w-3 h-3" />
                 </button>
               </div>
             </motion.div>
@@ -822,6 +755,34 @@ export const TabsContainer = ({
         @media screen and (orientation: landscape) and (max-height: 768px) {
           .fullscreen-container {
             height: 100vh !important;
+          }
+        }
+
+        /* Mobile Portrait - Maximize content area */
+        @media screen and (orientation: portrait) and (max-width: 767px) {
+          .fullscreen-container {
+            padding: 0 !important;
+          }
+        }
+
+        /* Mobile Landscape - Maximize height */
+        @media screen and (orientation: landscape) and (max-width: 1023px) {
+          .fullscreen-container {
+            padding: 0 !important;
+          }
+        }
+
+        /* Ultra-wide screens */
+        @media screen and (min-aspect-ratio: 21/9) {
+          .fullscreen-container {
+            padding: 0 !important;
+          }
+        }
+
+        /* Small height screens */
+        @media screen and (max-height: 500px) {
+          .fullscreen-container {
+            padding: 0 !important;
           }
         }
       `}</style>

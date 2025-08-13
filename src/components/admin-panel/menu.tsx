@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Ellipsis, LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 import { useMenuList } from "@/lib/menu-list";
@@ -33,78 +32,30 @@ export function Menu({ isOpen, disabled }: MenuProps) {
   const pathname = usePathname();
   const menuList = useMenuList(pathname, currentTeachingMode);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { 
-      opacity: 0,
-      x: -20 
-    },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.5
-      }
-    }
-  };
-
-  const iconVariants = {
-    hidden: {
-      scale: 0,
-      rotate: -180
-    },
-    visible: {
-      scale: 1, 
-      rotate: 0,
-      transition: {
-        type: "spring",
-        stiffness: 260,
-        damping: 20
-      }
-    }
-  };
-
   return (
-    <motion.nav 
-      className="mt-4 3xl:mt-8 h-full w-full"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
+    <nav className="mt-4 3xl:mt-8 h-full w-full">
       <ScrollArea className="h-full w-full pr-2">
-        <motion.ul className="flex flex-col items-start space-y-1 px-2 pb-4">
+        <ul className="flex flex-col items-start space-y-1 px-2 pb-4">
         {menuList.map(({ groupLabel, menus }, index) => (
-          <motion.li 
-            variants={itemVariants}
-            className={cn("w-full", groupLabel ? "pt-5" : "")} 
+          <li
+            className={cn("w-full", groupLabel ? "pt-5" : "")}
             key={index}
           >
             {(isOpen && groupLabel) || isOpen === undefined ? (
-              <motion.p 
-                variants={itemVariants}
+              <p
                 className="text-sm font-medium text-muted-foreground px-4 pb-2 max-w-[248px] truncate"
               >
                 {groupLabel}
-              </motion.p>
+              </p>
             ) : !isOpen && isOpen !== undefined && groupLabel ? (
               <TooltipProvider>
                 <Tooltip delayDuration={100}>
                   <TooltipTrigger className="w-full">
-                    <motion.div 
-                      variants={iconVariants}
+                    <div
                       className="w-full flex justify-center items-center"
                     >
                       <Ellipsis className="h-5 w-5" />
-                    </motion.div>
+                    </div>
                   </TooltipTrigger>
                   <TooltipContent side="right">
                     <p>{groupLabel}</p>
@@ -116,9 +67,8 @@ export function Menu({ isOpen, disabled }: MenuProps) {
             )}
             {menus.map(({ href, label, iconSrc, active, submenus, disabled }, index) =>
               submenus.length === 0 ? (
-                <motion.div 
-                  variants={itemVariants}
-                  className="w-full" 
+                <div
+                  className="w-full"
                   key={index}
                 >
                   <TooltipProvider disableHoverableContent>
@@ -138,10 +88,7 @@ export function Menu({ isOpen, disabled }: MenuProps) {
                               href={href}
                               className="w-full flex items-center gap-4"
                             >
-                              <motion.div
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.95 }}
-                              >
+                              <div>
                                 <Image
                                   src={iconSrc}
                                   width={40}
@@ -156,24 +103,17 @@ export function Menu({ isOpen, disabled }: MenuProps) {
                                     }
                                   }}
                                 />
-                              </motion.div>
-                              <motion.p
+                              </div>
+                              <p
                                 className={cn(
                                   "max-w-[130px] break-words whitespace-normal text-xl font-semibold text-start",
                                   isOpen === false
                                     ? "-translate-x-96 opacity-0"
                                     : "translate-x-0 opacity-100"
                                 )}
-                                animate={{
-                                  x: isOpen === false ? -384 : 0,
-                                  opacity: isOpen === false ? 0 : 1
-                                }}
-                                transition={{
-                                  duration: 0.3
-                                }}
                               >
                                 {label}
-                              </motion.p>
+                              </p>
                             </Link>
                           ) : (
                             <div className="w-full flex items-center gap-4">
@@ -201,11 +141,10 @@ export function Menu({ isOpen, disabled }: MenuProps) {
                       )}
                     </Tooltip>
                   </TooltipProvider>
-                </motion.div>
+                </div>
               ) : (
-                <motion.div 
-                  variants={itemVariants}
-                  className="w-full" 
+                <div
+                  className="w-full"
                   key={index}
                 >
                   <CollapseMenuButton
@@ -217,13 +156,13 @@ export function Menu({ isOpen, disabled }: MenuProps) {
                     href={href}
                     disabled={disabled}
                   />
-                </motion.div>
+                </div>
               )
             )}
-          </motion.li>
+          </li>
         ))}
-      </motion.ul>
+      </ul>
       </ScrollArea>
-    </motion.nav>
+    </nav>
   );
 }

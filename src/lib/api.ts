@@ -1,10 +1,10 @@
 import axios from "axios";
-import { getSession } from "next-auth/react";
 import { getServerSession } from "next-auth";
 import https from "https";
 import { authOptions } from "@/lib/auth";
 import { AxiosRequestConfig } from "axios";
 import { refreshAccessToken } from "@/hooks/client/userApi";
+import apiClient from "@/lib/axios-interceptor";
 
 interface ServerFetchOptions extends Omit<AxiosRequestConfig, "url"> {
   headers?: Record<string, string>;
@@ -13,23 +13,17 @@ interface ServerFetchOptions extends Omit<AxiosRequestConfig, "url"> {
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function clientFetch(endpoint: string, options: any = {}) {
-  const session = await getSession();
-
   const config = {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
-      ...(session?.accessToken && {
-        Authorization: `Bearer ${session.accessToken}`
-      }),
       ...options.headers
     },
-    withCredentials: true,
     ...options
   };
 
-  const response = await axios({
-    url: `${API_URL}${endpoint}`,
+  const response = await apiClient({
+    url: endpoint,
     ...config
   });
 
@@ -70,6 +64,11 @@ export async function serverFetch(
           ...headers,
           Authorization: `Bearer ${tokenResponse.accessToken}`
         };
+
+        // TODO: Consider updating session with new token
+        // This would require implementing a session update mechanism
+        // For now, the JWT callback will handle the refresh on next request
+
         const retryConfig: AxiosRequestConfig = {
           ...axiosConfig,
           headers

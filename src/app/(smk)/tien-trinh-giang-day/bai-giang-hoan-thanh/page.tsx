@@ -9,7 +9,7 @@ async function LessonCompletePage() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/signin");
+    redirect("/signin-v2");
   }
 
   const lessonService = await LessonService.lessonData(session.user.userId!);

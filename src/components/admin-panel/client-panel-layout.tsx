@@ -4,20 +4,23 @@ import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
 import { Sidebar } from "@/components/admin-panel/sidebar";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
 import { getNotificationListByUserId } from "@/actions/notificationAction";
 import { useSession } from "next-auth/react";
-import { useUserInfo } from "@/hooks/useUserInfo";
+import { memo } from "react";
+import { UserProvider, useUser } from "@/contexts/UserContext";
+import { SimplePerformanceProvider } from "@/providers/SimplePerformanceProvider";
 
-export default function ClientPanelLayout({
-  children,
+const ClientPanelLayoutContent = memo(function ClientPanelLayoutContent({
+  children
 }: {
   children: React.ReactNode;
 }) {
   const { data: session } = useSession();
-  const { data: userInfo } = useUserInfo(session?.user?.userId);
-  const currentTheme = (userInfo?.theme ?? "theme-red") as keyof typeof themeClasses;
+  const { userInfo } = useUser(); // ✅ Sử dụng context thay vì hook
+  const currentTheme = (userInfo?.theme ??
+    "theme-red") as keyof typeof themeClasses;
   const sidebar = useStore(useSidebarToggle, (state) => state);
 
   const { data: notificationList = [] } = useQuery({
@@ -28,52 +31,75 @@ export default function ClientPanelLayout({
       });
       return response.data || [];
     },
-    enabled: !!session?.user?.userId
+    enabled: !!session?.user?.userId,
+    staleTime: 5 * 60 * 1000, // 5 phút cache
+    gcTime: 10 * 60 * 1000, // 10 phút garbage collection
+    refetchOnWindowFocus: false, // Tắt refetch khi focus
+    refetchOnMount: false, // Tắt refetch khi mount
+    refetchOnReconnect: true // Chỉ refetch khi reconnect
   });
 
   const themeClasses = {
-    'theme-gold': 'bg-theme-gold-primary',
-    'theme-blue': 'bg-theme-blue-primary',
-    'theme-pink': 'bg-theme-pink-primary',
-    'theme-red': 'bg-theme-red-primary'
+    "theme-gold": "bg-theme-gold-primary",
+    "theme-blue": "bg-theme-blue-primary",
+    "theme-pink": "bg-theme-pink-primary",
+    "theme-red": "bg-theme-red-primary"
   } as const;
 
   const themeSecondaryClasses = {
-    'theme-gold': 'bg-theme-gold-secondary',
-    'theme-blue': 'bg-theme-blue-secondary',
-    'theme-pink': 'bg-theme-pink-secondary',
-    'theme-red': 'bg-theme-red-secondary'
+    "theme-gold": "bg-theme-gold-secondary",
+    "theme-blue": "bg-theme-blue-secondary",
+    "theme-pink": "bg-theme-pink-secondary",
+    "theme-red": "bg-theme-red-secondary"
   } as const;
 
   if (!sidebar) return null;
 
   return (
-    <div className={themeClasses[currentTheme]}>
+    <div className={cn(themeClasses[currentTheme], "overflow-hidden")}>
       <Sidebar notificationList={notificationList} />
       <main
         className={cn(
-          `min-h-screen transition-[margin-left] ease-in-out duration-300 
-           flex-1 h-screen ${themeSecondaryClasses[currentTheme]} lg:rounded-l-[48px] px-2  2xl:px-0 py-2 md:py-0
+          `min-h-screen flex-1 h-screen ${themeSecondaryClasses[currentTheme]} lg:rounded-l-[48px] px-2  2xl:px-0 py-2 md:py-0
            overflow-y-hidden `,
           sidebar?.isOpen === false ? "lg:ml-[100px]" : "lg:ml-72"
         )}
       >
         {children}
       </main>
-       <ToastContainer
-         position="top-right"
-         autoClose={3000}
-         hideProgressBar={false}
-         newestOnTop={false}
-         closeOnClick
-         rtl={false}
-         pauseOnFocusLoss
-         draggable
-         pauseOnHover
-         theme="light"
-         limit={3}
-         containerId="client-toast-container"
-       />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        limit={3}
+        containerId="client-toast-container"
+      />
     </div>
   );
-}
+});
+
+// Wrapper component với UserProvider
+const ClientPanelLayout = memo(function ClientPanelLayout({
+  children
+}: {
+  children: React.ReactNode;
+}) {
+  const { data: session } = useSession();
+
+  return (
+    <SimplePerformanceProvider>
+      <UserProvider userId={session?.user?.userId}>
+        <ClientPanelLayoutContent>{children}</ClientPanelLayoutContent>
+      </UserProvider>
+    </SimplePerformanceProvider>
+  );
+});
+
+export default ClientPanelLayout;

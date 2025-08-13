@@ -50,7 +50,6 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
     onOpen("changeTheme");
   };
 
-
   const handleLogout = async () => {
     onOpen("logout");
   };
@@ -68,14 +67,14 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
           className={`w-full xl:w-2/3 2xl:w-2/3 3xl:w-2/3 max-h-24 h-16 lg:h-24 ${foregroundThemeClasses[currentTheme]} rounded-xl  lg:rounded-bl-md lg:shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
           variants={navbarAnimations.item}
         >
-          <motion.div
+          {/* <motion.div
             className="absolute -top-2 -left-4 -rotate-12 hidden xl:block"
             variants={navbarAnimations.floating}
             initial="initial"
             animate="animate"
           >
             <Image src="/navbar/lixi.png" width={40} height={40} alt="lesson" />
-          </motion.div>
+          </motion.div> */}
 
           <div className="w-full lg:w-3/4 lg:bg-white absolute top-1/2 -translate-y-1/2 left-0 lg:left-10  rounded-xl p-2 lg:px-4 xl:px-12">
             <div className="w-fit relative">
@@ -120,7 +119,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                   </div>
                 )}
               </div>
-              <motion.div
+              {/* <motion.div
                 className="absolute top-1 -left-8 -rotate-12 hidden xl:block"
                 initial="initial"
                 animate="animate"
@@ -131,19 +130,19 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                   height={30}
                   alt="lesson"
                 />
-              </motion.div>
+              </motion.div> */}
 
-              <div className="absolute right-1/2 rotate-12 hidden xl:block">
+              {/* <div className="absolute right-1/2 rotate-12 hidden xl:block">
                 <Image
                   src="/navbar/kilan.png"
                   width={50}
                   height={50}
                   alt="lesson"
                 />
-              </div>
+              </div> */}
             </div>
 
-            <motion.div
+            {/* <motion.div
               className="absolute top-0 right-[42%] hidden 3xl:block"
               initial="initial"
               animate="animate"
@@ -154,8 +153,8 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                 height={30}
                 alt="lesson"
               />
-            </motion.div>
-            <div className="absolute top-0 right-[32%] hidden 3xl:block">
+            </motion.div> */}
+            {/* <div className="absolute top-0 right-[32%] hidden 3xl:block">
               <Image
                 src="/navbar/chuong_rung.gif"
                 width={33}
@@ -170,7 +169,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                 height={30}
                 alt="lesson"
               />
-            </div>
+            </div> */}
             <div className="absolute bottom-0 right-[13%] hidden lg:block">
               <Image
                 src="/navbar/langbac.png"
@@ -212,18 +211,16 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
               />
             </div>
 
-            <div className="absolute right-[25%] -bottom-6 hidden lg:block">
+            {/* <div className="absolute right-[25%] -bottom-6 hidden lg:block">
               <Image
                 src="/navbar/banhtet.png"
                 width={50}
                 height={60}
                 alt="lesson"
               />
-            </div>
+            </div> */}
 
-            <motion.div
-              className="absolute -right-12 top-0 -rotate-6 hidden lg:block"
-            >
+            <motion.div className="absolute -right-12 top-0 -rotate-6 hidden lg:block">
               <Image
                 src="/navbar/hoadao.png"
                 width={50}
@@ -233,9 +230,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
             </motion.div>
           </div>
 
-          <motion.div
-            className="absolute right-[11%] -bottom-2 hidden lg:block"
-          >
+          <motion.div className="absolute right-[11%] -bottom-2 hidden lg:block">
             <Image
               src="/navbar/nguoi1.png"
               width={40}
@@ -262,9 +257,9 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
             />
           </div>
 
-          <motion.div
+          {/* <motion.div
             className="absolute right-[12%] -top-4 hidden lg:block"
-            variants={navbarAnimations.firework} 
+            variants={navbarAnimations.firework}
             initial="initial"
             animate="animate"
           >
@@ -288,7 +283,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
               height={35}
               alt="lesson"
             />
-          </motion.div>
+          </motion.div> */}
 
           <div className="absolute right-[6%] top-0 hidden lg:block">
             <Image

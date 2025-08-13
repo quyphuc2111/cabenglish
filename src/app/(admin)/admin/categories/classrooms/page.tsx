@@ -1,11 +1,14 @@
-import React from 'react'
-import { AdminContentLayout } from '@/components/admin-panel/admin-content-layout'
-import ClassroomContainerClient from './classroom-container-client'
-import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
-import { getAllClassroomAdminData } from '@/actions/classroomAction';
-import * as Sentry from "@sentry/nextjs";
+import React from "react";
+import { AdminContentLayout } from "@/components/admin-panel/admin-content-layout";
+import ClassroomContainerClient from "./classroom-container-client";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient
+} from "@tanstack/react-query";
+import { getAllClassroomAdminData } from "@/actions/classroomAction";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 const breadcrumbItems = [
   {
@@ -13,14 +16,14 @@ const breadcrumbItems = [
     link: ""
   },
   {
-    title: "Quản lý lớp học", 
+    title: "Quản lý lớp học",
     link: "/admin/categories/classrooms"
   }
 ];
 async function AdminClassroomPage() {
   try {
     const adminData = await getAllClassroomAdminData();
-    
+
     const queryClient = new QueryClient();
 
     // Prefetch trên server
@@ -31,18 +34,18 @@ async function AdminClassroomPage() {
 
     return (
       <AdminContentLayout breadcrumb={breadcrumbItems}>
-        <div className='flex flex-col gap-4'>
-          <p className='text-2xl font-bold'>Danh sách lớp học</p>
+        <div className="flex flex-col gap-4">
+          <p className="text-2xl font-bold">Danh sách lớp học</p>
           <HydrationBoundary state={dehydrate(queryClient)}>
             <ClassroomContainerClient />
           </HydrationBoundary>
         </div>
       </AdminContentLayout>
-    )
+    );
   } catch (error) {
-    Sentry.captureException(error);
-    throw error; 
+    // ...existing code...
+    throw error;
   }
 }
 
-export default AdminClassroomPage
+export default AdminClassroomPage;

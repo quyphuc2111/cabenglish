@@ -12,7 +12,7 @@ async function TeachingMode() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/signin");
+    redirect("/signin-v2");
   }
 
   const updateUser = async ({mode}: {mode: string}) => {

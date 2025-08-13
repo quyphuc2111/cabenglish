@@ -27,14 +27,68 @@ interface NavigationState {
   setLessonTeachingState: (
     state: Partial<NavigationState["lessonTeachingState"]>
   ) => void;
+
+  // Lesson complete specific state (filters + scroll)
+  lessonCompleteState: {
+    selectedClassId: string;
+    selectedUnitId: string;
+    selectedWeekId: string;
+    scrollPosition: number;
+    lastVisited: number;
+  };
+
+  setLessonCompleteState: (
+    state: Partial<NavigationState["lessonCompleteState"]>
+  ) => void;
+
+  // Overview page specific state (scroll position)
+  overviewState: {
+    scrollPosition: number;
+    lastVisited: number;
+  };
+
+  setOverviewState: (
+    state: Partial<NavigationState["overviewState"]>
+  ) => void;
+
+  // Lecture favourite list specific state (filters + scroll)
+  lectureFavouriteState: {
+    selectedClassId: string;
+    selectedUnitId: string;
+    selectedWeekId: string;
+    scrollPosition: number;
+    lastVisited: number;
+  };
+
+  setLectureFavouriteState: (
+    state: Partial<NavigationState["lectureFavouriteState"]>
+  ) => void;
 }
 
 export const useNavigationStore = create<NavigationState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       previousPage: null,
       lessonTeachingState: {
         activeTab: "all",
+        scrollPosition: 0,
+        lastVisited: Date.now()
+      },
+      lessonCompleteState: {
+        selectedClassId: "",
+        selectedUnitId: "",
+        selectedWeekId: "",
+        scrollPosition: 0,
+        lastVisited: Date.now()
+      },
+      overviewState: {
+        scrollPosition: 0,
+        lastVisited: Date.now()
+      },
+      lectureFavouriteState: {
+        selectedClassId: "",
+        selectedUnitId: "",
+        selectedWeekId: "",
         scrollPosition: 0,
         lastVisited: Date.now()
       },
@@ -55,6 +109,36 @@ export const useNavigationStore = create<NavigationState>()(
             lastVisited: Date.now()
           }
         }));
+      },
+
+      setLessonCompleteState: (newState) => {
+        set((state) => ({
+          lessonCompleteState: {
+            ...state.lessonCompleteState,
+            ...newState,
+            lastVisited: Date.now()
+          }
+        }));
+      },
+
+      setOverviewState: (newState) => {
+        set((state) => ({
+          overviewState: {
+            ...state.overviewState,
+            ...newState,
+            lastVisited: Date.now()
+          }
+        }));
+      },
+
+      setLectureFavouriteState: (newState) => {
+        set((state) => ({
+          lectureFavouriteState: {
+            ...state.lectureFavouriteState,
+            ...newState,
+            lastVisited: Date.now()
+          }
+        }));
       }
     }),
     {
@@ -62,7 +146,10 @@ export const useNavigationStore = create<NavigationState>()(
       // Chỉ persist những thông tin cần thiết
       partialize: (state) => ({
         previousPage: state.previousPage,
-        lessonTeachingState: state.lessonTeachingState
+        lessonTeachingState: state.lessonTeachingState,
+        lessonCompleteState: state.lessonCompleteState,
+        overviewState: state.overviewState,
+        lectureFavouriteState: state.lectureFavouriteState
       })
     }
   )

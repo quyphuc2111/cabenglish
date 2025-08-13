@@ -1,11 +1,12 @@
 "use client";
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionType, SectionContentType } from "@/types/section";
 import { cn, formatProgress } from "@/lib/utils";
 import {
+  useUpdateLessonLocked,
   useUpdateProgressSectionContent,
   useUpdateSectionContentLocked
 } from "@/hooks/client/useLesson";
@@ -13,7 +14,7 @@ import { TabsContainer } from "@/components/lesson/tabs-container";
 import { showToast } from "@/utils/toast-config";
 import { useModal } from "@/hooks/useModalStore";
 import { useNavigationStore } from "@/store/navigationStore";
-import dynamic from "next/dynamic";
+
 import {
   Loader2,
   AlertCircle,
@@ -26,11 +27,8 @@ import {
 import OptimizeImage from "@/components/common/optimize-image";
 import { useSelectLessonStore } from "@/store/useSelectLesson";
 
-const MotionMascot = dynamic(() => import("@/components/lesson/mascot"), {
-  ssr: false
-});
-
 interface LessonClientProps {
+  lessonId: string;
   sectionData: SectionType[];
   sectionContentData: SectionContentType[];
   isLoading?: boolean;
@@ -55,6 +53,7 @@ const STYLES = {
 };
 
 function LessonClient({
+  lessonId,
   sectionData,
   sectionContentData,
   isLoading = false,
@@ -62,19 +61,21 @@ function LessonClient({
 }: LessonClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname();
+
   const { mutate: updateProgressSectionContent } =
     useUpdateProgressSectionContent();
   const { mutate: updateSectionContentLocked } =
     useUpdateSectionContentLocked();
   const { onOpen } = useModal();
-  const { lessonName, setSelectedLesson } = useSelectLessonStore();
-  const { previousPage, clearPreviousPage } = useNavigationStore();
+  const { lessonName } = useSelectLessonStore();
+  const { previousPage } = useNavigationStore();
 
   const [selectedSection, setSelectedSection] = useState<number | null>(null);
   const [sectionContentLoading, setSectionContentLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+
+  const { mutate: updateLessonLocked } = useUpdateLessonLocked();
 
   const handleSectionClick = useCallback(
     (sectionId: number) => {
@@ -95,17 +96,24 @@ function LessonClient({
   const handleCloseSection = useCallback(() => {
     setSelectedSection(null);
     setSectionContentLoading(false);
-    const lessonId = pathname.split("/")[2];
     router.push(`/lesson/${lessonId}`);
-  }, [router, pathname]);
+  }, [router, lessonId]);
 
   const handleBack = useCallback(() => {
     if (!selectedSection) {
-      router.push("/lop-hoc");
+      // Kiểm tra xem có thông tin về trang trước không
+      if (previousPage && previousPage.url) {
+        // Navigate về trang trước với state được lưu
+        console.log("🔙 Navigating back to:", previousPage);
+        router.push(previousPage.url);
+      } else {
+        // Fallback về trang mặc định
+        router.push("/lop-hoc");
+      }
     } else {
       router.back();
     }
-  }, [router, selectedSection]);
+  }, [router, selectedSection, previousPage]);
 
   // const handleBack = useCallback(() => {
   //   if (!selectedSection) {
@@ -125,7 +133,6 @@ function LessonClient({
   // }, [router, selectedSection, previousPage, clearPreviousPage]);
 
   const handleShowNextSectionModal = useCallback(() => {
-    const lessonId = pathname.split("/")[2];
     // Tìm section tiếp theo
     const currentSection = sectionData.find(
       (s) => s.sectionId === selectedSection
@@ -135,16 +142,18 @@ function LessonClient({
     );
 
     onOpen("nextSection", {
-      onConfirm: () => {
+      onConfirm: async () => {
         // Navigate to next section if exists, otherwise stay on lesson page
         if (nextSection) {
+          //
+          console.log("nextSection", nextSection);
           router.push(`?section=${nextSection.sectionId}`);
         } else {
           router.push(`/lesson/${lessonId}`);
         }
       }
     });
-  }, [onOpen, router, pathname, selectedSection, sectionData]);
+  }, [onOpen, router, lessonId, selectedSection, sectionData]);
 
   // Effect hooks
   useEffect(() => {
@@ -273,13 +282,10 @@ function LessonClient({
   // Empty state - không có section nào
   if (!sectionData || sectionData.length === 0) {
     return (
-      <div className={STYLES.container.base}>
+      <div
+        className={`${STYLES.container.base} flex items-center justify-center`}
+      >
         <div className={STYLES.background}></div>
-
-        <div className="hidden md:block">
-          <MotionMascot position="left" />
-          <MotionMascot position="right" />
-        </div>
 
         <div className={`${STYLES.cardWrapper} max-w-lg mx-4`}>
           <div className="flex flex-col items-center gap-4 sm:gap-6">
@@ -300,12 +306,9 @@ function LessonClient({
                 nội dung.
               </p>
             </div>
-            <button
-              onClick={() => router.push("/lop-hoc")}
-              className={STYLES.buttonPrimary}
-            >
+            <button onClick={handleBack} className={STYLES.buttonPrimary}>
               <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-              Quay lại lớp học
+              Quay lại
             </button>
           </div>
         </div>
@@ -316,11 +319,11 @@ function LessonClient({
   // Main content styles
   const mainContentStyles = {
     contentCard: cn(
-      "z-10 bg-white/95 backdrop-blur-xl w-[95%] sm:w-[80%] mx-auto",
-      "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-xl sm:rounded-2xl md:rounded-3xl",
+      "lesson-main-content z-10 bg-white/95 backdrop-blur-xl w-[98%] portrait:w-[98%] landscape:w-full landscape:max-w-full sm:landscape:w-[96%] md:w-[90%] lg:w-[85%] mx-auto landscape:mx-0",
+      "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg portrait:rounded-lg landscape:rounded-none sm:landscape:rounded-xl lg:rounded-3xl",
       "shadow-2xl border border-white/20",
-      "max-h-[90vh] sm:max-h-[85vh] md:max-h-[80vh] lg:max-h-[90vh]",
-      selectedSection ? "h-full" : "h-[85vh] py-4 sm:py-6 md:py-8"
+      "max-h-[98vh] landscape:max-h-full sm:landscape:max-h-[96vh] lg:max-h-[90vh]",
+      selectedSection ? "h-full" : "h-[92vh] landscape:h-full sm:landscape:h-[90vh] lg:h-[85vh] py-2 landscape:py-0 sm:landscape:py-3 md:py-6"
     ),
     sectionList: `w-full transition-all duration-500 ${
       selectedSection
@@ -335,38 +338,33 @@ function LessonClient({
   };
 
   return (
-    <div className={STYLES.container.base}>
+    <div className={`${STYLES.container.base} lesson-container`}>
       {/* Background overlay */}
       <div className={STYLES.background}></div>
 
-      <div className="hidden md:block">
-        <MotionMascot position="left" />
-        <MotionMascot position="right" />
-      </div>
-
       <div className={mainContentStyles.contentCard}>
         {/* Header */}
-        <div className="absolute -top-5 md:-top-6 lg:-top-7 left-0 right-0 flex justify-between gap-5 sm:gap-0 items-center px-3 sm:px-6">
+        <div className="absolute -top-3 landscape:-top-4 sm:-top-5 md:-top-6 lg:-top-7 left-0 right-0 flex justify-between gap-3 landscape:gap-4 sm:gap-5 items-center px-2 landscape:px-3 sm:px-6">
           {!selectedSection && (
             <>
               <button
                 onClick={handleBack}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-2 sm:p-3 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-110 group "
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-1.5 landscape:p-2 sm:p-3 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-110 group "
               >
-                <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 group-hover:translate-x-[-2px] transition-transform" />
+                <ArrowLeft className="h-3 w-3 landscape:h-4 landscape:w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 group-hover:translate-x-[-2px] transition-transform" />
               </button>
 
-              <div className="bg-white/90 backdrop-blur-sm px-4 sm:px-6 py-2 sm:py-3 rounded-full shadow-lg border border-white/30 max-w-[85%] overflow-hidden">
-                <h1 className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent truncate">
+              <div className="bg-white/90 backdrop-blur-sm px-2 landscape:px-3 sm:px-4 md:px-6 py-1 landscape:py-1.5 sm:py-2 md:py-3 rounded-full shadow-lg border border-white/30 max-w-[70%] landscape:max-w-[75%] sm:max-w-[85%] overflow-hidden">
+                <h1 className="text-sm landscape:text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent truncate">
                   {lessonName}
                 </h1>
               </div>
-              <div className="w-8 sm:w-12"></div>
+              <div className="w-6 landscape:w-7 sm:w-8 md:w-12"></div>
             </>
           )}
         </div>
 
-        <div className={`flex relative h-full pt-2 sm:pt-6`}>
+        <div className={`flex relative h-full pt-1 landscape:pt-2 sm:pt-4 md:pt-6`}>
           <div className={mainContentStyles.sectionList}>
             <ScrollArea
               className="w-full px-3 sm:px-6 h-full"
@@ -382,7 +380,7 @@ function LessonClient({
               <div className="grid gap-3 sm:gap-6 py-2 sm:py-4 px-2 sm:px-4 md:px-10">
                 {[...sectionData]
                   .sort((a, b) => (a.order || 0) - (b.order || 0))
-                  .map((section, index) => (
+                  .map((section) => (
                     <div
                       key={section.sectionId}
                       onClick={() => handleSectionClick(section.sectionId)}
@@ -607,7 +605,9 @@ function LessonClient({
                     )}
                     onShowNextSectionModal={handleShowNextSectionModal}
                     currentLesson={{
-                      lessonId: parseInt(pathname.split("/")[2]),
+                      lessonId: Number.isNaN(parseInt(lessonId as any, 10))
+                        ? 0
+                        : parseInt(lessonId as any, 10),
                       classId: 0, // Sẽ được lấy từ server-side nếu cần
                       unitId: 0, // Sẽ được lấy từ server-side nếu cần
                       lessonOrder: 0

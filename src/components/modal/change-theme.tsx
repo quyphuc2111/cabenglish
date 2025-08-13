@@ -12,6 +12,11 @@ import { useUpdateUserInfo } from "@/hooks/client/useUser";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useUserInfo } from "@/hooks/useUserInfo";
+import {
+  measureThemeSwitch,
+  measureThemeSwitchEnd,
+  checkPerformanceIssues
+} from "@/utils/theme-performance";
 
 const THEME_OPTIONS = [
   { id: "theme-gold", color: "#ECC98D" },
@@ -49,32 +54,76 @@ function ChangeTheme() {
   const { mutate: updateUserInfo, isPending } = useUpdateUserInfo();
 
   const handleChangeTheme = async () => {
+    // ✅ Kiểm tra nếu theme không thay đổi thì không cần update
+    if (selectedTheme === currentTheme) {
+      onClose();
+      return;
+    }
+
+    // ✅ Start performance measurement
+    measureThemeSwitch();
+
     try {
-      updateUserInfo({
-        userId: session?.user.userId as string,
-        userInfo: {
-          theme: selectedTheme,
-          email: session?.user.email || "",
-          language: session?.user.language || "",
-          mode: session?.user.mode || "",
-          is_firstlogin: session?.user.is_firstlogin || false,
-        }
-      }, {
-        onSuccess: async () => {
-          await update({
-            user: {
-              ...session?.user,
-              theme: selectedTheme
-            }
-          });
-          onClose();
+      updateUserInfo(
+        {
+          userId: session?.user.userId as string,
+          userInfo: {
+            theme: selectedTheme,
+            email: session?.user.email || "",
+            language: session?.user.language || "",
+            mode: session?.user.mode || "",
+            is_firstlogin: session?.user.is_firstlogin || false
+          }
         },
-        onError: (error) => {
-          console.error("Lỗi khi cập nhật theme:", error);
+        {
+          onSuccess: async () => {
+            try {
+              // ✅ Update session với theme mới
+              await update({
+                user: {
+                  ...session?.user,
+                  theme: selectedTheme
+                }
+              });
+
+              // ✅ End performance measurement
+              const metric = measureThemeSwitchEnd();
+
+              // ✅ Check for performance issues
+              checkPerformanceIssues();
+
+              // ✅ Đóng modal sau khi update thành công
+              onClose();
+
+              // ✅ Optional: Show success feedback
+              console.log(
+                "Theme updated successfully:",
+                selectedTheme,
+                `(${metric?.duration?.toFixed(2)}ms)`
+              );
+            } catch (sessionError) {
+              console.error("Lỗi khi cập nhật session:", sessionError);
+              measureThemeSwitchEnd(); // End measurement even on error
+              // Vẫn đóng modal vì theme đã được lưu vào database
+              onClose();
+            }
+          },
+          onError: (error) => {
+            console.error("Lỗi khi cập nhật theme:", error);
+            measureThemeSwitchEnd(); // End measurement on error
+            // ✅ Reset về theme cũ nếu có lỗi
+            setSelectedTheme(currentTheme as ThemeType);
+            // ✅ Optional: Show error toast
+            alert("Có lỗi xảy ra khi thay đổi theme. Vui lòng thử lại.");
+          }
         }
-      });
+      );
     } catch (error) {
       console.error("Lỗi khi cập nhật theme:", error);
+      measureThemeSwitchEnd(); // End measurement on error
+      // ✅ Reset về theme cũ nếu có lỗi
+      setSelectedTheme(currentTheme as ThemeType);
+      alert("Có lỗi xảy ra khi thay đổi theme. Vui lòng thử lại.");
     }
   };
 
@@ -101,7 +150,9 @@ function ChangeTheme() {
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 />
-                <p className="text-gray-700 font-medium">Đang cập nhật theme...</p>
+                <p className="text-gray-700 font-medium">
+                  Đang cập nhật theme...
+                </p>
               </motion.div>
             </motion.div>
           )}
@@ -175,8 +226,12 @@ function ChangeTheme() {
                     transition: { duration: 0.5 }
                   }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => !isPending && setSelectedTheme(theme.id as ThemeType)}
-                  className={`cursor-pointer relative ${isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  onClick={() =>
+                    !isPending && setSelectedTheme(theme.id as ThemeType)
+                  }
+                  className={`cursor-pointer relative ${
+                    isPending ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 >
                   <StarIcon width={58} height={58} color={theme.color} />
                   {selectedTheme === theme.id && (
@@ -215,7 +270,8 @@ function ChangeTheme() {
                     width={40}
                     height={40}
                     color={
-                      THEME_OPTIONS.find((t) => t.id === selectedTheme)?.color || "#E25762"
+                      THEME_OPTIONS.find((t) => t.id === selectedTheme)
+                        ?.color || "#E25762"
                     }
                   />
                 </motion.div>
@@ -234,7 +290,11 @@ function ChangeTheme() {
                         <motion.div
                           className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                           animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            ease: "linear"
+                          }}
                         />
                       </motion.div>
                     )}
@@ -253,7 +313,11 @@ function ChangeTheme() {
                         <motion.div
                           className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                           animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            ease: "linear"
+                          }}
                         />
                         <span>Đang lưu...</span>
                       </motion.div>
@@ -265,19 +329,19 @@ function ChangeTheme() {
               </div>
 
               <Image
-              src="/modal/kilan.png"
-              width={40}
-              height={37}
-              alt="kilan"
-              className="absolute -top-10 left-[15%] transform scale-x-[-1]"
-            />
+                src="/modal/kilan.png"
+                width={40}
+                height={37}
+                alt="kilan"
+                className="absolute -top-10 left-[15%] transform scale-x-[-1]"
+              />
               <Image
-              src="/modal/kilan.png"
-              width={40}
-              height={37}
-              alt="kilan"
-               className="absolute -top-10 right-[20%]"
-            />
+                src="/modal/kilan.png"
+                width={40}
+                height={37}
+                alt="kilan"
+                className="absolute -top-10 right-[20%]"
+              />
             </div>
           </motion.div>
           <div className="flex w-full justify-between">

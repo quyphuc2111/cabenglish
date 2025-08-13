@@ -1,29 +1,45 @@
-'use client'
+"use client";
 
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useMemo } from "react";
 
-const TranslationContext = createContext<{
-  t: (key: string) => string
-}>({
-  t: (key) => key,
-})
-
-export function TranslationProvider({ 
-  children, 
-  translations 
-}: { 
-  children: React.ReactNode
-  translations: any 
-}) {
-  const t = (key: string) => {
-    return translations[key] || key
-  }
-
-  return (
-    <TranslationContext.Provider value={{ t }}>
-      {children}
-    </TranslationContext.Provider>
-  )
+interface TranslationContextType {
+  t: (key: string) => string;
+  translations: any;
+  currentLanguage: string;
 }
 
-export const useTranslations = () => useContext(TranslationContext)
+const TranslationContext = createContext<TranslationContextType>({
+  t: (key) => key,
+  translations: {},
+  currentLanguage: "vi"
+});
+
+export function TranslationProvider({
+  children,
+  translations,
+  currentLanguage = "vi"
+}: {
+  children: React.ReactNode;
+  translations: any;
+  currentLanguage?: string;
+}) {
+  const contextValue = useMemo(() => {
+    const t = (key: string) => {
+      return translations[key] || key;
+    };
+
+    return {
+      t,
+      translations,
+      currentLanguage
+    };
+  }, [translations, currentLanguage]);
+
+  return (
+    <TranslationContext.Provider value={contextValue}>
+      {children}
+    </TranslationContext.Provider>
+  );
+}
+
+export const useTranslations = () => useContext(TranslationContext);

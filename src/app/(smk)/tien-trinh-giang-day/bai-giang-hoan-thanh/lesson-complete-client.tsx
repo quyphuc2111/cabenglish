@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState, useCallback, memo } from "react";
+import React, { useMemo, useState, useCallback, memo, useEffect } from "react";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import SectionTitle from "@/components/common/section-title";
 import Image from "next/image";
@@ -13,6 +13,9 @@ import { getUnitByClassId } from "@/actions/unitsAction";
 import { getSchoolWeekByUnitId } from "@/actions/schoolWeekAction";
 import { ChevronDown, Users, BookOpen, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { useNavigationStore } from "@/store/navigationStore";
+import { useNavigationRestore } from "@/hooks/useNavigationRestore";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -239,10 +242,45 @@ function LessonCompleteClient({
   classrooms,
   userId
 }: LessonCompleteClientProps) {
+  const router = useRouter();
+  const { lessonCompleteState, setLessonCompleteState, setPreviousPage } =
+    useNavigationStore();
+  const { isReturningFromLesson } = useNavigationRestore();
+
+  // Ensure selected lesson cache is reset on entering this page
+  // to avoid stale selection affecting navigation
+  // We import lazily to avoid circular deps at top-level
+  useEffect(() => {
+    let isMounted = true;
+    import("@/store/useSelectLesson")
+      .then(({ useSelectLessonStore }) => {
+        if (!isMounted) return;
+        const { clearSelectedLesson } = useSelectLessonStore.getState();
+        clearSelectedLesson();
+        // Optional: debug
+        // console.log("[lesson-complete] cleared selected-lesson-storage on mount");
+      })
+      .catch((e) => {
+        console.error(
+          "[lesson-complete] failed to clear selected-lesson-storage:",
+          e
+        );
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Local state for filters - no URL params
-  const [selectedClassId, setSelectedClassId] = useState("");
-  const [selectedUnitId, setSelectedUnitId] = useState("");
-  const [selectedWeekId, setSelectedWeekId] = useState("");
+  const [selectedClassId, setSelectedClassId] = useState(
+    lessonCompleteState?.selectedClassId || ""
+  );
+  const [selectedUnitId, setSelectedUnitId] = useState(
+    lessonCompleteState?.selectedUnitId || ""
+  );
+  const [selectedWeekId, setSelectedWeekId] = useState(
+    lessonCompleteState?.selectedWeekId || ""
+  );
 
   const completedLessons = useLessonFilter(
     lessonData,
@@ -256,6 +294,70 @@ function LessonCompleteClient({
   const [schoolWeeks, setSchoolWeeks] = useState<any[]>([]);
   const [loadingUnits, setLoadingUnits] = useState(false);
   const [loadingWeeks, setLoadingWeeks] = useState(false);
+
+  // Hydrate dependent options when coming back with restored filters
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadUnitsIfNeeded = async () => {
+      if (!selectedClassId || units.length > 0) return;
+      try {
+        setLoadingUnits(true);
+        const unitsResponse = await getUnitByClassId(selectedClassId, userId);
+        if (cancelled) return;
+        setUnits(
+          Array.isArray(unitsResponse)
+            ? unitsResponse
+            : unitsResponse?.data || []
+        );
+      } catch (e) {
+        if (!cancelled) {
+          console.error("[lesson-complete] restore units failed:", e);
+          setUnits([]);
+        }
+      } finally {
+        if (!cancelled) setLoadingUnits(false);
+      }
+    };
+
+    const loadWeeksIfNeeded = async () => {
+      if (!selectedUnitId || schoolWeeks.length > 0) return;
+      try {
+        setLoadingWeeks(true);
+        const weeksResponse = await getSchoolWeekByUnitId({
+          unitId: parseInt(selectedUnitId)
+        });
+        if (cancelled) return;
+        setSchoolWeeks(Array.isArray(weeksResponse) ? weeksResponse : []);
+      } catch (e) {
+        if (!cancelled) {
+          console.error("[lesson-complete] restore weeks failed:", e);
+          setSchoolWeeks([]);
+        }
+      } finally {
+        if (!cancelled) setLoadingWeeks(false);
+      }
+    };
+
+    // Only run on initial paint or when returning from lesson with stored state
+    // Populate child dropdowns so labels and disabled states are correct
+    loadUnitsIfNeeded().then(loadWeeksIfNeeded);
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [/* restore hydration */ selectedClassId, selectedUnitId]);
+
+  // Restore scroll when returning from lesson and we have stored position
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (isReturningFromLesson && lessonCompleteState?.scrollPosition) {
+      setTimeout(() => {
+        window.scrollTo(0, lessonCompleteState.scrollPosition || 0);
+      }, 100);
+    }
+  }, [isReturningFromLesson, lessonCompleteState?.scrollPosition]);
 
   // Handle class change
   const handleClassChange = useCallback(
@@ -322,17 +424,94 @@ function LessonCompleteClient({
     [completedLessons.length, lessonData]
   );
 
+  // Handle navigation to a specific lesson with state persistence
+  const handleNavigateToLesson = useCallback(
+    (lessonItem: LessonType) => {
+      // Save previous page with filters and scroll
+      setPreviousPage({
+        url: "/tien-trinh-giang-day/bai-giang-hoan-thanh",
+        title: "Bài giảng hoàn thành",
+        state: {
+          scrollPosition: window.scrollY,
+          filters: {
+            selectedClassId,
+            selectedUnitId,
+            selectedWeekId
+          }
+        }
+      });
+
+      // Persist lesson complete page state
+      setLessonCompleteState({
+        selectedClassId,
+        selectedUnitId,
+        selectedWeekId,
+        scrollPosition: window.scrollY
+      });
+
+      // Also set the selected lesson explicitly right before navigating
+      import("@/store/useSelectLesson")
+        .then(({ useSelectLessonStore }) => {
+          const { setSelectedLesson } = useSelectLessonStore.getState();
+          setSelectedLesson({
+            ...lessonItem,
+            lessonName: lessonItem.lessonName || "",
+            className: lessonItem.className || "",
+            unitName: lessonItem.unitName || "",
+            imageUrl: lessonItem.imageUrl || ""
+          });
+        })
+        .catch((e) => {
+          console.error(
+            "[lesson-complete] failed to set selected lesson before navigate:",
+            e
+          );
+        });
+
+      // Navigate
+      router.push(`/lesson/${lessonItem.lessonId}`);
+    },
+    [
+      router,
+      selectedClassId,
+      selectedUnitId,
+      selectedWeekId,
+      setLessonCompleteState,
+      setPreviousPage
+    ]
+  );
+
   // Memoized render function for lesson cards
+  // Wrap LessonCard in a clickable container to ensure click handling regardless of internal implementation
   const renderLessonCard = useCallback(
     (lessonItem: LessonType) => (
-      <LessonCard
-        {...lessonItem}
-        classRoomName={lessonItem.className}
-        schoolWeekId={lessonItem.schoolWeekId || lessonItem.schoolWeekID || 0}
+      <div
         key={`completed-${lessonItem.lessonId}`}
-      />
+        role="button"
+        tabIndex={0}
+        onClick={() => handleNavigateToLesson(lessonItem)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleNavigateToLesson(lessonItem);
+          }
+        }}
+        className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 rounded-xl"
+        style={{ pointerEvents: "auto" }}
+      >
+        {/* Standardized sizing wrapper for LessonCard across pages */}
+        <div className="lesson-card-size w-full h-full max-w-[360px] md:max-w-[380px] lg:max-w-[320px] xl:max-w-[340px] min-h-[220px] md:min-h-[240px] lg:min-h-[200px] xl:min-h-[220px] mx-auto">
+          <LessonCard
+            {...lessonItem}
+            classRoomName={lessonItem.className}
+            schoolWeekId={
+              lessonItem.schoolWeekId || lessonItem.schoolWeekID || 0
+            }
+          />
+        </div>
+      </div>
     ),
-    []
+    [handleNavigateToLesson]
   );
 
   return (
@@ -452,7 +631,9 @@ function LessonCompleteClient({
         <PerformanceWrapper
           variant="lesson-grid"
           enableContentVisibility={true}
-          className="lesson-grid-container performance-below-fold"
+          enableTouch={false}
+          containLevel="style"
+          className="lesson-grid-container performance-below-fold pointer-events-auto"
         >
           <div className="mt-4 sm:mt-6 md:mt-8">
             {completedLessons.length > 0 ? (
@@ -460,7 +641,7 @@ function LessonCompleteClient({
                 items={completedLessons}
                 itemsPerPage={ITEMS_PER_PAGE}
                 renderItem={renderLessonCard}
-                rowPerPage={4} // Grid responsive: 2 cột trên mobile, 4 cột trên desktop
+                rowPerPage={3} // Grid responsive: 2 cột trên mobile, 4 cột trên desktop
                 itemInPage={[8, 16, 24, 32]} // Options cho items per page
               />
             ) : (

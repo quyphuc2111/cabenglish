@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { getAllLessonDataByUserId } from '@/actions/lessonAction';
 import { getUserInfo } from '@/actions/userAction';
 import { LessonType } from '@/types/lesson';
+import { useSafeUserInfo as useUserInfo } from '@/hooks/useSafeUserInfo';
 
 // Query key factory
 const lessonKeys = {
@@ -20,20 +21,8 @@ export const useLessonData = (userId?: string) => {
   
   const currentUserId = userId || session?.user?.userId;
 
-  // Fetch user mode
-  const { data: userInfo } = useQuery({
-    queryKey: ['userInfo', currentUserId],
-    queryFn: async () => {
-      if (!currentUserId) throw new Error('UserId is required');
-      const response = await getUserInfo({ userId: currentUserId });
-      if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch user info');
-      }
-      return response.data;
-    },
-    enabled: !!currentUserId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  // ❌ SỬ DỤNG useUserInfo THAY VÌ DUPLICATE useQuery
+  const { data: userInfo } = useUserInfo(currentUserId);
 
   // Fetch lessons data
   const {
@@ -54,11 +43,11 @@ export const useLessonData = (userId?: string) => {
       return Array.isArray(response.data) ? response.data : [];
     },
     enabled: !!currentUserId && !!userInfo,
-    staleTime: 30 * 1000, // 30 seconds
-    gcTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchOnReconnect: true,
+    staleTime: 3 * 60 * 1000, // 3 phút cache - tăng từ 30 giây
+    gcTime: 10 * 60 * 1000, // 10 phút - tăng từ 5 phút
+    refetchOnWindowFocus: false, // Tắt refetch khi focus - giảm CPU
+    refetchOnMount: false, // Tắt refetch khi mount - sử dụng cache
+    refetchOnReconnect: true, // Giữ lại để sync khi mất kết nối
   });
 
   // Helper functions
@@ -116,21 +105,8 @@ export const useClassroomLessons = (classname?: string) => {
   const stableUserId = React.useMemo(() => currentUserId || '', [currentUserId]);
   const stableClassname = React.useMemo(() => classname || '', [classname]);
 
-  // Fetch user mode first with stable key
-  const { data: userInfo } = useQuery({
-    queryKey: ['userInfo', stableUserId],
-    queryFn: async () => {
-      if (!stableUserId) throw new Error('UserId is required');
-      const response = await getUserInfo({ userId: stableUserId });
-      if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch user info');
-      }
-      return response.data;
-    },
-    enabled: !!stableUserId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-  });
+  // ❌ SỬ DỤNG useUserInfo THAY VÌ DUPLICATE useQuery
+  const { data: userInfo } = useUserInfo(stableUserId);
 
   // Stable mode
   const stableMode = React.useMemo(() => userInfo?.mode || 'default', [userInfo?.mode]);

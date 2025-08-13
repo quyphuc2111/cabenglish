@@ -35,6 +35,30 @@ export const DashboardService = {
     }
   },
 
+  async fetchDashboardDataWithMode(userId: string, mode: "default" | "free") {
+    try {
+      const [lockedData, progressData, courseData, filterData, classroomData] =
+        await Promise.all([
+          initializeLocked({ userId, mode }),
+          initializeProgress(userId),
+          getAllLessonDataByUserId({ userId, mode }),
+          fetchFilterData({ userId }),
+          getAllClassroomDataByUserId({ userId }),
+        ]);
+
+      return {
+        lockedData,
+        progressData,
+        courseData: courseData.data,
+        filterData,
+        classroomData: classroomData.data,
+      };
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      throw error;
+    }
+  },
+
   async resetLessonProgress(userId: string, lessonIds: number[]) {
     try {
       const response = await resetLessonProgress({ userId, lessonIds });
