@@ -1,6 +1,4 @@
 import axios from "axios";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 
 export interface TokenResponseDto {
   accessToken: string;
@@ -102,14 +100,19 @@ export function isRefreshTokenValid(authCookie?: string): boolean {
   }
 }
 
-export async function logout(): Promise<{ message: string }> {
-  const session = await getServerSession(authOptions);
+export async function logout(
+  authCookie?: string
+): Promise<{ message: string }> {
+  if (!authCookie) {
+    throw new Error("Auth cookie is required for logout");
+  }
+
   const response = await axios.post<{ message: string }>(
     `${process.env.BKT_ACCOUNT_API_URL}/api/Auth/logout`,
     {},
     {
       headers: {
-        Cookie: session?.user.authCookie || ""
+        Cookie: authCookie
       },
       withCredentials: true
     }

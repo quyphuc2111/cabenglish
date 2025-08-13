@@ -3,6 +3,7 @@
 import React from "react";
 import { Dialog, DialogContent, DialogTitle, DialogHeader } from "../ui/dialog";
 import { useModal } from "@/hooks/useModalStore";
+import { useUserStore } from "@/store/useUserStore";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../ui/button";
@@ -10,6 +11,8 @@ import { logoutAction } from "@/actions/authAction";
 import axios from "axios";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { showToast } from "@/utils/toast-config";
 
 // Thêm các animation variants
 const modalVariants = {
@@ -22,7 +25,7 @@ const modalVariants = {
     scale: 1,
     transition: {
       duration: 0.3,
-      ease: "easeOut"
+      ease: [0.25, 0.1, 0.25, 1] as const
     }
   },
   exit: {
@@ -35,7 +38,7 @@ const modalVariants = {
 };
 
 const contentVariants = {
-  hidden: { 
+  hidden: {
     opacity: 0,
     y: 20
   },
@@ -63,56 +66,84 @@ const buttonVariants = {
 
 function LogoutModal() {
   const { isOpen, onClose, type } = useModal();
+  const { logout: logoutFromStore } = useUserStore();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
 
   const handleLogout = async () => {
+    if (isLoggingOut) return; // Prevent multiple clicks
+    setIsLoggingOut(true);
+
     try {
+      // Hiển thị loading state
       const result = await logoutAction();
       if (!result.success) {
         console.error("Server action logout failed:", result.message);
+        // Vẫn tiếp tục với Moodle logout và client logout
       } else {
         console.log("Server action logout successful.");
       }
     } catch (error) {
       console.error("Error calling logout action:", error);
+      // Vẫn tiếp tục với các bước logout khác
     }
 
+    // Logout từ Moodle
     try {
       const apiUrl = process.env.NEXT_PUBLIC_BKT_ACCOUNT_API_URL || "";
-      const response = await axios.post(
-        `${apiUrl}/api/Moodle/logout-default`,
-        {},
-        {
-          withCredentials: true 
-        }
-      );
+      if (apiUrl) {
+        const response = await axios.post(
+          `${apiUrl}/api/Moodle/logout-default`,
+          {},
+          {
+            withCredentials: true
+          }
+        );
 
-      if (response.data.success) {
-        console.log("Moodle logout successful:", response.data.message);
-      } else {
-        console.error("Moodle logout failed:", response.data.message);
+        if (response.data.success) {
+          console.log("Moodle logout successful:", response.data.message);
+        } else {
+          console.error("Moodle logout failed:", response.data.message);
+        }
       }
     } catch (error) {
       console.error("Error calling logout-default API:", error);
+      // Không block logout process nếu Moodle logout failed
     }
 
+    // Clear Zustand store
+    try {
+      logoutFromStore();
+      console.log("Zustand store cleared.");
+    } catch (error) {
+      console.error("Error clearing Zustand store:", error);
+    }
+
+    // NextAuth signOut
     try {
       console.log("Performing client-side signOut...");
-      await signOut({ redirect: false }); 
+      await signOut({ redirect: false });
       console.log("Client-side signOut successful.");
+      showToast.success("Đăng xuất thành công!");
     } catch (error) {
       console.error("Next-auth signOut failed:", error);
+      showToast.error("Có lỗi xảy ra khi đăng xuất");
     }
 
-    // Đóng modal trước khi redirect
+    // Đóng modal và redirect
     onClose();
-    router.push("/");
-    router.refresh();
-  }
+    setIsLoggingOut(false);
+
+    // Delay redirect slightly to allow toast to show
+    setTimeout(() => {
+      router.push("/");
+      router.refresh();
+    }, 500);
+  };
 
   const handleClose = () => {
     onClose();
-  }
+  };
 
   return (
     <AnimatePresence>
@@ -133,7 +164,7 @@ function LogoutModal() {
                     animate={{ x: 0 }}
                     transition={{ delay: 0.2, type: "spring" }}
                   >
-                    <motion.div 
+                    <motion.div
                       className="w-[66px] h-[41px] flex items-center"
                       whileHover={{
                         rotate: [0, -10, 10, 0],
@@ -149,7 +180,7 @@ function LogoutModal() {
                         priority
                       />
                     </motion.div>
-                    <motion.h2 
+                    <motion.h2
                       className="flex items-center"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -161,7 +192,7 @@ function LogoutModal() {
                 </DialogTitle>
               </DialogHeader>
 
-              <motion.div 
+              <motion.div
                 variants={contentVariants}
                 initial="hidden"
                 animate="visible"
@@ -177,24 +208,49 @@ function LogoutModal() {
                     }
                   }}
                 >
-                  <Image src="/modal/ques_person.png" alt="person" width={80} height={80} />
+                  <Image
+                    src="/modal/ques_person.png"
+                    alt="person"
+                    width={80}
+                    height={80}
+                  />
                 </motion.div>
-                <p className="text-2xl font-medium">Bạn có muốn đăng xuất không?</p>
+                <p className="text-2xl font-medium">
+                  Bạn có muốn đăng xuất không?
+                </p>
                 <div className="flex gap-20">
-                  <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                    <Button className="bg-blue-500 hover:bg-blue-500/80 text-md text-white" size={"lg"} onClick={handleLogout}>
-                      Đồng ý
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
+                    <Button
+                      className="bg-blue-500 hover:bg-blue-500/80 text-md text-white"
+                      size={"lg"}
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                    >
+                      {isLoggingOut ? "Đang đăng xuất..." : "Đồng ý"}
                     </Button>
                   </motion.div>
-                  <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                    <Button className="bg-red-500 hover:bg-red-500/80 text-md text-white" size="lg" onClick={handleClose}>
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
+                    <Button
+                      className="bg-red-500 hover:bg-red-500/80 text-md text-white"
+                      size="lg"
+                      onClick={handleClose}
+                      disabled={isLoggingOut}
+                    >
                       Không
                     </Button>
                   </motion.div>
                 </div>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 className="flex items-center justify-between"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -210,7 +266,12 @@ function LogoutModal() {
                     }
                   }}
                 >
-                  <Image src="/modal/orange.png" alt="orange" width={80} height={80} />
+                  <Image
+                    src="/modal/orange.png"
+                    alt="orange"
+                    width={80}
+                    height={80}
+                  />
                 </motion.div>
                 <motion.div
                   animate={{
@@ -222,7 +283,12 @@ function LogoutModal() {
                     }
                   }}
                 >
-                  <Image src="/modal/orange.png" alt="orange" width={80} height={80} />
+                  <Image
+                    src="/modal/orange.png"
+                    alt="orange"
+                    width={80}
+                    height={80}
+                  />
                 </motion.div>
               </motion.div>
             </DialogContent>
