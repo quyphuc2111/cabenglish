@@ -17,7 +17,6 @@ declare module "next-auth/jwt" {
     theme: string;
     authCookie?: string;
     language?: string;
-    moodleCookie?: string;
   }
 }
 
@@ -35,7 +34,6 @@ declare module "next-auth" {
     theme: "theme-blue" | "theme-gold" | "theme-pink" | "theme-red";
     authCookie?: string;
     language?: string;
-    moodleCookie?: string;
   }
 
   interface Session {
@@ -50,7 +48,6 @@ declare module "next-auth" {
       theme?: string;
       authCookie?: string;
       language?: string;
-      moodleCookie?: string;
     };
   }
 }
@@ -156,9 +153,6 @@ export const authOptions: NextAuthOptions = {
 
             const authCookie = loginResponse.headers["set-cookie"];
 
-            const moodleCookie =
-              "MoodleSession=3qfpb47l8gre739bhq3t0q61d0; path=/; secure; HttpOnly; SameSite=None";
-
             // Extract bkt_account cookie specifically
             let bktAccountCookie = undefined;
             if (authCookie && Array.isArray(authCookie)) {
@@ -190,8 +184,7 @@ export const authOptions: NextAuthOptions = {
                   | "theme-gold"
                   | "theme-pink"
                   | "theme-red") || "theme-blue",
-              authCookie: bktAccountCookie,
-              moodleCookie: moodleCookie
+              authCookie: bktAccountCookie
             };
 
             return user;
@@ -289,9 +282,7 @@ export const authOptions: NextAuthOptions = {
                 | "theme-gold"
                 | "theme-pink"
                 | "theme-red") || "theme-blue",
-            authCookie: bktAccountCookie,
-            moodleCookie:
-              "MoodleSession=3qfpb47l8gre739bhq3t0q61d0; path=/; secure; HttpOnly; SameSite=None"
+            authCookie: bktAccountCookie
           };
 
           return user;
@@ -324,7 +315,6 @@ export const authOptions: NextAuthOptions = {
         token.language = user.language;
         token.is_firstlogin = user.is_firstlogin;
         token.authCookie = user.authCookie;
-        token.moodleCookie = user.moodleCookie;
 
         // Parse JWT to get exact expiry time from backend
         token.accessTokenExpires = user.accessToken
@@ -491,7 +481,6 @@ export const authOptions: NextAuthOptions = {
         session.user.language = token.language;
         session.user.is_firstlogin = token.is_firstlogin;
         session.user.authCookie = token.authCookie;
-        // session.user.moodleCookie = token.moodleCookie;
       }
       return session;
     }

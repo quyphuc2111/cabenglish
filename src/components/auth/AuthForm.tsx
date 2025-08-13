@@ -61,20 +61,6 @@ const AuthForm: FC<AuthFormProps> = ({ type, animated, onSwitchForm }) => {
         );
       } else {
         setErrorMessage(null);
-        // Call external API as per user request
-        try {
-          // lấy moodle cookies
-          const domain = process.env.NEXT_PUBLIC_BKT_ACCOUNT_API_URL;
-          if (!domain) {
-            console.error("API domain is not set");
-            return;
-          }
-          const url = `${domain}/api/Moodle/login-default`;
-          await axios.post(url, {}, { withCredentials: true });
-        } catch (apiError) {
-          // Optionally handle API error, but do not block login flow
-          console.error("External API login error:", apiError);
-        }
 
         // Save remember_password + email if checked
         if (data.remember_password) {

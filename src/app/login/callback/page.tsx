@@ -41,25 +41,9 @@ function LoginCallbackContent() {
             });
 
             if (authResult.success) {
-              // Call external API as per user request
-              try {
-                // lấy moodle cookies
-                const domain = process.env.NEXT_PUBLIC_BKT_ACCOUNT_API_URL;
-                if (!domain) {
-                  console.error("API domain is not set");
-                  return;
-                }
-                const url = `${domain}/api/Moodle/login-default`;
-                await axios.post(url, {}, { withCredentials: true });
-                toast.success("Đăng nhập thành công!");
-                // Redirect to the dashboard or home page
-                router.push("/tong-quan");
-              } catch (apiError) {
-                // Optionally handle API error, but do not block login flow
-                toast.error(
-                  "Có lỗi xảy ra khi kết nối với BKT LMS. Vui lòng thử lại sau."
-                );
-              }
+              toast.success("Đăng nhập thành công!");
+              // Redirect to the dashboard or home page
+              router.push("/tong-quan");
             } else {
               toast.error(
                 "Không thể tạo phiên đăng nhập: " +
