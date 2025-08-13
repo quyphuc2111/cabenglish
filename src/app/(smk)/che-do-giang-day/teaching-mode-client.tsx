@@ -58,8 +58,8 @@ const TEACHING_MODE_DATA = {
     title: "Chế độ mặc định",
     courseData: [
       {
-        courseTitle: "Unit 1 - Bài học: Từ vựng",
-        courseImage: "/modal/course1.png",
+        courseTitle: "Unit 1: Hello",
+        courseImage: "/modal/unit1_hello.png",
         courseWeek: "Tuần học 1",
         courseCategory: "3 - 4 tuổi",
         courseName: "Bảng chữ cái tiếng anh",
@@ -68,18 +68,18 @@ const TEACHING_MODE_DATA = {
         courseStatus: "started"
       },
       {
-        courseTitle: "Unit 2 - Bài học: Chào hỏi",
-        courseImage: "/modal/course2.png",
+        courseTitle: "Unit 2: Shapes",
+        courseImage: "/modal/unit2_shapes.png",
         courseWeek: "Tuần học 2",
         courseCategory: "3 - 4 tuổi",
-        courseName: "Giới thiệu bản thân",
+        courseName: "Giới thiệu thông tin về bản thân",
         courseProgress: 100,
         courseLike: 568,
         courseStatus: "not_started"
       },
       {
-        courseTitle: "Unit 3 - Bài học: Màu sắc",
-        courseImage: "/modal/course3.png",
+        courseTitle: "Unit 3: Numbers",
+        courseImage: "/modal/unit3_numbers.png",
         courseWeek: "Tuần học 3",
         courseCategory: "3 - 4 tuổi",
         courseName: "Khám phá các màu sắc",
@@ -88,8 +88,8 @@ const TEACHING_MODE_DATA = {
         courseStatus: "not_started"
       },
       {
-        courseTitle: "Unit 4 - Bài học: Từ vựng",
-        courseImage: "/modal/course4.png",
+        courseTitle: "Unit 4: Nature",
+        courseImage: "/modal/unit4_nature.png",
         courseWeek: "Tuần học 1",
         courseCategory: "3 - 4 tuổi",
         courseName: "Bảng chữ cái tiếng anh",
@@ -103,8 +103,8 @@ const TEACHING_MODE_DATA = {
     title: "Chế độ tự do",
     courseData: [
       {
-        courseTitle: "Unit 1 - Bài học: Từ vựng",
-        courseImage: "/modal/course1.png",
+        courseTitle: "Unit 1: Hello",
+        courseImage: "/modal/unit1_hello.png",
         courseWeek: "Tuần học 1",
         courseCategory: "3 - 4 tuổi",
         courseName: "Bảng chữ cái tiếng anh",
@@ -113,18 +113,18 @@ const TEACHING_MODE_DATA = {
         courseStatus: "started"
       },
       {
-        courseTitle: "Unit 2 - Bài học: Chào hỏi",
-        courseImage: "/modal/course2.png",
+        courseTitle: "Unit 2: Shapes",
+        courseImage: "/modal/unit2_shapes.png",
         courseWeek: "Tuần học 2",
         courseCategory: "3 - 4 tuổi",
-        courseName: "Giới thiệu bản thân",
+        courseName: "Giới thiệu thông tin về bản thân",
         courseProgress: 100,
         courseLike: 568,
         courseStatus: "started"
       },
       {
-        courseTitle: "Unit 3 - Bài học: Màu sắc",
-        courseImage: "/modal/course3.png",
+        courseTitle: "Unit 3: Numbers",
+        courseImage: "/modal/unit3_numbers.png",
         courseWeek: "Tuần học 3",
         courseCategory: "3 - 4 tuổi",
         courseName: "Khám phá các màu sắc",
@@ -133,8 +133,8 @@ const TEACHING_MODE_DATA = {
         courseStatus: "started"
       },
       {
-        courseTitle: "Unit 4 - Bài học: Từ vựng",
-        courseImage: "/modal/course4.png",
+        courseTitle: "Unit 4: Nature",
+        courseImage: "/modal/unit4_nature.png",
         courseWeek: "Tuần học 1",
         courseCategory: "3 - 4 tuổi",
         courseName: "Bảng chữ cái tiếng anh",
@@ -193,7 +193,7 @@ function TeachingModeClient({
 }: TeachingModeClientProps) {
   const { data: userInfo, isLoading, error } = useUserInfo(userId);
   const invalidateUserInfo = useInvalidateUserInfo();
-  const { broadcastUpdate } = useBroadcastSync(); 
+  const { broadcastUpdate } = useBroadcastSync();
   const { onOpen, onClose } = useModal();
 
   const modeActive = userInfo?.mode === "default" ? "defaultMode" : "freeMode";
@@ -221,7 +221,11 @@ function TeachingModeClient({
         userId: userId
       });
 
-      if (result.success && switchModeResponse.success && resetAllSectionContentResponse.success) {
+      if (
+        result.success &&
+        switchModeResponse.success &&
+        resetAllSectionContentResponse.success
+      ) {
         invalidateUserInfo(userId);
         // broadcastUpdate để các tab khác biết đã cập nhật
         broadcastUpdate(userId);
@@ -246,7 +250,7 @@ function TeachingModeClient({
       }
     } catch (error) {
       toast.error("Có lỗi xảy ra khi chuyển chế độ");
-      throw error; 
+      throw error;
     }
   };
 
@@ -304,7 +308,10 @@ function TeachingModeClient({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-gray-200 h-48 rounded-lg animate-pulse"></div>
+                <div
+                  key={i}
+                  className="bg-gray-200 h-48 rounded-lg animate-pulse"
+                ></div>
               ))}
             </div>
           </div>
@@ -315,7 +322,10 @@ function TeachingModeClient({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-gray-200 h-48 rounded-lg animate-pulse"></div>
+                <div
+                  key={i}
+                  className="bg-gray-200 h-48 rounded-lg animate-pulse"
+                ></div>
               ))}
             </div>
           </div>
