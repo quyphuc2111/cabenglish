@@ -385,7 +385,7 @@ export const ProgressStats = memo(function ProgressStats({
                 width={32}
                 height={32}
                 priority
-                className="sm:w-8 sm:h-8 brightness-0 invert"
+                className="sm:w-8 sm:h-8"
               />
             </div>
           </div>

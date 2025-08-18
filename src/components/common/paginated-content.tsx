@@ -77,7 +77,8 @@ const PaginationControls = memo(
     goToPage,
     maxVisiblePages,
     isExtraSmall,
-    isSmall
+    isSmall,
+    isMedium
   }: {
     currentPage: number;
     totalPages: number;
@@ -87,6 +88,7 @@ const PaginationControls = memo(
     maxVisiblePages: number;
     isExtraSmall: boolean;
     isSmall: boolean;
+    isMedium: boolean;
   }) => {
     const renderPageNumbers = useCallback(() => {
       const pages = [];
@@ -99,7 +101,7 @@ const PaginationControls = memo(
             i <= currentPage + Math.floor(maxVisiblePages / 2))
         ) {
           pages.push(
-            <PaginationItem key={i}>
+            <PaginationItem key={i} className="flex-shrink-0">
               <PaginationLink
                 href="#"
                 onClick={(e) => {
@@ -113,6 +115,8 @@ const PaginationControls = memo(
                     ? "min-w-[26px] h-7 text-[10px]"
                     : isSmall
                     ? "min-w-[28px] h-7 text-xs"
+                    : isMedium
+                    ? "min-w-[30px] h-7 text-xs"
                     : "min-w-[32px] h-8 text-sm",
                   currentPage === i
                     ? "bg-blue-600 text-white hover:bg-blue-700 shadow-md"
@@ -130,7 +134,10 @@ const PaginationControls = memo(
             currentPage < totalPages - Math.floor(maxVisiblePages / 2))
         ) {
           pages.push(
-            <PaginationItem key={i} className={isExtraSmall ? "px-0" : ""}>
+            <PaginationItem
+              key={i}
+              className={cn("flex-shrink-0", isExtraSmall ? "px-0" : "")}
+            >
               <PaginationEllipsis className={isExtraSmall ? "h-4 w-4" : ""} />
             </PaginationItem>
           );
@@ -143,55 +150,80 @@ const PaginationControls = memo(
       maxVisiblePages,
       isExtraSmall,
       isSmall,
+      isMedium,
       goToPage
     ]);
 
     return (
-      <div className="flex justify-center">
-        <div className="bg-white rounded-lg shadow-sm border p-1 sm:p-2 w-full">
+      <div className="flex justify-center w-full">
+        <div className="bg-white rounded-lg shadow-sm border p-1 sm:p-2 w-full max-w-full">
           <Pagination>
-            <PaginationContent
+            <div
               className={cn(
-                "gap-0 xs:gap-1 sm:gap-2",
-                isExtraSmall ? "flex-wrap justify-center" : ""
+                "w-full",
+                isExtraSmall || isSmall || isMedium
+                  ? "overflow-x-auto scrollbar-hide"
+                  : ""
               )}
             >
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    prevPage();
-                  }}
+              <PaginationContent
+                className={cn(
+                  "gap-0 xs:gap-1 sm:gap-2",
+                  isExtraSmall || isSmall || isMedium
+                    ? "flex-nowrap justify-center min-w-max px-2"
+                    : "justify-center"
+                )}
+              >
+                <PaginationItem className="flex-shrink-0">
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      prevPage();
+                    }}
+                    className={cn(
+                      "hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 rounded-md",
+                      isExtraSmall
+                        ? "px-1 py-1 text-[10px] min-w-[50px]"
+                        : isSmall
+                        ? "px-2 py-1 text-xs min-w-[60px]"
+                        : isMedium
+                        ? "px-2 py-1 text-xs min-w-[65px]"
+                        : "px-3 py-2 text-sm"
+                    )}
+                  />
+                </PaginationItem>
+                <div
                   className={cn(
-                    "hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 rounded-md",
-                    isExtraSmall
-                      ? "px-1 py-1 text-[10px]"
-                      : isSmall
-                      ? "px-2 py-1 text-xs"
-                      : "px-3 py-2 text-sm"
+                    "flex items-center",
+                    isExtraSmall || isSmall || isMedium
+                      ? "gap-0 xs:gap-1 flex-nowrap"
+                      : "gap-1 sm:gap-2"
                   )}
-                />
-              </PaginationItem>
-              {renderPageNumbers()}
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    nextPage();
-                  }}
-                  className={cn(
-                    "hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 rounded-md",
-                    isExtraSmall
-                      ? "px-1 py-1 text-[10px]"
-                      : isSmall
-                      ? "px-2 py-1 text-xs"
-                      : "px-3 py-2 text-sm"
-                  )}
-                />
-              </PaginationItem>
-            </PaginationContent>
+                >
+                  {renderPageNumbers()}
+                </div>
+                <PaginationItem className="flex-shrink-0">
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      nextPage();
+                    }}
+                    className={cn(
+                      "hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 rounded-md",
+                      isExtraSmall
+                        ? "px-1 py-1 text-[10px] min-w-[50px]"
+                        : isSmall
+                        ? "px-2 py-1 text-xs min-w-[60px]"
+                        : isMedium
+                        ? "px-2 py-1 text-xs min-w-[65px]"
+                        : "px-3 py-2 text-sm"
+                    )}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </div>
           </Pagination>
         </div>
       </div>
@@ -219,6 +251,7 @@ export function PaginatedContent<T>({
   // Check for extra small screens
   const isExtraSmall = useMediaQuery("(max-width: 375px)");
   const isSmall = useMediaQuery("(max-width: 640px)");
+  const isMedium = useMediaQuery("(max-width: 1024px)");
 
   // Update max visible pages based on screen size
   useEffect(() => {
@@ -226,10 +259,12 @@ export function PaginatedContent<T>({
       setMaxVisiblePages(1);
     } else if (isSmall) {
       setMaxVisiblePages(3);
+    } else if (isMedium) {
+      setMaxVisiblePages(3); // Giảm từ 5 xuống 3 cho tablet
     } else {
-      setMaxVisiblePages(5);
+      setMaxVisiblePages(3);
     }
-  }, [isExtraSmall, isSmall]);
+  }, [isExtraSmall, isSmall, isMedium]);
   const {
     currentPage,
     totalPages,
@@ -345,6 +380,7 @@ export function PaginatedContent<T>({
           maxVisiblePages={maxVisiblePages}
           isExtraSmall={isExtraSmall}
           isSmall={isSmall}
+          isMedium={isMedium}
         />
 
         {/* Bottom controls - stack vertically on small screens */}
@@ -422,13 +458,8 @@ export function PaginatedContent<T>({
 
           {/* Go to page - bottom row on mobile */}
           <div className="flex items-center justify-center gap-2 w-full">
-            <span
-              className={cn(
-                "font-medium text-gray-700",
-                isExtraSmall ? "text-xs" : "text-sm"
-              )}
-            >
-              Đến trang:
+            <span className="font-medium text-gray-700 text-xs sm:text-sm">
+              {isExtraSmall ? "Trang:" : "Đến trang:"}
             </span>
             <div className="flex items-center gap-1">
               <Input
@@ -437,13 +468,10 @@ export function PaginatedContent<T>({
                 max={totalPages}
                 value={pageInput}
                 onChange={handlePageInputChange}
-                placeholder={isExtraSmall ? "Trang" : "Số trang"}
-                className={cn(
-                  "border-gray-300 hover:border-blue-400 focus:border-blue-500 transition-colors text-center bg-white",
-                  isExtraSmall
-                    ? "w-[50px] h-7 text-xs"
-                    : "w-[60px] xs:w-[80px] sm:w-[100px] h-7 xs:h-8 sm:h-9 text-sm"
-                )}
+                placeholder={
+                  isExtraSmall ? "Trang" : isSmall ? "Trang" : "Số trang"
+                }
+                className="border-gray-300 hover:border-blue-400 focus:border-blue-500 transition-colors text-center bg-white w-[60px] h-7 text-xs sm:w-[70px] md:w-[80px] md:h-8 md:text-sm lg:w-[100px] lg:h-9"
               />
               <Button
                 onClick={handleGoToPage}
@@ -453,12 +481,7 @@ export function PaginatedContent<T>({
                   parseInt(pageInput) > totalPages
                 }
                 size="sm"
-                className={cn(
-                  "bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 disabled:opacity-50",
-                  isExtraSmall
-                    ? "h-7 px-2 text-xs"
-                    : "h-7 xs:h-8 sm:h-9 px-2 xs:px-3 sm:px-4 text-xs sm:text-sm"
-                )}
+                className="bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 disabled:opacity-50 h-7 px-2 text-xs md:h-8 md:px-3 md:text-sm lg:h-9 lg:px-4"
               >
                 Đi
               </Button>

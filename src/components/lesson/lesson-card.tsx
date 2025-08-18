@@ -415,7 +415,7 @@ function LessonCard({
 
             <button
               className={cn(
-                "like-button relative flex items-center gap-0.5 sm:gap-1 p-1 sm:p-1.5 md:p-2 rounded-lg transition-all duration-300 -m-1 sm:-m-1.5 md:-m-2 group",
+                "like-button relative flex items-center gap-0.5 sm:gap-1 p-1 sm:p-1.5 md:p-2 rounded-lg transition-all duration-300 sm:m-1.5 md:m-2 group",
                 isLiking
                   ? "cursor-not-allowed opacity-50"
                   : "hover:bg-pink-50 active:scale-95",
@@ -576,7 +576,7 @@ const likeButtonStyles = `
   @media (max-width: 640px) {
     .like-button {
       padding: 4px;
-      margin: -4px;
+      margin: 4px;
     }
 
     .floating-hearts {

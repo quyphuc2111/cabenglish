@@ -461,17 +461,17 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
                   value={selectedUnitId}
                   onChange={handleUnitChange}
                   options={[
-                    { value: "", label: "Tất cả đơn vị học" },
+                    { value: "", label: "Tất cả Unit" },
                     ...units.map((unit) => ({
                       value: unit.unitId.toString(),
                       label: unit.unitName
                     }))
                   ]}
-                  placeholder="Chọn đơn vị học"
+                  placeholder="Chọn Unit"
                   disabled={!selectedClassId}
                   loading={loadingUnits}
                   icon={BookOpen}
-                  label="Đơn vị học"
+                  label="Unit"
                 />
               </div>
 
