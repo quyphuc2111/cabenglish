@@ -3,6 +3,7 @@ import Image from "next/image";
 import React from "react";
 import { CourseCarousel } from "@/components/carousel/course-carousel";
 import { PaginatedContent } from "@/components/common/paginated-content";
+import { useSelectLessonStore } from "@/store/useSelectLesson";
 
 interface CurrentLectureProps {
   lectures: any[];
@@ -21,6 +22,30 @@ const CurrentLecture = ({
   t,
   classroomData
 }: CurrentLectureProps) => {
+  const { setSelectedLesson } = useSelectLessonStore();
+
+  const handleLessonClickWithData = (lecture: any) => {
+    // Set lesson data vào store trước khi navigate
+    setSelectedLesson({
+      classId: lecture.classId || classId,
+      unitId: lecture.unitId,
+      lessonId: lecture.lessonId,
+      schoolWeekId: lecture.schoolWeekId,
+      lessonName: lecture.lessonName || "",
+      className: lecture.className || "",
+      unitName: lecture.unitName || "",
+      imageUrl: lecture.imageUrl || "",
+      schoolWeekID: lecture.schoolWeekId,
+      progress: lecture.progress,
+      numLiked: lecture.numLiked,
+      isLocked: lecture.isLocked,
+      schoolWeek: lecture.schoolWeek,
+      lessonOrder: lecture.lessonOrder || 0
+    });
+
+    // Gọi handleLessonClick gốc để navigate
+    handleLessonClick(lecture.lessonId);
+  };
   return (
     <div className="w-full xl:w-full flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
       <div className="flex items-center gap-2 sm:gap-3">
@@ -92,7 +117,7 @@ const CurrentLecture = ({
                 numLiked={lecture.numLiked}
                 isLocked={lecture.isLocked}
                 lessonId={lecture.lessonId}
-                onClick={() => handleLessonClick(lecture.lessonId)}
+                onClick={() => handleLessonClickWithData(lecture)}
               />
             )}
             rowPerPage={2} // 2 cột để phù hợp với layout chia đôi

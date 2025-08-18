@@ -256,12 +256,6 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
             padding: 8px !important;
             border-radius: 6px !important;
           }
-
-          .lesson-card h2 {
-            font-size: 11px !important;
-            line-height: 14px !important;
-            margin-bottom: 1px !important;
-          }
         }
 
         /* Breakpoint cụ thể cho màn hình nhỏ nhưng lớn hơn siêu nhỏ */

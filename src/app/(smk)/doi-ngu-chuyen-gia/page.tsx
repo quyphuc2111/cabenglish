@@ -12,19 +12,21 @@ const chuyenGiaData = [
     id: 1,
     name: "Mr. Anthony Lee Olivera",
     image: "/assets/image/doinguchuyengia/chuyengia1.png",
-    title: "CHUYÊN GIA CỐ VẤN CHƯƠNG TRÌNH TIẾNG ANH CHO STEAM SUMMER CAMP 2018",
+    title:
+      "CHUYÊN GIA CỐ VẤN CHƯƠNG TRÌNH TIẾNG ANH CHO STEAM SUMMER CAMP 2018",
     specialty: "Giáo dục Bang Florida",
     experience: "10+ năm",
     location: "Florida, USA",
     description: [
       {
         icon: "/favourite.png",
-        title: "Chuyên gia giáo dục bang Florida, USA.",
+        title: "Chuyên gia giáo dục bang Florida, USA."
       },
       {
         icon: "/favourite.png",
-        title: "10 năm giảng dạy tại các trường đại học, Trường Tiểu học, Trung học và Doanh nghiệp Việt Nam.",
-      },
+        title:
+          "10 năm giảng dạy tại các trường đại học, Trường Tiểu học, Trung học và Doanh nghiệp Việt Nam."
+      }
     ]
   },
   {
@@ -36,29 +38,34 @@ const chuyenGiaData = [
     experience: "15+ năm",
     location: "Australia - Việt Nam",
     description: [
-        {
-            icon: "/favourite.png",
-            title: "Cử nhân Địa chất Kỹ thuật (2001 - 2006) - Đại học Mỏ địa Chất Hà Nội(HUMG).",
-        },
-        {
-            icon: "/favourite.png",
-            title: "Quản lý, điều hành, biên soạn chương trình giáo dục, giảng dạy Tiếng...",
-        },
-        {
-            icon: "/favourite.png",
-            title: "Dạy tiếng anh giao tiếp cho cán bộ quản lý làm việc tại Vinfast(VINGROUP)...",
-        },
-        {
-          icon: "/favourite.png",
-          title: "Thạc sĩ giảng dạy Tiếng anh (M.TESOL) - Đại học VICTORIA-MELBOURNE AUSTRALIA."
-        },
-        {
-          icon: "/favourite.png",
-          title: "Thạc sĩ địa chất Kỹ thuật - Đại học LEEDS(Anh)."
-        },
       {
         icon: "/favourite.png",
-        title: "Cử nhân Sư phạm Tiếng anh(TESOL) - Đại học Ngoại ngữ và Quốc tế Hà Nội(ULIS)."
+        title:
+          "Cử nhân Địa chất Kỹ thuật (2001 - 2006) - Đại học Mỏ địa Chất Hà Nội(HUMG)."
+      },
+      {
+        icon: "/favourite.png",
+        title:
+          "Quản lý, điều hành, biên soạn chương trình giáo dục, giảng dạy Tiếng..."
+      },
+      {
+        icon: "/favourite.png",
+        title:
+          "Dạy tiếng anh giao tiếp cho cán bộ quản lý làm việc tại Vinfast(VINGROUP)..."
+      },
+      {
+        icon: "/favourite.png",
+        title:
+          "Thạc sĩ giảng dạy Tiếng anh (M.TESOL) - Đại học VICTORIA-MELBOURNE AUSTRALIA."
+      },
+      {
+        icon: "/favourite.png",
+        title: "Thạc sĩ địa chất Kỹ thuật - Đại học LEEDS(Anh)."
+      },
+      {
+        icon: "/favourite.png",
+        title:
+          "Cử nhân Sư phạm Tiếng anh(TESOL) - Đại học Ngoại ngữ và Quốc tế Hà Nội(ULIS)."
       }
     ]
   },
@@ -73,33 +80,36 @@ const chuyenGiaData = [
     description: [
       {
         icon: "/favourite.png",
-        title: "Giảng viên ĐHQG từ năm 2016, Trưởng Bộ môn Tiếng Anh Trường quốc tế Nhật Bản."
+        title:
+          "Giảng viên ĐHQG từ năm 2016, Trưởng Bộ môn Tiếng Anh Trường quốc tế Nhật Bản."
       },
       {
         icon: "/favourite.png",
         title: "Cử nhân Đại học Ngoại Ngữ, Đại học quốc gia."
       },
       {
-  icon: "/favourite.png",
+        icon: "/favourite.png",
         title: "Thạc sĩ Phương pháp giảng dạy - Đại học Victoria, Melborne, Úc."
       },
-        {
-            icon: "/favourite.png",
-            title: "Thạc sĩ Khoa học Tâm lý học phát triển, Đại học Sheffield, Vương Quốc Anh.",
-        },
-        {
-            icon: "/favourite.png",
-            title: "Chứng nhận Đào tạo chuyên sâu của Hội đồng Khảo thí Cambridge. Một số thành tích đạt được: Báo cáo xuất sắc hội thảo Nghiên cứu Tâm lý học hành vi Châu Á năm 2024",
-        },
-        {
-          icon: "/favourite.png",
-          title: `
+      {
+        icon: "/favourite.png",
+        title:
+          "Thạc sĩ Khoa học Tâm lý học phát triển, Đại học Sheffield, Vương Quốc Anh."
+      },
+      {
+        icon: "/favourite.png",
+        title:
+          "Chứng nhận Đào tạo chuyên sâu của Hội đồng Khảo thí Cambridge. Một số thành tích đạt được: Báo cáo xuất sắc hội thảo Nghiên cứu Tâm lý học hành vi Châu Á năm 2024"
+      },
+      {
+        icon: "/favourite.png",
+        title: `
 Tham luận hội thảo tại Đại học Curtin, Úc các chủ đề: Giảng dạy Tiếng Anh trong thời đại mới, Trao quyền cho giáo viên và học sinh
 
 Sáng kiến kinh nghiệm đạt giải B cấp Thành phố 2015
 
 Có nhiều học sinh đạt giải cao trong kì thi HSG thành phố HN, Olympic Tiếng Anh cấp Quốc Gia, Ielts 6.5+`
-        },
+      },
       {
         icon: "/favourite.png",
         title: `
@@ -108,7 +118,7 @@ Hướng dẫn học sinh xin học bổng du học thành công và xin việc 
 Là tác giả có nhiều đầu sách bổ trợ Tiếng Anh đã xuất bản`
       }
     ]
-  },
+  }
 ];
 
 const DoiNguChuyenGiaPage = () => {
@@ -116,7 +126,7 @@ const DoiNguChuyenGiaPage = () => {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const modal = useModal();
 
-  const openModal = (expert: typeof chuyenGiaData[0]) => {
+  const openModal = (expert: (typeof chuyenGiaData)[0]) => {
     modal.onOpen("expertDetail", { expert });
   };
 
@@ -136,7 +146,8 @@ const DoiNguChuyenGiaPage = () => {
             wrapperClassName="border-[#63a079]/50 mx-auto w-fit"
           />
           <p className="text-gray-600 mt-4 text-sm sm:text-base max-w-2xl mx-auto">
-            Gặp gỡ đội ngũ chuyên gia hàng đầu với nhiều năm kinh nghiệm trong lĩnh vực giáo dục và phát triển chương trình học
+            Gặp gỡ đội ngũ chuyên gia hàng đầu với nhiều năm kinh nghiệm trong
+            lĩnh vực giáo dục và phát triển chương trình học
           </p>
         </div>
 
@@ -146,7 +157,11 @@ const DoiNguChuyenGiaPage = () => {
             <div
               key={expert.id}
               className={`expert-card group relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 transition-all duration-500 ease-out transform hover:scale-[1.02]
-                ${hoveredCard === expert.id ? 'shadow-2xl -translate-y-2' : 'hover:shadow-xl hover:-translate-y-1'}
+                ${
+                  hoveredCard === expert.id
+                    ? "shadow-2xl -translate-y-2"
+                    : "hover:shadow-xl hover:-translate-y-1"
+                }
               `}
               style={{
                 animationDelay: `${index * 200}ms`
@@ -156,10 +171,9 @@ const DoiNguChuyenGiaPage = () => {
             >
               {/* Background Gradient */}
               <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
+
               {/* Main Content */}
               <div className="relative z-10 block">
-                
                 {/* Image Section - Responsive height */}
                 <div className="relative overflow-hidden w-full h-52 xs:h-56 sm:h-64 md:h-72">
                   <Image
@@ -169,10 +183,10 @@ const DoiNguChuyenGiaPage = () => {
                     className="object-cover transition-all duration-700 group-hover:scale-110"
                     priority
                   />
-                  
+
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                  
+
                   {/* Floating Info - Adjusted spacing */}
                   <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 text-white">
                     <div className="flex items-center gap-2 mb-2">
@@ -188,13 +202,14 @@ const DoiNguChuyenGiaPage = () => {
 
                   {/* Specialty Badge - Adjusted position */}
                   <div className="absolute top-2 sm:top-4 right-2 sm:right-4 bg-white/95 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full shadow-lg">
-                    <span className="text-xs font-semibold text-blue-600">{expert.specialty}</span>
+                    <span className="text-xs font-semibold text-blue-600">
+                      {expert.specialty}
+                    </span>
                   </div>
                 </div>
 
                 {/* Content Section - Responsive padding */}
                 <div className="p-3 xs:p-4 sm:p-6 flex flex-col flex-1">
-                  
                   {/* Header */}
                   <div className="mb-4">
                     <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2 group-hover:text-blue-600 transition-colors duration-300">
@@ -213,7 +228,9 @@ const DoiNguChuyenGiaPage = () => {
                     </div>
                     <div className="flex items-center gap-1">
                       <span className="text-blue-500">📚</span>
-                      <span className="font-medium">{expert.description.length} chứng chỉ</span>
+                      <span className="font-medium">
+                        {expert.description.length} chứng chỉ
+                      </span>
                     </div>
                     <div className="flex items-center gap-1">
                       <span className="text-green-500">✅</span>
@@ -225,7 +242,10 @@ const DoiNguChuyenGiaPage = () => {
                   <div className="max-h-16 sm:max-h-20 overflow-hidden mb-2 sm:mb-4">
                     <div className="space-y-2">
                       {expert.description.slice(0, 2).map((desc, index) => (
-                        <div key={index} className="flex items-start gap-2 text-sm text-gray-600">
+                        <div
+                          key={index}
+                          className="flex items-start gap-2 text-sm text-gray-600"
+                        >
                           <span className="text-blue-500 mt-1">•</span>
                           <p className="line-clamp-1">{desc.title.trim()}</p>
                         </div>
@@ -235,7 +255,7 @@ const DoiNguChuyenGiaPage = () => {
 
                   {/* Action Button */}
                   <div className="mt-auto pt-4 border-t border-gray-100">
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         openModal(expert);
@@ -250,7 +270,7 @@ const DoiNguChuyenGiaPage = () => {
 
               {/* Decorative Elements */}
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
+
               {/* Corner Decoration */}
               <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110" />
             </div>
@@ -265,10 +285,19 @@ const DoiNguChuyenGiaPage = () => {
             { label: "Chứng chỉ", value: "15+", icon: "🏆" },
             { label: "Quốc gia", value: "5", icon: "🌍" }
           ].map((stat, index) => (
-            <div key={index} className="text-center p-3 sm:p-4 bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-              <div className="text-xl sm:text-2xl mb-1 sm:mb-2">{stat.icon}</div>
-              <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-0.5 sm:mb-1">{stat.value}</div>
-              <div className="text-xs sm:text-sm text-gray-600">{stat.label}</div>
+            <div
+              key={index}
+              className="text-center p-3 sm:p-4 bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300"
+            >
+              <div className="text-xl sm:text-2xl mb-1 sm:mb-2">
+                {stat.icon}
+              </div>
+              <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-0.5 sm:mb-1">
+                {stat.value}
+              </div>
+              <div className="text-xs sm:text-sm text-gray-600">
+                {stat.label}
+              </div>
             </div>
           ))}
         </div>
@@ -306,17 +335,17 @@ const DoiNguChuyenGiaPage = () => {
           .expert-card ::-webkit-scrollbar {
             width: 4px;
           }
-          
+
           .expert-card ::-webkit-scrollbar-track {
             background: #f1f5f9;
             border-radius: 2px;
           }
-          
+
           .expert-card ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 2px;
           }
-          
+
           .expert-card ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
           }
@@ -327,25 +356,22 @@ const DoiNguChuyenGiaPage = () => {
               margin-bottom: 1rem;
             }
           }
-          
+
           /* Extra small devices */
           @media (max-width: 480px) {
             .expert-card {
               margin-bottom: 0.75rem;
             }
           }
-          
-          /* Define xs breakpoint for Tailwind classes */
-          @media (min-width: 480px) {
-            .xs\:p-4 { padding: 1rem; }
-            .xs\:h-56 { height: 14rem; }
-            .xs\:gap-3 { gap: 0.75rem; }
-          }
 
           /* Hover effects */
           @media (hover: hover) {
             .expert-card:hover {
-              background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(249,250,251,0.95) 100%);
+              background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.95) 0%,
+                rgba(249, 250, 251, 0.95) 100%
+              );
             }
           }
         `}</style>

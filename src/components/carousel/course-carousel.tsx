@@ -69,39 +69,27 @@ export function CourseCarousel({
 
   // Calculate slides per view based on screen size - same for both current and next
   const slidesPerView = useMemo(() => {
-    if (isExtraSmall) return "33%";
-    if (isMobile) return "40%";
-    if (isSmallTablet) return "40%";
-    if (isTablet) return "40%";
+    if (isExtraSmall) return "85%"; // Tăng từ 33% lên 85% để lesson card đủ lớn
+    if (isMobile) return "70%"; // Tăng từ 40% lên 70% để lesson card đủ lớn
+    if (isSmallTablet) return "60%"; // Tăng từ 40% lên 60%
+    if (isTablet) return "50%"; // Tăng từ 40% lên 50%
 
     // Desktop sizes - same for both current and next lectures
     if (isLargeScreen) return "25%"; // 2xl: 4 items
     return "33%"; // lg,xl: 3 items
-  }, [
-    isExtraSmall,
-    isMobile,
-    isSmallTablet,
-    isTablet,
-    isLargeScreen
-  ]);
+  }, [isExtraSmall, isMobile, isSmallTablet, isTablet, isLargeScreen]);
 
   // Calculate items per view for pagination
   const itemsPerView = useMemo(() => {
-    if (isExtraSmall) return 3;
-    if (isMobile) return 2.5;
-    if (isSmallTablet) return 2.5;
-    if (isTablet) return 2.5;
+    if (isExtraSmall) return 1.2; // Giảm từ 3 xuống 1.2 vì card lớn hơn
+    if (isMobile) return 1.4; // Giảm từ 2.5 xuống 1.4 vì card lớn hơn
+    if (isSmallTablet) return 1.7; // Giảm từ 2.5 xuống 1.7
+    if (isTablet) return 2; // Giảm từ 2.5 xuống 2
 
     // Desktop sizes
     if (isLargeScreen) return 4; // 2xl: 4 items
     return 3; // lg,xl: 3 items
-  }, [
-    isExtraSmall,
-    isMobile,
-    isSmallTablet,
-    isTablet,
-    isLargeScreen
-  ]);
+  }, [isExtraSmall, isMobile, isSmallTablet, isTablet, isLargeScreen]);
 
   // Calculate total scroll positions based on items per view
   const totalPositions = useMemo(() => {
@@ -270,7 +258,10 @@ export function CourseCarousel({
       {visibleItems.length > 0 && (
         <div className="flex justify-between items-center mb-3">
           <div className="text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full">
-            <span className="font-medium text-gray-800">{visibleItems.length}</span> bài học
+            <span className="font-medium text-gray-800">
+              {visibleItems.length}
+            </span>{" "}
+            bài học
           </div>
           {/* Current position indicator for all devices */}
           <div className="text-xs text-gray-500">

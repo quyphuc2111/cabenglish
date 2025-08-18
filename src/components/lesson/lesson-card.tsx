@@ -60,7 +60,7 @@ const ProgressIndicator = ({
         )}
       >
         {progress === 0 ? (
-          <p className="text-center text-white text-[10px] sm:text-xs w-webkit-fill-available">
+          <p className="text-center text-white text-[8px] xs:text-[9px] sm:text-xs font-medium leading-none whitespace-nowrap">
             Chưa học
           </p>
         ) : (
@@ -138,6 +138,8 @@ function LessonCard({
       cn(
         "lesson-card px-1 sm:px-2 md:px-3 py-1.5 sm:py-2 md:py-4 bg-white rounded-lg sm:rounded-xl md:rounded-2xl flex flex-col gap-1 sm:gap-2 md:gap-3 shadow-course-inset border relative overflow-hidden w-full",
         "transition-all duration-300 ease-out",
+        // Cố định height để tránh lệch layout
+        "min-h-[200px] xs:min-h-[220px] sm:min-h-[240px] md:min-h-[280px]",
         isLocked
           ? "opacity-60 cursor-not-allowed bg-[#d9d9d9]"
           : "cursor-pointer hover:shadow-lg",
@@ -311,7 +313,7 @@ function LessonCard({
         )}
 
         <div className="flex flex-col space-y-1">
-          <h2 className="text-xs sm:text-sm lg:text-base font-bold line-clamp-1 sm:line-clamp-2">
+          <h2 className="text-xs sm:text-sm lg:text-base font-bold line-clamp-1 sm:line-clamp-1 md:line-clamp-2 leading-tight">
             {unitName}
           </h2>
 
@@ -351,25 +353,27 @@ function LessonCard({
             horizontal === true ? "flex-1" : "gap-1"
           )}
         >
-          <div className="text-[#736E6E] text-[9px]  md:text-[14px] flex justify-between gap-1">
-            <span className="course-week truncate">{`Tuần học ${String(
+          <div className="text-[#736E6E] text-[8px] xs:text-[9px] sm:text-[10px] md:text-[14px] flex justify-between gap-1 min-h-[12px] xs:min-h-[14px] sm:min-h-[16px]">
+            <span className="course-week truncate flex-1 text-left">{`Tuần học ${String(
               schoolWeek
             )}`}</span>
-            <span className="course-category truncate">{classRoomName}</span>
+            <span className="course-category truncate flex-1 text-right">
+              {classRoomName}
+            </span>
           </div>
 
           <h2
             className={cn(
-              "text-xs sm:text-sm md:text-base font-bold overflow-hidden",
+              "text-[10px] sm:text-base md:text-lg lg:text-lg xl:text-lg font-bold overflow-hidden",
               "min-h-[2.5em] xs:min-h-[2.7em] sm:min-h-[3em] md:min-h-[2.5em]",
-              "line-clamp-1 xs:line-clamp-2 sm:line-clamp-2 md:line-clamp-2",
+              "line-clamp-2 leading-tight",
               horizontal === true ? "flex-1" : ""
             )}
             style={{
               display: "-webkit-box",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
-              lineHeight: "1.25em",
+              lineHeight: "1.2em",
               fontFamily: "Roboto, sans-serif"
             }}
           >
@@ -384,7 +388,7 @@ function LessonCard({
                 progress > 0 && progress < 100 ? "border-[#e25762]/50" : "",
                 progress == 1 ? "border-[#3EC474]" : "",
                 horizontal ? "w-1/3" : "w-2/3",
-                "rounded-tr-[4px] sm:rounded-tr-md p-0.5 sm:p-1 flex justify-around items-center"
+                "rounded-tr-[4px] sm:rounded-tr-md p-0.5 sm:p-1 flex justify-around items-center min-h-[24px] xs:min-h-[26px] sm:min-h-[28px]"
               )}
             >
               <ProgressIndicator
@@ -392,7 +396,7 @@ function LessonCard({
                 delay={delay}
               />
               {progress > 0 && progress < 1 && (
-                <p className="text-center px-1 text-[9px] sm:text-xs">
+                <p className="text-center px-1 text-[8px] xs:text-[9px] sm:text-xs font-medium leading-none whitespace-nowrap">
                   {formatProgress(progress)}%
                 </p>
               )}
@@ -599,11 +603,7 @@ const likeButtonStyles = `
       border-radius: 6px !important;
     }
 
-    .lesson-card h2 {
-      font-size: 11px !important;
-      line-height: 14px !important;
-      margin-bottom: 1px !important;
-    }
+
 
     .like-button {
       padding: 3px !important;
@@ -639,17 +639,7 @@ const likeButtonStyles = `
     box-sizing: border-box;
   }
 
-  /* Thêm utility class cho màn hình siêu nhỏ */
-  @media (min-width: 400px) {
-    .xs\\:text-xs {
-      font-size: 0.75rem;
-      line-height: 1rem;
-    }
 
-    .xs\\:text-\\[10px\\] {
-      font-size: 10px;
-    }
-  }
 
   /* Tối ưu hóa hiển thị cho các loại màn hình */
   .lesson-card {
