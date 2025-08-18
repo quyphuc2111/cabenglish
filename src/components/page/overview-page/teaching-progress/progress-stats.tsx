@@ -400,46 +400,50 @@ export const ProgressStats = memo(function ProgressStats({
         </div>
       </div>
 
-      {/* Navigation buttons với theme colors */}
-      <div className="flex flex-col sm:flex-row justify-center sm:justify-end gap-3 mb-6">
-        <motion.button
-          onClick={handlePrevPage}
-          disabled={currentPage === 0}
-          className={`px-4 sm:px-6 py-3 rounded-xl transition-all duration-300 text-sm sm:text-base font-medium shadow-lg ${
-            currentPage === 0
-              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-              : `bg-gradient-to-r ${currentColors.buttonPrev} text-white hover:shadow-xl transform hover:scale-105`
-          }`}
-          whileHover={currentPage !== 0 ? { scale: 1.05 } : undefined}
-          whileTap={currentPage !== 0 ? { scale: 0.95 } : undefined}
-        >
-          <span className="flex items-center gap-2">
-            <span className="hidden sm:inline">←</span>
-            <span className="sm:hidden">◀</span>
-            <span>Trang trước</span>
-          </span>
-        </motion.button>
+      {/* Navigation buttons với theme colors - chỉ hiển thị khi có >= 2 trang */}
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row justify-center sm:justify-end gap-3 mb-6">
+          <motion.button
+            onClick={handlePrevPage}
+            disabled={currentPage === 0}
+            className={`px-4 sm:px-6 py-3 rounded-xl transition-all duration-300 text-sm sm:text-base font-medium shadow-lg ${
+              currentPage === 0
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : `bg-gradient-to-r ${currentColors.buttonPrev} text-white hover:shadow-xl transform hover:scale-105`
+            }`}
+            whileHover={currentPage !== 0 ? { scale: 1.05 } : undefined}
+            whileTap={currentPage !== 0 ? { scale: 0.95 } : undefined}
+          >
+            <span className="flex items-center gap-2">
+              <span className="hidden sm:inline">←</span>
+              <span className="sm:hidden">◀</span>
+              <span>Trang trước</span>
+            </span>
+          </motion.button>
 
-        <motion.button
-          onClick={handleNextPage}
-          disabled={currentPage >= totalPages - 1}
-          className={`px-4 sm:px-6 py-3 rounded-xl transition-all duration-300 text-sm sm:text-base font-medium shadow-lg ${
-            currentPage >= totalPages - 1
-              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-              : `bg-gradient-to-r ${currentColors.buttonNext} text-white hover:shadow-xl transform hover:scale-105`
-          }`}
-          whileHover={
-            currentPage < totalPages - 1 ? { scale: 1.05 } : undefined
-          }
-          whileTap={currentPage < totalPages - 1 ? { scale: 0.95 } : undefined}
-        >
-          <span className="flex items-center gap-2">
-            <span>Trang sau</span>
-            <span className="hidden sm:inline">→</span>
-            <span className="sm:hidden">▶</span>
-          </span>
-        </motion.button>
-      </div>
+          <motion.button
+            onClick={handleNextPage}
+            disabled={currentPage >= totalPages - 1}
+            className={`px-4 sm:px-6 py-3 rounded-xl transition-all duration-300 text-sm sm:text-base font-medium shadow-lg ${
+              currentPage >= totalPages - 1
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : `bg-gradient-to-r ${currentColors.buttonNext} text-white hover:shadow-xl transform hover:scale-105`
+            }`}
+            whileHover={
+              currentPage < totalPages - 1 ? { scale: 1.05 } : undefined
+            }
+            whileTap={
+              currentPage < totalPages - 1 ? { scale: 0.95 } : undefined
+            }
+          >
+            <span className="flex items-center gap-2">
+              <span>Trang sau</span>
+              <span className="hidden sm:inline">→</span>
+              <span className="sm:hidden">▶</span>
+            </span>
+          </motion.button>
+        </div>
+      )}
 
       {/* Content area với improved styling */}
       <div className="">

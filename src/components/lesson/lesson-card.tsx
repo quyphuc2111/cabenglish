@@ -47,6 +47,7 @@ const ProgressIndicator = ({
 
   return (
     <div
+      style={{ width: "-webkit-fill-available" }}
       className={cn(
         "bg-[#db8ab5]/50 rounded-tr-[4px] sm:rounded-tr-md px-1 sm:px-2 py-0.5 sm:py-1 h-full",
         progress === 0 && "bg-[#e25762]"
@@ -59,7 +60,7 @@ const ProgressIndicator = ({
         )}
       >
         {progress === 0 ? (
-          <p className="text-center text-white text-[10px] sm:text-xs">
+          <p className="text-center text-white text-[10px] sm:text-xs w-webkit-fill-available">
             Chưa học
           </p>
         ) : (
@@ -368,7 +369,8 @@ function LessonCard({
               display: "-webkit-box",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
-              lineHeight: "1.25em"
+              lineHeight: "1.25em",
+              fontFamily: "Roboto, sans-serif"
             }}
           >
             {lessonName}
