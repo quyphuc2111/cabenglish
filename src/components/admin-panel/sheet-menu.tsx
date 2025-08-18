@@ -7,7 +7,7 @@ import {
   Sheet,
   SheetHeader,
   SheetContent,
-  SheetTrigger,
+  SheetTrigger
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -19,26 +19,32 @@ export function SheetMenu() {
           <MenuIcon size={20} />
         </Button>
       </SheetTrigger>
-      <SheetContent className="sm:w-[75vw] sm:max-w-[75vw] px-3 h-full flex flex-col" side="left">
+      <SheetContent
+        className="sm:w-[75vw] sm:max-w-[75vw] px-3 h-full flex flex-col"
+        side="left"
+      >
         <SheetHeader className="mb-2 flex-shrink-0">
           <div className="flex justify-center items-center w-full">
             <Link href="/" className="no-underline">
               <div className="flex flex-row items-center">
-                <div className={cn(
-                  "font-bold text-2xl relative tracking-wide",
-                  "bg-gradient-to-r from-pink-500 via-blue-500 to-purple-600",
-                  "text-transparent bg-clip-text",
-                  "animate-text-shine transition-all duration-300"
-                )}>
+                <div
+                  className={cn(
+                    "font-bold text-2xl relative tracking-wide",
+                    "bg-gradient-to-r from-pink-500 via-blue-500 to-purple-600",
+                    "text-transparent bg-clip-text",
+                    "animate-text-shine transition-all duration-300"
+                  )}
+                >
                   SMART
                 </div>
-                <div className={cn(
-                  "font-bold text-2xl ml-1",
-                  "bg-gradient-to-br from-amber-500 to-pink-500 text-transparent bg-clip-text"
-                )}>
+                <div
+                  className={cn(
+                    "font-bold text-2xl ml-1",
+                    "bg-gradient-to-br from-amber-500 to-pink-500 text-transparent bg-clip-text"
+                  )}
+                >
                   KID
                 </div>
-               
               </div>
             </Link>
           </div>
