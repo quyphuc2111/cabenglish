@@ -29,7 +29,7 @@ export function Navbar() {
 
   return (
     <header className="z-10 w-full max-w-[1920px] mx-auto">
-      <div className="flex xl:flex-row flex-col xl:align-center xl:items-center justify-between gap-2 sm:gap-4 md:gap-6 lg:gap-10">
+      <div className="flex xl:flex-row xl:align-center xl:items-center justify-between gap-2 sm:gap-4 md:gap-6 lg:gap-10">
         <SheetMenu />
         <div className="flex-1 w-full">
           <LogoDecorations currentTheme={currentTheme} />
