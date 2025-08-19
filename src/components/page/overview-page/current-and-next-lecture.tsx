@@ -12,12 +12,14 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
   courseData,
   t,
   classroomData,
-  userId
+  userId,
+  onLikeUpdate
 }: {
   courseData: any[];
   t: any;
   classroomData: any[];
   userId: string | undefined;
+  onLikeUpdate?: (lessonId: number, newLikeCount: number) => void;
 }) {
   const router = useRouter();
   const { data: userInfo } = useUserInfo(userId);
@@ -462,6 +464,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                       isExtraSmall={isExtraSmall}
                       t={t}
                       classroomData={classroomData}
+                      onLikeUpdate={onLikeUpdate}
                     />
 
                     {/* Responsive divider */}
@@ -486,6 +489,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                       isExtraSmall={isExtraSmall}
                       t={t}
                       classroomData={classroomData}
+                      onLikeUpdate={onLikeUpdate}
                     />
                   </div>
                 </div>

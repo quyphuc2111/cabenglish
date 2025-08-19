@@ -138,6 +138,7 @@ interface LectureFavouriteListProps {
   }) => Promise<any>;
   onDataRefetch?: () => Promise<void>;
   classrooms: any[];
+  onLikeUpdate?: (lessonId: number, newLikeCount: number) => void;
 }
 
 const LectureFavouriteList = memo(function LectureFavouriteList({
@@ -145,7 +146,8 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
   initialFilterData,
   fetchFilterData,
   onDataRefetch,
-  classrooms
+  classrooms,
+  onLikeUpdate: globalLikeUpdate
 }: LectureFavouriteListProps) {
   const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
@@ -165,6 +167,9 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
     lectureFavouriteState?.selectedWeekId || ""
   );
 
+  // Local state để quản lý courseData với optimistic updates
+  const [localCourseData, setLocalCourseData] = useState(courseData);
+
   // State để track những lesson đang trong quá trình removing
   const [removingLessons, setRemovingLessons] = useState<Set<number>>(
     new Set()
@@ -181,6 +186,11 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Sync localCourseData với courseData khi props thay đổi
+  useEffect(() => {
+    setLocalCourseData(courseData);
+  }, [courseData]);
 
   // Debug khi courseData thay đổi - clear removing lessons khi data update
   useEffect(() => {
@@ -253,32 +263,62 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
     }
   }, [isReturningFromLesson, lectureFavouriteState?.scrollPosition]);
 
-  // Callback để trigger fadeout và refetch data từ server
+  // Callback để thực hiện optimistic update local state
   const handleLikeUpdate = useCallback(
     async (lessonId: number, newLikeCount: number) => {
-      // Nếu unlike (newLikeCount = 0), thêm vào removing list và trigger fadeout
+      // 1. Gọi global update để sync với các components khác
+      if (globalLikeUpdate) {
+        globalLikeUpdate(lessonId, newLikeCount);
+      }
+
+      // 2. Optimistic update: cập nhật local state ngay lập tức
+      setLocalCourseData((prevData) => {
+        const existingLessonIndex = prevData.findIndex(
+          (lesson) => lesson.lessonId === lessonId
+        );
+
+        if (existingLessonIndex !== -1) {
+          // Lesson đã tồn tại, update numLiked
+          return prevData.map((lesson) =>
+            lesson.lessonId === lessonId
+              ? { ...lesson, numLiked: newLikeCount }
+              : lesson
+          );
+        } else if (newLikeCount > 0) {
+          // Lesson chưa tồn tại và có lượt like > 0, cần thêm từ courseData gốc
+          const originalLesson = courseData.find(
+            (lesson) => lesson.lessonId === lessonId
+          );
+          if (originalLesson) {
+            return [...prevData, { ...originalLesson, numLiked: newLikeCount }];
+          }
+        }
+        return prevData;
+      });
+
+      // 3. Chỉ khi numLiked = 0 thì mới remove khỏi danh sách yêu thích
       if (newLikeCount === 0) {
         setRemovingLessons((prev) => new Set([...prev, lessonId]));
 
-        // Delay để animation fadeout có thời gian chạy
-        setTimeout(async () => {
-          if (onDataRefetch) {
-            await onDataRefetch();
-          }
+        // Delay để animation fadeout có thời gian chạy, sau đó remove khỏi local state
+        setTimeout(() => {
+          setLocalCourseData((prevData) =>
+            prevData.filter((lesson) => lesson.lessonId !== lessonId)
+          );
+          setRemovingLessons((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(lessonId);
+            return newSet;
+          });
         }, 800); // 800ms để animation fadeout hoàn thành
-      } else {
-        // Nếu like, refetch ngay lập tức
-        if (onDataRefetch) {
-          await onDataRefetch();
-        }
       }
     },
-    [onDataRefetch]
+    [courseData, globalLikeUpdate]
   );
 
   // Memoize filtered data để tránh re-computation không cần thiết
   const filteredLessonData = useMemo(() => {
-    return courseData
+    return localCourseData
       .filter((item) => {
         const matchesLocked = !item.isLocked;
         const matchesProgress =
@@ -311,7 +351,7 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
       })
       .slice(0, 20);
   }, [
-    courseData,
+    localCourseData,
     selectedClassId,
     selectedUnitId,
     selectedWeekId,

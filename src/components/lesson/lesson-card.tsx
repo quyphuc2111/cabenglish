@@ -172,7 +172,10 @@ function LessonCard({
       const toastId = `like-action-${lessonId}-${now}`;
 
       // Optimistic update - cập nhật UI ngay lập tức
-      const newLikeCount = willLike ? 1 : 0;
+      // Tăng/giảm 1 từ giá trị hiện tại thay vì toggle 0/1
+      const newLikeCount = willLike
+        ? optimisticLikeCount + 1
+        : Math.max(0, optimisticLikeCount - 1);
       setOptimisticLikeCount(newLikeCount);
 
       try {
@@ -188,9 +191,13 @@ function LessonCard({
             onSuccess: () => {
               setIsLiking(false);
 
+              // Sử dụng optimistic value vì API có thể không trả về lesson data
+              // Trong tương lai có thể cải thiện khi API trả về numLiked thực tế
+              const actualLikeCount = newLikeCount;
+
               // Gọi callback để update parent state
               if (onLikeUpdate) {
-                onLikeUpdate(lessonId as number, newLikeCount);
+                onLikeUpdate(lessonId as number, actualLikeCount);
               }
 
               // Show success toast

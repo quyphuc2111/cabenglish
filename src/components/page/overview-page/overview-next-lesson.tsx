@@ -12,6 +12,7 @@ interface NextLectureProps {
   isExtraSmall: boolean;
   t: any;
   classroomData?: any[];
+  onLikeUpdate?: (lessonId: number, newLikeCount: number) => void;
 }
 
 const NextLecture = ({
@@ -20,7 +21,8 @@ const NextLecture = ({
   handleLessonClick,
   isExtraSmall,
   t,
-  classroomData
+  classroomData,
+  onLikeUpdate
 }: NextLectureProps) => {
   const { setSelectedLesson } = useSelectLessonStore();
 
@@ -141,6 +143,7 @@ const NextLecture = ({
               isLocked={lecture.isLocked}
               lessonId={lecture.lessonId}
               onClick={() => handleLessonClickWithData(lecture)}
+              onLikeUpdate={onLikeUpdate}
             />
           )}
           rowPerPage={2} // 2 cột để phù hợp với layout chia đôi

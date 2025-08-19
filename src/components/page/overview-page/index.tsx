@@ -58,6 +58,20 @@ const OverviewPage = memo(function OverviewPage({
   const [courseData, setCourseData] = useState(initialCourseData);
   const [isRefetching, setIsRefetching] = useState(false);
 
+  // Global handler để sync like/unlike giữa tất cả components
+  const handleGlobalLikeUpdate = useCallback(
+    (lessonId: number, newLikeCount: number) => {
+      setCourseData((prevData) =>
+        prevData.map((lesson) =>
+          lesson.lessonId === lessonId
+            ? { ...lesson, numLiked: newLikeCount }
+            : lesson
+        )
+      );
+    },
+    []
+  );
+
   useEffect(() => {
     if (session && session.user.is_firstlogin) {
       onOpen("teachingMode");
@@ -102,6 +116,7 @@ const OverviewPage = memo(function OverviewPage({
         classroomData={classroomData}
         userId={session?.user?.userId}
         t={t}
+        onLikeUpdate={handleGlobalLikeUpdate}
       />
       <LectureFavouriteList
         courseData={courseData}
@@ -109,6 +124,7 @@ const OverviewPage = memo(function OverviewPage({
         fetchFilterData={fetchFilterData}
         onDataRefetch={refetchCourseData}
         classrooms={classroomData}
+        onLikeUpdate={handleGlobalLikeUpdate}
       />
       <TeachingProgress
         courseData={courseData}
