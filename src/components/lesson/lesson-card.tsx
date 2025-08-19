@@ -105,7 +105,6 @@ function LessonCard({
 
   // State để track optimistic update
   const [optimisticLikeCount, setOptimisticLikeCount] = useState(numLiked);
-  const [showLikeAnimation, setShowLikeAnimation] = useState(false);
 
   // Update optimistic state khi props thay đổi
   useEffect(() => {
@@ -175,12 +174,6 @@ function LessonCard({
       // Optimistic update - cập nhật UI ngay lập tức
       const newLikeCount = willLike ? 1 : 0;
       setOptimisticLikeCount(newLikeCount);
-
-      // Trigger like animation
-      if (willLike) {
-        setShowLikeAnimation(true);
-        setTimeout(() => setShowLikeAnimation(false), 2000);
-      }
 
       try {
         // Dismiss any existing toasts first
@@ -498,47 +491,7 @@ function LessonCard({
               >
                 {optimisticLikeCount}
               </span>
-
-              {/* Success animation khi like thành công */}
-              {optimisticLikeCount > 0 && (
-                <div className="absolute -top-1 -right-1 text-[10px]">✨</div>
-              )}
             </button>
-
-            {/* Floating hearts animation khi like thành công */}
-            {showLikeAnimation && (
-              <div className="floating-hearts absolute inset-0 pointer-events-none overflow-hidden z-10">
-                {[...Array(8)].map((_, i) => (
-                  <div
-                    key={`floating-heart-${i}`}
-                    className="heart-particle absolute text-red-500 select-none"
-                    style={{
-                      left: `${50 + (Math.random() - 0.5) * 40}%`,
-                      top: "100%",
-                      fontSize: `${6 + Math.random() * 4}px`,
-                      filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))"
-                    }}
-                  >
-                    {["❤️", "💕", "💖", "💝", "💗", "💓", "💞", "💟"][i]}
-                  </div>
-                ))}
-
-                {/* Additional sparkle effects */}
-                {[...Array(5)].map((_, i) => (
-                  <div
-                    key={`sparkle-${i}`}
-                    className="absolute text-yellow-400 select-none"
-                    style={{
-                      left: `${40 + Math.random() * 20}%`,
-                      top: "80%",
-                      fontSize: "6px"
-                    }}
-                  >
-                    ✨
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -557,19 +510,9 @@ const likeButtonStyles = `
     max-width: 100%;
   }
 
-  .lesson-card:hover .like-button:not(.like-button-loved) .heart-svg {
-    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.3));
-    transform: scale(1.1);
-  }
-
   /* Progress indicator enhancement */
   .progress-flower {
     transition: all 0.3s ease;
-  }
-
-  .progress-flower:hover {
-    transform: scale(1.1) rotate(10deg);
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
   }
 
   /* Mobile optimizations */
@@ -579,20 +522,8 @@ const likeButtonStyles = `
       margin: 4px;
     }
 
-    .floating-hearts {
-      transform: scale(0.6);
-    }
-
     .lesson-card:hover {
       /* Disable float on mobile */
-    }
-
-    .sparkle-particle {
-      font-size: 5px;
-    }
-
-    .heart-particle {
-      font-size: 4px;
     }
   }
 
