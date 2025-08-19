@@ -96,8 +96,6 @@ const ClassroomTab = memo(
 
 ClassroomTab.displayName = "ClassroomTab";
 
-
-
 // Custom hook để tính toán breakpoint hiện tại với SSR safety
 const useBreakpoint = () => {
   const [breakpoint, setBreakpoint] = useState<"mobile" | "tablet" | "desktop">(
@@ -130,8 +128,6 @@ const useBreakpoint = () => {
   return breakpoint;
 };
 
-
-
 interface LessonTeachingClientProps {
   teachingLessons: LessonType[];
   classrooms: ClassroomType[];
@@ -141,7 +137,6 @@ function LessonTeachingClient({
   teachingLessons,
   classrooms
 }: LessonTeachingClientProps) {
-
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const breakpoint = useBreakpoint();
@@ -192,8 +187,6 @@ function LessonTeachingClient({
   const [activeTab, setActiveTab] = useState<string>(
     lessonTeachingState.activeTab || "all"
   );
-
-
 
   // Mảng icon cho các lớp học - memoized để tránh re-create
   const classroomIcons = useMemo(
@@ -391,229 +384,235 @@ function LessonTeachingClient({
 
   return (
     <ContentLayout title="BaiGiangDangDay">
-      <div
-        className={cn(
-          "flex gap-4 sm:gap-6 md:gap-8 flex-col px-2 sm:px-4 md:px-0",
-          styles.teachingContainer
-        )}
-      >
-        <div className="flex flex-col">
-          {/* Tab Component */}
-          <div className="w-full">
-            {/* Tab Content */}
-            {/* Bài giảng đang dạy */}
-            <div
-              className={cn(
-                "bg-white rounded-lg p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-5 md:space-y-6",
-                styles.performanceOptimized
-              )}
-            >
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="flex-shrink-0">
-                  <SectionTitle
-                    title="Bài giảng đang dạy"
-                    image={{
-                      src: "/assets/gif/book_animate.gif",
-                      width: 32,
-                      height: 32,
-                      alt: "book_animate"
-                    }}
-                    wrapperClassName="border-[#4079CE]"
-                  />
-                </div>
-              </div>
-
-              {/* Debug info cho development */}
-              {process.env.NODE_ENV === "development" && (
-                <div className="bg-yellow-50 hidden border border-yellow-200 rounded p-2 text-xs">
-                  <p>
-                    <strong>Debug Info:</strong>
-                  </p>
-                  <p>Total Teaching Lessons: {teachingLessons?.length || 0}</p>
-                  <p>Filtered Lessons: {filteredTeachingLessons.length}</p>
-                  <p>Active Tab: {activeTab}</p>
-                  <p>
-                    Selected Class ID:{" "}
-                    {activeTab !== "all" ? activeTab : "Tất cả"}
-                  </p>
-                  <p>Breakpoint: {breakpoint}</p>
-                  <p>Is Client: {isClient.toString()}</p>
-                  <p>
-                    Classrooms with Lessons:{" "}
-                    {classrooms?.filter(
-                      (c) => getTeachingLessonCountByClassId(c.class_id) > 0
-                    ).length || 0}
-                  </p>
-                  <p>Classroom Tabs: {classroomTabs.length}</p>
-                </div>
-              )}
-
-              {/* Tab Headers - Enhanced UI với gradient background */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50/30 p-4 sm:p-5 md:p-6 rounded-2xl border border-gray-200 shadow-sm">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Users className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-800">
-                      Lọc theo lớp học
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Chọn lớp học để xem bài giảng đang dạy
-                    </p>
-                  </div>
-                </div>
-
-                {/* Tab container với responsive scroll */}
-                <div
-                  className={cn("overflow-x-auto pb-2", styles.tabsContainer)}
-                >
-                  <div className="flex gap-2 sm:gap-3 min-w-max">
-                    {/* Tab "Tất cả lớp học" */}
-                    <Button
-                      variant="ghost"
-                      size="default"
-                      onClick={() => updateActiveTab("all")}
-                      className={cn(
-                        "px-4 sm:px-5 md:px-6 py-3 sm:py-3.5 md:py-4",
-                        "text-sm sm:text-base md:text-lg font-semibold",
-                        "transition-all duration-300 shadow-sm hover:shadow-md",
-                        "flex items-center gap-3 sm:gap-4",
-                        "min-w-0 flex-shrink-0 rounded-xl border-2",
-                        activeTab === "all"
-                          ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-emerald-600 hover:to-green-500 text-white border-green-500 shadow-lg shadow-green-200/50 scale-105"
-                          : "bg-white text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-green-50 border-gray-200 hover:border-green-300 hover:text-green-800"
-                      )}
-                    >
-                      <span className="flex items-center gap-2 sm:gap-3">
-                        <div
-                          className={cn(
-                            "p-1.5 rounded-lg transition-all duration-300",
-                            activeTab === "all"
-                              ? "bg-white/20 shadow-inner"
-                              : "bg-gray-100 group-hover:bg-green-100"
-                          )}
-                        >
-                          <GraduationCap
-                            className={cn(
-                              "w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300",
-                              activeTab === "all"
-                                ? "text-white drop-shadow-sm"
-                                : "text-green-600 group-hover:text-green-700"
-                            )}
-                          />
-                        </div>
-                        <span className="whitespace-nowrap">
-                          Tất cả lớp học
-                        </span>
-                      </span>
-                      <div
-                        className={cn(
-                          "px-2 py-1 rounded-full text-xs font-bold",
-                          "whitespace-nowrap flex-shrink-0 transition-all duration-300",
-                          "hidden xs:flex items-center justify-center min-w-[24px]",
-                          activeTab === "all"
-                            ? "bg-white/25 text-white shadow-inner"
-                            : "bg-gray-200 text-gray-600 group-hover:bg-green-200 group-hover:text-green-800"
-                        )}
-                      >
-                        {(teachingLessons || []).length}
-                      </div>
-                    </Button>
-
-                    {/* Các tab lớp học */}
-                    {classroomTabs}
-                  </div>
-                </div>
-
-                {/* Filter status indicator */}
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <div className="flex flex-wrap items-center gap-2 text-sm">
-                    <span className="text-gray-600 font-medium flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      Đang hiển thị:
-                    </span>
-                    {activeTab === "all" ? (
-                      <span className="px-3 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 rounded-full font-semibold border border-green-200">
-                        Tất cả lớp học ({(teachingLessons || []).length} bài)
-                      </span>
-                    ) : (
-                      <span className="px-3 py-1.5 bg-gradient-to-r from-pink-100 to-rose-100 text-pink-800 rounded-full font-semibold border border-pink-200">
-                        {
-                          classrooms.find(
-                            (c) => c.class_id.toString() === activeTab
-                          )?.classname
-                        }
-                        ({filteredTeachingLessons.length} bài)
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Content area với responsive padding */}
-              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 md:p-6 mb-2">
-                {filteredTeachingLessons.length > 0 ? (
-                  <div className="relative">
-                    {/* CourseCarousel component */}
-                    <CourseCarousel
-                      courseData={cappedTeachingLessons}
-                      onLessonClick={(lessonId) => {
-                        const lesson = cappedTeachingLessons.find(l => l.lessonId === lessonId);
-                        if (lesson) {
-                          handleNavigateToLesson(lesson);
-                        }
+      <div className="lesson-teaching-page">
+        <div
+          className={cn(
+            "flex gap-4 sm:gap-6 md:gap-8 flex-col px-2 sm:px-4 md:px-0 pb-8 sm:pb-12 md:pb-16 lg:pb-20",
+            styles.teachingContainer
+          )}
+        >
+          <div className="flex flex-col">
+            {/* Tab Component */}
+            <div className="w-full">
+              {/* Tab Content */}
+              {/* Bài giảng đang dạy */}
+              <div
+                className={cn(
+                  "bg-white rounded-lg p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-5 md:space-y-6",
+                  styles.performanceOptimized
+                )}
+              >
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="flex-shrink-0">
+                    <SectionTitle
+                      title="Bài giảng đang dạy"
+                      image={{
+                        src: "/assets/gif/book_animate.gif",
+                        width: 32,
+                        height: 32,
+                        alt: "book_animate"
                       }}
-                      onSlideChange={handleSlideChange}
-                      containerType="current"
-                      showArrows={cappedTeachingLessons.length > 1}
-                      className={cn(
-                        "teaching-lessons-carousel",
-                        styles.swiperContainer
-                      )}
+                      wrapperClassName="border-[#4079CE]"
                     />
-
-                    {/* View all action when capped */}
-                    {filteredTeachingLessons.length > MAX_SLIDES && (
-                      <div className="flex justify-center mt-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            // Optional: navigate to an all-lessons page or open modal
-                            // For now, just log to console to keep logic minimal
-                            console.log("View all teaching lessons clicked");
-                          }}
-                        >
-                          Xem tất cả ({filteredTeachingLessons.length})
-                        </Button>
-                      </div>
-                    )}
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 py-8 sm:py-12 md:py-16">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gray-100 rounded-full flex items-center justify-center">
-                      <Image
-                        src="/assets/image/no_course.png"
-                        alt="no-course"
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
-                      />
-                    </div>
-                    <div className="text-center max-w-sm">
-                      <p className="text-gray-600 font-medium text-sm sm:text-base md:text-lg">
-                        {activeTab === "all"
-                          ? "Hiện tại chưa có bài học nào đang dạy!"
-                          : `Chưa có bài học nào đang dạy trong lớp này!`}
-                      </p>
-                      <p className="text-xs sm:text-sm md:text-base text-gray-500 mt-1">
-                        Hãy bắt đầu một bài học mới để tiếp tục hành trình học
-                        tập
-                      </p>
-                    </div>
+                </div>
+
+                {/* Debug info cho development */}
+                {process.env.NODE_ENV === "development" && (
+                  <div className="bg-yellow-50 hidden border border-yellow-200 rounded p-2 text-xs">
+                    <p>
+                      <strong>Debug Info:</strong>
+                    </p>
+                    <p>
+                      Total Teaching Lessons: {teachingLessons?.length || 0}
+                    </p>
+                    <p>Filtered Lessons: {filteredTeachingLessons.length}</p>
+                    <p>Active Tab: {activeTab}</p>
+                    <p>
+                      Selected Class ID:{" "}
+                      {activeTab !== "all" ? activeTab : "Tất cả"}
+                    </p>
+                    <p>Breakpoint: {breakpoint}</p>
+                    <p>Is Client: {isClient.toString()}</p>
+                    <p>
+                      Classrooms with Lessons:{" "}
+                      {classrooms?.filter(
+                        (c) => getTeachingLessonCountByClassId(c.class_id) > 0
+                      ).length || 0}
+                    </p>
+                    <p>Classroom Tabs: {classroomTabs.length}</p>
                   </div>
                 )}
+
+                {/* Tab Headers - Enhanced UI với gradient background */}
+                <div className="bg-gradient-to-br from-gray-50 to-blue-50/30 p-4 sm:p-5 md:p-6 rounded-2xl border border-gray-200 shadow-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Users className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-800">
+                        Lọc theo lớp học
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Chọn lớp học để xem bài giảng đang dạy
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Tab container với responsive scroll */}
+                  <div
+                    className={cn("overflow-x-auto pb-2", styles.tabsContainer)}
+                  >
+                    <div className="flex gap-2 sm:gap-3 min-w-max">
+                      {/* Tab "Tất cả lớp học" */}
+                      <Button
+                        variant="ghost"
+                        size="default"
+                        onClick={() => updateActiveTab("all")}
+                        className={cn(
+                          "px-4 sm:px-5 md:px-6 py-3 sm:py-3.5 md:py-4",
+                          "text-sm sm:text-base md:text-lg font-semibold",
+                          "transition-all duration-300 shadow-sm hover:shadow-md",
+                          "flex items-center gap-3 sm:gap-4",
+                          "min-w-0 flex-shrink-0 rounded-xl border-2",
+                          activeTab === "all"
+                            ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-emerald-600 hover:to-green-500 text-white border-green-500 shadow-lg shadow-green-200/50 scale-105"
+                            : "bg-white text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-green-50 border-gray-200 hover:border-green-300 hover:text-green-800"
+                        )}
+                      >
+                        <span className="flex items-center gap-2 sm:gap-3">
+                          <div
+                            className={cn(
+                              "p-1.5 rounded-lg transition-all duration-300",
+                              activeTab === "all"
+                                ? "bg-white/20 shadow-inner"
+                                : "bg-gray-100 group-hover:bg-green-100"
+                            )}
+                          >
+                            <GraduationCap
+                              className={cn(
+                                "w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300",
+                                activeTab === "all"
+                                  ? "text-white drop-shadow-sm"
+                                  : "text-green-600 group-hover:text-green-700"
+                              )}
+                            />
+                          </div>
+                          <span className="whitespace-nowrap">
+                            Tất cả lớp học
+                          </span>
+                        </span>
+                        <div
+                          className={cn(
+                            "px-2 py-1 rounded-full text-xs font-bold",
+                            "whitespace-nowrap flex-shrink-0 transition-all duration-300",
+                            "hidden xs:flex items-center justify-center min-w-[24px]",
+                            activeTab === "all"
+                              ? "bg-white/25 text-white shadow-inner"
+                              : "bg-gray-200 text-gray-600 group-hover:bg-green-200 group-hover:text-green-800"
+                          )}
+                        >
+                          {(teachingLessons || []).length}
+                        </div>
+                      </Button>
+
+                      {/* Các tab lớp học */}
+                      {classroomTabs}
+                    </div>
+                  </div>
+
+                  {/* Filter status indicator */}
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="flex flex-wrap items-center gap-2 text-sm">
+                      <span className="text-gray-600 font-medium flex items-center gap-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        Đang hiển thị:
+                      </span>
+                      {activeTab === "all" ? (
+                        <span className="px-3 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 rounded-full font-semibold border border-green-200">
+                          Tất cả lớp học ({(teachingLessons || []).length} bài)
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1.5 bg-gradient-to-r from-pink-100 to-rose-100 text-pink-800 rounded-full font-semibold border border-pink-200">
+                          {
+                            classrooms.find(
+                              (c) => c.class_id.toString() === activeTab
+                            )?.classname
+                          }
+                          ({filteredTeachingLessons.length} bài)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content area với responsive padding */}
+                <div className="bg-gray-50 rounded-lg p-3 sm:p-4 md:p-6 mb-8 sm:mb-12 md:mb-16">
+                  {filteredTeachingLessons.length > 0 ? (
+                    <div className="relative">
+                      {/* CourseCarousel component */}
+                      <CourseCarousel
+                        courseData={cappedTeachingLessons}
+                        onLessonClick={(lessonId) => {
+                          const lesson = cappedTeachingLessons.find(
+                            (l) => l.lessonId === lessonId
+                          );
+                          if (lesson) {
+                            handleNavigateToLesson(lesson);
+                          }
+                        }}
+                        onSlideChange={handleSlideChange}
+                        containerType="current"
+                        showArrows={cappedTeachingLessons.length > 1}
+                        className={cn(
+                          "teaching-lessons-carousel",
+                          styles.swiperContainer
+                        )}
+                      />
+
+                      {/* View all action when capped */}
+                      {filteredTeachingLessons.length > MAX_SLIDES && (
+                        <div className="flex justify-center mt-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              // Optional: navigate to an all-lessons page or open modal
+                              // For now, just log to console to keep logic minimal
+                              console.log("View all teaching lessons clicked");
+                            }}
+                          >
+                            Xem tất cả ({filteredTeachingLessons.length})
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 py-8 sm:py-12 md:py-16">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gray-100 rounded-full flex items-center justify-center">
+                        <Image
+                          src="/assets/image/no_course.png"
+                          alt="no-course"
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                        />
+                      </div>
+                      <div className="text-center max-w-sm">
+                        <p className="text-gray-600 font-medium text-sm sm:text-base md:text-lg">
+                          {activeTab === "all"
+                            ? "Hiện tại chưa có bài học nào đang dạy!"
+                            : `Chưa có bài học nào đang dạy trong lớp này!`}
+                        </p>
+                        <p className="text-xs sm:text-sm md:text-base text-gray-500 mt-1">
+                          Hãy bắt đầu một bài học mới để tiếp tục hành trình học
+                          tập
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

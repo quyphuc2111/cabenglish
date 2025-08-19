@@ -165,6 +165,11 @@ body {
   padding-bottom: 40px;
 }
 
+/* Ensure lesson teaching page content is not cut off */
+.lesson-teaching-page {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 40px);
+}
+
 /* Mobile specific fixes for pagination visibility */
 @media (max-width: 768px) {
   .pagination-controls-wrapper {
@@ -173,7 +178,8 @@ body {
   }
 
   .lesson-complete-page,
-  .lesson-pending-page {
+  .lesson-pending-page,
+  .lesson-teaching-page {
     padding-bottom: 80px;
   }
 }
