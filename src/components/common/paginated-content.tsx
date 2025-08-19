@@ -368,8 +368,8 @@ export function PaginatedContent<T>({
         </div>
       </ScrollArea>
 
-      {/* Pagination controls */}
-      <div className="mt-4 sm:mt-6 md:mt-8 space-y-4 sm:space-y-6">
+      {/* Pagination controls - Thêm padding bottom để tránh bị che */}
+      <div className="pagination-controls-wrapper mt-4 sm:mt-6 md:mt-8 pb-8 sm:pb-12 md:pb-16 lg:pb-20 space-y-4 sm:space-y-6">
         {/* Main pagination */}
         <PaginationControls
           currentPage={currentPage}
@@ -384,7 +384,7 @@ export function PaginatedContent<T>({
         />
 
         {/* Bottom controls - stack vertically on small screens */}
-        <div className="flex flex-col gap-3 bg-gray-50/50 rounded-lg p-2 sm:p-3 md:p-4">
+        <div className="flex flex-col gap-3 bg-gray-50/50 rounded-lg p-2 sm:p-3 md:p-4 mb-4 sm:mb-6 md:mb-8">
           {/* Top row on mobile: Items per page + Items count */}
           <div className="flex flex-col xs:flex-row justify-between items-center gap-2 xs:gap-3">
             {/* Items per page selector */}

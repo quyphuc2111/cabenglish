@@ -150,6 +150,34 @@ body {
   contain: layout style;
 }
 
+/* Ensure pagination controls are always visible */
+.pagination-controls-wrapper {
+  position: relative;
+  z-index: 10;
+  margin-bottom: env(safe-area-inset-bottom, 20px);
+  padding-bottom: 20px;
+}
+
+/* Prevent pagination from being cut off */
+.lesson-complete-page .pagination-controls-wrapper,
+.lesson-pending-page .pagination-controls-wrapper {
+  margin-bottom: max(env(safe-area-inset-bottom, 0px), 40px);
+  padding-bottom: 40px;
+}
+
+/* Mobile specific fixes for pagination visibility */
+@media (max-width: 768px) {
+  .pagination-controls-wrapper {
+    margin-bottom: max(env(safe-area-inset-bottom, 0px), 60px) !important;
+    padding-bottom: 60px !important;
+  }
+
+  .lesson-complete-page,
+  .lesson-pending-page {
+    padding-bottom: 80px;
+  }
+}
+
 .swiper {
   contain: layout style paint;
 }

@@ -516,139 +516,145 @@ function LessonCompleteClient({
 
   return (
     <ContentLayout title="BaiGiangHoanThanh">
-      <LessonStats
-        completedCount={lessonCounts.completed}
-        totalCount={lessonCounts.total}
-      />
+      <div className="lesson-complete-page">
+        <LessonStats
+          completedCount={lessonCounts.completed}
+          totalCount={lessonCounts.total}
+        />
 
-      <div className="bg-white px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6 relative rounded-xl mx-2 sm:mx-4 md:mx-6 lg:mx-0 shadow-sm">
-        <div className="flex flex-col gap-4 w-full sm:gap-6">
-          <SectionHeader />
+        <div className="bg-white px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6 relative rounded-xl mx-2 sm:mx-4 md:mx-6 lg:mx-0 shadow-sm">
+          <div className="flex flex-col gap-4 w-full sm:gap-6">
+            <SectionHeader />
 
-          {/* Bộ lọc mới - Enhanced UI */}
-          <div className="bg-gradient-to-br from-gray-50 to-green-50/30 p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
-            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-              {/* Filter Lớp học */}
-              <div className="flex-1 min-w-0">
-                <CustomSelect
-                  value={selectedClassId}
-                  onChange={handleClassChange}
-                  options={[
-                    { value: "", label: "Tất cả lớp học" },
-                    ...classrooms.map((classroom) => ({
-                      value: classroom.class_id.toString(),
-                      label: classroom.classname
-                    }))
-                  ]}
-                  placeholder="Chọn lớp học"
-                  icon={Users}
-                  label="Lớp học"
-                />
+            {/* Bộ lọc mới - Enhanced UI */}
+            <div className="bg-gradient-to-br from-gray-50 to-green-50/30 p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
+              <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+                {/* Filter Lớp học */}
+                <div className="flex-1 min-w-0">
+                  <CustomSelect
+                    value={selectedClassId}
+                    onChange={handleClassChange}
+                    options={[
+                      { value: "", label: "Tất cả lớp học" },
+                      ...classrooms.map((classroom) => ({
+                        value: classroom.class_id.toString(),
+                        label: classroom.classname
+                      }))
+                    ]}
+                    placeholder="Chọn lớp học"
+                    icon={Users}
+                    label="Lớp học"
+                  />
+                </div>
+
+                {/* Filter Unit */}
+                <div className="flex-1 min-w-0">
+                  <CustomSelect
+                    value={selectedUnitId}
+                    onChange={handleUnitChange}
+                    options={[
+                      { value: "", label: "Tất cả Unit" },
+                      ...units.map((unit) => ({
+                        value: unit.unitId.toString(),
+                        label: unit.unitName
+                      }))
+                    ]}
+                    placeholder="Chọn Unit"
+                    disabled={!selectedClassId}
+                    loading={loadingUnits}
+                    icon={BookOpen}
+                    label="Unit"
+                  />
+                </div>
+
+                {/* Filter Tuần học */}
+                <div className="flex-1 min-w-0">
+                  <CustomSelect
+                    value={selectedWeekId}
+                    onChange={handleWeekChange}
+                    options={[
+                      { value: "", label: "Tất cả tuần học" },
+                      ...schoolWeeks.map((week) => ({
+                        value: week.swId.toString(),
+                        label: `Tuần ${week.value}`
+                      }))
+                    ]}
+                    placeholder="Chọn tuần học"
+                    disabled={!selectedUnitId}
+                    loading={loadingWeeks}
+                    icon={Calendar}
+                    label="Tuần học"
+                  />
+                </div>
               </div>
 
-              {/* Filter Unit */}
-              <div className="flex-1 min-w-0">
-                <CustomSelect
-                  value={selectedUnitId}
-                  onChange={handleUnitChange}
-                  options={[
-                    { value: "", label: "Tất cả đơn vị học" },
-                    ...units.map((unit) => ({
-                      value: unit.unitId.toString(),
-                      label: unit.unitName
-                    }))
-                  ]}
-                  placeholder="Chọn đơn vị học"
-                  disabled={!selectedClassId}
-                  loading={loadingUnits}
-                  icon={BookOpen}
-                  label="Đơn vị học"
-                />
-              </div>
-
-              {/* Filter Tuần học */}
-              <div className="flex-1 min-w-0">
-                <CustomSelect
-                  value={selectedWeekId}
-                  onChange={handleWeekChange}
-                  options={[
-                    { value: "", label: "Tất cả tuần học" },
-                    ...schoolWeeks.map((week) => ({
-                      value: week.swId.toString(),
-                      label: `Tuần ${week.value}`
-                    }))
-                  ]}
-                  placeholder="Chọn tuần học"
-                  disabled={!selectedUnitId}
-                  loading={loadingWeeks}
-                  icon={Calendar}
-                  label="Tuần học"
-                />
-              </div>
-            </div>
-
-            {/* Filter status indicator */}
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="text-gray-600 font-medium">
-                  Bộ lọc đang áp dụng:
-                </span>
-                {selectedClassId && (
-                  <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full font-medium">
-                    {
-                      classrooms.find(
-                        (c) => c.class_id.toString() === selectedClassId
-                      )?.classname
-                    }
+              {/* Filter status indicator */}
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <span className="text-gray-600 font-medium">
+                    Bộ lọc đang áp dụng:
                   </span>
-                )}
-                {selectedUnitId && (
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
-                    {
-                      units.find((u) => u.unitId.toString() === selectedUnitId)
-                        ?.unitName
-                    }
-                  </span>
-                )}
-                {selectedWeekId && (
-                  <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full font-medium">
-                    Tuần{" "}
-                    {
-                      schoolWeeks.find(
-                        (w) => w.swId.toString() === selectedWeekId
-                      )?.value
-                    }
-                  </span>
-                )}
-                {!selectedClassId && !selectedUnitId && !selectedWeekId && (
-                  <span className="text-gray-500 italic">Hiển thị tất cả</span>
-                )}
+                  {selectedClassId && (
+                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full font-medium">
+                      {
+                        classrooms.find(
+                          (c) => c.class_id.toString() === selectedClassId
+                        )?.classname
+                      }
+                    </span>
+                  )}
+                  {selectedUnitId && (
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
+                      {
+                        units.find(
+                          (u) => u.unitId.toString() === selectedUnitId
+                        )?.unitName
+                      }
+                    </span>
+                  )}
+                  {selectedWeekId && (
+                    <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full font-medium">
+                      Tuần{" "}
+                      {
+                        schoolWeeks.find(
+                          (w) => w.swId.toString() === selectedWeekId
+                        )?.value
+                      }
+                    </span>
+                  )}
+                  {!selectedClassId && !selectedUnitId && !selectedWeekId && (
+                    <span className="text-gray-500 italic">
+                      Hiển thị tất cả
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
+
+          <PerformanceWrapper
+            variant="lesson-grid"
+            enableContentVisibility={true}
+            enableTouch={false}
+            containLevel="style"
+            className="lesson-grid-container performance-below-fold pointer-events-auto"
+          >
+            <div className="mt-4 sm:mt-6 md:mt-8 min-h-[400px] pb-8 sm:pb-12 md:pb-16">
+              {completedLessons.length > 0 ? (
+                <PaginatedContent
+                  items={completedLessons}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  renderItem={renderLessonCard}
+                  rowPerPage={3} // Grid responsive: 2 cột trên mobile, 4 cột trên desktop
+                  itemInPage={[8, 16, 24, 32]} // Options cho items per page
+                  className="w-full"
+                />
+              ) : (
+                <NoLessons />
+              )}
+            </div>
+          </PerformanceWrapper>
         </div>
-
-        <PerformanceWrapper
-          variant="lesson-grid"
-          enableContentVisibility={true}
-          enableTouch={false}
-          containLevel="style"
-          className="lesson-grid-container performance-below-fold pointer-events-auto"
-        >
-          <div className="mt-4 sm:mt-6 md:mt-8">
-            {completedLessons.length > 0 ? (
-              <PaginatedContent
-                items={completedLessons}
-                itemsPerPage={ITEMS_PER_PAGE}
-                renderItem={renderLessonCard}
-                rowPerPage={3} // Grid responsive: 2 cột trên mobile, 4 cột trên desktop
-                itemInPage={[8, 16, 24, 32]} // Options cho items per page
-              />
-            ) : (
-              <NoLessons />
-            )}
-          </div>
-        </PerformanceWrapper>
       </div>
     </ContentLayout>
   );
