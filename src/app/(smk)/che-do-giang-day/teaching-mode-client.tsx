@@ -349,7 +349,7 @@ function TeachingModeClient({
         >
           <Image src="/book.gif" alt="book" width={40} height={40} />
         </motion.div>
-        <p className="text-xl">Chế độ giảng dạy</p>
+        <p className="text-2xl font-bold">CHẾ ĐỘ GIẢNG DẠY</p>
       </motion.div>
       <AnimatePresence>
         <motion.div
