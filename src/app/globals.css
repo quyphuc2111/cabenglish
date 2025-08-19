@@ -170,6 +170,15 @@ body {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 40px);
 }
 
+/* Prevent double scrollbars by ensuring content fits within ContentLayout's ScrollArea */
+.lesson-complete-page,
+.lesson-pending-page,
+.lesson-teaching-page {
+  min-height: auto;
+  height: auto;
+  overflow: visible;
+}
+
 /* Mobile specific fixes for pagination visibility */
 @media (max-width: 768px) {
   .pagination-controls-wrapper {
@@ -181,6 +190,9 @@ body {
   .lesson-pending-page,
   .lesson-teaching-page {
     padding-bottom: 80px;
+    /* Ensure no double scrollbars on mobile */
+    overflow: visible;
+    height: auto;
   }
 }
 

@@ -494,7 +494,7 @@ function LessonPendingClient({
           totalCount={totalLessons}
         />
 
-        <div className="bg-white p-3 sm:p-4 md:p-6 relative rounded-xl min-h-screen mx-2 sm:mx-4 md:mx-0">
+        <div className="bg-white p-3 sm:p-4 md:p-6 relative rounded-xl mx-2 sm:mx-4 md:mx-0">
           <div className="flex flex-col gap-4 w-full sm:gap-6">
             <div className="flex-shrink-0">
               <SectionTitle
@@ -536,17 +536,17 @@ function LessonPendingClient({
                     value={selectedUnitId}
                     onChange={handleUnitChange}
                     options={[
-                      { value: "", label: "Tất cả đơn vị học" },
+                      { value: "", label: "Tất cả Unit" },
                       ...units.map((unit) => ({
                         value: unit.unitId.toString(),
                         label: unit.unitName
                       }))
                     ]}
-                    placeholder="Chọn đơn vị học"
+                    placeholder="Chọn Unit"
                     disabled={!selectedClassId}
                     loading={loadingUnits}
                     icon={BookOpen}
-                    label="Đơn vị học"
+                    label="Unit"
                   />
                 </div>
 
