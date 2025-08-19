@@ -90,7 +90,7 @@ function ChangeTeachingModeModal() {
     <AnimatePresence>
       {isOpen && type === "changeTeachingModeModal" && (
         <Dialog open={true} onOpenChange={onClose}>
-          <DialogContent className="sm:max-w-3xl !rounded-3xl overflow-hidden relative !fixed !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 !transform">
+          <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[95vh] sm:max-h-[90vh] !rounded-2xl sm:!rounded-3xl overflow-hidden overflow-y-auto !fixed !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 !transform p-4 sm:p-6 md:p-8 landscape:max-h-[90vh] landscape:py-2 landscape:px-4">
             <motion.div
               variants={modalVariants}
               initial="hidden"
@@ -109,25 +109,31 @@ function ChangeTeachingModeModal() {
                     <div className="flex flex-col items-center gap-4">
                       <motion.div
                         animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: "linear"
+                        }}
                         className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full"
                       />
-                      <p className="text-lg font-medium text-gray-700">Đang chuyển chế độ...</p>
+                      <p className="text-lg font-medium text-gray-700">
+                        Đang chuyển chế độ...
+                      </p>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              <DialogHeader>
+              <DialogHeader className="pb-2 sm:pb-4">
                 <DialogTitle>
                   <motion.div
-                    className="flex items-center gap-5 w-full"
+                    className="flex items-center gap-2 sm:gap-3 md:gap-5 w-full justify-center sm:justify-start"
                     initial={{ x: -50 }}
                     animate={{ x: 0 }}
                     transition={{ delay: 0.2, type: "spring" }}
                   >
                     <motion.div
-                      className="w-[66px] h-[41px] flex items-center"
+                      className="w-[50px] h-[32px] sm:w-[60px] sm:h-[38px] md:w-[66px] md:h-[41px] flex items-center"
                       whileHover={{
                         rotate: [0, -10, 10, 0],
                         transition: { duration: 0.5 }
@@ -138,12 +144,12 @@ function ChangeTeachingModeModal() {
                         width={171}
                         height={54}
                         alt="color_icon"
-                        className="object-cover"
+                        className="w-full h-full"
                         priority
                       />
                     </motion.div>
                     <motion.h2
-                      className="flex items-center"
+                      className="flex items-center text-lg sm:text-xl md:text-2xl font-semibold"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.4 }}
@@ -158,7 +164,7 @@ function ChangeTeachingModeModal() {
                 variants={contentVariants}
                 initial="hidden"
                 animate="visible"
-                className="flex flex-col gap-7 items-center"
+                className="flex flex-col gap-4 sm:gap-5 md:gap-7 items-center py-2 sm:py-4 landscape:gap-2 landscape:py-1"
               >
                 <motion.div
                   animate={{
@@ -173,24 +179,33 @@ function ChangeTeachingModeModal() {
                   <Image
                     src="/modal/alert.png"
                     alt="warning"
-                    width={90}
-                    height={90}
+                    width={60}
+                    height={60}
+                    className="sm:w-[75px] sm:h-[75px] md:w-[90px] md:h-[90px]"
                   />
                 </motion.div>
-                <p className="text-2xl font-medium">
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium text-center px-2">
                   Sẽ có những thay đổi lớn khi bạn đổi chế độ giảng dạy!
                 </p>
-                <p className="text-xl text-center flex items-center gap-2 ">
-                  <span className="text-[#555555]">Bạn có muốn chuyển sang</span><span className="font-medium text-[#4079CE]">{`${data?.mode === "defaultMode" ? "Chế độ mặc định" : "Chế độ tự do"} ?`}</span>
-                </p>
-                <div className="flex gap-20">
+                <div className="text-sm sm:text-base md:text-lg lg:text-xl text-center flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2">
+                  <span className="text-[#555555]">
+                    Bạn có muốn chuyển sang
+                  </span>
+                  <span className="font-medium text-[#4079CE]">{`${
+                    data?.mode === "defaultMode"
+                      ? "Chế độ mặc định"
+                      : "Chế độ tự do"
+                  } ?`}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 md:gap-12 lg:gap-20 w-full sm:w-auto px-4 sm:px-0">
                   <motion.div
                     variants={buttonVariants}
                     whileHover={!isLoading ? "hover" : {}}
                     whileTap={!isLoading ? "tap" : {}}
+                    className="w-full sm:w-auto"
                   >
                     <Button
-                      className="bg-blue-500 hover:bg-blue-500/80 text-md text-white disabled:bg-blue-400 disabled:cursor-not-allowed"
+                      className="bg-blue-500 hover:bg-blue-500/80 text-sm sm:text-base text-white disabled:bg-blue-400 disabled:cursor-not-allowed w-full sm:w-auto"
                       size={"lg"}
                       onClick={handleConfirm}
                       disabled={isLoading}
@@ -199,7 +214,11 @@ function ChangeTeachingModeModal() {
                         <div className="flex items-center gap-2">
                           <motion.div
                             animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            transition={{
+                              duration: 1,
+                              repeat: Infinity,
+                              ease: "linear"
+                            }}
                             className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                           />
                           Đang xử lý...
@@ -213,9 +232,10 @@ function ChangeTeachingModeModal() {
                     variants={buttonVariants}
                     whileHover={!isLoading ? "hover" : {}}
                     whileTap={!isLoading ? "tap" : {}}
+                    className="w-full sm:w-auto"
                   >
                     <Button
-                      className="bg-red-500 hover:bg-red-500/80 text-md text-white disabled:bg-red-400 disabled:cursor-not-allowed"
+                      className="bg-red-500 hover:bg-red-500/80 text-sm sm:text-base text-white disabled:bg-red-400 disabled:cursor-not-allowed w-full sm:w-auto"
                       size="lg"
                       onClick={onClose}
                       disabled={isLoading}
@@ -227,7 +247,7 @@ function ChangeTeachingModeModal() {
               </motion.div>
 
               <motion.div
-                className="flex items-center justify-between mt-10"
+                className="flex flex-col sm:flex-row items-center justify-between mt-6 sm:mt-8 md:mt-10 gap-4 sm:gap-2"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
@@ -241,29 +261,34 @@ function ChangeTeachingModeModal() {
                       ease: "easeInOut"
                     }
                   }}
+                  className="hidden sm:block"
                 >
                   <Image
                     src="/modal/coin_bag.png"
                     alt="coin_bag"
-                    width={60}
-                    height={60}
+                    width={40}
+                    height={40}
+                    className="sm:w-[50px] sm:h-[50px] md:w-[60px] md:h-[60px]"
                   />
                 </motion.div>
-                <div className="flex gap-4 items-center">
-                 <div className="w-10 h-10">
-                 <Image
-                    src="/modal/ques.png"
-                    alt="ques"
-                    width={512}
-                    height={512}
-                  />
-                 </div>
-                  <div>
-                    <p>Nếu bạn chưa rõ chế độ giảng dạy</p>
+                <div className="flex gap-2 sm:gap-3 md:gap-4 items-center text-center sm:text-left">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex-shrink-0">
+                    <Image
+                      src="/modal/ques.png"
+                      alt="ques"
+                      width={512}
+                      height={512}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="text-xs sm:text-sm md:text-base">
+                      Nếu bạn chưa rõ chế độ giảng dạy
+                    </p>
                     <Button
                       type="button"
                       variant="link"
-                      className="text-[#3454E6] p-0 -mt-2"
+                      className="text-[#3454E6] p-0 -mt-1 sm:-mt-2 text-xs sm:text-sm md:text-base h-auto"
                     >
                       Hãy xem lại ở đây!
                     </Button>
@@ -278,12 +303,14 @@ function ChangeTeachingModeModal() {
                       ease: "easeInOut"
                     }
                   }}
+                  className="hidden sm:block"
                 >
                   <Image
                     src="/modal/coin_bag.png"
                     alt="coin_bag"
-                    width={60}
-                    height={60}
+                    width={40}
+                    height={40}
+                    className="sm:w-[50px] sm:h-[50px] md:w-[60px] md:h-[60px]"
                   />
                 </motion.div>
               </motion.div>
