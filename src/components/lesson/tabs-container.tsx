@@ -14,7 +14,10 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 import OptimizeImage from "@/components/common/optimize-image";
-import { useUpdateLessonLocked, useUpdateSectionLockedFromLocked } from "@/hooks/client/useLesson";
+import {
+  useUpdateLessonLocked,
+  useUpdateSectionLockedFromLocked
+} from "@/hooks/client/useLesson";
 import { ArrowLeft, CheckCircle, FullscreenIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getNextLessonByLessonId } from "@/actions/nextLessonAction";
@@ -102,7 +105,7 @@ export const TabsContainer = ({
 }: TabsContainerProps) => {
   const router = useRouter();
   const { invalidateLessons } = useLessonData();
-  const { onOpen, onClose: onCloseModal } = useModal();
+  const { onOpen } = useModal();
   const { data: session } = useSession();
 
   // Use viewport height hook for mobile optimization
@@ -292,7 +295,54 @@ export const TabsContainer = ({
                 }
               });
             } else if (nextLessonResult.nextLesson) {
-              // Có lesson tiếp theo
+              // Có lesson tiếp theo - Mở khóa lesson tiếp theo ngay lập tức
+              console.log(
+                `🔓 Bắt đầu mở khóa lesson tiếp theo: ${nextLessonResult.nextLesson.lessonId}`
+              );
+
+              updateLessonLocked(
+                {
+                  lessonId: Number(nextLessonResult.nextLesson.lessonId)
+                },
+                {
+                  onSuccess: (data) => {
+                    console.log(
+                      `✅ Đã mở khóa lesson tiếp theo thành công: ${
+                        nextLessonResult.nextLesson!.lessonId
+                      }`,
+                      data
+                    );
+
+                    // Invalidate dữ liệu ngay sau khi mở khóa thành công
+                    try {
+                      invalidateLessons();
+                      console.log("✅ Đã refresh dữ liệu lessons");
+                    } catch (error) {
+                      console.error("❌ Lỗi khi refresh dữ liệu:", error);
+                    }
+                  },
+                  onError: (error) => {
+                    console.error(
+                      `❌ Lỗi khi mở khóa lesson tiếp theo ${
+                        nextLessonResult.nextLesson!.lessonId
+                      }:`,
+                      error
+                    );
+
+                    // Thử gọi lại invalidate để đảm bảo dữ liệu được refresh
+                    try {
+                      invalidateLessons();
+                      console.log("✅ Đã refresh dữ liệu lessons sau lỗi");
+                    } catch (refreshError) {
+                      console.error(
+                        "❌ Lỗi khi refresh dữ liệu sau lỗi unlock:",
+                        refreshError
+                      );
+                    }
+                  }
+                }
+              );
+
               onOpen("nextLesson", {
                 isLastLesson: false,
                 nextLessonId: nextLessonResult.nextLesson.lessonId,
@@ -300,12 +350,12 @@ export const TabsContainer = ({
                   // Invalidate lesson data để refresh dữ liệu
                   if (session?.user?.userId && currentLesson?.classId) {
                     try {
-                      await invalidateLessons();
+                      invalidateLessons();
                     } catch (error) {
                       console.error("Lỗi khi invalidate dữ liệu:", error);
                     }
                   }
-                  
+
                   // Cập nhật store với thông tin lesson mới
                   if (typeof window !== "undefined") {
                     const {
@@ -316,13 +366,16 @@ export const TabsContainer = ({
                     setSelectedLesson(nextLessonResult.nextLesson);
                   }
 
-                 await updateLessonLocked({ lessonId: Number(nextLessonResult.nextLesson!.lessonId) }, {
-                  onSuccess: () => {
-                    router.push(
-                      `/lesson/${nextLessonResult.nextLesson!.lessonId}`
-                    );
-                  }
-                 });
+                  // Chuyển đến lesson tiếp theo
+                  router.push(
+                    `/lesson/${nextLessonResult.nextLesson!.lessonId}`
+                  );
+                },
+                onCancel: () => {
+                  // Khi nhấn "Không", chỉ cần log - modal sẽ tự động đóng
+                  console.log(
+                    "👤 Người dùng chọn không tiếp tục học lesson tiếp theo"
+                  );
                 }
               });
             } else {
@@ -541,7 +594,9 @@ export const TabsContainer = ({
                           <div className="flex gap-0.5 landscape:gap-1 sm:gap-2 items-center min-w-0 w-full">
                             <div className="w-4 h-4 landscape:w-5 landscape:h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 flex-shrink-0 relative overflow-hidden rounded">
                               <Image
-                                src={content.icon_url || "/assets/image/sc1.png"}
+                                src={
+                                  content.icon_url || "/assets/image/sc1.png"
+                                }
                                 alt="content-icon"
                                 width={40}
                                 height={40}
@@ -596,7 +651,10 @@ export const TabsContainer = ({
           whileTap={{ scale: 0.95 }}
           className="flex items-center gap-1.5 landscape:gap-2 lg:gap-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg px-3 landscape:px-4 lg:px-6 py-1.5 landscape:py-2 lg:py-2.5 text-xs landscape:text-sm lg:text-base font-medium shadow-md transition-colors"
         >
-          <ArrowLeft size={14} className="landscape:w-4 landscape:h-4 lg:w-5 lg:h-5" />
+          <ArrowLeft
+            size={14}
+            className="landscape:w-4 landscape:h-4 lg:w-5 lg:h-5"
+          />
           <span>Quay lại</span>
         </motion.button>
 
@@ -605,11 +663,14 @@ export const TabsContainer = ({
           whileTap={{ scale: 0.95 }}
           className="flex items-center gap-1.5 landscape:gap-2 lg:gap-3 bg-green-500 hover:bg-green-600 text-white rounded-lg px-3 landscape:px-4 lg:px-6 py-1.5 landscape:py-2 lg:py-2.5 text-xs landscape:text-sm lg:text-base font-medium shadow-md transition-colors"
         >
-          <CheckCircle size={14} className="landscape:w-4 landscape:h-4 lg:w-5 lg:h-5" />
+          <CheckCircle
+            size={14}
+            className="landscape:w-4 landscape:h-4 lg:w-5 lg:h-5"
+          />
           <span>Hoàn thành</span>
         </motion.button>
       </div>
-      
+
       {/* Content tabs */}
       {sectionContents
         .sort((a, b) => a.order - b.order)

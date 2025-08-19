@@ -89,6 +89,15 @@ function NextLessonModal() {
     }
   };
 
+  const handleCancel = () => {
+    // Gọi onCancel callback nếu có
+    if (data?.onCancel) {
+      data.onCancel();
+    }
+    // Luôn đóng modal
+    onClose();
+  };
+
   return (
     <AnimatePresence>
       {isModalOpen && (
@@ -189,7 +198,7 @@ function NextLessonModal() {
                         whileTap="tap"
                       >
                         <Button
-                          onClick={onClose}
+                          onClick={handleCancel}
                           className="bg-red-500 hover:bg-red-500/80 text-md text-white"
                           size="lg"
                         >
