@@ -149,30 +149,56 @@ const TEACHING_MODE_DATA = {
 interface ModeHeaderProps {
   icon: string;
   title: string;
+  isActive?: boolean;
 }
 
-const ModeHeader = ({ icon, title }: ModeHeaderProps) => (
+const ModeHeader = ({ icon, title, isActive = false }: ModeHeaderProps) => (
   <motion.div
     variants={itemVariants}
-    className="flex items-center gap-2 border-b-4 max-w-[250px] pb-2 mb-5 border-[#736E6E]"
+    className={`flex items-center gap-2 sm:gap-3 border-b-4 max-w-full sm:max-w-[250px] md:max-w-[300px] pb-2 mb-3 sm:mb-5 transition-colors duration-300 ${
+      isActive ? "border-[#4079CE]" : "border-[#736E6E]"
+    }`}
   >
     <motion.div variants={iconVariants}>
-      <Image src={icon} alt={title} width={50} height={40} />
+      <Image
+        src={icon}
+        alt={title}
+        width={40}
+        height={32}
+        className="sm:w-[50px] sm:h-[40px] w-[40px] h-[32px]"
+      />
     </motion.div>
-    <h2 className="text-xl">{title}</h2>
+    <h2
+      className={`text-lg sm:text-xl md:text-2xl font-semibold transition-colors duration-300 ${
+        isActive ? "text-[#4079CE]" : "text-gray-700"
+      }`}
+    >
+      {title}
+    </h2>
   </motion.div>
 );
 
-const CourseList = ({ courses }: { courses: any[] }) => (
+const CourseList = ({
+  courses,
+  isActive = false
+}: {
+  courses: any[];
+  isActive?: boolean;
+}) => (
   <motion.div
     variants={containerVariants}
     initial="hidden"
     animate="visible"
-    className="grid grid-cols-2 md:grid-cols-4 gap-5"
+    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5"
   >
     {courses.map((courseItem, index) => (
       <Fragment key={index}>
-        <motion.div variants={itemVariants}>
+        <motion.div
+          variants={itemVariants}
+          className={`transition-all duration-300 ${
+            isActive ? "opacity-100" : "opacity-70"
+          }`}
+        >
           <CourseCard disabled {...courseItem} />
         </motion.div>
       </Fragment>
@@ -259,11 +285,12 @@ function TeachingModeClient({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`bg-white px-10 py-6 border-4 rounded-3xl cursor-pointer transition-all duration-300 ${
+      className={`relative bg-white px-4 sm:px-6 md:px-8 lg:px-10 py-4 sm:py-5 md:py-6 border-4 rounded-2xl sm:rounded-3xl cursor-pointer transition-all duration-300 ${
         modeActive === mode
-          ? "border-[#4079CE]"
-          : "border-gray-200 opacity-50 hover:opacity-100"
+          ? "border-[#4079CE] shadow-lg shadow-blue-200/50 bg-gradient-to-br from-blue-50/30 to-white scale-[1.01] sm:scale-[1.02]"
+          : "border-gray-200 opacity-60 hover:opacity-90 hover:border-gray-300 hover:shadow-md"
       }`}
+      whileHover={modeActive !== mode ? { scale: 1.005 } : {}}
       onClick={() => {
         if (modeActive === mode) {
           toast.info("Chế độ hiện tại đã được chọn!", {
@@ -281,11 +308,43 @@ function TeachingModeClient({
         }
       }}
     >
+      {/* Badge cho chế độ được chọn */}
+      {modeActive === mode && (
+        <motion.div
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          className="absolute -top-2 sm:-top-3 -right-2 sm:-right-3 bg-[#4079CE] text-white rounded-full p-1.5 sm:p-2 shadow-lg z-10"
+        >
+          <svg
+            className="w-3 h-3 sm:w-4 sm:h-4"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </motion.div>
+      )}
+
+      {/* Overlay cho chế độ không được chọn */}
+      {modeActive !== mode && (
+        <div className="absolute inset-0 bg-gray-100/20 rounded-3xl pointer-events-none" />
+      )}
+
       <ModeHeader
         icon={mode === "defaultMode" ? "/bkt_logo.png" : "/modal/freemode.png"}
         title={TEACHING_MODE_DATA[mode].title}
+        isActive={modeActive === mode}
       />
-      <CourseList courses={TEACHING_MODE_DATA[mode].courseData} />
+      <CourseList
+        courses={TEACHING_MODE_DATA[mode].courseData}
+        isActive={modeActive === mode}
+      />
     </motion.div>
   );
 
@@ -295,36 +354,36 @@ function TeachingModeClient({
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 mb-3"
+          className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 md:mb-5"
         >
-          <div className="w-10 h-10 bg-gray-200 rounded animate-pulse"></div>
-          <div className="w-40 h-6 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-32 sm:w-40 h-5 sm:h-6 bg-gray-200 rounded animate-pulse"></div>
         </motion.div>
-        <div className="flex flex-col gap-5">
-          <div className="bg-gray-100 px-10 py-6 border-4 border-gray-200 rounded-3xl animate-pulse">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-12 h-10 bg-gray-200 rounded"></div>
-              <div className="w-32 h-6 bg-gray-200 rounded"></div>
+        <div className="flex flex-col gap-3 sm:gap-4 md:gap-5 mr-1 sm:mr-2">
+          <div className="bg-gray-100 px-4 sm:px-6 md:px-8 lg:px-10 py-4 sm:py-5 md:py-6 border-4 border-gray-200 rounded-2xl sm:rounded-3xl animate-pulse">
+            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-5">
+              <div className="w-10 h-8 sm:w-12 sm:h-10 bg-gray-200 rounded"></div>
+              <div className="w-24 sm:w-32 h-5 sm:h-6 bg-gray-200 rounded"></div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="bg-gray-200 h-48 rounded-lg animate-pulse"
+                  className="bg-gray-200 h-40 sm:h-48 rounded-lg animate-pulse"
                 ></div>
               ))}
             </div>
           </div>
-          <div className="bg-gray-100 px-10 py-6 border-4 border-gray-200 rounded-3xl animate-pulse">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-12 h-10 bg-gray-200 rounded"></div>
-              <div className="w-32 h-6 bg-gray-200 rounded"></div>
+          <div className="bg-gray-100 px-4 sm:px-6 md:px-8 lg:px-10 py-4 sm:py-5 md:py-6 border-4 border-gray-200 rounded-2xl sm:rounded-3xl animate-pulse">
+            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-5">
+              <div className="w-10 h-8 sm:w-12 sm:h-10 bg-gray-200 rounded"></div>
+              <div className="w-24 sm:w-32 h-5 sm:h-6 bg-gray-200 rounded"></div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="bg-gray-200 h-48 rounded-lg animate-pulse"
+                  className="bg-gray-200 h-40 sm:h-48 rounded-lg animate-pulse"
                 ></div>
               ))}
             </div>
@@ -339,7 +398,7 @@ function TeachingModeClient({
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-3 mb-3"
+        className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 md:mb-5"
       >
         <motion.div
           animate={{
@@ -347,13 +406,19 @@ function TeachingModeClient({
             transition: { duration: 1, repeat: Infinity }
           }}
         >
-          <Image src="/book.gif" alt="book" width={40} height={40} />
+          <Image
+            src="/book.gif"
+            alt="book"
+            width={32}
+            height={32}
+            className="sm:w-[40px] sm:h-[40px] w-[32px] h-[32px]"
+          />
         </motion.div>
-        <p className="text-2xl font-bold">CHẾ ĐỘ GIẢNG DẠY</p>
+        <p className="text-xl sm:text-2xl md:text-3xl">CHẾ ĐỘ GIẢNG DẠY</p>
       </motion.div>
       <AnimatePresence>
         <motion.div
-          className="flex flex-col gap-5"
+          className="flex flex-col gap-3 sm:gap-4 md:gap-5 mr-1 sm:mr-2"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
