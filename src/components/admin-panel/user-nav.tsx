@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { LayoutGrid, LogOut, User } from "lucide-react";
-import { signOut } from "next-auth/react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLogout } from "@/hooks/useLogout";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,6 +25,7 @@ import {
 
 export function UserNav() {
   const { user } = useAuth();
+  const { logout } = useLogout();
 
   return (
     <DropdownMenu>
@@ -74,9 +75,9 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          className="hover:cursor-pointer" 
-          onClick={() => signOut({ callbackUrl: "/signin-v2" })}
+        <DropdownMenuItem
+          className="hover:cursor-pointer"
+          onClick={() => logout({ showToastMessages: true })}
         >
           <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
           Sign out

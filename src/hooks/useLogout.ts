@@ -5,13 +5,17 @@ import { signOut } from "next-auth/react";
 import { useUserStore } from "@/store/useUserStore";
 import { logoutAction } from "@/actions/authAction";
 import { showToast } from "@/utils/toast-config";
+import { configApp } from "@/constants/config-app";
 
 export const useLogout = () => {
   const { logout: logoutFromStore } = useUserStore();
 
   const handleLogout = useCallback(
     async (options?: { callbackUrl?: string; showToastMessages?: boolean }) => {
-      const { callbackUrl = "/", showToastMessages = true } = options || {};
+      const {
+        callbackUrl = configApp.LOGOUT_CALLBACK_URL,
+        showToastMessages = true
+      } = options || {};
 
       try {
         // 1. Clear Zustand store đầu tiên

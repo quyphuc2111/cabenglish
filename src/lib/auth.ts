@@ -482,6 +482,23 @@ export const authOptions: NextAuthOptions = {
         session.user.authCookie = token.authCookie;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // Sử dụng APP_URL hoặc NEXTAUTH_URL thay vì localhost
+      const appUrl = process.env.APP_URL || process.env.NEXTAUTH_URL || baseUrl;
+
+      // Nếu url là relative path, kết hợp với appUrl
+      if (url.startsWith("/")) {
+        return `${appUrl}${url}`;
+      }
+
+      // Nếu url có cùng domain với appUrl, cho phép
+      if (url.startsWith(appUrl)) {
+        return url;
+      }
+
+      // Mặc định trả về appUrl
+      return appUrl;
     }
   },
   pages: {

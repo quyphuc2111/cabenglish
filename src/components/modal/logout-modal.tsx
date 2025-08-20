@@ -73,7 +73,6 @@ function LogoutModal() {
 
     // Sử dụng custom logout hook
     await logout({
-      callbackUrl: "/",
       showToastMessages: true
     });
   };

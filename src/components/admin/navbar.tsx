@@ -87,7 +87,6 @@ function Navbar({ breadcrumb }: NavbarProps) {
 
   const handleSignOut = async () => {
     await logout({
-      callbackUrl: "/signin-v2",
       showToastMessages: true
     });
   };
