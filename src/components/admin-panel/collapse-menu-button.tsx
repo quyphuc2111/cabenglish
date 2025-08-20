@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ChevronDown, Dot, LucideIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -56,11 +57,18 @@ export function CollapseMenuButton({
   href,
   disabled
 }: CollapseMenuButtonProps) {
+  const router = useRouter();
   const isSubmenuActive = submenus.some((submenu) => submenu.active);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(isSubmenuActive);
 
   const handleToggleMenu = () => {
     setIsCollapsed((prev) => !prev);
+  };
+
+  const handleMainMenuClick = (e: React.MouseEvent) => {
+    // Prevent the collapsible trigger from firing
+    e.stopPropagation();
+    router.push(href);
   };
 
   return isOpen ? (
@@ -82,12 +90,12 @@ export function CollapseMenuButton({
             <div className="flex items-center">
               <div className="mr-4 z-50" onClick={handleToggleMenu}>
                 {/* <Icon size={18} /> */}
-                <Image 
-                  src={iconSrc} 
-                  width={40} 
-                  height={40} 
+                <Image
+                  src={iconSrc}
+                  width={40}
+                  height={40}
                   alt="icon"
-                  className="object-contain" 
+                  className="object-contain"
                 />
               </div>
               {/* <p
@@ -100,19 +108,17 @@ export function CollapseMenuButton({
               >
                 {label}
               </p> */}
-              <Link href={href}>
               <p
                 className={cn(
-                  "max-w-[130px] break-words whitespace-normal text-start",
+                  "max-w-[130px] break-words whitespace-normal text-start cursor-pointer",
                   isOpen
                     ? "translate-x-0 opacity-100"
                     : "-translate-x-96 opacity-0"
                 )}
+                onClick={handleMainMenuClick}
               >
                 {label}
               </p>
-            
-              </Link>
             </div>
             <div
               className={cn(
@@ -122,9 +128,7 @@ export function CollapseMenuButton({
                   : "-translate-x-96 opacity-0"
               )}
             >
-              <ChevronDown
-                size={18}
-              />
+              <ChevronDown size={18} />
             </div>
           </div>
         </Button>
@@ -134,18 +138,16 @@ export function CollapseMenuButton({
           return disabled ? (
             <Button
               key={index}
-              variant={active ? "secondary" : "ghost"} 
+              variant={active ? "secondary" : "ghost"}
               className="w-full justify-start h-10 mb-1 text-lg"
               disabled={true}
             >
-              <span className="mr-4 ml-4">
-                {/* <Dot size={18} /> */}
-              </span>
+              <span className="mr-4 ml-4">{/* <Dot size={18} /> */}</span>
               <p
                 className={cn(
                   "max-w-[200px] truncate",
                   isOpen
-                    ? "translate-x-0 opacity-100" 
+                    ? "translate-x-0 opacity-100"
                     : "-translate-x-96 opacity-0"
                 )}
               >
@@ -160,9 +162,7 @@ export function CollapseMenuButton({
               asChild
             >
               <Link href={href}>
-                <span className="mr-4 ml-4">
-                  {/* <Dot size={18} /> */}
-                </span>
+                <span className="mr-4 ml-4">{/* <Dot size={18} /> */}</span>
                 <p
                   className={cn(
                     "max-w-[200px] truncate",
@@ -196,13 +196,13 @@ export function CollapseMenuButton({
                       <Icon size={18} />
                      
                     </span> */}
-                    <Image 
-                        src={iconSrc} 
-                        width={50} 
-                        height={50} 
-                        alt="icon"
-                        className="object-contain"
-                      />
+                    <Image
+                      src={iconSrc}
+                      width={50}
+                      height={50}
+                      alt="icon"
+                      className="object-contain"
+                    />
                     <p
                       className={cn(
                         "max-w-[200px] truncate",
