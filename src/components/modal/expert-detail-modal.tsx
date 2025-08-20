@@ -55,10 +55,10 @@ const ExpertDetailModal = ({ isOpen, onClose, expert }: ExpertDetailProps) => {
         </button>
 
         {/* Modal Layout */}
-        <div className="flex flex-col lg:flex-row h-full overflow-hidden">
+        <div className="flex flex-col lg:flex-row h-full overflow-hidden landscape:flex-row">
           {/* Image Section */}
-          <div className="relative w-full lg:w-2/5 h-56 xs:h-64 sm:h-72 md:h-96 lg:h-auto lg:min-h-[600px] flex-shrink-0">
-            <div className="absolute inset-0 rounded-t-2xl xs:rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none overflow-hidden">
+          <div className="relative w-full lg:w-2/5 h-40 xs:h-48 sm:h-56 md:h-72 lg:h-auto lg:min-h-[600px] flex-shrink-0 landscape:w-2/5 landscape:h-auto">
+            <div className="absolute inset-0 rounded-t-2xl xs:rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none overflow-hidden landscape:rounded-l-2xl landscape:rounded-tr-none landscape:xs:rounded-l-3xl">
               <Image
                 src={expert.image}
                 alt={expert.name}
@@ -95,76 +95,76 @@ const ExpertDetailModal = ({ isOpen, onClose, expert }: ExpertDetailProps) => {
           {/* Content Section */}
           <div className="flex-1 flex flex-col min-h-0">
             {/* Fixed Header */}
-            <div className="p-4 xs:p-5 sm:p-6 lg:p-8 border-b border-gray-100 bg-white flex-shrink-0">
-              <h2 className="text-xl xs:text-2xl sm:text-3xl font-bold text-gray-800 mb-2 xs:mb-3">
+            <div className="p-3 xs:p-4 sm:p-5 lg:p-6 border-b border-gray-100 bg-white flex-shrink-0 landscape:p-2 landscape:xs:p-3 landscape:sm:p-4">
+              <h2 className="text-lg xs:text-xl sm:text-2xl font-bold text-gray-800 mb-1 xs:mb-2 landscape:text-base landscape:xs:text-lg landscape:mb-1">
                 {expert.name}
               </h2>
-              <p className="text-sm xs:text-base sm:text-lg text-blue-600 font-medium leading-relaxed">
+              <p className="text-xs xs:text-sm sm:text-base text-blue-600 font-medium leading-relaxed landscape:text-xs landscape:leading-tight">
                 {expert.title}
               </p>
             </div>
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto px-4 xs:px-5 sm:px-6 lg:px-8 py-4 xs:py-5 sm:py-6">
+            <div className="flex-1 overflow-y-auto px-3 xs:px-4 sm:px-5 lg:px-6 py-3 xs:py-4 sm:py-5 landscape:px-2 landscape:xs:px-3 landscape:py-2 landscape:xs:py-3">
               {/* Enhanced Stats */}
-              <div className="grid grid-cols-3 gap-2 xs:gap-3 sm:gap-4 mb-5 xs:mb-6 sm:mb-8 p-3 xs:p-4 sm:p-5 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl xs:rounded-2xl border border-blue-100">
+              <div className="grid grid-cols-3 gap-2 xs:gap-3 sm:gap-4 mb-3 xs:mb-4 sm:mb-6 p-2 xs:p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg xs:rounded-xl border border-blue-100 landscape:mb-2 landscape:p-2 landscape:gap-1">
                 <div className="text-center">
-                  <div className="text-xl xs:text-2xl sm:text-3xl mb-1 xs:mb-2">
+                  <div className="text-lg xs:text-xl sm:text-2xl mb-1 landscape:text-base landscape:mb-0.5">
                     ⭐
                   </div>
-                  <div className="text-base xs:text-lg sm:text-xl font-bold text-gray-800">
+                  <div className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-gray-800 landscape:text-xs">
                     4.9
                   </div>
-                  <div className="text-[10px] xs:text-xs text-gray-600 font-medium">
+                  <div className="text-[9px] xs:text-[10px] md:text-xs text-gray-600 font-medium">
                     Đánh giá
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl xs:text-2xl sm:text-3xl mb-1 xs:mb-2">
+                  <div className="text-lg xs:text-xl sm:text-2xl mb-1 landscape:text-base landscape:mb-0.5">
                     📚
                   </div>
-                  <div className="text-base xs:text-lg sm:text-xl font-bold text-gray-800">
+                  <div className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-gray-800 landscape:text-xs">
                     {expert.description.length}
                   </div>
-                  <div className="text-[10px] xs:text-xs text-gray-600 font-medium">
+                  <div className="text-[9px] xs:text-[10px] md:text-xs text-gray-600 font-medium landscape:text-[8px]">
                     Chứng chỉ
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl xs:text-2xl sm:text-3xl mb-1 xs:mb-2">
+                  <div className="text-lg xs:text-xl sm:text-2xl mb-1 landscape:text-base landscape:mb-0.5">
                     ✅
                   </div>
-                  <div className="text-base xs:text-lg sm:text-xl font-bold text-green-600">
+                  <div className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-green-600 landscape:text-xs">
                     Verified
                   </div>
-                  <div className="text-[10px] xs:text-xs text-gray-600 font-medium">
+                  <div className="text-[9px] xs:text-[10px] md:text-xs text-gray-600 font-medium landscape:text-[8px]">
                     Xác minh
                   </div>
                 </div>
               </div>
 
               {/* Detailed Description */}
-              <div className="space-y-4 mb-8">
-                <h3 className="text-lg xs:text-xl font-semibold text-gray-800 mb-4 xs:mb-5 sm:mb-6 flex items-center gap-2 xs:gap-3">
-                  <div className="w-3 h-3 xs:w-4 xs:h-4 bg-blue-500 rounded-full"></div>
+              <div className="space-y-3 mb-6 landscape:space-y-2 landscape:mb-4">
+                <h3 className="text-base xs:text-lg md:text-xl lg:text-xl font-semibold text-gray-800 mb-3 xs:mb-4 sm:mb-5 flex items-center gap-2 xs:gap-3 landscape:text-sm landscape:mb-2">
+                  <div className="w-2.5 h-2.5 xs:w-3 xs:h-3 md:w-4 md:h-4 bg-blue-500 rounded-full landscape:w-2 landscape:h-2"></div>
                   Thông tin chi tiết
                 </h3>
 
                 {expert.description.map((desc, index) => (
                   <div
                     key={index}
-                    className="group flex items-start gap-3 xs:gap-4 p-3 xs:p-4 sm:p-5 rounded-xl xs:rounded-2xl bg-white border border-gray-200 hover:border-blue-200 hover:shadow-lg transition-all duration-300"
+                    className="group flex items-start gap-2 xs:gap-3 md:gap-4 p-2 xs:p-3 sm:p-4 md:p-5 rounded-lg xs:rounded-xl bg-white border border-gray-200 hover:border-blue-200 hover:shadow-lg transition-all duration-300 landscape:gap-2 landscape:p-2"
                   >
-                    <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 flex-shrink-0 mt-0.5 xs:mt-1 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 flex-shrink-0 mt-0.5 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300 landscape:w-5 landscape:h-5 landscape:mt-0">
                       <Image
                         src={desc.icon}
                         alt="icon"
                         width={20}
                         height={20}
-                        className="w-4 h-4 xs:w-5 xs:h-5 opacity-90 filter brightness-0 invert"
+                        className="w-3 h-3 xs:w-4 xs:h-4 md:w-5 md:h-5 opacity-90 filter brightness-0 invert landscape:w-2.5 landscape:h-2.5"
                       />
                     </div>
-                    <p className="text-xs xs:text-sm sm:text-base text-gray-700 leading-relaxed flex-1 group-hover:text-gray-800 transition-colors duration-300">
+                    <p className="text-[10px] sm:text-sm md:text-base lg:text-base text-gray-700 leading-relaxed flex-1 group-hover:text-gray-800 transition-colors duration-300">
                       {desc.title.trim()}
                     </p>
                   </div>
@@ -173,11 +173,11 @@ const ExpertDetailModal = ({ isOpen, onClose, expert }: ExpertDetailProps) => {
             </div>
 
             {/* Fixed Action Buttons */}
-            <div className="p-4 xs:p-5 sm:p-6 lg:p-8 bg-gray-50 border-t border-gray-100 flex-shrink-0">
-              <div className="flex flex-col sm:flex-row gap-3">
+            <div className="p-3 xs:p-4 sm:p-5 lg:p-6 bg-gray-50 border-t border-gray-100 flex-shrink-0 landscape:p-2 landscape:xs:p-3">
+              <div className="flex flex-col sm:flex-row gap-2 landscape:gap-1">
                 <button
                   onClick={onClose}
-                  className="sm:w-auto px-4 xs:px-5 sm:px-6 py-3 xs:py-3.5 sm:py-4 bg-white text-gray-700 rounded-lg xs:rounded-xl font-medium text-sm xs:text-base hover:bg-gray-50 transition-all duration-300 border border-gray-200 hover:border-gray-300"
+                  className="sm:w-auto px-3 xs:px-4 sm:px-5 py-2 xs:py-2.5 sm:py-3 bg-white text-gray-700 rounded-lg font-medium text-xs xs:text-sm hover:bg-gray-50 transition-all duration-300 border border-gray-200 hover:border-gray-300 landscape:py-1.5 landscape:text-xs"
                 >
                   Đóng
                 </button>
@@ -235,7 +235,15 @@ const ExpertDetailModal = ({ isOpen, onClose, expert }: ExpertDetailProps) => {
         @media (max-width: 480px) {
           .modal-enter {
             margin: 0.25rem;
-            max-height: calc(100vh - 0.5rem);
+            max-height: calc(100vh - 5.5rem);
+          }
+        }
+
+        /* Landscape mode optimizations - mobile only */
+        @media (orientation: landscape) and (max-height: 500px) and (max-width: 768px) {
+          .modal-enter {
+            margin: 0.25rem;
+            max-height: calc(100vh - 2.5rem);
           }
         }
 
