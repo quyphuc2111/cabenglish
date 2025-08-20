@@ -1,17 +1,50 @@
 "use client";
 
 import React, { Fragment, useState } from "react";
-import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogTitle } from "../ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Cross2Icon } from "@radix-ui/react-icons";
 import { useModal } from "@/hooks/useModalStore";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import CourseCard from "../course-card/course-card";
 import { useUpdateUserInfo } from "@/hooks/client/useUser";
-import { useSession, signIn } from "next-auth/react";
-import { useUpdateSession } from "@/hooks/client/useUpdateSession";
+import { useSession } from "next-auth/react";
+import { initializeLocked } from "@/actions/lockedAction";
+import { initializeProgress } from "@/actions/progressAction";
+import { cn } from "@/lib/utils";
 
 type TeachingModeType = "default" | "freemode";
+
+// Custom DialogContent với option ẩn nút close
+const CustomDialogContent = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+    hideCloseButton?: boolean;
+  }
+>(({ className, children, hideCloseButton = false, ...props }, ref) => (
+  <DialogPrimitive.Portal>
+    <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+    <DialogPrimitive.Content
+      ref={ref}
+      className={cn(
+        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+        className
+      )}
+      {...props}
+    >
+      {children}
+      {!hideCloseButton && (
+        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+          <Cross2Icon className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
+      )}
+    </DialogPrimitive.Content>
+  </DialogPrimitive.Portal>
+));
+CustomDialogContent.displayName = "CustomDialogContent";
 
 const MODAL_CONTENT = {
   title: "Chọn chế độ giảng dạy",
@@ -29,13 +62,13 @@ const MODAL_CONTENT = {
       "Phù hợp khi giáo viên muốn linh hoạt điều chỉnh bài giảng dựa trên trình độ, nhu cầu hoặc sở thích của học sinh."
     ]
   },
-  hint: "* Hãy chọn một chế độ giảng dạy"
+  hint: "* Bạn cần chọn một chế độ giảng dạy để tiếp tục"
 };
 
 const defaultCourseData = [
   {
-    courseTitle: "Unit 1 - Bài học: Từ vựng",
-    courseImage: "/modal/course1.png",
+    courseTitle: "Unit 1: Hello",
+    courseImage: "/modal/unit1_hello.png",
     courseWeek: "Tuần học 1",
     courseCategory: "3 - 4 tuổi",
     courseName: "Bảng chữ cái tiếng anh",
@@ -44,32 +77,32 @@ const defaultCourseData = [
     courseStatus: "started"
   },
   {
-    courseTitle: "Unit 2 - Bài học: Chào hỏi",
-    courseImage: "/modal/course2.png",
+    courseTitle: "Unit 2: Shapes",
+    courseImage: "/modal/unit2_shapes.png",
     courseWeek: "Tuần học 2",
     courseCategory: "3 - 4 tuổi",
     courseName: "Giới thiệu bản thân",
     courseProgress: 100,
     courseLike: 568,
-    courseStatus: "started"
+    courseStatus: "not_started"
   },
   {
-    courseTitle: "Unit 3 - Bài học: Màu sắc",
-    courseImage: "/modal/course3.png",
+    courseTitle: "Unit 3: Numbers",
+    courseImage: "/modal/unit3_numbers.png",
     courseWeek: "Tuần học 3",
     courseCategory: "3 - 4 tuổi",
     courseName: "Khám phá các màu sắc",
-    courseProgress: 0,
+    courseProgress: 100,
     courseLike: 86,
     courseStatus: "not_started"
   },
   {
-    courseTitle: "Unit 4 - Bài học: Từ vựng",
-    courseImage: "/modal/course4.png",
+    courseTitle: "Unit 4: Nature",
+    courseImage: "/modal/unit4_nature.png",
     courseWeek: "Tuần học 1",
     courseCategory: "3 - 4 tuổi",
     courseName: "Bảng chữ cái tiếng anh",
-    courseProgress: 0,
+    courseProgress: 100,
     courseLike: 668,
     courseStatus: "not_started"
   }
@@ -77,8 +110,8 @@ const defaultCourseData = [
 
 const courseData = [
   {
-    courseTitle: "Unit 1 - Bài học: Từ vựng",
-    courseImage: "/modal/course1.png",
+    courseTitle: "Unit 1: Hello",
+    courseImage: "/modal/unit1_hello.png",
     courseWeek: "Tuần học 1",
     courseCategory: "3 - 4 tuổi",
     courseName: "Bảng chữ cái tiếng anh",
@@ -87,8 +120,8 @@ const courseData = [
     courseStatus: "started"
   },
   {
-    courseTitle: "Unit 2 - Bài học: Chào hỏi",
-    courseImage: "/modal/course2.png",
+    courseTitle: "Unit 2: Shapes",
+    courseImage: "/modal/unit2_shapes.png",
     courseWeek: "Tuần học 2",
     courseCategory: "3 - 4 tuổi",
     courseName: "Giới thiệu bản thân",
@@ -97,8 +130,8 @@ const courseData = [
     courseStatus: "started"
   },
   {
-    courseTitle: "Unit 3 - Bài học: Màu sắc",
-    courseImage: "/modal/course3.png",
+    courseTitle: "Unit 3: Numbers",
+    courseImage: "/modal/unit3_numbers.png",
     courseWeek: "Tuần học 3",
     courseCategory: "3 - 4 tuổi",
     courseName: "Khám phá các màu sắc",
@@ -107,8 +140,8 @@ const courseData = [
     courseStatus: "started"
   },
   {
-    courseTitle: "Unit 4 - Bài học: Từ vựng",
-    courseImage: "/modal/course4.png",
+    courseTitle: "Unit 4: Nature",
+    courseImage: "/modal/unit4_nature.png",
     courseWeek: "Tuần học 1",
     courseCategory: "3 - 4 tuổi",
     courseName: "Bảng chữ cái tiếng anh",
@@ -141,10 +174,16 @@ const ModeHeader = ({ icon, title }: { icon: string; title: string }) => (
 
 const ActionButtons = ({
   onBack,
-  onSave
+  onSave,
+  disabled = false,
+  isViewMode = false,
+  onClose
 }: {
   onBack: () => void;
   onSave: () => void;
+  disabled?: boolean;
+  isViewMode?: boolean;
+  onClose?: () => void;
 }) => (
   <div className="flex gap-4">
     <Button
@@ -153,12 +192,26 @@ const ActionButtons = ({
     >
       Quay lại
     </Button>
-    <Button
-      onClick={onSave}
-      className="bg-[#3EC474] hover:bg-[#3EC474]/80 font-medium text-md"
-    >
-      Lưu
-    </Button>
+    {isViewMode ? (
+      <Button
+        onClick={onClose}
+        className="bg-[#3EC474] hover:bg-[#3EC474]/80 font-medium text-md"
+      >
+        Đóng
+      </Button>
+    ) : (
+      <Button
+        onClick={onSave}
+        disabled={disabled}
+        className={`font-medium text-md ${
+          disabled
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-[#3EC474] hover:bg-[#3EC474]/80"
+        }`}
+      >
+        Lưu
+      </Button>
+    )}
   </div>
 );
 
@@ -204,16 +257,25 @@ function TeachingModeModal() {
 
   const isModalOpen = isOpen && type === "teachingMode";
 
+  // Kiểm tra xem có phải first login không (để ẩn nút close)
+  const isFirstLogin = session?.user?.is_firstlogin || false;
+
+  // Nếu không phải first login thì đây là chế độ xem thông tin
+  const isViewMode = !isFirstLogin;
+
   const handleSave = async () => {
-    if (!session) {
+    if (!session || !mode) {
       return;
     }
     try {
-      const updateUserResponse = await updateUserInfo(
+      const selectedMode = mode === "default" ? "default" : "free";
+
+      // 1. Cập nhật thông tin user
+      await updateUserInfo(
         {
           userId: session.user.userId ?? "",
           userInfo: {
-            mode: mode === "default" ? "default" : "free",
+            mode: selectedMode,
             is_firstlogin: false,
             email: session.user.email ?? "",
             language: session.user.language ?? "",
@@ -222,26 +284,136 @@ function TeachingModeModal() {
         },
         {
           onSuccess: async () => {
-            // Cập nhật session với thông tin mới
-            await update({
-              user: {
-                ...session.user,
-                mode: mode === "default" ? "default" : "free",
-                is_firstlogin: false
-              }
-            });
+            try {
+              // 2. Khởi tạo locked data và progress data song song
+              const [initializeLockedResponse, initializeProgressResponse] =
+                await Promise.all([
+                  initializeLocked({
+                    userId: session.user.userId ?? "",
+                    mode: selectedMode
+                  }),
+                  initializeProgress(session.user.userId ?? "")
+                ]);
 
-            onClose();
+              if (!initializeLockedResponse.success) {
+                console.error(
+                  "Lỗi khởi tạo locked:",
+                  initializeLockedResponse.error
+                );
+                // Vẫn tiếp tục vì user info đã được cập nhật thành công
+              }
+
+              if (!initializeProgressResponse.success) {
+                console.error(
+                  "Lỗi khởi tạo progress:",
+                  initializeProgressResponse.error
+                );
+                // Vẫn tiếp tục vì user info đã được cập nhật thành công
+              }
+
+              // 3. Cập nhật session với thông tin mới
+              await update({
+                user: {
+                  ...session.user,
+                  mode: selectedMode,
+                  is_firstlogin: false
+                }
+              });
+
+              onClose();
+            } catch (error) {
+              console.error("Lỗi trong quá trình khởi tạo:", error);
+              // Vẫn đóng modal vì user info đã được cập nhật
+              onClose();
+            }
           }
         }
       );
-
     } catch (error) {
       console.error("Lỗi khi cập nhật user info:", error);
     }
   };
 
   const renderModeContent = () => {
+    // Nếu ở chế độ xem thông tin và chưa chọn mode, hiển thị cả hai chế độ
+    if (isViewMode && !mode) {
+      return (
+        <div className="space-y-8">
+          {/* Chế độ mặc định */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="px-5 py-4 border-4 border-[#4079CE]">
+              <ModeHeader
+                icon="/bkt_logo.png"
+                title={MODAL_CONTENT.defaultMode.title}
+              />
+              <div className="grid grid-cols-4 gap-5">
+                {defaultCourseData.map((courseItem, index) => (
+                  <Fragment key={index}>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.1 * index }}
+                    >
+                      <CourseCard {...courseItem} />
+                    </motion.div>
+                  </Fragment>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <ModeDescription
+                items={MODAL_CONTENT.defaultMode.description}
+                className="w-2/3 text-[#736E6E]"
+              />
+              <Button
+                onClick={onClose}
+                className="bg-[#3EC474] hover:bg-[#3EC474]/80 font-medium text-md"
+              >
+                Đóng
+              </Button>
+            </div>
+          </motion.div>
+
+          {/* Chế độ tự do */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+          >
+            <div className="px-5 py-4 border-4 border-[#4079CE]">
+              <ModeHeader
+                icon="/modal/freemode.png"
+                title={MODAL_CONTENT.freeMode.title}
+              />
+              <div className="grid grid-cols-4 gap-5">
+                {courseData.map((courseItem, index) => (
+                  <Fragment key={index}>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.1 * index }}
+                    >
+                      <CourseCard {...courseItem} />
+                    </motion.div>
+                  </Fragment>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <ModeDescription
+                items={MODAL_CONTENT.freeMode.description}
+                className="w-2/3 text-[#736E6E]"
+              />
+            </div>
+          </motion.div>
+        </div>
+      );
+    }
+
     if (mode === "default") {
       return (
         <motion.div
@@ -273,7 +445,13 @@ function TeachingModeModal() {
               items={MODAL_CONTENT.defaultMode.description}
               className="w-2/3 text-[#736E6E]"
             />
-            <ActionButtons onBack={() => setMode(null)} onSave={handleSave} />
+            <ActionButtons
+              onBack={() => setMode(null)}
+              onSave={handleSave}
+              disabled={!mode}
+              isViewMode={isViewMode}
+              onClose={onClose}
+            />
           </div>
         </motion.div>
       );
@@ -310,7 +488,13 @@ function TeachingModeModal() {
               items={MODAL_CONTENT.freeMode.description}
               className="w-2/3 text-[#736E6E]"
             />
-            <ActionButtons onBack={() => setMode(null)} onSave={handleSave} />
+            <ActionButtons
+              onBack={() => setMode(null)}
+              onSave={handleSave}
+              disabled={!mode}
+              isViewMode={isViewMode}
+              onClose={onClose}
+            />
           </div>
         </motion.div>
       );
@@ -318,14 +502,26 @@ function TeachingModeModal() {
 
     return (
       <div className="flex flex-col items-center">
-        <motion.span
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-[#736E6E]"
+          className="text-center mb-4"
         >
-          {MODAL_CONTENT.hint}
-        </motion.span>
+          <span className="text-[#E25762] font-medium text-lg">
+            {MODAL_CONTENT.hint}
+          </span>
+          {!mode && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mt-2 text-sm text-[#736E6E]"
+            >
+              Vui lòng chọn một trong hai chế độ bên dưới
+            </motion.div>
+          )}
+        </motion.div>
 
         <div className="flex gap-20 justify-center w-3/5 mt-3">
           <ModeOption
@@ -397,9 +593,22 @@ function TeachingModeModal() {
   };
 
   return (
-    <Dialog open={isModalOpen} onOpenChange={onClose}>
+    <Dialog
+      open={isModalOpen}
+      onOpenChange={isViewMode ? onClose : () => {}}
+      modal={true}
+    >
       <DialogTitle />
-      <DialogContent className="sm:max-w-7xl !rounded-3x px-20 py-12">
+      <CustomDialogContent
+        className="sm:max-w-7xl !rounded-3x px-20 py-12"
+        onPointerDownOutside={
+          isViewMode ? undefined : (e: any) => e.preventDefault()
+        }
+        onEscapeKeyDown={
+          isViewMode ? undefined : (e: any) => e.preventDefault()
+        }
+        hideCloseButton={isFirstLogin}
+      >
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -416,7 +625,7 @@ function TeachingModeModal() {
         </motion.div>
 
         {renderModeContent()}
-      </DialogContent>
+      </CustomDialogContent>
     </Dialog>
   );
 }

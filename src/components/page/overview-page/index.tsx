@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback, memo } from "react";
 import dynamic from "next/dynamic";
 import { ClassroomType } from "@/types/classroom";
-import { useModal } from "@/hooks/useModalStore";
+// useModal đã được xử lý bởi FirstLoginGuard
 import { useSession } from "next-auth/react";
 import { DashboardClientService } from "@/services/dashboard.client.service";
 import { useUserInfo } from "@/hooks/useUserInfo";
@@ -47,7 +47,7 @@ const OverviewPage = memo(function OverviewPage({
   fetchFilterData,
   classroomData
 }: OverviewPageProps) {
-  const { onOpen } = useModal();
+  // Modal logic đã được xử lý bởi FirstLoginGuard
   const { data: session } = useSession();
   const { data: userInfo } = useUserInfo(session?.user?.userId);
   const currentTheme = userInfo?.theme;
@@ -72,11 +72,7 @@ const OverviewPage = memo(function OverviewPage({
     []
   );
 
-  useEffect(() => {
-    if (session && session.user.is_firstlogin) {
-      onOpen("teachingMode");
-    }
-  }, [session]);
+  // Logic first login đã được xử lý bởi FirstLoginGuard
 
   // Khôi phục scroll position khi quay lại từ lesson
   useEffect(() => {

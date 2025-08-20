@@ -63,7 +63,7 @@ interface ChangeTeachingModeModalProps {
 }
 
 function ChangeTeachingModeModal() {
-  const { isOpen, onClose, type, data } = useModal();
+  const { isOpen, onClose, onOpen, type, data } = useModal();
   const [isLoading, setIsLoading] = React.useState(false);
 
   // Reset loading state khi modal được mở lại
@@ -84,6 +84,13 @@ function ChangeTeachingModeModal() {
         // Lỗi sẽ được xử lý trong parent component
       }
     }
+  };
+
+  const handleViewTeachingModeInfo = () => {
+    // Đóng modal hiện tại và mở TeachingModeModal để xem thông tin
+    onClose();
+    // Mở TeachingModeModal với mode xem thông tin (không phải first login)
+    onOpen("teachingMode");
   };
 
   return (
@@ -289,6 +296,7 @@ function ChangeTeachingModeModal() {
                       type="button"
                       variant="link"
                       className="text-[#3454E6] p-0 -mt-1 sm:-mt-2 text-xs sm:text-sm md:text-base h-auto"
+                      onClick={handleViewTeachingModeInfo}
                     >
                       Hãy xem lại ở đây!
                     </Button>

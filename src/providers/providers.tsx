@@ -10,6 +10,7 @@ import { ThemeProvider } from "./theme-provider";
 import { SessionProvider } from "next-auth/react";
 import { QueryProvider } from "./query-provider";
 import { GoogleReCaptchaProvider } from "@google-recaptcha/react";
+import { FirstLoginGuard } from "@/components/first-login-guard";
 
 const ToastContainerClient = dynamic(
   () => import("react-toastify").then((mod) => mod.ToastContainer),
@@ -39,7 +40,7 @@ function Providers({
                 translations={translations}
                 currentLanguage={currentLanguage}
               >
-                {children}
+                <FirstLoginGuard>{children}</FirstLoginGuard>
               </TranslationProvider>
             </ThemeProvider>
             {/* </SocketProvider> */}
