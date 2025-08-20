@@ -76,27 +76,28 @@ function DeleteSectionModal() {
   const { isOpen, onClose, type, data } = useModal();
 
   const { mutate: deleteSection, isPending } = useDeleteSection();
-  const {activeLesson} = useLessonStore()
+  const { activeLesson } = useLessonStore();
 
   const handleConfirm = React.useCallback(() => {
-   
-
-    deleteSection({
-      sectionIds: data?.sectionIds,
-      lessonId: Number(activeLesson.lessonId)
-    }, {
-      onError: (error) => {
-        console.error("Lỗi khi xóa:", error);
-        showToast.error(error.message || "Có lỗi xảy ra khi xóa phần học!");
+    deleteSection(
+      {
+        sectionIds: data?.sectionIds,
+        lessonId: Number(activeLesson.lessonId)
       },
-      onSuccess: () => {
-        showToast.success("Xóa phần học thành công!");
-        if (data?.onSuccess) {
-          data.onSuccess();
+      {
+        onError: (error) => {
+          console.error("Lỗi khi xóa:", error);
+          showToast.error(error.message || "Có lỗi xảy ra khi xóa phần học!");
+        },
+        onSuccess: () => {
+          showToast.success("Xóa phần học thành công!");
+          if (data?.onSuccess) {
+            data.onSuccess();
+          }
+          onClose();
         }
-        onClose();
       }
-    });
+    );
   }, [data, deleteSection, onClose, activeLesson.lessonId]);
 
   if (!isOpen || type !== "deleteSection") return null;
@@ -141,7 +142,7 @@ function DeleteSectionModal() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
                   >
-                    Smart Kid
+                    SmartKid
                   </motion.h2>
                 </motion.div>
               </DialogTitle>
@@ -174,22 +175,24 @@ function DeleteSectionModal() {
                 <p className="text-2xl font-medium">
                   Bạn có muốn xóa {data?.sectionIds?.length} phần học này không?
                 </p>
-               <div>
-               <ScrollArea className="w-[500px] ">
-                <div className="flex gap-2 pb-4">
-                  {data?.sections?.map((section: any) => (
-                    <p key={section.sectionId} className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0">
-                      <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">
-                        {section.sectionName}
-                      </span>
-                    </p>
-                  ))}
+                <div>
+                  <ScrollArea className="w-[500px] ">
+                    <div className="flex gap-2 pb-4">
+                      {data?.sections?.map((section: any) => (
+                        <p
+                          key={section.sectionId}
+                          className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0"
+                        >
+                          <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">
+                            {section.sectionName}
+                          </span>
+                        </p>
+                      ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                  </ScrollArea>
                 </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-               </div>
-                <div className="flex flex-wrap gap-2">
-                </div>
+                <div className="flex flex-wrap gap-2"></div>
               </div>
               <div className="flex gap-20">
                 <motion.div

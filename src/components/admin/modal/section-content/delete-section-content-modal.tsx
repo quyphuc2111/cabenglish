@@ -145,7 +145,7 @@ function DeleteSectionContentModal() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
                   >
-                    Smart Kid
+                    SmartKid
                   </motion.h2>
                 </motion.div>
               </DialogTitle>

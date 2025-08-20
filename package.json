@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "author": "BKT Company",
-  "description": "Smart Kids Web Application",
+  "description": "SmartKids Web Application",
   "license": "MIT",
   "engines": {
     "node": ">=20.0.0",

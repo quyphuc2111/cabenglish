@@ -36,7 +36,7 @@ const modalVariants = {
 };
 
 const contentVariants = {
-  hidden: { 
+  hidden: {
     opacity: 0,
     y: 20
   },
@@ -71,14 +71,16 @@ function ResetUnitModal() {
   const handleReset = async () => {
     try {
       if (!session?.user?.userId || !data?.lessonIds) return;
-      
+
       setIsLoading(true);
-      const result = await resetLessonProgress(session.user.userId, data.lessonIds);
+      const result = await resetLessonProgress(
+        session.user.userId,
+        data.lessonIds
+      );
       const switchMode = await switchModeAction({
         userId: session.user.userId,
-        mode: session.user.mode,
-      })
-      
+        mode: session.user.mode
+      });
 
       if (result.success) {
         toast.success("Đã khởi tạo lại tiến trình thành công!", {
@@ -89,16 +91,16 @@ function ResetUnitModal() {
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
-          theme: "light",
+          theme: "light"
         });
-        
+
         // Gọi callback để refetch data nếu có
         if (data?.onDataRefetch) {
           await data.onDataRefetch();
         } else {
           router.refresh();
         }
-        
+
         onClose();
       } else {
         toast.error(result.error || "Có lỗi xảy ra!", {
@@ -109,7 +111,7 @@ function ResetUnitModal() {
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
-          theme: "light",
+          theme: "light"
         });
       }
     } catch (error) {
@@ -122,7 +124,7 @@ function ResetUnitModal() {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "light",
+        theme: "light"
       });
     } finally {
       setIsLoading(false);
@@ -148,7 +150,7 @@ function ResetUnitModal() {
                     animate={{ x: 0 }}
                     transition={{ delay: 0.2, type: "spring" }}
                   >
-                    <motion.div 
+                    <motion.div
                       className="w-[66px] h-[41px] flex items-center"
                       whileHover={{
                         rotate: [0, -10, 10, 0],
@@ -164,19 +166,19 @@ function ResetUnitModal() {
                         priority
                       />
                     </motion.div>
-                    <motion.h2 
+                    <motion.h2
                       className="flex items-center"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.4 }}
                     >
-                      Smart Kid
+                      SmartKid
                     </motion.h2>
                   </motion.div>
                 </DialogTitle>
               </DialogHeader>
 
-              <motion.div 
+              <motion.div
                 variants={contentVariants}
                 initial="hidden"
                 animate="visible"
@@ -192,13 +194,24 @@ function ResetUnitModal() {
                     }
                   }}
                 >
-                  <Image src="/modal/ques_person.png" alt="person" width={80} height={80} />
+                  <Image
+                    src="/modal/ques_person.png"
+                    alt="person"
+                    width={80}
+                    height={80}
+                  />
                 </motion.div>
-                <p className="text-2xl font-medium">Bạn có muốn khởi động lại quá trình học không?</p>
+                <p className="text-2xl font-medium">
+                  Bạn có muốn khởi động lại quá trình học không?
+                </p>
                 <div className="flex gap-20">
-                  <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                    <Button 
-                      className="bg-blue-500 hover:bg-blue-500/80 text-md text-white" 
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
+                    <Button
+                      className="bg-blue-500 hover:bg-blue-500/80 text-md text-white"
                       size={"lg"}
                       onClick={handleReset}
                       disabled={isLoading}
@@ -206,9 +219,13 @@ function ResetUnitModal() {
                       {isLoading ? "Đang xử lý..." : "Đồng ý"}
                     </Button>
                   </motion.div>
-                  <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                    <Button 
-                      className="bg-red-500 hover:bg-red-500/80 text-md text-white" 
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
+                    <Button
+                      className="bg-red-500 hover:bg-red-500/80 text-md text-white"
                       size="lg"
                       onClick={onClose}
                       disabled={isLoading}
@@ -219,7 +236,7 @@ function ResetUnitModal() {
                 </div>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 className="flex items-center justify-between"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -235,7 +252,12 @@ function ResetUnitModal() {
                     }
                   }}
                 >
-                  <Image src="/modal/orange.png" alt="orange" width={80} height={80} />
+                  <Image
+                    src="/modal/orange.png"
+                    alt="orange"
+                    width={80}
+                    height={80}
+                  />
                 </motion.div>
                 <motion.div
                   animate={{
@@ -247,7 +269,12 @@ function ResetUnitModal() {
                     }
                   }}
                 >
-                  <Image src="/modal/orange.png" alt="orange" width={80} height={80} />
+                  <Image
+                    src="/modal/orange.png"
+                    alt="orange"
+                    width={80}
+                    height={80}
+                  />
                 </motion.div>
               </motion.div>
             </DialogContent>

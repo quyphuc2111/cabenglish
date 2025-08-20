@@ -47,14 +47,13 @@ const address = [
   },
   {
     city: "Đà Nẵng",
-    address:
-      "22/35 Thúc Tề, Phường Hòa Khê, Q.Thanh Khê, TP Đà Nẵng"
+    address: "22/35 Thúc Tề, Phường Hòa Khê, Q.Thanh Khê, TP Đà Nẵng"
   },
   {
     city: "Bình Định",
     address: "49 Trần Anh Tông, TP Quy Nhơn, Tỉnh Bình Định"
   }
-]
+];
 
 export default function HomePage() {
   const { t } = useTranslation("", "common");
@@ -79,7 +78,7 @@ export default function HomePage() {
   return (
     <>
       <Head>
-        <title>BKT - Công ty cổ phần đầu tư thương mại và công nghệ</title>
+        <title>BKT - Công ty CP Đầu tư thương mại và công nghệ BKT</title>
         <meta
           name="description"
           content="BKT - Đơn vị hàng đầu trong lĩnh vực công nghệ giáo dục, cung cấp giải pháp toàn diện cho việc học tập và giảng dạy."
@@ -90,7 +89,7 @@ export default function HomePage() {
         />
         <meta
           property="og:title"
-          content="BKT - Công ty cổ phần đầu tư thương mại và công nghệ"
+          content="BKT - Công ty CP Đầu tư thương mại và công nghệ BKT"
         />
         <meta
           property="og:description"
@@ -193,13 +192,15 @@ export default function HomePage() {
                     className="border rounded-xl shadow-sm dark:hidden"
                   />
                   <h2 className="font-semibold text-xl">
-                    Công ty cổ phần đầu tư thương mại và công nghệ BKT
+                    Công ty CP Đầu tư thương mại và công nghệ BKT
                   </h2>
                 </div>
               </motion.div>
 
               <motion.div className="col-span-2" variants={fadeInUp}>
-                <h2 className="text-xl font-semibold mb-4 text-center md:text-left">Trụ sở</h2>
+                <h2 className="text-xl font-semibold mb-4 text-center md:text-left">
+                  Trụ sở
+                </h2>
                 <div className="flex flex-col md:flex-row md:flex-wrap">
                   {address.map((location, index) => (
                     <motion.div
@@ -220,28 +221,45 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div className="col-span-1" variants={fadeInUp}>
-                <h2 className="text-xl font-semibold mb-4 text-center md:text-left">Hotline</h2>
+                <h2 className="text-xl font-semibold mb-4 text-center md:text-left">
+                  Hotline
+                </h2>
                 <ul className="flex flex-col gap-4">
                   <li>
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1">
-                      <span className="font-medium text-center sm:text-left">Điện thoại:</span>
-                      <a href="tel:02437525253" className="hover:underline font-semibold text-center sm:ml-2 text-white">
+                      <span className="font-medium text-center sm:text-left">
+                        Điện thoại:
+                      </span>
+                      <a
+                        href="tel:02437525253"
+                        className="hover:underline font-semibold text-center sm:ml-2 text-white"
+                      >
                         0243 752 5253
                       </a>
                     </div>
                   </li>
                   <li>
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1">
-                      <span className="font-medium text-center sm:text-left">Kỹ thuật (24/7):</span>
-                      <a href="tel:0337218868" className="hover:underline font-semibold text-center sm:ml-2 text-white">
+                      <span className="font-medium text-center sm:text-left">
+                        Kỹ thuật (24/7):
+                      </span>
+                      <a
+                        href="tel:0337218868"
+                        className="hover:underline font-semibold text-center sm:ml-2 text-white"
+                      >
                         033 721 8868
                       </a>
                     </div>
                   </li>
                   <li>
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1">
-                      <span className="font-medium text-center sm:text-left">Kinh doanh:</span>
-                      <a href="tel:0868179599" className="hover:underline font-semibold text-center sm:ml-2 text-white">
+                      <span className="font-medium text-center sm:text-left">
+                        Kinh doanh:
+                      </span>
+                      <a
+                        href="tel:0868179599"
+                        className="hover:underline font-semibold text-center sm:ml-2 text-white"
+                      >
                         086 817 9599
                       </a>
                     </div>

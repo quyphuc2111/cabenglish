@@ -13,7 +13,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import { useDeleteSchoolWeek } from "@/hooks/use-schoolweek";
-import { useDeleteNotiType, useDeleteMultipleNotiTypes } from "@/hooks/use-notitype";
+import {
+  useDeleteNotiType,
+  useDeleteMultipleNotiTypes
+} from "@/hooks/use-notitype";
 import { Badge } from "@/components/ui/badge";
 
 // Thêm các animation variants
@@ -74,18 +77,21 @@ interface DeleteNotiTypeModalProps {
 function DeleteNotiTypeModal() {
   const { isOpen, onClose, type, data } = useModal();
 
-  const { mutate: deleteNotiType, isPending: isSingleDeleting } = useDeleteNotiType();
-  const { mutate: deleteMultipleNotiTypes, isPending: isMultipleDeleting } = useDeleteMultipleNotiTypes();
-  
+  const { mutate: deleteNotiType, isPending: isSingleDeleting } =
+    useDeleteNotiType();
+  const { mutate: deleteMultipleNotiTypes, isPending: isMultipleDeleting } =
+    useDeleteMultipleNotiTypes();
+
   const isPending = isSingleDeleting || isMultipleDeleting;
   const isMultipleDelete = data?.notiTypeIds && data.notiTypeIds.length > 1;
-  const notiTypesToDelete = data?.notiTypes || (data?.notiType ? [data.notiType] : []);
+  const notiTypesToDelete =
+    data?.notiTypes || (data?.notiType ? [data.notiType] : []);
 
   const handleConfirm = React.useCallback(() => {
     if (isMultipleDelete) {
       // Xóa nhiều loại thông báo
       if (!data?.notiTypeIds || data.notiTypeIds.length === 0) return;
-      
+
       deleteMultipleNotiTypes(data.notiTypeIds, {
         onSuccess: () => {
           toast.success(
@@ -104,10 +110,9 @@ function DeleteNotiTypeModal() {
             <div className="flex flex-col gap-1">
               <p className="font-medium">Xóa thất bại!</p>
               <p className="text-sm text-gray-600">
-                {error instanceof Error 
-                  ? error.message 
-                  : `Không thể xóa các loại thông báo đã chọn. Vui lòng thử lại sau.`
-                }
+                {error instanceof Error
+                  ? error.message
+                  : `Không thể xóa các loại thông báo đã chọn. Vui lòng thử lại sau.`}
               </p>
             </div>
           );
@@ -117,9 +122,9 @@ function DeleteNotiTypeModal() {
     } else {
       // Xóa một loại thông báo
       if (!data?.notiType?.ntId) return;
-      
+
       const notiTypeName = data.notiType.value;
-      
+
       deleteNotiType(data.notiType.ntId, {
         onSuccess: () => {
           toast.success(
@@ -137,10 +142,9 @@ function DeleteNotiTypeModal() {
             <div className="flex flex-col gap-1">
               <p className="font-medium">Xóa thất bại!</p>
               <p className="text-sm text-gray-600">
-                {error instanceof Error 
-                  ? error.message 
-                  : `Không thể xóa loại thông báo "${notiTypeName}". Vui lòng thử lại sau.`
-                }
+                {error instanceof Error
+                  ? error.message
+                  : `Không thể xóa loại thông báo "${notiTypeName}". Vui lòng thử lại sau.`}
               </p>
             </div>
           );
@@ -148,7 +152,13 @@ function DeleteNotiTypeModal() {
         }
       });
     }
-  }, [data, deleteNotiType, deleteMultipleNotiTypes, isMultipleDelete, onClose]);
+  }, [
+    data,
+    deleteNotiType,
+    deleteMultipleNotiTypes,
+    isMultipleDelete,
+    onClose
+  ]);
 
   if (!isOpen || type !== "deleteNotiType") return null;
 
@@ -192,7 +202,7 @@ function DeleteNotiTypeModal() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
                   >
-                    Smart Kid
+                    SmartKid
                   </motion.h2>
                 </motion.div>
               </DialogTitle>
@@ -223,19 +233,22 @@ function DeleteNotiTypeModal() {
               </motion.div>
               <div className="text-center space-y-4">
                 <p className="text-2xl font-medium">
-                  {isMultipleDelete 
+                  {isMultipleDelete
                     ? `Bạn có muốn xóa ${notiTypesToDelete.length} loại thông báo này không?`
-                    : "Bạn có muốn xóa loại thông báo này không?"
-                  }
+                    : "Bạn có muốn xóa loại thông báo này không?"}
                 </p>
                 {notiTypesToDelete.length > 0 && (
                   <div className="text-lg text-gray-600">
                     <span className="font-medium text-blue-600 block mb-3">
-                      {isMultipleDelete ? "Các loại thông báo:" : "Loại thông báo:"}
+                      {isMultipleDelete
+                        ? "Các loại thông báo:"
+                        : "Loại thông báo:"}
                     </span>
-                    <div className={`flex flex-wrap gap-2 justify-center ${
-                      isMultipleDelete ? "max-h-32 overflow-y-auto" : ""
-                    }`}>
+                    <div
+                      className={`flex flex-wrap gap-2 justify-center ${
+                        isMultipleDelete ? "max-h-32 overflow-y-auto" : ""
+                      }`}
+                    >
                       {notiTypesToDelete.map((notiType, index) => (
                         <Badge
                           key={notiType.ntId || index}

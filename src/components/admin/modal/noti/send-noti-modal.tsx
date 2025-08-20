@@ -94,10 +94,9 @@ function SendNotiModal() {
           <div className="flex flex-col gap-1">
             <p className="font-medium">Gửi thất bại!</p>
             <p className="text-sm text-gray-600">
-              {error instanceof Error 
-                ? error.message 
-                : `Không thể xóa loại thông báo "${notiName}". Vui lòng thử lại sau.`
-              }
+              {error instanceof Error
+                ? error.message
+                : `Không thể xóa loại thông báo "${notiName}". Vui lòng thử lại sau.`}
             </p>
           </div>
         );
@@ -148,7 +147,7 @@ function SendNotiModal() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
                   >
-                    Smart Kid
+                    SmartKid
                   </motion.h2>
                 </motion.div>
               </DialogTitle>

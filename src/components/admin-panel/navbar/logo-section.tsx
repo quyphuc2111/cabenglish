@@ -11,7 +11,7 @@ export const LogoSection = () => {
             "text-transparent bg-clip-text animate-text-shine"
           )}
         >
-          SMART KID
+          SmartKids
         </div>
         <span className="ml-1 sm:ml-2 text-[14px] sm:text-[16px] lg:text-[21px] xl:text-[13px] 2xl:text-[22px] font-black tracking-[2px] sm:tracking-[3px] lg:tracking-[4.20px]">
           {" "}

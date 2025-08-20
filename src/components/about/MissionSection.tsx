@@ -41,18 +41,18 @@ function MissionSection() {
 
   return (
     <div className="bg-gradient-to-b from-gray-50 to-gray-100 py-20">
-      <motion.div 
+      <motion.div
         className="container flex flex-col items-center"
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.3 }}
       >
-        <motion.h2 
+        <motion.h2
           className="text-4xl font-semibold mb-16 text-center bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent"
           variants={itemVariants}
         >
-          Sứ mệnh của BKT SmartKid
+          Sứ mệnh của BKT SmartKids
         </motion.h2>
 
         <div className="flex flex-col md:flex-row gap-12">
@@ -72,16 +72,16 @@ function MissionSection() {
                 ease: "easeInOut"
               }}
             >
-              <Image 
-                src={about_book} 
-                width={315} 
-                height={365} 
-                alt="About book" 
+              <Image
+                src={about_book}
+                width={315}
+                height={365}
+                alt="About book"
                 className="-mb-16 drop-shadow-2xl"
                 priority
               />
             </motion.div>
-            <motion.div 
+            <motion.div
               className="bg-gradient-to-r from-green-500 to-emerald-600 p-10 rounded-xl z-10 relative"
               whileHover={{ y: -5 }}
               transition={{ duration: 0.3 }}
@@ -95,17 +95,17 @@ function MissionSection() {
             </motion.div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="bg-white p-10 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
             variants={itemVariants}
           >
-            <motion.h2 
+            <motion.h2
               className="text-2xl font-semibold text-green-600 mb-8"
               variants={itemVariants}
             >
-              Tại BKT Smart Kids, chúng tôi tin rằng:
+              Tại BKT SmartKids, chúng tôi tin rằng:
             </motion.h2>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 text-justify">
               {[
                 "Với các tính năng tương tác của phần mềm linh hoạt, dễ dàng thao tác và sử dụng cho tất cả các lứa tuổi. Nâng cao hứng thú, động lực của người dùng thông qua nhiều bài giảng thú vị và thiết thực, được chia làm các chủ đề cụ thể, xây dựng qua nhiều hình thức học tập khác nhau.",
                 "Người dùng sẽ cảm thấy dễ dàng, tự tin hơn khi sử dụng phần mềm: Thiết kế gần gũi với nhận thức của người dùng, tiếp cận nhanh với mọi tính năng của phần mềm.",
@@ -114,7 +114,7 @@ function MissionSection() {
                 <motion.div
                   key={index}
                   variants={cardVariants}
-                  whileHover={{ 
+                  whileHover={{
                     scale: 1.02,
                     backgroundColor: "rgb(243 244 246)",
                     transition: { duration: 0.2 }

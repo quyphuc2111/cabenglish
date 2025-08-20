@@ -75,9 +75,9 @@ function DeleteClassroomModal() {
   const [errorClassId, setErrorClassId] = React.useState<string | null>(null);
 
   const { isOpen, onClose, type, data } = useModal();
-  
+
   // Thêm hook để lấy units khi có lỗi
-  const { data: relatedUnits } = useUnitByClassId(errorClassId || '');
+  const { data: relatedUnits } = useUnitByClassId(errorClassId || "");
 
   const { mutate: deleteClassroom, isPending } = useDeleteClassroom();
 
@@ -86,17 +86,19 @@ function DeleteClassroomModal() {
     setErrorClassId(null); // Reset error state
 
     Promise.all(
-      data.classroomIds.map(id => 
-        deleteClassroom((id), {
+      data.classroomIds.map((id) =>
+        deleteClassroom(id, {
           onError: (error) => {
             // Kiểm tra nếu là lỗi liên quan đến units
             if (error.message?.includes("unit(s) are currently associated")) {
               setErrorClassId(id); // Lưu ID của classroom có lỗi
-              showToast.error("Không thể xóa lớp học vì có các bài học liên quan!");
+              showToast.error(
+                "Không thể xóa lớp học vì có các bài học liên quan!"
+              );
             } else {
               showToast.error(error.message || "Có lỗi xảy ra khi xóa lớp học");
             }
-          }, 
+          },
           onSuccess: () => {
             showToast.success("Xóa lớp học thành công!");
             if (data.onSuccess) {
@@ -115,14 +117,14 @@ function DeleteClassroomModal() {
   const handleCloseModal = () => {
     onClose();
     setErrorClassId(null);
-  }
+  };
 
   // Hiển thị danh sách units nếu có
   const renderRelatedUnits = () => {
     if (!relatedUnits?.data?.length) return null;
 
     return (
-      <motion.div 
+      <motion.div
         className="mt-4 p-4 bg-red-50 rounded-lg"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -131,7 +133,7 @@ function DeleteClassroomModal() {
         <ul className="list-disc pl-5">
           {relatedUnits.data.map((unit: any) => (
             <li key={unit.unitId} className="text-red-500">
-              {unit.unitName }
+              {unit.unitName}
             </li>
           ))}
         </ul>
@@ -184,7 +186,7 @@ function DeleteClassroomModal() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
                   >
-                    Smart Kid
+                    SmartKid
                   </motion.h2>
                 </motion.div>
               </DialogTitle>
@@ -215,11 +217,15 @@ function DeleteClassroomModal() {
               </motion.div>
               <div className="text-center space-y-2">
                 <p className="text-2xl font-medium">
-                  Bạn có muốn xóa {data?.classroomIds?.length} lớp học này không?
+                  Bạn có muốn xóa {data?.classroomIds?.length} lớp học này
+                  không?
                 </p>
                 {data?.classroom?.classname && (
                   <p className="text-lg text-gray-600">
-                    Tên lớp học: <span className="font-medium text-blue-600">{data.classroom.classname}</span>
+                    Tên lớp học:{" "}
+                    <span className="font-medium text-blue-600">
+                      {data.classroom.classname}
+                    </span>
                   </p>
                 )}
               </div>

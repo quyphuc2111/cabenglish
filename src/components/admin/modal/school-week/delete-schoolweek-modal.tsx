@@ -81,39 +81,49 @@ function DeleteSchoolWeekModal() {
 
     try {
       // Tạo array các promise để xử lý đồng thời
-      const deletePromises = data.schoolWeekIds.map(id => 
-        new Promise((resolve, reject) => {
-          deleteSchoolWeek(id, {
-            onError: (error) => {
-              reject(error);
-            },
-            onSuccess: () => {
-              resolve(id);
-            }
-          });
-        })
+      const deletePromises = data.schoolWeekIds.map(
+        (id) =>
+          new Promise((resolve, reject) => {
+            deleteSchoolWeek(id, {
+              onError: (error) => {
+                reject(error);
+              },
+              onSuccess: () => {
+                resolve(id);
+              }
+            });
+          })
       );
 
       // Chờ tất cả các promise hoàn thành
       await Promise.all(deletePromises);
-      
+
       // Chỉ hiển thị toast success khi tất cả đều thành công
-      showToast.success(`Xóa ${data.schoolWeekIds.length} tuần học thành công!`);
-      
+      showToast.success(
+        `Xóa ${data.schoolWeekIds.length} tuần học thành công!`
+      );
+
       if (data.onSuccess) {
         data.onSuccess();
       }
       onClose();
-      
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      
-      if (errorMessage.includes('foreign key constraint') || errorMessage.includes('Cannot delete or update a parent row')) {
-        showToast.error("Không thể xóa tuần học này vì đang được sử dụng trong các bài học. Vui lòng xóa các bài học liên quan trước.");
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
+      if (
+        errorMessage.includes("foreign key constraint") ||
+        errorMessage.includes("Cannot delete or update a parent row")
+      ) {
+        showToast.error(
+          "Không thể xóa tuần học này vì đang được sử dụng trong các bài học. Vui lòng xóa các bài học liên quan trước."
+        );
       } else {
-        showToast.error("Có lỗi xảy ra khi xóa tuần học! Vui lòng kiểm tra lại.");
+        showToast.error(
+          "Có lỗi xảy ra khi xóa tuần học! Vui lòng kiểm tra lại."
+        );
       }
-      
+
       console.error("Delete school week error:", error);
     }
   }, [data, deleteSchoolWeek, onClose]);
@@ -160,7 +170,7 @@ function DeleteSchoolWeekModal() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
                   >
-                    Smart Kid
+                    SmartKid
                   </motion.h2>
                 </motion.div>
               </DialogTitle>
@@ -191,25 +201,31 @@ function DeleteSchoolWeekModal() {
               </motion.div>
               <div className="text-center space-y-2 flex flex-col justify-center items-center">
                 <p className="text-2xl font-medium">
-                  Bạn có muốn xóa {data?.schoolWeekIds?.length} tuần học này không?
+                  Bạn có muốn xóa {data?.schoolWeekIds?.length} tuần học này
+                  không?
                 </p>
-               <div>
-               <ScrollArea className="w-[500px] ">
-                <div className={`flex gap-2 pb-4 justify-center ${data?.schoolWeeks?.length > 1 ? 'flex-wrap' : ''}`} >
-
-                  {data?.schoolWeeks?.map((week: any) => (
-                    <p key={week.swId} className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0">
-                      <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">
-                        Tuần {week.value}
-                      </span>
-                    </p>
-                  ))}
+                <div>
+                  <ScrollArea className="w-[500px] ">
+                    <div
+                      className={`flex gap-2 pb-4 justify-center ${
+                        data?.schoolWeeks?.length > 1 ? "flex-wrap" : ""
+                      }`}
+                    >
+                      {data?.schoolWeeks?.map((week: any) => (
+                        <p
+                          key={week.swId}
+                          className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0"
+                        >
+                          <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">
+                            Tuần {week.value}
+                          </span>
+                        </p>
+                      ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                  </ScrollArea>
                 </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-               </div>
-                <div className="flex flex-wrap gap-2">
-                </div>
+                <div className="flex flex-wrap gap-2"></div>
               </div>
               <div className="flex gap-20">
                 <motion.div

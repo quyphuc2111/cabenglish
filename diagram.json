@@ -714,9 +714,7 @@
           "id": 0,
           "name": "user_unit_progress_index_0",
           "unique": false,
-          "fields": [
-            "user_id"
-          ]
+          "fields": ["user_id"]
         }
       ],
       "color": "#175e7a",
@@ -774,9 +772,7 @@
           "id": 0,
           "name": "user_lesson_progress_index_0",
           "unique": false,
-          "fields": [
-            "user_id"
-          ]
+          "fields": ["user_id"]
         }
       ],
       "color": "#175e7a",
@@ -834,9 +830,7 @@
           "id": 0,
           "name": "user_section_progress_index_0",
           "unique": false,
-          "fields": [
-            "user_id"
-          ]
+          "fields": ["user_id"]
         }
       ],
       "color": "#175e7a",
@@ -894,9 +888,7 @@
           "id": 0,
           "name": "user_classroom_progress_index_0",
           "unique": false,
-          "fields": [
-            "user_id"
-          ]
+          "fields": ["user_id"]
         }
       ],
       "color": "#175e7a",
@@ -956,9 +948,7 @@
           "id": 0,
           "name": "user_lesson_progress_index_0",
           "unique": false,
-          "fields": [
-            "user_id"
-          ]
+          "fields": ["user_id"]
         }
       ],
       "color": "#175e7a",
@@ -1018,9 +1008,7 @@
           "id": 0,
           "name": "user_lesson_progress_index_0",
           "unique": false,
-          "fields": [
-            "user_id"
-          ]
+          "fields": ["user_id"]
         }
       ],
       "color": "#175e7a",
@@ -1080,9 +1068,7 @@
           "id": 0,
           "name": "user_lesson_progress_index_0",
           "unique": false,
-          "fields": [
-            "user_id"
-          ]
+          "fields": ["user_id"]
         }
       ],
       "color": "#175e7a",
@@ -1593,5 +1579,5 @@
     }
   ],
   "database": "mysql",
-  "title": "Smart Kids 2025 Web + Mobile App (Giáo viên giảng dạy)"
+  "title": "SmartKids 2025 Web + Mobile App (Giáo viên giảng dạy)"
 }

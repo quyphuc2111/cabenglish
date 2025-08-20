@@ -77,12 +77,13 @@ interface DeleteUnitsModalProps {
 function DeleteUnitsModal() {
   const { isOpen, onClose, type, data } = useModal();
 
-  const {activeLesson} = useLessonStore()
+  const { activeLesson } = useLessonStore();
 
-  const { mutate: deleteUnits, isPending } = useDeleteUnits(Number(activeLesson.classId));
+  const { mutate: deleteUnits, isPending } = useDeleteUnits(
+    Number(activeLesson.classId)
+  );
 
   const handleConfirm = React.useCallback(() => {
-   
     deleteUnits(data?.unitIds || [], {
       onError: (error) => {
         console.error("Lỗi khi xóa:", error);
@@ -141,7 +142,7 @@ function DeleteUnitsModal() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
                   >
-                    Smart Kid
+                    SmartKid
                   </motion.h2>
                 </motion.div>
               </DialogTitle>
@@ -174,22 +175,28 @@ function DeleteUnitsModal() {
                 <p className="text-2xl font-medium">
                   Bạn có muốn xóa {data?.unitIds?.length} unit này không?
                 </p>
-               <div>
-               <ScrollArea className="w-[500px] ">
-                <div className={`flex gap-2 pb-4 ${data?.unitIds?.length > 1 ? "": "justify-center" }`}>
-                  {data?.units?.map((unit: any) => (
-                    <p key={unit.unitId} className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0">
-                      <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">
-                        {unit.unitName}
-                      </span>
-                    </p>
-                  ))}
+                <div>
+                  <ScrollArea className="w-[500px] ">
+                    <div
+                      className={`flex gap-2 pb-4 ${
+                        data?.unitIds?.length > 1 ? "" : "justify-center"
+                      }`}
+                    >
+                      {data?.units?.map((unit: any) => (
+                        <p
+                          key={unit.unitId}
+                          className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0"
+                        >
+                          <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">
+                            {unit.unitName}
+                          </span>
+                        </p>
+                      ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                  </ScrollArea>
                 </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-               </div>
-                <div className="flex flex-wrap gap-2">
-                </div>
+                <div className="flex flex-wrap gap-2"></div>
               </div>
               <div className="flex gap-20">
                 <motion.div

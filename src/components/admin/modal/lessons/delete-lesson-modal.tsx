@@ -77,28 +77,29 @@ function DeleteLessonModal() {
   const { isOpen, onClose, type, data } = useModal();
 
   const { mutate: deleteLesson, isPending } = useDeleteLesson();
-  const {activeLesson} = useLessonStore()
+  const { activeLesson } = useLessonStore();
 
   const handleConfirm = React.useCallback(() => {
-   
-
-    deleteLesson({
-      lessonIds: data?.lessonIds,
-      classId: Number(activeLesson.classId),
-      unitId: Number(activeLesson.unitId)
-    }, {
-      onError: (error) => {
-        console.error("Lỗi khi xóa:", error);
-        showToast.error(error.message || "Có lỗi xảy ra khi xóa bài học!");
+    deleteLesson(
+      {
+        lessonIds: data?.lessonIds,
+        classId: Number(activeLesson.classId),
+        unitId: Number(activeLesson.unitId)
       },
-      onSuccess: () => {
-        showToast.success("Xóa phần học thành công!");
-        if (data?.onSuccess) {
-          data.onSuccess();
+      {
+        onError: (error) => {
+          console.error("Lỗi khi xóa:", error);
+          showToast.error(error.message || "Có lỗi xảy ra khi xóa bài học!");
+        },
+        onSuccess: () => {
+          showToast.success("Xóa phần học thành công!");
+          if (data?.onSuccess) {
+            data.onSuccess();
+          }
+          onClose();
         }
-        onClose();
       }
-    });
+    );
   }, [data, deleteLesson, onClose, activeLesson.classId, activeLesson.unitId]);
 
   if (!isOpen || type !== "deleteLesson") return null;
@@ -143,7 +144,7 @@ function DeleteLessonModal() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
                   >
-                    Smart Kid
+                    SmartKid
                   </motion.h2>
                 </motion.div>
               </DialogTitle>
@@ -176,22 +177,24 @@ function DeleteLessonModal() {
                 <p className="text-2xl font-medium">
                   Bạn có muốn xóa {data?.lessonIds?.length} phần học này không?
                 </p>
-               <div>
-               <ScrollArea className="w-[500px] ">
-                <div className="flex gap-2 pb-4">
-                  {data?.lessons?.map((lesson: any) => (
-                    <p key={lesson.lessonId} className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0">
-                      <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">
-                        {lesson.lessonName}
-                      </span>
-                    </p>
-                  ))}
+                <div>
+                  <ScrollArea className="w-[500px] ">
+                    <div className="flex gap-2 pb-4">
+                      {data?.lessons?.map((lesson: any) => (
+                        <p
+                          key={lesson.lessonId}
+                          className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0"
+                        >
+                          <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">
+                            {lesson.lessonName}
+                          </span>
+                        </p>
+                      ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                  </ScrollArea>
                 </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-               </div>
-                <div className="flex flex-wrap gap-2">
-                </div>
+                <div className="flex flex-wrap gap-2"></div>
               </div>
               <div className="flex gap-20">
                 <motion.div

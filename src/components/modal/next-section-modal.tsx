@@ -31,7 +31,7 @@ const modalVariants = {
 };
 
 const contentVariants = {
-  hidden: { 
+  hidden: {
     opacity: 0,
     y: 20
   },
@@ -79,7 +79,7 @@ function NextSectionModal() {
                     animate={{ x: 0 }}
                     transition={{ delay: 0.2, type: "spring" }}
                   >
-                    <motion.div 
+                    <motion.div
                       className="w-[66px] h-[41px] flex items-center"
                       whileHover={{
                         rotate: [0, -10, 10, 0],
@@ -95,19 +95,19 @@ function NextSectionModal() {
                         priority
                       />
                     </motion.div>
-                    <motion.h2 
+                    <motion.h2
                       className="flex items-center"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.4 }}
                     >
-                      Smart Kid
+                      SmartKid
                     </motion.h2>
                   </motion.div>
                 </DialogTitle>
               </DialogHeader>
 
-              <motion.div 
+              <motion.div
                 variants={contentVariants}
                 initial="hidden"
                 animate="visible"
@@ -123,21 +123,28 @@ function NextSectionModal() {
                     }
                   }}
                 >
-                  <Image src="/modal/ques_person.png" alt="person" width={80} height={80} />
+                  <Image
+                    src="/modal/ques_person.png"
+                    alt="person"
+                    width={80}
+                    height={80}
+                  />
                 </motion.div>
-                <p className="text-2xl text-center font-medium">Bạn có muốn học phần tiếp theo không?</p>
+                <p className="text-2xl text-center font-medium">
+                  Bạn có muốn học phần tiếp theo không?
+                </p>
                 <div className="flex gap-20">
                   <motion.div
                     variants={buttonVariants}
                     whileHover="hover"
                     whileTap="tap"
                   >
-                    <Button 
+                    <Button
                       onClick={() => {
                         data?.onConfirm?.();
                         onClose();
                       }}
-                      className="bg-blue-500 hover:bg-blue-500/80 text-md text-white" 
+                      className="bg-blue-500 hover:bg-blue-500/80 text-md text-white"
                       size={"lg"}
                     >
                       Đồng ý
@@ -148,10 +155,10 @@ function NextSectionModal() {
                     whileHover="hover"
                     whileTap="tap"
                   >
-                    <Button 
+                    <Button
                       onClick={onClose}
-                      variant="outline" 
-                      className="text-md border-gray-300 hover:bg-gray-50" 
+                      variant="outline"
+                      className="text-md border-gray-300 hover:bg-gray-50"
                       size={"lg"}
                     >
                       Hủy

@@ -181,7 +181,7 @@ function ChangeTheme() {
                     priority
                   />
                 </div>
-                <h2 className="flex items-center">Smart Kid</h2>
+                <h2 className="flex items-center">SmartKid</h2>
               </motion.div>
             </DialogTitle>
           </DialogHeader>
@@ -193,7 +193,7 @@ function ChangeTheme() {
             transition={{ delay: 0.3 }}
           >
             <div className="flex gap-3 items-center">
-              <p className="font-semibold">Thay đổi màu nền Smart Kid</p>
+              <p className="font-semibold">Thay đổi màu nền SmartKid</p>
               <motion.div
                 initial={{ rotate: -180, opacity: 0 }}
                 animate={{ rotate: 0, opacity: 1 }}

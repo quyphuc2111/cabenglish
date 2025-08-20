@@ -77,7 +77,7 @@ const AuthContainer = () => {
             transition={{ delay: 0.3 }}
             className="text-3xl font-bold text-white"
           >
-            Chào mừng bạn tham gia Smart Kid
+            Chào mừng bạn tham gia SmartKid
           </motion.h1>
 
           <motion.p

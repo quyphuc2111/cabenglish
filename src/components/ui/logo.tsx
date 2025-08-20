@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -26,14 +26,15 @@ export const Logo = ({
   const sizeClasses = {
     sm: "text-lg",
     md: "text-xl md:text-2xl",
-    lg: "text-2xl md:text-3xl",
+    lg: "text-2xl md:text-3xl"
   };
 
   // Color variants
   const colorClasses = {
     light: "text-white",
     dark: "text-gray-800",
-    gradient: "bg-gradient-to-r from-blue-600 via-pink-500 to-purple-600 text-transparent bg-clip-text",
+    gradient:
+      "bg-gradient-to-r from-blue-600 via-pink-500 to-purple-600 text-transparent bg-clip-text"
   };
 
   // Animation variants
@@ -45,20 +46,20 @@ export const Logo = ({
       transition: {
         delay: i * 0.05,
         duration: 0.3,
-        ease: "easeOut",
-      },
+        ease: "easeOut"
+      }
     }),
     hover: {
       y: -2,
       transition: {
         duration: 0.2,
-        ease: "easeOut",
-      },
-    },
+        ease: "easeOut"
+      }
+    }
   };
 
   const logoContent = (
-    <div 
+    <div
       className={cn(
         "font-extrabold tracking-wider flex items-center",
         sizeClasses[size],
@@ -80,9 +81,9 @@ export const Logo = ({
                 whileHover="hover"
                 variants={letterVariants}
                 className={cn(
-                  colorMode === "gradient" ? 
-                    "bg-gradient-to-r from-blue-600 via-pink-500 to-purple-600 text-transparent bg-clip-text" :
-                    colorClasses[colorMode]
+                  colorMode === "gradient"
+                    ? "bg-gradient-to-r from-blue-600 via-pink-500 to-purple-600 text-transparent bg-clip-text"
+                    : colorClasses[colorMode]
                 )}
               >
                 {letter}
@@ -122,14 +123,16 @@ export const Logo = ({
         </>
       ) : (
         <>
-          <span>SMART KID</span>
+          <span>SmartKid</span>
           {withYear && (
-            <span className={cn(
-              "ml-1 text-sm align-top",
-              colorMode === "gradient" ? 
-                "bg-gradient-to-br from-amber-500 to-pink-600 text-transparent bg-clip-text" :
-                "text-pink-500"
-            )}>
+            <span
+              className={cn(
+                "ml-1 text-sm align-top",
+                colorMode === "gradient"
+                  ? "bg-gradient-to-br from-amber-500 to-pink-600 text-transparent bg-clip-text"
+                  : "text-pink-500"
+              )}
+            >
               {new Date().getFullYear()}
             </span>
           )}
@@ -140,8 +143,12 @@ export const Logo = ({
 
   // If href is provided, wrap in Link
   if (href) {
-    return <Link href={href} className="no-underline">{logoContent}</Link>;
+    return (
+      <Link href={href} className="no-underline">
+        {logoContent}
+      </Link>
+    );
   }
 
   return logoContent;
-}; 
+};

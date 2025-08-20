@@ -75,7 +75,7 @@ function DeleteNotiModal() {
 
     const notiName = data.noti.title;
 
-    if(data.notiIds){
+    if (data.notiIds) {
       data.notiIds.forEach((notiId) => {
         deleteNoti(notiId, {
           onSuccess: () => {
@@ -83,34 +83,33 @@ function DeleteNotiModal() {
           }
         });
       });
-    }else{
+    } else {
       deleteNoti(data.noti.notificationId, {
         onSuccess: () => {
           toast.success(
             <div className="flex flex-col gap-1">
-            <p className="font-medium">Xóa thành công!</p>
-            <p className="text-sm text-gray-600">
-              Đã xóa loại thông báo &quot;{notiName}&quot;
-            </p>
-          </div>
-        );
-        onClose();
-      },
-      onError: (error) => {
-        toast.error(
-          <div className="flex flex-col gap-1">
-            <p className="font-medium">Xóa thất bại!</p>
-            <p className="text-sm text-gray-600">
-              {error instanceof Error 
-                ? error.message 
-                : `Không thể xóa thông báo "${notiName}". Vui lòng thử lại sau.`
-              }
-            </p>
-          </div>
-        );
-        console.error("Delete error:", error);
-      }
-    });
+              <p className="font-medium">Xóa thành công!</p>
+              <p className="text-sm text-gray-600">
+                Đã xóa loại thông báo &quot;{notiName}&quot;
+              </p>
+            </div>
+          );
+          onClose();
+        },
+        onError: (error) => {
+          toast.error(
+            <div className="flex flex-col gap-1">
+              <p className="font-medium">Xóa thất bại!</p>
+              <p className="text-sm text-gray-600">
+                {error instanceof Error
+                  ? error.message
+                  : `Không thể xóa thông báo "${notiName}". Vui lòng thử lại sau.`}
+              </p>
+            </div>
+          );
+          console.error("Delete error:", error);
+        }
+      });
     }
   }, [data?.noti, deleteNoti, onClose]);
 
@@ -156,7 +155,7 @@ function DeleteNotiModal() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
                   >
-                    Smart Kid
+                    SmartKid
                   </motion.h2>
                 </motion.div>
               </DialogTitle>
@@ -190,28 +189,32 @@ function DeleteNotiModal() {
 
               <div className="text-center space-y-4 w-full px-4 sm:px-8">
                 <p className="text-xl sm:text-2xl font-medium text-red-500/90">
-                  {data?.notis?.length > 1 
+                  {data?.notis?.length > 1
                     ? `Xóa ${data.notis.length} thông báo đã chọn?`
-                    : "Xóa thông báo này?"
-                  }
+                    : "Xóa thông báo này?"}
                 </p>
-                
+
                 <div className="max-h-[120px] sm:max-h-[280px] overflow-y-auto px-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                   {data?.notis ? (
                     <div className="space-y-3">
                       {data.notis.map((noti) => (
-                        <div 
-                          key={noti.notificationId} 
+                        <div
+                          key={noti.notificationId}
                           className="p-4 bg-white hover:bg-gray-50 rounded-xl transition-all duration-200 border border-gray-100 shadow-sm"
                         >
                           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                             <div className="space-y-2 flex-1">
                               <div className="flex items-start justify-between sm:justify-start gap-2">
-                                <Badge variant="outline" className="h-6 whitespace-nowrap bg-blue-50 text-blue-600 border-blue-200">
+                                <Badge
+                                  variant="outline"
+                                  className="h-6 whitespace-nowrap bg-blue-50 text-blue-600 border-blue-200"
+                                >
                                   {noti.notiTypeValue}
                                 </Badge>
                                 <span className="text-xs text-gray-400">
-                                  {new Date(noti.createdAt).toLocaleDateString('vi-VN')}
+                                  {new Date(noti.createdAt).toLocaleDateString(
+                                    "vi-VN"
+                                  )}
                                 </span>
                               </div>
                               <h3 className="font-medium text-left text-base sm:text-lg text-gray-800 line-clamp-2">
@@ -224,13 +227,19 @@ function DeleteNotiModal() {
                             <div className="hidden sm:block border-l pl-4 min-w-[140px]">
                               <div className="space-y-1 text-xs text-gray-500">
                                 <p className="flex items-center gap-1.5">
-                                  <span className="w-[6px] h-[6px] rounded-full bg-green-400"/>
-                                  Tạo: {new Date(noti.createdAt).toLocaleTimeString('vi-VN')}
+                                  <span className="w-[6px] h-[6px] rounded-full bg-green-400" />
+                                  Tạo:{" "}
+                                  {new Date(noti.createdAt).toLocaleTimeString(
+                                    "vi-VN"
+                                  )}
                                 </p>
                                 {noti.lastSentTime && (
                                   <p className="flex items-center gap-1.5">
-                                    <span className="w-[6px] h-[6px] rounded-full bg-blue-400"/>
-                                    Gửi: {new Date(noti.lastSentTime).toLocaleTimeString('vi-VN')}
+                                    <span className="w-[6px] h-[6px] rounded-full bg-blue-400" />
+                                    Gửi:{" "}
+                                    {new Date(
+                                      noti.lastSentTime
+                                    ).toLocaleTimeString("vi-VN")}
                                   </p>
                                 )}
                               </div>
@@ -244,11 +253,16 @@ function DeleteNotiModal() {
                       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                         <div className="space-y-2 flex-1">
                           <div className="flex items-start justify-between sm:justify-start gap-2">
-                            <Badge variant="outline" className="h-6 whitespace-nowrap bg-blue-50 text-blue-600 border-blue-200">
+                            <Badge
+                              variant="outline"
+                              className="h-6 whitespace-nowrap bg-blue-50 text-blue-600 border-blue-200"
+                            >
                               {data.noti.notiTypeValue}
                             </Badge>
                             <span className="text-xs text-gray-400">
-                              {new Date(data.noti.createdAt).toLocaleDateString('vi-VN')}
+                              {new Date(data.noti.createdAt).toLocaleDateString(
+                                "vi-VN"
+                              )}
                             </span>
                           </div>
                           <h3 className="font-medium text-left text-base sm:text-lg text-gray-800">
@@ -261,13 +275,19 @@ function DeleteNotiModal() {
                         <div className="hidden sm:block border-l pl-4 min-w-[140px]">
                           <div className="space-y-1 text-xs text-gray-500">
                             <p className="flex items-center gap-1.5">
-                              <span className="w-[6px] h-[6px] rounded-full bg-green-400"/>
-                              Tạo: {new Date(data.noti.createdAt).toLocaleTimeString('vi-VN')}
+                              <span className="w-[6px] h-[6px] rounded-full bg-green-400" />
+                              Tạo:{" "}
+                              {new Date(data.noti.createdAt).toLocaleTimeString(
+                                "vi-VN"
+                              )}
                             </p>
                             {data.noti.lastSentTime && (
                               <p className="flex items-center gap-1.5">
-                                <span className="w-[6px] h-[6px] rounded-full bg-blue-400"/>
-                                Gửi: {new Date(data.noti.lastSentTime).toLocaleTimeString('vi-VN')}
+                                <span className="w-[6px] h-[6px] rounded-full bg-blue-400" />
+                                Gửi:{" "}
+                                {new Date(
+                                  data.noti.lastSentTime
+                                ).toLocaleTimeString("vi-VN")}
                               </p>
                             )}
                           </div>

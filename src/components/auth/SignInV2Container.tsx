@@ -93,7 +93,7 @@ const SignInV2Container = () => {
           <div className="flex justify-center mb-6">
             <Image
               src="/bkt_logo.png"
-              alt="Smart Kids Logo"
+              alt="SmartKids Logo"
               width={150}
               height={60}
               className="object-contain"
@@ -106,7 +106,7 @@ const SignInV2Container = () => {
             transition={{ delay: 0.2, duration: 0.5 }}
           >
             <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
-              Đăng nhập vào Smart Kids
+              Đăng nhập vào SmartKids
             </h1>
             <p className="text-center text-gray-600 mb-8">
               Chào mừng bạn quay trở lại! Vui lòng đăng nhập để tiếp tục.
@@ -145,7 +145,7 @@ const SignInV2Container = () => {
         className="mt-6 text-center"
       >
         <p className="text-sm text-gray-600">
-          © {new Date().getFullYear()} Smart Kids. All rights reserved.
+          © {new Date().getFullYear()} SmartKids. All rights reserved.
         </p>
       </motion.div>
     </div>

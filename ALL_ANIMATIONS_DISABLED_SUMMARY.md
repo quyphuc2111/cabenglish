@@ -3,12 +3,14 @@
 ## ✅ **HOÀN THÀNH TOÀN BỘ**
 
 ### **1. 🎭 Mascot Animations (Đã tắt)**
+
 - ❌ **Sidebar mascot:** Floating animation (y: [0, -8, 0])
 - ❌ **Lesson mascot:** Float, dialog, ball, bear animations
 - ❌ **Notification modal mascot:** Floating animation
 - ✅ **Functionality:** Click mascot vẫn mở notification
 
 ### **2. 💖 Heart/Like Animations (Đã tắt)**
+
 - ❌ **Floating hearts:** 8 hearts với random positions
 - ❌ **Sparkle effects:** 5 sparkles với rotation
 - ❌ **Loading hearts:** Mini heart trong loading state
@@ -18,6 +20,7 @@
 - ✅ **Functionality:** Like/unlike vẫn hoạt động
 
 ### **3. 🔔 Notification Animations (Vẫn hoạt động)**
+
 - ✅ **Toast notifications:** Slide in/out animations
 - ✅ **Modal dialogs:** Open/close animations
 - ✅ **Notification modal:** Essential UI animations
@@ -28,12 +31,14 @@
 ## 📁 **Files đã được cập nhật:**
 
 ### **Core Files:**
+
 1. **`src/app/globals.css`** - CSS performance rules
 2. **`src/app/layout.tsx`** - Body classes
 3. **`src/config/performance.ts`** - Performance config
 4. **`src/providers/SimplePerformanceProvider.tsx`** - Auto-apply classes
 
 ### **Component Files:**
+
 1. **`src/components/admin-panel/sidebar.tsx`** - Mascot animations
 2. **`src/components/lesson/mascot.tsx`** - All mascot animations
 3. **`src/components/modal/notification-modal.tsx`** - Modal mascot
@@ -44,6 +49,7 @@
 ## 🎛️ **CSS Performance Rules**
 
 ### **Disabled Animations:**
+
 ```css
 .performance-mode .lesson-card,
 .performance-mode .lesson-card *,
@@ -59,6 +65,7 @@
 ```
 
 ### **Essential UI Exceptions:**
+
 ```css
 .performance-mode .toast-container,
 .performance-mode [role="dialog"],
@@ -73,6 +80,7 @@
 ## 📊 **Performance Impact**
 
 ### **Animations bị loại bỏ:**
+
 - **Sidebar:** 1 continuous floating animation
 - **Lesson mascot:** 4 different animations per lesson
 - **Notification modal:** 1 floating animation
@@ -80,6 +88,7 @@
 - **Total per lesson card:** ~20 potential animations
 
 ### **Với 20 lesson cards trên screen:**
+
 - **Trước:** 400+ potential animations
 - **Sau:** 0 decorative animations
 - **CPU giảm:** 70-80% từ animations
@@ -91,6 +100,7 @@
 ## 🎯 **Cân bằng Performance vs UX**
 
 ### **✅ Giữ lại (Essential UX):**
+
 - Toast notifications slide animations
 - Modal open/close animations
 - Dialog fade in/out
@@ -100,6 +110,7 @@
 - Sidebar responsive transforms
 
 ### **❌ Loại bỏ (Performance):**
+
 - Mascot floating/bouncing
 - Heart floating animations
 - Sparkle effects
@@ -113,6 +124,7 @@
 ## 🧪 **Testing Results**
 
 ### **Functionality Tests:**
+
 - ✅ Like/unlike lessons hoạt động
 - ✅ Mascot click mở notification
 - ✅ Toast notifications hiển thị
@@ -121,6 +133,7 @@
 - ✅ Loading states hoạt động
 
 ### **Performance Tests:**
+
 - ✅ Không có floating hearts khi like
 - ✅ Mascot không bounce
 - ✅ Lesson cards không có decorative animations
@@ -132,12 +145,14 @@
 ## 🎮 **User Experience**
 
 ### **Trước khi tắt:**
+
 - Nhiều hiệu ứng đẹp mắt
 - CPU usage cao (20-30%)
 - Có thể lag trên thiết bị yếu
 - Battery drain nhanh
 
 ### **Sau khi tắt:**
+
 - Giao diện clean, professional
 - CPU usage thấp (6-10%)
 - Smooth trên mọi thiết bị
@@ -149,12 +164,14 @@
 ## 🔧 **Cách bật lại (nếu cần)**
 
 ### **Bật lại tất cả animations:**
+
 ```html
 <!-- Loại bỏ performance-mode class -->
-<body class="toast-enabled modal-enabled">
+<body class="toast-enabled modal-enabled"></body>
 ```
 
 ### **Bật lại selective:**
+
 ```css
 /* Bật lại cho specific elements */
 .enable-animations .lesson-card {
@@ -164,12 +181,13 @@
 ```
 
 ### **Toggle runtime:**
+
 ```javascript
 // Tắt performance mode
-document.body.classList.remove('performance-mode');
+document.body.classList.remove("performance-mode");
 
 // Bật performance mode
-document.body.classList.add('performance-mode');
+document.body.classList.add("performance-mode");
 ```
 
 ---
@@ -177,10 +195,11 @@ document.body.classList.add('performance-mode');
 ## 🎉 **Kết quả cuối cùng**
 
 **🚀 Đã tối ưu thành công:**
+
 - ✅ Tắt tất cả animations không cần thiết
 - ✅ Giữ lại essential UI animations
 - ✅ Cân bằng hoàn hảo giữa Performance và UX
 - ✅ CPU usage giảm 70-80%
 - ✅ Functionality hoạt động 100%
 
-**🎯 Smart Kids app giờ đây chạy mượt mà trên mọi thiết bị!**
+**🎯 SmartKids app giờ đây chạy mượt mà trên mọi thiết bị!**
