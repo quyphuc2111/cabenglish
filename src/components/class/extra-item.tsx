@@ -10,12 +10,7 @@ function ExtraItem({ title, desc, imageUrl, type }: any) {
     <div>
       <div className="bg-white p-3 flex flex-col shadow-course-inset rounded-3xl overflow-hidden cursor-pointer">
         <div className="relative w-full h-[200px] rounded-3xl overflow-hidden">
-          <Image
-            src={imageUrl}
-            alt="activiti"
-            fill
-            objectFit="cover"
-          />
+          <Image src={imageUrl} alt="activiti" fill objectFit="cover" />
         </div>
         <div>
           <h2 className="font-semibold mt-5 mb-3">{title}</h2>
@@ -24,7 +19,7 @@ function ExtraItem({ title, desc, imageUrl, type }: any) {
             {type === "date" ? (
               <div className="flex gap-2">
                 <span className="text-[#21bdc6] text-xs md:text-sm flex gap-1 items-center">
-                  <div className="w-4 h-4 relative">
+                  <div className="w-4 h-4 relative hidden">
                     <Image
                       src="https://static.edupia.vn/uploads/v3/assets/images/classroom/sapdienra.png"
                       alt="timer"
@@ -44,20 +39,16 @@ function ExtraItem({ title, desc, imageUrl, type }: any) {
             )}
 
             <div className="flex gap-2">
-              {type!== 'date' &&   Array(4)
-                .fill(null)
-                .map((item, index) => {
-                  return (
-                    <div className="w-4 h-4 relative" key={index}>
-                      <Image
-                        src={coin}
-                        alt="coin"
-                        fill
-                        objectFit="contain"
-                      />
-                    </div>
-                  );
-                })}
+              {type !== "date" &&
+                Array(4)
+                  .fill(null)
+                  .map((item, index) => {
+                    return (
+                      <div className="w-4 h-4 relative" key={index}>
+                        <Image src={coin} alt="coin" fill objectFit="contain" />
+                      </div>
+                    );
+                  })}
             </div>
           </div>
         </div>

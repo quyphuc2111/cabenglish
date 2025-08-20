@@ -16,12 +16,12 @@ export function TeachingModeSwitcher({
 }: TeachingModeSwitcherProps) {
   const { data: userInfo, isLoading, error } = useUserInfo(userId);
 
-  const currentTeachingMode = userInfo?.mode === "default" ? "defaultMode" : "freeMode";
+  const currentTeachingMode =
+    userInfo?.mode === "default" ? "defaultMode" : "freeMode";
 
   if (error) {
     console.error("Error fetching user mode:", error);
   }
-
 
   return (
     <motion.div
@@ -32,9 +32,9 @@ export function TeachingModeSwitcher({
         transform-gpu will-change-transform backface-visibility-hidden"
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      transition={{ 
-        type: "spring", 
-        stiffness: 400, 
+      transition={{
+        type: "spring",
+        stiffness: 400,
         damping: 25,
         duration: 0.15
       }}
@@ -48,7 +48,7 @@ export function TeachingModeSwitcher({
       ) : currentTeachingMode === "defaultMode" ? (
         <div className="flex items-center gap-2 sm:gap-3 flex-nowrap">
           <Image
-            src="/assets/image/modal/bkt_logo.webp"
+            src="/bkt_logo.png"
             width={40}
             height={32}
             alt="bkt_logo"
