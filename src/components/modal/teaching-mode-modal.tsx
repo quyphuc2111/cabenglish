@@ -91,7 +91,7 @@ const defaultCourseData = [
     courseImage: "/modal/unit3_numbers.png",
     courseWeek: "Tuần học 3",
     courseCategory: "3 - 4 tuổi",
-    courseName: "Khám phá các màu sắc",
+    courseName: "Khám phá màu sắc",
     courseProgress: 100,
     courseLike: 86,
     courseStatus: "not_started"
@@ -134,7 +134,7 @@ const courseData = [
     courseImage: "/modal/unit3_numbers.png",
     courseWeek: "Tuần học 3",
     courseCategory: "3 - 4 tuổi",
-    courseName: "Khám phá các màu sắc",
+    courseName: "Khám phá màu sắc",
     courseProgress: 100,
     courseLike: 86,
     courseStatus: "started"
@@ -158,17 +158,25 @@ const ModeDescription = ({
   items: string[];
   className?: string;
 }) => (
-  <ul className={`list-disc pl-4 ${className}`}>
+  <ul className={`list-disc pl-3 sm:pl-4 space-y-1 ${className}`}>
     {items.map((item, index) => (
-      <li key={index}>{item}</li>
+      <li key={index} className="leading-relaxed">
+        {item}
+      </li>
     ))}
   </ul>
 );
 
 const ModeHeader = ({ icon, title }: { icon: string; title: string }) => (
-  <div className="flex items-center gap-2 border-b-2 max-w-[250px] pb-2 mb-5">
-    <Image src={icon} alt={title} width={40} height={40} />
-    <h2 className="text-xl">{title}</h2>
+  <div className="flex items-center gap-2 sm:gap-3 border-b-2 max-w-full sm:max-w-[300px] pb-2 mb-3 sm:mb-4 md:mb-5">
+    <Image
+      src={icon}
+      alt={title}
+      width={40}
+      height={40}
+      className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-[40px] lg:h-[40px]"
+    />
+    <h2 className="text-base sm:text-lg md:text-xl font-semibold">{title}</h2>
   </div>
 );
 
@@ -235,7 +243,7 @@ const ModeOption = ({
     whileTap={{ scale: 0.95 }}
     initial={{ opacity: 0, x: mode === "default" ? -50 : 50 }}
     animate={{ opacity: 1, x: 0 }}
-    className={`w-1/3 flex items-center justify-center  gap-5 rounded-lg border-4 ${borderColor} ${hoverColor} transition-all duration-200 cursor-pointer`}
+    className={`w-full sm:w-1/2 md:w-1/3 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-5 rounded-lg border-2 sm:border-4 ${borderColor} ${hoverColor} transition-all duration-200 cursor-pointer p-4 sm:p-6 md:p-8`}
     onClick={onClick}
   >
     <Image
@@ -243,8 +251,15 @@ const ModeOption = ({
       alt={title}
       width={mode === "default" ? 75 : 40}
       height={mode === "default" ? 47 : 40}
+      className={`${
+        mode === "default"
+          ? "w-12 h-8 sm:w-16 sm:h-10 md:w-[60px] md:h-[38px] lg:w-[75px] lg:h-[47px]"
+          : "w-8 h-8 sm:w-10 sm:h-10 md:w-[32px] md:h-[32px] lg:w-[40px] lg:h-[40px]"
+      }`}
     />
-    <p className="text-lg font-medium">{title}</p>
+    <p className="text-sm sm:text-base md:text-lg font-medium text-center sm:text-left">
+      {title}
+    </p>
   </motion.div>
 );
 
@@ -338,19 +353,19 @@ function TeachingModeModal() {
     // Nếu ở chế độ xem thông tin và chưa chọn mode, hiển thị cả hai chế độ
     if (isViewMode && !mode) {
       return (
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           {/* Chế độ mặc định */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
           >
-            <div className="px-5 py-4 border-4 border-[#4079CE]">
+            <div className="px-3 py-3 sm:px-4 sm:py-4 md:px-5 md:py-4 border-2 sm:border-4 border-[#4079CE] rounded-lg">
               <ModeHeader
                 icon="/bkt_logo.png"
                 title={MODAL_CONTENT.defaultMode.title}
               />
-              <div className="grid grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
                 {defaultCourseData.map((courseItem, index) => (
                   <Fragment key={index}>
                     <motion.div
@@ -364,14 +379,14 @@ function TeachingModeModal() {
                 ))}
               </div>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-4">
               <ModeDescription
                 items={MODAL_CONTENT.defaultMode.description}
-                className="w-2/3 text-[#736E6E]"
+                className="w-full sm:w-2/3 text-[#736E6E] text-sm sm:text-base"
               />
               <Button
                 onClick={onClose}
-                className="bg-[#3EC474] hover:bg-[#3EC474]/80 font-medium text-md"
+                className="bg-[#3EC474] hover:bg-[#3EC474]/80 font-medium text-sm sm:text-md w-full sm:w-auto"
               >
                 Đóng
               </Button>
@@ -384,12 +399,12 @@ function TeachingModeModal() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.2 }}
           >
-            <div className="px-5 py-4 border-4 border-[#4079CE]">
+            <div className="px-3 py-3 sm:px-4 sm:py-4 md:px-5 md:py-4 border-2 sm:border-4 border-[#4079CE] rounded-lg">
               <ModeHeader
                 icon="/modal/freemode.png"
                 title={MODAL_CONTENT.freeMode.title}
               />
-              <div className="grid grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
                 {courseData.map((courseItem, index) => (
                   <Fragment key={index}>
                     <motion.div
@@ -403,10 +418,10 @@ function TeachingModeModal() {
                 ))}
               </div>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-start mt-4">
               <ModeDescription
                 items={MODAL_CONTENT.freeMode.description}
-                className="w-2/3 text-[#736E6E]"
+                className="w-full text-[#736E6E] text-sm sm:text-base"
               />
             </div>
           </motion.div>
@@ -421,12 +436,12 @@ function TeachingModeModal() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
         >
-          <div className="px-5 py-4 border-4 border-[#4079CE]">
+          <div className="px-3 py-3 sm:px-4 sm:py-4 md:px-5 md:py-4 border-2 sm:border-4 border-[#4079CE] rounded-lg">
             <ModeHeader
               icon="/bkt_logo.png"
               title={MODAL_CONTENT.defaultMode.title}
             />
-            <div className="grid grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
               {defaultCourseData.map((courseItem, index) => (
                 <Fragment key={index}>
                   <motion.div
@@ -440,10 +455,10 @@ function TeachingModeModal() {
               ))}
             </div>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-4">
             <ModeDescription
               items={MODAL_CONTENT.defaultMode.description}
-              className="w-2/3 text-[#736E6E]"
+              className="w-full sm:w-2/3 text-[#736E6E] text-sm sm:text-base"
             />
             <ActionButtons
               onBack={() => setMode(null)}
@@ -464,12 +479,12 @@ function TeachingModeModal() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
         >
-          <div className="px-5 py-4 border-4 border-[#4079CE]">
+          <div className="px-3 py-3 sm:px-4 sm:py-4 md:px-5 md:py-4 border-2 sm:border-4 border-[#4079CE] rounded-lg">
             <ModeHeader
               icon="/modal/freemode.png"
               title={MODAL_CONTENT.freeMode.title}
             />
-            <div className="grid grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
               {courseData.map((courseItem, index) => (
                 <Fragment key={index}>
                   <motion.div
@@ -483,10 +498,10 @@ function TeachingModeModal() {
               ))}
             </div>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-4">
             <ModeDescription
               items={MODAL_CONTENT.freeMode.description}
-              className="w-2/3 text-[#736E6E]"
+              className="w-full sm:w-2/3 text-[#736E6E] text-sm sm:text-base"
             />
             <ActionButtons
               onBack={() => setMode(null)}
@@ -523,7 +538,7 @@ function TeachingModeModal() {
           )}
         </motion.div>
 
-        <div className="flex gap-20 justify-center w-3/5 mt-3">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 md:gap-12 lg:gap-20 justify-center w-full sm:w-4/5 md:w-3/5 mt-3 px-4 sm:px-0">
           <ModeOption
             mode="default"
             icon="/modal/bkt_logo.png"
@@ -546,45 +561,51 @@ function TeachingModeModal() {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-[#E8E6E6] px-11 py-5 w-full rounded-lg space-y-2 mt-7"
+          className="bg-[#E8E6E6] px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-5 lg:px-11 lg:py-5 w-full rounded-lg space-y-3 sm:space-y-4 md:space-y-2 mt-4 sm:mt-6 md:mt-7"
         >
-          <div className="flex gap-1 items-start">
-            <div className="w-20">
-              <div className="w-[60px] h-[40px] flex-shrink-0">
+          <div className="flex gap-2 sm:gap-3 md:gap-1 items-start">
+            <div className="w-12 sm:w-16 md:w-20 flex-shrink-0">
+              <div className="w-[40px] h-[26px] sm:w-[50px] sm:h-[32px] md:w-[60px] md:h-[40px] flex-shrink-0">
                 <Image
                   src="/modal/bkt_logo.png"
                   alt="bkt-logo"
                   width={60}
                   height={40}
-                  className="object-contain"
+                  className="object-contain w-full h-full"
                 />
               </div>
             </div>
             <div className="flex-1">
-              <p className="font-semibold mb-1">
+              <p className="font-semibold mb-1 text-sm sm:text-base md:text-base">
                 {MODAL_CONTENT.defaultMode.title}
               </p>
-              <ModeDescription items={MODAL_CONTENT.defaultMode.description} />
+              <ModeDescription
+                items={MODAL_CONTENT.defaultMode.description}
+                className="text-xs sm:text-sm md:text-base"
+              />
             </div>
           </div>
 
-          <div className="flex gap-1 items-start">
-            <div className="w-20">
-              <div className="w-[50px] h-[50px] flex-shrink-0">
+          <div className="flex gap-2 sm:gap-3 md:gap-1 items-start">
+            <div className="w-12 sm:w-16 md:w-20 flex-shrink-0">
+              <div className="w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] md:w-[50px] md:h-[50px] flex-shrink-0">
                 <Image
                   src="/modal/freemode.png"
                   alt="freemode"
                   width={50}
                   height={50}
-                  className="object-contain"
+                  className="object-contain w-full h-full"
                 />
               </div>
             </div>
             <div className="flex-1">
-              <p className="font-semibold mb-1">
+              <p className="font-semibold mb-1 text-sm sm:text-base md:text-base">
                 {MODAL_CONTENT.freeMode.title}
               </p>
-              <ModeDescription items={MODAL_CONTENT.freeMode.description} />
+              <ModeDescription
+                items={MODAL_CONTENT.freeMode.description}
+                className="text-xs sm:text-sm md:text-base"
+              />
             </div>
           </div>
         </motion.div>
@@ -600,7 +621,7 @@ function TeachingModeModal() {
     >
       <DialogTitle />
       <CustomDialogContent
-        className="sm:max-w-7xl !rounded-3x px-20 py-12"
+        className="w-[95vw] max-w-[95vw] sm:max-w-4xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl max-h-[95vh] sm:max-h-[90vh] !rounded-2xl sm:!rounded-3xl overflow-hidden overflow-y-auto !fixed !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 !transform px-4 py-6 sm:px-8 sm:py-8 md:px-12 md:py-10 lg:px-16 lg:py-12 xl:px-20 xl:py-12"
         onPointerDownOutside={
           isViewMode ? undefined : (e: any) => e.preventDefault()
         }
@@ -613,15 +634,18 @@ function TeachingModeModal() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex items-center gap-4"
+          className="flex items-center gap-2 sm:gap-3 md:gap-4 justify-center sm:justify-start"
         >
           <Image
             src="/modal/settings_icon.png"
             alt="settings-icon"
             width={50}
             height={50}
+            className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-[50px] lg:h-[50px]"
           />
-          <h2 className="font-bold text-2xl">{MODAL_CONTENT.title}</h2>
+          <h2 className="font-bold text-lg sm:text-xl md:text-2xl text-center sm:text-left">
+            {MODAL_CONTENT.title}
+          </h2>
         </motion.div>
 
         {renderModeContent()}

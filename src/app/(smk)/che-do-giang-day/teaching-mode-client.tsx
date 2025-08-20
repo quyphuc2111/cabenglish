@@ -82,7 +82,7 @@ const TEACHING_MODE_DATA = {
         courseImage: "/modal/unit3_numbers.png",
         courseWeek: "Tuần học 3",
         courseCategory: "3 - 4 tuổi",
-        courseName: "Khám phá các màu sắc",
+        courseName: "Khám phá màu sắc",
         courseProgress: 100,
         courseLike: 86,
         courseStatus: "not_started"
@@ -127,7 +127,7 @@ const TEACHING_MODE_DATA = {
         courseImage: "/modal/unit3_numbers.png",
         courseWeek: "Tuần học 3",
         courseCategory: "3 - 4 tuổi",
-        courseName: "Khám phá các màu sắc",
+        courseName: "Khám phá màu sắc",
         courseProgress: 100,
         courseLike: 86,
         courseStatus: "started"
