@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import { Download } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import ExcelJS from 'exceljs';
+import * as XLSX from 'xlsx';
 import { useSchoolWeek } from "@/hooks/use-schoolweek";
 import { SchoolWeekType } from "@/types/schoolweek";
 import { showToast } from "@/utils/toast-config";
@@ -55,52 +55,37 @@ function ExportSectionContentModal() {
     try {
       setIsExporting(true);
       if (exportOption === "all" && sectionContentData) {
-        // Tạo workbook mới
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Danh sách bài học');
+        // Chuẩn bị dữ liệu cho xuất Excel
+        const exportData = sectionContentData.map((sectionContent: any) => ({
+          'Tiêu đề': sectionContent.title,
+          'Mô tả': sectionContent.description,
+          'Iframe Url': sectionContent.iframe_url,
+          'Hình ảnh': sectionContent.icon_url,
+          'Thứ tự': sectionContent.order
+        }));
 
-        // Định nghĩa columns
-        worksheet.columns = [
-            { header: 'Tiêu đề', key: 'title', width: 50 },
-            { header: 'Mô tả', key: 'description', width: 20 },
-            { header: 'Iframe Url', key: 'iframe_url', width: 20 },
-          { header: 'Hình ảnh', key: 'icon_url', width: 50 },
-          { header: 'Thứ tự', key: 'order', width: 20 },
+        // Tạo worksheet từ dữ liệu
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+        // Thiết lập độ rộng cột
+        const columnWidths = [
+          { wch: 50 }, // Tiêu đề
+          { wch: 20 }, // Mô tả 
+          { wch: 20 }, // Iframe Url
+          { wch: 50 }, // Hình ảnh
+          { wch: 20 }  // Thứ tự
         ];
+        worksheet['!cols'] = columnWidths;
 
-        // Thêm dữ liệu
-        sectionContentData.forEach((sectionContent: any) => {
-          worksheet.addRow({
-            iconUrl: sectionContent.icon_url,
-            title: sectionContent.title,
-            description: sectionContent.description,
-            iframe_url: sectionContent.iframe_url,
-            icon_url: sectionContent.icon_url,
-            order: sectionContent.order
-          });
-        });
+        // Tạo workbook mới
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh sách bài học');
 
-        // Style cho header
-        worksheet.getRow(1).eachCell((cell) => {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: '4472C4' }
-          };
-          cell.font = {
-            bold: true,
-            color: { argb: 'FFFFFF' },
-            size: 12
-          };
-          cell.alignment = {
-            horizontal: 'center',
-            vertical: 'middle'
-          };
-        });
-
+        // Xuất ra buffer
+        const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        
         // Tạo và tải xuống file
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
