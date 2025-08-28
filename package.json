@@ -16,7 +16,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:e2e": "start-server-and-test dev http://localhost:2111 cypress:ci",
     "analyze": "set ANALYZE=true && npm run build"
   },
   "dependencies": {
