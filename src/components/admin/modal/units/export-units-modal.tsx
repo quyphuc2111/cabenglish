@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import { Download } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import ExcelJS from 'exceljs';
+import * as XLSX from 'xlsx';
 import { showToast } from "@/utils/toast-config";
 import { useUnitByClassId } from "@/hooks/use-units";
 import { Units } from "@/types/unit";
@@ -51,49 +51,31 @@ function ExportUnitsModal() {
     try {
       setIsExporting(true);
       if (exportOption === "all" && unitsData?.data) {
-        // Tạo workbook mới
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Danh sách Units');
+        // Chuẩn bị dữ liệu cho xuất Excel
+        const exportData = unitsData?.data.map((unit: Units) => ({
+          'Tên Unit': unit.unitName,
+          'Thứ tự': unit.order
+        }));
 
-        // Định nghĩa columns
-        worksheet.columns = [
-          // { header: 'ID Unit', key: 'unitId', width: 15 },
-          { header: 'Tên Unit', key: 'unitName', width: 50 },
-          { header: 'Thứ tự', key: 'order', width: 15 },
-          // { header: 'Tiến độ', key: 'progress', width: 15 },
+        // Tạo worksheet từ dữ liệu
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+        // Thiết lập độ rộng cột
+        const columnWidths = [
+          { wch: 50 }, // Tên Unit
+          { wch: 15 }  // Thứ tự
         ];
+        worksheet['!cols'] = columnWidths;
 
-        // Thêm dữ liệu
-        unitsData?.data.forEach((unit: Units) => {
-          worksheet.addRow({
-            // unitId: unit.unitId,
-            unitName: unit.unitName,
-            order: unit.order,
-            // progress: unit.progress
-          });
-        });
+        // Tạo workbook mới
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh sách Units');
 
-        // Style cho header
-        worksheet.getRow(1).eachCell((cell) => {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: '4472C4' }
-          };
-          cell.font = {
-            bold: true,
-            color: { argb: 'FFFFFF' },
-            size: 12
-          };
-          cell.alignment = {
-            horizontal: 'center',
-            vertical: 'middle'
-          };
-        });
-
+        // Xuất ra buffer
+        const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        
         // Tạo và tải xuống file
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
