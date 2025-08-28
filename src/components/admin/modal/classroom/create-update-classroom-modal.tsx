@@ -29,18 +29,18 @@ import {
   type ClassroomFormValues
 } from "@/lib/validations/classroom";
 import { useClassroomForm } from "@/hooks/client/form/useClassroomForm";
+import { useCheckDuplicateClassname } from "@/hooks/use-classrooms-validation";
 
 const formAnimation = {
   hidden: { opacity: 0, y: 20 },
-  visible: (custom: number) => ({
+  visible: {
     opacity: 1,
     y: 0,
     transition: {
-      delay: custom * 0.1,
       duration: 0.5,
-      ease: "easeOut"
+      ease: [0.25, 0.46, 0.45, 0.94]
     }
-  })
+  }
 };
 
 // Shimmer Loading Components
@@ -71,7 +71,12 @@ function CreateUpdateClassroomModal() {
   const classroomId = formType === "update" ? data?.classroom?.id : null;
 
   const { data: classroomData, isLoading: isLoadingClassroom } = useGetSingleClassroom(classroomId as string);
-  const { form, handleSubmit, isPending } = useClassroomForm(formType as "create" | "update", classroomId as string);
+  const { form, handleSubmit, isPending, validateClassroom, isValidationLoading } = useClassroomForm(formType as "create" | "update", classroomId as string);
+  
+  // Hook để kiểm tra trùng lặp real-time
+  const { checkDuplicateClassname } = useCheckDuplicateClassname(
+    formType === "update" ? (classroomId as string) : undefined
+  );
 
   const handleClose = () => {
     form.reset({
@@ -158,7 +163,7 @@ function CreateUpdateClassroomModal() {
                       initial="hidden"
                       animate="visible"
                       variants={formAnimation}
-                      custom={1}
+                      transition={{ delay: 0.1 }}
                     >
                       {isShowingSkeleton ? (
                         <InputSkeleton />
@@ -174,10 +179,26 @@ function CreateUpdateClassroomModal() {
                               <FormControl>
                                 <motion.div whileTap={{ scale: 0.995 }}>
                                   <Input
-                                    disabled={isPending}
+                                    disabled={isPending || isValidationLoading}
                                     placeholder="Nhập tên lớp học..."
                                     className="text-base p-6"
                                     {...field}
+                                    onBlur={(e) => {
+                                      field.onBlur();
+                                      // Kiểm tra trùng lặp khi blur
+                                      const classname = e.target.value.trim();
+                                      if (classname) {
+                                        const isDuplicate = checkDuplicateClassname(classname);
+                                        if (isDuplicate) {
+                                          form.setError("classname", {
+                                            type: "manual",
+                                            message: "Tên lớp học đã tồn tại!"
+                                          });
+                                        } else {
+                                          form.clearErrors("classname");
+                                        }
+                                      }
+                                    }}
                                   />
                                 </motion.div>
                               </FormControl>
@@ -192,7 +213,7 @@ function CreateUpdateClassroomModal() {
                       initial="hidden"
                       animate="visible"
                       variants={formAnimation}
-                      custom={2}
+                      transition={{ delay: 0.2 }}
                     >
                       {isShowingSkeleton ? (
                         <TextareaSkeleton />
@@ -227,7 +248,7 @@ function CreateUpdateClassroomModal() {
                     initial="hidden"
                     animate="visible"
                     variants={formAnimation}
-                    custom={3}
+                    transition={{ delay: 0.3 }}
                   >
                     {isShowingSkeleton ? (
                       <ImageUploaderSkeleton />
@@ -267,10 +288,10 @@ function CreateUpdateClassroomModal() {
                   
                   <Button
                     type="submit"
-                    disabled={isPending || isShowingSkeleton}
+                    disabled={isPending || isShowingSkeleton || isValidationLoading}
                     className="bg-blue-500/90 hover:bg-blue-500"
                   >
-                    {isPending 
+                    {(isPending || isValidationLoading)
                       ? `Đang ${formType === "create" ? "tạo" : "cập nhật"}...` 
                       : `${formType === "create" ? "Tạo" : "Cập nhật"} lớp học`
                     }

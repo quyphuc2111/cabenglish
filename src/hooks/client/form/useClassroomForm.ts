@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ClassroomFormValues, classroomFormSchema } from "@/lib/validations/classroom";
 import { useCreateClassroom, useUpdateClassroom } from "@/hooks/use-classrooms";
+import { useClassroomsValidation } from "@/hooks/use-classrooms-validation";
 import { showToast } from "@/utils/toast-config";
 
 const defaultValues: ClassroomFormValues = {
@@ -22,9 +23,42 @@ export const useClassroomForm = (formType: "create" | "update", classroomId?: st
 
   const { mutate: createClassroom, isPending: isCreating } = useCreateClassroom();
   const { mutate: updateClassroom, isPending: isUpdating } = useUpdateClassroom();
+  
+  // Hook validation để kiểm tra trùng lặp
+  const { validateClassroom, isLoading: isValidationLoading } = useClassroomsValidation(
+    formType === "update" ? classroomId : null
+  );
 
   const handleSubmit = async (values: ClassroomFormValues) => {
     try {
+      // Validation dữ liệu trước khi submit
+      const validationResult = classroomFormSchema.safeParse(values);
+      if (!validationResult.success) {
+        const errors = validationResult.error.errors;
+        errors.forEach((error) => {
+          const fieldName = error.path[0] as keyof ClassroomFormValues;
+          form.setError(fieldName, {
+            type: "manual",
+            message: error.message
+          });
+        });
+        showToast.error("Vui lòng kiểm tra lại thông tin!");
+        return false;
+      }
+
+      // Kiểm tra validation trùng lặp trước khi submit
+      const customValidationResult = validateClassroom(values);
+      if (!customValidationResult.isValid) {
+        if (customValidationResult.errors.classname) {
+          form.setError("classname", {
+            type: "manual",
+            message: customValidationResult.errors.classname
+          });
+        }
+        showToast.error("Vui lòng kiểm tra lại thông tin!");
+        return false;
+      }
+
       if (formType === "create") {
         return new Promise((resolve) => {
           createClassroom(values, {
@@ -74,6 +108,8 @@ export const useClassroomForm = (formType: "create" | "update", classroomId?: st
   return {
     form,
     handleSubmit,
-    isPending: isCreating || isUpdating
+    isPending: isCreating || isUpdating || isValidationLoading,
+    validateClassroom,
+    isValidationLoading
   };
 };
