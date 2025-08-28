@@ -9,6 +9,7 @@ import { MobileAdminMenu } from "./mobile-admin-menu";
 import AdminModalProvider from "@/providers/admin-modal-provider";
 import { useSession } from "next-auth/react";
 
+
 export default function AdminPanelLayout({
   children
 }: {
@@ -37,11 +38,14 @@ export default function AdminPanelLayout({
     <div className={themeClasses["theme-red"]}>
       <AdminSidebar />
       <MobileAdminMenu />
+
       <main
         className={cn(
           `min-h-screen transition-[margin-left] ease-in-out duration-300 px-3
            flex-1 h-full ${themeSecondaryClasses["theme-red"]} lg:rounded-l-[48px]
            overflow-y-hidden `,
+          // Mobile và tablet: không có margin khi sidebar là overlay
+          // Desktop: margin bình thường
           sidebar?.isOpen === false
             ? "ml-0 lg:ml-[100px] pl-5"
             : "ml-0 lg:ml-72"

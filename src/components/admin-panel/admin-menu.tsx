@@ -60,7 +60,7 @@ export function AdminMenu({ isOpen, disabled }: MenuProps) {
       scale: 1,
       rotate: 0,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 260,
         damping: 20
       }
@@ -69,12 +69,12 @@ export function AdminMenu({ isOpen, disabled }: MenuProps) {
 
   return (
     <motion.nav
-      className="mt-8 h-full w-full"
+      className="h-full w-full"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      <ScrollArea className="h-[80vh] w-full">
+      <ScrollArea className="h-full w-full">
         <motion.ul className="flex flex-col items-start space-y-1 px-2">
           {menuList.map(({ groupLabel, menus }, index) => (
             <motion.li
