@@ -26,23 +26,27 @@ export function useClassroomColumns() {
     {
       id: "select",
       header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-          className="rounded-sm"
-        />
+        <div data-checkbox>
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label="Select all"
+            className="rounded-sm"
+          />
+        </div>
       ),
       cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-          className="rounded-sm"
-        />
+        <div data-checkbox>
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+            className="rounded-sm"
+          />
+        </div>
       ),
       enableSorting: false,
       enableHiding: false
@@ -124,19 +128,12 @@ export function useClassroomColumns() {
       id: "actions",
       cell: ActionCell,
       header: () => (
-        <div className="font-semibold text-gray-900">
+        <div className="font-semibold text-gray-900 px-4">
           Hành động
         </div>
       ),
-      meta: {
-        position: "sticky",
-        style: {
-          right: 0,
-          backgroundColor: "white",
-          zIndex: 10,
-          boxShadow: "-4px 0 6px rgba(0,0,0,0.05)"
-        }
-      }
+      enableSorting: false,
+      enableHiding: false
     }
   ], []);
 

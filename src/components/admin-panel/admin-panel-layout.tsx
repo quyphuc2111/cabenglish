@@ -15,7 +15,6 @@ export default function AdminPanelLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session } = useSession();
   const sidebar = useStore(useSidebarToggle, (state) => state);
 
   const themeClasses = {
@@ -44,8 +43,6 @@ export default function AdminPanelLayout({
           `min-h-screen transition-[margin-left] ease-in-out duration-300 px-3
            flex-1 h-full ${themeSecondaryClasses["theme-red"]} lg:rounded-l-[48px]
            overflow-y-hidden `,
-          // Mobile và tablet: không có margin khi sidebar là overlay
-          // Desktop: margin bình thường
           sidebar?.isOpen === false
             ? "ml-0 lg:ml-[100px] pl-5"
             : "ml-0 lg:ml-72"
