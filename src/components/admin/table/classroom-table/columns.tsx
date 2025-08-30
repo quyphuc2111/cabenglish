@@ -18,6 +18,7 @@ export type Classroom = {
   imageurl: string;
   description: string;
   class_id: string;
+  order: number;
 };
 
 // Tách ActionCell ra component riêng
@@ -83,6 +84,20 @@ export function useClassroomColumns() {
                 {classname}
               </div>
             </div>
+          </div>
+        );
+      }
+    },
+    {
+      accessorKey: "order",
+      header: () => (
+        <div className="font-semibold text-gray-900 px-4">Thứ tự</div>
+      ),
+      cell: ({ row }) => {
+        const order = row.original.order;
+        return (
+          <div className="px-4 py-3">
+            <div className="font-medium text-gray-900 text-center">{order}</div>
           </div>
         );
       }

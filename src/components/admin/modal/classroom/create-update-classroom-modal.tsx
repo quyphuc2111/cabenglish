@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 // component import
 import {
@@ -37,8 +38,7 @@ const formAnimation = {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.5,
-      ease: [0.25, 0.46, 0.45, 0.94]
+      duration: 0.5
     }
   }
 };
@@ -67,11 +67,12 @@ const ImageUploaderSkeleton = () => (
 
 function CreateUpdateClassroomModal() {
   const { isOpen, onClose, type, data } = useModal();
+  const queryClient = useQueryClient();
   const formType = data?.formType;
   const classroomId = formType === "update" ? data?.classroom?.id : null;
 
   const { data: classroomData, isLoading: isLoadingClassroom } = useGetSingleClassroom(classroomId as string);
-  const { form, handleSubmit, isPending, validateClassroom, isValidationLoading } = useClassroomForm(formType as "create" | "update", classroomId as string);
+  const { form, handleSubmit, isPending, validateClassroom, isValidationLoading, suggestNextOrder, checkDuplicateOrder } = useClassroomForm(formType as "create" | "update", classroomId as string);
   
   // Hook để kiểm tra trùng lặp real-time
   const { checkDuplicateClassname } = useCheckDuplicateClassname(
@@ -82,7 +83,8 @@ function CreateUpdateClassroomModal() {
     form.reset({
       classname: "",
       description: "",
-      imageurl: ""
+      imageurl: "",
+      order: 0
     });
     onClose();
   };
@@ -94,17 +96,28 @@ function CreateUpdateClassroomModal() {
       form.reset({
         classname: "",
         description: "",
-        imageurl: ""
+        imageurl: "",
+        order: 0
       });
     }
   }, [classroomData, formType, form]);
+
+  React.useEffect(() => {
+    if (isOpen && type === "createUpdateClassroom" && formType === "create" && !isValidationLoading && suggestNextOrder > 0) {
+      const currentOrder = form.getValues("order");
+      if (currentOrder === 0 || currentOrder !== suggestNextOrder) {
+        form.setValue("order", suggestNextOrder);
+      }
+    }
+  }, [isOpen, type, formType, suggestNextOrder, isValidationLoading, form]);
 
   React.useEffect(() => {
     if (!isOpen && type === "createUpdateClassroom") {
       form.reset({
         classname: "",
         description: "",
-        imageurl: ""
+        imageurl: "",
+        order: 0
       });
     }
   }, [isOpen, type, form]);
@@ -113,6 +126,9 @@ function CreateUpdateClassroomModal() {
     const success = await handleSubmit(values);
  
     if (success) {
+      // Invalidate cache để cập nhật dữ liệu validation
+      queryClient.invalidateQueries({ queryKey: ["classrooms-validation"] });
+      queryClient.invalidateQueries({ queryKey: ["classrooms"] });
       handleClose();
     }
   };
@@ -201,6 +217,66 @@ function CreateUpdateClassroomModal() {
                                     }}
                                   />
                                 </motion.div>
+                              </FormControl>
+                              <FormMessage className="text-base" />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                    </motion.div>
+
+                    <motion.div
+                      initial="hidden"
+                      animate="visible"
+                      variants={formAnimation}
+                      transition={{ delay: 0.15 }}
+                    >
+                      {isShowingSkeleton ? (
+                        <InputSkeleton />
+                      ) : (
+                        <FormField
+                          control={form.control}
+                          name="order"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-lg font-medium">
+                                Thứ tự <span className="text-red-500">*</span>
+                              </FormLabel>
+                              <FormControl>
+                                <div className="space-y-3">
+                                  <motion.div whileTap={{ scale: 0.995 }}>
+                                    <Input
+                                      type="number"
+                                      disabled={isPending || isValidationLoading}
+                                      placeholder="Nhập thứ tự hiển thị..."
+                                      className="text-base p-6"
+                                      {...field}
+                                      onChange={(event) => field.onChange(Number(event.target.value))}
+                                      onBlur={(e) => {
+                                        field.onBlur();
+                                        const order = Number(e.target.value);
+                                        if (order > 0) {
+                                          if (checkDuplicateOrder(order)) {
+                                            form.setError("order", {
+                                              type: "manual",
+                                              message: "Thứ tự này đã tồn tại. Vui lòng chọn một số khác."
+                                            });
+                                          } else {
+                                            form.clearErrors("order");
+                                          }
+                                        }
+                                      }}
+                                    />
+                                  </motion.div>
+                                  {formType === "create" && suggestNextOrder > 0 && (
+                                    <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                                      <p className="text-sm text-blue-700 font-medium">
+                                        💡 Hệ thống gợi ý thứ tự tiếp theo: <span className="font-bold text-blue-800">{suggestNextOrder}</span>
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
                               </FormControl>
                               <FormMessage className="text-base" />
                             </FormItem>

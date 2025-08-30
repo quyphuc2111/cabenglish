@@ -40,7 +40,15 @@ export function useClassroomsValidation(currentClassroomId?: string | null) {
     if (!classroomsData?.data || !Array.isArray(classroomsData.data)) {
       return [];
     }
-    return classroomsData.data as ClassroomType[];
+        return classroomsData.data as ClassroomType[];
+  }, [classroomsData?.data]);
+
+  const suggestNextOrder = useMemo(() => {
+    if (existingClassrooms.length === 0) {
+      return 1;
+    }
+    const maxOrder = Math.max(...existingClassrooms.map(c => c.order || 0));
+    return maxOrder + 1;
   }, [classroomsData?.data]);
 
   /**
@@ -65,6 +73,13 @@ export function useClassroomsValidation(currentClassroomId?: string | null) {
       });
     };
   }, [existingClassrooms, currentClassroomId]);
+
+  const checkDuplicateOrder = useMemo(() => {
+    const existingOrders = new Set(existingClassrooms.map(c => c.order));
+    return (order: number): boolean => {
+      return existingOrders.has(order);
+    };
+  }, [existingClassrooms]);
 
   /**
    * Validate toàn bộ form data
@@ -112,7 +127,9 @@ export function useClassroomsValidation(currentClassroomId?: string | null) {
     validateField,
     checkDuplicateClassname,
     isLoading,
-    existingClassrooms
+    existingClassrooms,
+    suggestNextOrder,
+    checkDuplicateOrder
   };
 }
 

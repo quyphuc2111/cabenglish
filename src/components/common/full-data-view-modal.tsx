@@ -63,15 +63,37 @@ export function FullDataViewModal({
             </div>
           ) : headers.length > 0 && rows.length > 0 ? (
             <>
-              {/* Legend for duplicate rows */}
-              {duplicateRows.length > 0 && (
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-orange-500">⚠️</span>
-                    <span className="font-medium text-orange-700">Chú thích:</span>
-                    <span className="text-orange-600">
-                      Các dòng được đánh dấu màu cam là dữ liệu đã tồn tại trong hệ thống
-                    </span>
+              {/* Legend for status */}
+              {(duplicateRows.length > 0 || requiredColumns.length > 0) && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                  <div className="flex flex-col gap-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-500">ℹ️</span>
+                      <span className="font-medium text-blue-700">Chú thích trạng thái:</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 ml-6">
+                      {duplicateRows.length > 0 && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-orange-500">⚠️</span>
+                          <span className="text-orange-700">Trùng lặp</span>
+                        </div>
+                      )}
+                      {requiredColumns.length > 0 && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-red-500">❌</span>
+                          <span className="text-red-700">Không hợp lệ</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <span className="text-green-500">✓</span>
+                        <span className="text-green-700">Hợp lệ</span>
+                      </div>
+                    </div>
+                    {requiredColumns.length > 0 && (
+                      <div className="text-xs text-blue-600 mt-2">
+                        <p>💡 <strong>Lưu ý:</strong> Các cột có dấu * là bắt buộc. Dữ liệu trống sẽ được đánh dấu &quot;Không hợp lệ&quot;.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -119,12 +141,30 @@ export function FullDataViewModal({
                       const globalRowIndex = (currentPage - 1) * pageSize + rowIndex;
                       const isDuplicateRow = duplicateRows.includes(globalRowIndex);
                       
+                      // Kiểm tra xem có ô trống nào trong cột bắt buộc không
+                      const hasInvalidData = headers.some((header, cellIndex) => {
+                        const cellValue = row[cellIndex];
+                        const isEmpty = !cellValue || cellValue.toString().trim() === '';
+                        const isRequired = requiredColumns.includes(header);
+                        return isEmpty && isRequired;
+                      });
+                      
+                      // Xác định trạng thái chính xác
+                      let statusType: 'duplicate' | 'invalid' | 'valid' = 'valid';
+                      if (isDuplicateRow) {
+                        statusType = 'duplicate';
+                      } else if (hasInvalidData) {
+                        statusType = 'invalid';
+                      }
+                      
                       return (
                         <tr key={rowIndex} className={`hover:bg-gray-50 ${
-                          isDuplicateRow ? 'bg-orange-50 border-l-4 border-orange-400' : ''
+                          isDuplicateRow ? 'bg-orange-50 border-l-4 border-orange-400' : 
+                          hasInvalidData ? 'bg-red-50 border-l-4 border-red-400' : ''
                         }`}>
                           <td className={`px-2 sm:px-3 py-2 text-xs font-medium ${
-                            isDuplicateRow ? 'text-orange-600' : 'text-gray-400'
+                            isDuplicateRow ? 'text-orange-600' : 
+                            hasInvalidData ? 'text-red-600' : 'text-gray-400'
                           }`}>
                             <div className="flex items-center gap-1">
                               {actualRowNumber}
@@ -133,16 +173,28 @@ export function FullDataViewModal({
                                   ⚠️
                                 </span>
                               )}
+                              {hasInvalidData && !isDuplicateRow && (
+                                <span className="text-red-500 text-xs" title="Dữ liệu không hợp lệ">
+                                  ❌
+                                </span>
+                              )}
                             </div>
                           </td>
                           <td className={`px-2 sm:px-3 py-2 text-xs font-medium ${
-                            isDuplicateRow ? 'bg-orange-50 text-orange-700' : 'text-green-600'
+                            statusType === 'duplicate' ? 'bg-orange-50 text-orange-700' : 
+                            statusType === 'invalid' ? 'bg-red-50 text-red-700' : 
+                            'text-green-600'
                           }`}>
                             <div className="flex items-center gap-1">
-                              {isDuplicateRow ? (
+                              {statusType === 'duplicate' ? (
                                 <>
                                   <span className="text-orange-500">⚠️</span>
                                   <span className="font-semibold">Trùng lặp</span>
+                                </>
+                              ) : statusType === 'invalid' ? (
+                                <>
+                                  <span className="text-red-500">❌</span>
+                                  <span className="font-semibold">Không hợp lệ</span>
                                 </>
                               ) : (
                                 <>
@@ -161,8 +213,10 @@ export function FullDataViewModal({
                               <td
                                 key={cellIndex}
                                 className={`px-2 sm:px-3 py-2 text-xs max-w-[120px] sm:max-w-[200px] ${
-                                  isDuplicateRow
+                                  statusType === 'duplicate'
                                     ? 'bg-orange-50 text-orange-700'
+                                    : statusType === 'invalid'
+                                    ? 'bg-red-50 text-red-700'
                                     : isEmpty && isRequired 
                                     ? 'bg-red-50 text-red-600 border-l-2 border-red-300' 
                                     : isEmpty 
@@ -176,9 +230,9 @@ export function FullDataViewModal({
                                       {isRequired ? 'Thiếu dữ liệu bắt buộc' : 'Trống'}
                                     </span>
                                   ) : (
-                                    <span className={isDuplicateRow ? 'font-medium' : ''}>
+                                    <span className={statusType !== 'valid' ? 'font-medium' : ''}>
                                       {cellValue.toString()}
-                                      {isDuplicateRow && header === 'Loại thông báo' && (
+                                      {statusType === 'duplicate' && header === 'Loại thông báo' && (
                                         <span className="ml-1 text-orange-500 text-xs">(Trùng lặp)</span>
                                       )}
                                     </span>

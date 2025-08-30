@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -18,26 +19,23 @@ import { useUnitByClassId } from "@/hooks/use-units";
 
 // Thêm các animation variants
 const modalVariants = {
-  hidden: {
-    opacity: 0,
-    scale: 0.8
-  },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.3,
-      ease: "easeOut"
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.3,
+        ease: [0.4, 0, 0.2, 1]
+      }
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.8,
+      transition: {
+        duration: 0.2
+      }
     }
-  },
-  exit: {
-    opacity: 0,
-    scale: 0.8,
-    transition: {
-      duration: 0.2
-    }
-  }
-};
+  };
 
 const contentVariants = {
   hidden: {
@@ -73,6 +71,7 @@ interface DeleteClassroomModalProps {
 
 function DeleteClassroomModal() {
   const [errorClassId, setErrorClassId] = React.useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { isOpen, onClose, type, data } = useModal();
 
@@ -100,6 +99,9 @@ function DeleteClassroomModal() {
             }
           },
           onSuccess: () => {
+            // Invalidate cache để cập nhật dữ liệu validation
+            queryClient.invalidateQueries({ queryKey: ["classrooms-validation"] });
+            queryClient.invalidateQueries({ queryKey: ["classrooms"] });
             showToast.success("Xóa lớp học thành công!");
             if (data.onSuccess) {
               data.onSuccess();

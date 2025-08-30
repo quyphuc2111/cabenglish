@@ -25,7 +25,7 @@ export const useClassroomForm = (formType: "create" | "update", classroomId?: st
   const { mutate: updateClassroom, isPending: isUpdating } = useUpdateClassroom();
   
   // Hook validation để kiểm tra trùng lặp
-  const { validateClassroom, isLoading: isValidationLoading } = useClassroomsValidation(
+  const { validateClassroom, isLoading: isValidationLoading, suggestNextOrder, checkDuplicateOrder } = useClassroomsValidation(
     formType === "update" ? classroomId : null
   );
 
@@ -110,6 +110,8 @@ export const useClassroomForm = (formType: "create" | "update", classroomId?: st
     handleSubmit,
     isPending: isCreating || isUpdating || isValidationLoading,
     validateClassroom,
-    isValidationLoading
+    isValidationLoading,
+    suggestNextOrder,
+    checkDuplicateOrder
   };
 };

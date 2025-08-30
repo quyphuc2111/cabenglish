@@ -32,8 +32,10 @@ export async function getAllClassroomDataByUserId({ userId }: { userId: any }) {
       throw new Error("Dữ liệu không đúng định dạng");
     }
 
+    const sortedData = data.sort((a, b) => a.order - b.order);
+
     return {
-      data: data as ClassroomType[],
+      data: sortedData as ClassroomType[],
       error: undefined
     };
   } catch (error) {

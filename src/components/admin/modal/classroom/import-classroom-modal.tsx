@@ -11,14 +11,18 @@ import { motion } from "framer-motion";
 import { Upload } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { useCreateClassroom } from "@/hooks/use-classrooms";
+import { useClassroomsValidation } from "@/hooks/use-classrooms-validation";
 import { showToast } from "@/utils/toast-config";
 import { ClassroomFormValues } from "@/lib/validations/classroom";
+import { importClassroomSchema } from "@/lib/validations/import-classroom";
 import { ExcelPreviewTable } from "@/components/common/excel-preview-table";
 import { FullDataViewModal } from "@/components/common/full-data-view-modal";
 import { FileUploadZone } from "@/components/common/file-upload-zone";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
 import { ImportOptionsSelector } from "@/components/common/import-options-selector";
 import { ValidationError } from "@/components/common/validation-error";
+import { useQueryClient } from "@tanstack/react-query";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 const importOptions = [
   {
@@ -41,9 +45,16 @@ const importOptions = [
   }
 ];
 
+type ValidationErrorType = {
+  rowIndex: number;
+  field: string;
+  message: string;
+};
+
 type PreviewData = {
   headers: string[];
   rows: any[][];
+  errors: ValidationErrorType[];
 };
 
 type FullDataView = {
@@ -65,9 +76,95 @@ function ImportClassroomModal() {
   const [showFullData, setShowFullData] = React.useState(false);
   const [fullData, setFullData] = React.useState<FullDataView | null>(null);
   const [rawJsonData, setRawJsonData] = React.useState<any[][]>([]);
-  const [validationError, setValidationError] = React.useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = React.useState<ValidationErrorType[]>([]);
+  
 
   const { mutate: createClassroom, isPending: isCreating } = useCreateClassroom();
+  const {
+    checkDuplicateClassname,
+    checkDuplicateOrder,
+    existingClassrooms,
+    isLoading: isDuplicateChecking
+  } = useClassroomsValidation();
+
+  const validateData = React.useCallback(async (rows: any[][], headers: string[]): Promise<ValidationErrorType[]> => {
+    const errors: ValidationErrorType[] = [];
+    const classnameIndex = headers.indexOf('Tên lớp học');
+    const descriptionIndex = headers.indexOf('Mô tả');
+    const imageurlIndex = headers.indexOf('Hình ảnh');
+    const orderIndex = headers.indexOf('Thứ tự');
+
+    const seenClassnames = new Set<string>();
+    const seenOrders = new Set<number>();
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const rowData = {
+        classname: String(row[classnameIndex] || ''),
+        description: String(row[descriptionIndex] || ''),
+        imageurl: String(row[imageurlIndex] || ''),
+        order: row[orderIndex] !== null && row[orderIndex] !== '' ? Number(row[orderIndex]) : undefined,
+      };
+
+      const validationResult = importClassroomSchema.safeParse(rowData);
+
+      
+
+      if (!validationResult.success) {
+        validationResult.error.errors.forEach(err => {
+          errors.push({
+            rowIndex: i,
+            field: err.path[0] as string,
+            message: err.message,
+          });
+        });
+      }
+
+      const classname = String(rowData.classname || '').trim();
+      if (classname) {
+        if (seenClassnames.has(classname.toLowerCase())) {
+          errors.push({
+            rowIndex: i,
+            field: 'classname',
+            message: 'Tên lớp học bị trùng trong file',
+          });
+        } else {
+          seenClassnames.add(classname.toLowerCase());
+          if (checkDuplicateClassname(classname)) {
+            errors.push({
+              rowIndex: i,
+              field: 'classname',
+              message: 'Tên lớp học đã tồn tại trong hệ thống',
+            });
+          }
+        }
+      }
+
+      // Check for duplicate order within the file
+      const order = Number(rowData.order);
+      if (order) {
+        if (seenOrders.has(order)) {
+          errors.push({
+            rowIndex: i,
+            field: 'order',
+            message: 'Thứ tự bị trùng trong file',
+          });
+        } else {
+          seenOrders.add(order);
+          if (checkDuplicateOrder(order)) {
+            errors.push({
+              rowIndex: i,
+              field: 'order',
+              message: 'Thứ tự đã tồn tại trong hệ thống',
+            });
+          }
+        }
+      }
+    }
+
+    return errors;
+  }, [checkDuplicateClassname, checkDuplicateOrder, existingClassrooms]);
+  const queryClient = useQueryClient();
 
   // Function để hiển thị error details modal sử dụng useModal store
   const showErrorDetailsModal = (error: Error, title?: string) => {
@@ -85,7 +182,8 @@ function ImportClassroomModal() {
         setFullData(null);
         setRawJsonData([]);
         setTotalRows(0);
-        setValidationError(null);
+        
+        setValidationErrors([]);
         return;
       }
 
@@ -93,7 +191,7 @@ function ImportClassroomModal() {
       setFullData(null);
       setRawJsonData([]);
       setTotalRows(0);
-      setValidationError(null);
+      
 
       const fileClone = new File([selectedFile], selectedFile.name, {
         type: selectedFile.type,
@@ -120,15 +218,19 @@ function ImportClassroomModal() {
       setRawJsonData([]);
       setFullData(null);
       setIsProcessing(false);
-      setValidationError(null);
+      
     }
   };
+
+   
 
   const handleUpload = async () => {
     if (!file) {
       showToast.error("Vui lòng chọn file để import");
       return;
     }
+
+    
 
     try {
       setIsUploading(true);
@@ -139,7 +241,7 @@ function ImportClassroomModal() {
       const data = await new Promise<ArrayBuffer>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => resolve(e.target?.result as ArrayBuffer);
-        reader.onerror = (error) => {
+        reader.onerror = () => {
           reject(new Error("Không thể đọc file. Vui lòng chọn lại file Excel và thử lại"));
         };
         reader.readAsArrayBuffer(fileClone);
@@ -174,10 +276,9 @@ function ImportClassroomModal() {
       });
 
       const importData = formattedData.map((item) => ({
-        ...item,
-        classname: item['Tên lớp học'],
-        description: item['Mô tả'],
-        imageurl: item['Hình ảnh'],
+        classname: String(item['Tên lớp học'] || '').trim(),
+        description: String(item['Mô tả'] || '').trim(),
+        imageurl: String(item['Hình ảnh'] || '').trim(),
         class_id: 0,
         numliked: 0,
         progress: 0,
@@ -187,6 +288,10 @@ function ImportClassroomModal() {
       if (importOption === "create") {
         createClassroom(importData as unknown as ClassroomFormValues, {
           onSuccess: () => {
+            // Invalidate cache để cập nhật dữ liệu validation
+            queryClient.invalidateQueries({ queryKey: ["classrooms-validation"] });
+            queryClient.invalidateQueries({ queryKey: ["classrooms"] });
+            
             showToast.success("Import dữ liệu thành công!");
             handleClose();
           },
@@ -259,7 +364,7 @@ function ImportClassroomModal() {
       setTotalRows(0);
       setRawJsonData([]);
       setFullData(null);
-      setValidationError(null);
+      
     } finally {
       setIsUploading(false);
     }
@@ -274,7 +379,8 @@ function ImportClassroomModal() {
     setShowFullData(false);
     setFullData(null);
     setRawJsonData([]);
-    setValidationError(null);
+    
+    setValidationErrors([]);
     onClose();
   };
 
@@ -404,11 +510,11 @@ function ImportClassroomModal() {
       const headers = jsonData[0] as string[];
       const allRows = jsonData.slice(1) as any[][];
       
-      const requiredColumns = ['Tên lớp học', 'Mô tả', 'Hình ảnh'];
+      const requiredColumns = ['Tên lớp học', 'Mô tả', 'Hình ảnh', 'Thứ tự'];
       const missingColumns = requiredColumns.filter(col => !headers.includes(col));
       
       if (missingColumns.length > 0) {
-        setValidationError(`File Excel thiếu các cột bắt buộc: ${missingColumns.join(', ')}`);
+        setValidationErrors([{ rowIndex: -1, field: 'file', message: `File Excel thiếu các cột bắt buộc: ${missingColumns.join(', ')}` }]);
         setPreviewData(null);
         setTotalRows(0);
         setRawJsonData([]);
@@ -436,7 +542,7 @@ function ImportClassroomModal() {
       setTotalRows(validRows.length);
 
       if (validRows.length > 100) {
-        setValidationError(`Số lượng dữ liệu vượt quá giới hạn cho phép. Tối đa 100 dòng, hiện tại có ${validRows.length} dòng.`);
+        setValidationErrors([{ rowIndex: -1, field: 'file', message: `Số lượng dữ liệu vượt quá giới hạn cho phép. Tối đa 100 dòng, hiện tại có ${validRows.length} dòng.` }]);
         setPreviewData(null);
         setRawJsonData([]);
         setFullData(null);
@@ -446,9 +552,13 @@ function ImportClassroomModal() {
       const previewRows = allRows.slice(0, 5);
       const normalizedPreviewRows = await normalizeRowsInChunks(previewRows, headers, 5);
 
+      const validationErrors = await validateData(validRows, headers);
+      setValidationErrors(validationErrors);
+
       setPreviewData({
         headers,
-        rows: normalizedPreviewRows
+        rows: normalizedPreviewRows,
+        errors: validationErrors,
       });
 
     } catch (error) {
@@ -458,7 +568,7 @@ function ImportClassroomModal() {
       setTotalRows(0);
       setRawJsonData([]);
       setFullData(null);
-      setValidationError("Không thể đọc file Excel. Vui lòng kiểm tra lại file và thử lại.");
+      setValidationErrors([{ rowIndex: -1, field: 'file', message: 'Không thể đọc file Excel. Vui lòng kiểm tra lại file và thử lại.' }]);
     } finally {
       setIsProcessing(false);
     }
@@ -481,6 +591,7 @@ function ImportClassroomModal() {
               <span className="text-xl font-medium">Nhập Dữ Liệu Lớp Học</span>
             </motion.div>
           </DialogTitle>
+          <DialogDescription />
         </DialogHeader>
 
         <motion.div
@@ -513,7 +624,8 @@ function ImportClassroomModal() {
                 </h4>
                 <ul className="text-sm text-blue-600 space-y-2 list-disc list-inside mb-4">
                   <li>Sử dụng template mẫu để đảm bảo dữ liệu được import chính xác</li>
-                  <li>Các cột bắt buộc: Tên lớp học, Mô tả, Hình ảnh</li>
+                  <li>Các cột bắt buộc: Tên lớp học, Mô tả, Hình ảnh, Thứ tự</li>
+                  <li>Thứ tự phải là một số duy nhất và không được trùng lặp.</li>
                   <li>Không thay đổi tên và thứ tự các cột trong template</li>
                   <li>Giới hạn tối đa 100 dòng dữ liệu trong một lần import</li>
                   <li>Các ô trống trong cột bắt buộc sẽ được đánh dấu màu đỏ</li>
@@ -535,36 +647,26 @@ function ImportClassroomModal() {
                     Xem trước dữ liệu
                   </h4>
                   
-                  {validationError ? (
+                  {validationErrors.some(e => e.rowIndex === -1) ? (
                     <ValidationError
-                      error={validationError}
+                      error={validationErrors.find(e => e.rowIndex === -1)?.message || "Lỗi không xác định"}
                       title="File Excel không hợp lệ"
-                      suggestions={
-                        validationError.includes('thiếu các cột') ? [
-                          'Tải template mẫu và sử dụng đúng tên cột',
-                          'Đảm bảo file có đầy đủ 3 cột: "Tên lớp học", "Mô tả", "Hình ảnh"',
-                          'Không thay đổi tên header trong template',
-                          'Kiểm tra lại định dạng file Excel (.xlsx, .xls)'
-                        ] : validationError.includes('vượt quá giới hạn') ? [
-                          'Chia nhỏ dữ liệu thành nhiều file, mỗi file tối đa 100 dòng',
-                          'Xóa bớt các dòng không cần thiết',
-                          'Import từng phần một cách có hệ thống'
-                        ] : [
-                          'Kiểm tra lại format file Excel',
-                          'Đảm bảo file không bị lỗi hoặc corrupt',
-                          'Thử mở file bằng Excel để kiểm tra'
-                        ]
-                      }
+                      suggestions={[]}
                     />
-                  ) : (
+                  ) : previewData ? (
                     <ExcelPreviewTable
-                      headers={previewData?.headers || []}
-                      rows={previewData?.rows || []}
-                      requiredColumns={['Tên lớp học', 'Mô tả', 'Hình ảnh']}
+                      headers={previewData.headers}
+                      rows={previewData.rows}
+                      requiredColumns={['Tên lớp học', 'Mô tả', 'Hình ảnh', 'Thứ tự']}
                       totalRows={totalRows}
                       onViewAll={handleShowFullData}
                       isLoading={isProcessing}
+                      errors={validationErrors}
                     />
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>Xem trước dữ liệu sẽ hiển thị ở đây.</p>
+                    </div>
                   )}
                 </div>
               )}
@@ -582,13 +684,13 @@ function ImportClassroomModal() {
             </Button>
             <Button
               onClick={handleUpload}
-              disabled={!file || isUploading || !isOptionAvailable(importOption) || isCreating || !!validationError}
+              disabled={!file || isUploading || !isOptionAvailable(importOption) || isCreating || validationErrors.length > 0 || isDuplicateChecking}
               className="bg-blue-500 hover:bg-blue-600 w-full sm:w-auto order-1 sm:order-2"
             >
-              {isUploading ? (
+              {isUploading || isDuplicateChecking ? (
                 <div className="flex items-center gap-2 justify-center">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Đang xử lý...</span>
+                  <span>{isDuplicateChecking ? 'Đang kiểm tra...' : 'Đang xử lý...'}</span>
                 </div>
               ) : (
                 "Nhập dữ liệu"
@@ -611,6 +713,8 @@ function ImportClassroomModal() {
         isLoading={isProcessing}
         requiredColumns={['Tên lớp học', 'Mô tả', 'Hình ảnh']}
       />
+      
+      
     </Dialog>
   );
 }
