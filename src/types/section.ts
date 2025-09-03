@@ -24,6 +24,7 @@ export interface SectionAdminType {
     sectionName: string;
     estimateTime: string;
     progress: number;
+    order: number;
 }
 
 export interface SectionContentAdminType {

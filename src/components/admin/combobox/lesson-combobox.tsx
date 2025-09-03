@@ -20,6 +20,14 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLessonsByClassIdUnitId } from "@/hooks/use-lessons";
 
+// Hàm loại bỏ dấu tiếng Việt
+const removeVietnameseAccents = (str: string): string => {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+};
+
 interface LessonComboboxProps {
   onSelect: (value: string) => void;
   placeholder?: string;
@@ -31,7 +39,7 @@ interface LessonComboboxProps {
 
 export function LessonCombobox({
   onSelect,
-  placeholder = "Chọn unit...",
+  placeholder = "Chọn bài học...",
   classId,
   defaultValue,
   buttonClassName,
@@ -55,13 +63,13 @@ export function LessonCombobox({
     }
 
     // Sắp xếp theo order nếu có
-    // return [...data.data].sort((a, b) => {
-    //   if (typeof a.order === "number" && typeof b.order === "number") {
-    //     return a.order - b.order;
-    //   }
-    //   return 0;
-    // });
-    return [...data.data]
+    return [...data.data].sort((a, b) => {
+      if (typeof a.order === "number" && typeof b.order === "number") {
+        return a.order - b.order;
+      }
+      return 0;
+    });
+    // return [...data.data]
   }, [data?.data]);
 
   const handleSelect = React.useCallback(
@@ -147,15 +155,18 @@ export function LessonCombobox({
       
       <PopoverContent className="w-[300px] p-0">
         <Command>
-          <CommandInput placeholder="Tìm kiếm bài học..." className="h-9" />
+                      <CommandInput 
+              placeholder="Tìm kiếm bài học..." 
+              className="h-9" 
+            />
           <CommandList>
             <CommandEmpty>Không tìm thấy unit nào.</CommandEmpty>
             <CommandGroup>
               {lessons.map((lesson) => (
                 <CommandItem
                   key={lesson.lessonId}
-                  value={lesson.lessonId.toString()}
-                  onSelect={handleSelect}
+                  value={`${lesson.lessonName} ${lesson.lessonName.toLowerCase()} ${lesson.lessonName.toUpperCase()} ${removeVietnameseAccents(lesson.lessonName)}`} // Bao gồm cả tiếng Việt không dấu
+                  onSelect={() => handleSelect(lesson.lessonId.toString())}
                 >
                   <Check
                     className={cn(

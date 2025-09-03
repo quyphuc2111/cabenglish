@@ -14,10 +14,10 @@ export const unitsFormSchema = z.object({
       (val) => val.length > 0,
       { message: "Tên unit không được chỉ chứa khoảng trắng" }
     )
-    .refine(
-      (val) => validNameRegex.test(val),
-      { message: "Tên unit chứa ký tự không hợp lệ. Chỉ cho phép chữ cái, số, khoảng trắng và các ký tự: - _ . , ( )" }
-    )
+    // .refine(
+    //   (val) => validNameRegex.test(val),
+    //   { message: "Tên unit chứa ký tự không hợp lệ. Chỉ cho phép chữ cái, số, khoảng trắng và các ký tự: - _ . , ( )" }
+    // )
     .refine(
       (val) => !/\s{2,}/.test(val),
       { message: "Tên unit không được chứa nhiều khoảng trắng liên tiếp" }
