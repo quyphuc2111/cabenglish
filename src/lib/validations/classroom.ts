@@ -28,7 +28,7 @@ const validateNotOnlyWhitespace = (value: string): boolean => {
 export const classroomFormSchema = z.object({
   classname: z.string()
     .trim()
-    .min(1, "Tên lớp học không được để trống")
+    .min(2, "Tên lớp học không được để trống")
     .max(100, "Tên lớp học không được vượt quá 100 ký tự")
     .refine(validateNotOnlyWhitespace, {
       message: "Tên lớp học không được chỉ chứa khoảng trắng"
@@ -38,7 +38,7 @@ export const classroomFormSchema = z.object({
     }),
   description: z.string()
     .trim()
-    .min(1, "Mô tả không được để trống")
+    .min(2, "Mô tả không được để trống")
     .max(1000, "Mô tả không được vượt quá 1000 ký tự")
     .refine(validateNotOnlyWhitespace, {
       message: "Mô tả không được chỉ chứa khoảng trắng"

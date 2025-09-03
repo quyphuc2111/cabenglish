@@ -25,12 +25,13 @@ export const ActionCell = memo(function ActionCell({ row }: ActionCellProps) {
   const { activeLesson } = useLessonStore();
 
   const handleEdit = useCallback(() => {
+    console.log("🔧 Edit section:", section);
     onOpen("createUpdateSection", {
       formType: "update",
-      section: { id: section.sectionId },
+      sections: [section], // Truyền toàn bộ dữ liệu section
       lessonIds: Number(activeLesson.lessonId)
     }); 
-  }, [section.sectionId, activeLesson.lessonId, onOpen]);
+  }, [section, activeLesson.lessonId, onOpen]);
 
   const handleDelete = useCallback(() => {
     onOpen("deleteSection", {

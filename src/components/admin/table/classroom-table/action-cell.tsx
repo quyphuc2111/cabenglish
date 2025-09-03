@@ -39,11 +39,11 @@ export const ActionCell = memo(function ActionCell({ row }: ActionCellProps) {
   }, [classroom.class_id, onOpen, classroom.classname]);
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2" data-action>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="cursor-pointer" onClick={handleEdit}>
+            <div className="cursor-pointer" onClick={handleEdit} data-action>
               <OptimizeImage
                 src="/assets/image/admin/edit_icon.webp"
                 width={25}
@@ -61,7 +61,7 @@ export const ActionCell = memo(function ActionCell({ row }: ActionCellProps) {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="cursor-pointer" onClick={handleDelete}>
+            <div className="cursor-pointer" onClick={handleDelete} data-action>
               <OptimizeImage
                 src="/assets/image/admin/delete_icon.webp"
                 width={25}

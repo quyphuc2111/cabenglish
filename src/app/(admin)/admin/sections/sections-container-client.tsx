@@ -18,6 +18,15 @@ import {
   useDeleteSection
 } from "@/hooks/use-sections";
 import { useLessonStore } from "@/store/use-lesson-store";
+import { Input } from "@/components/ui/input";
+import { useDebounce } from "@/hooks/use-debounce";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 
 const handleError = (
   error: any,
@@ -64,6 +73,11 @@ const ActionButtons = ({
       </div>
     ) : (
       <div className="flex flex-row gap-4 items-center flex-wrap justify-end">
+           {Object.keys(rowSelection).length > 0 && (
+            <Button variant="destructive" onClick={onDelete}>
+              Xóa ({Object.keys(rowSelection).length})
+            </Button>
+          )}
         <Button
           className="bg-blue-500 hover:bg-blue-600 text-white"
           onClick={onCreate}
@@ -72,11 +86,7 @@ const ActionButtons = ({
           Tạo mới Section
         </Button>
         <div className="flex flex-row gap-4 items-center justify-end flex-wrap">
-          {Object.keys(rowSelection).length > 0 && (
-            <Button variant="destructive" onClick={onDelete}>
-              Xóa ({Object.keys(rowSelection).length})
-            </Button>
-          )}
+       
           <Button variant="outline" onClick={onExport}>
             <Download className="w-4 h-4 mr-2" />
             Xuất dữ liệu
@@ -95,6 +105,12 @@ function SectionsContainerClient() {
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
   >({});
+  const [searchQuery, setSearchQuery] = React.useState<string>("");
+  const [orderFilter, setOrderFilter] = React.useState<string>("default");
+
+  // Debounce search query để tối ưu hiệu suất
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   const { activeLesson, activateLesson, activateUnit, activateClass } =
     useLessonStore();
 
@@ -112,6 +128,34 @@ function SectionsContainerClient() {
     isLoading: sectionLoading,
     error: sectionError
   } = useGetSectionByLessonId(Number(activeLesson.lessonId));
+
+  // Xử lý dữ liệu đã được lọc
+  const filteredData = React.useMemo(() => {
+    if (!sectionData?.data) return [];
+
+    let filtered = [...sectionData.data];
+
+    // Lọc theo tên section nếu có search query (sử dụng debounced value)
+    if (debouncedSearchQuery.trim()) {
+      const searchTerm = debouncedSearchQuery.toLowerCase().trim();
+      filtered = filtered.filter((section) =>
+        section.sectionName.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Sắp xếp theo order
+    if (orderFilter === "asc") {
+      filtered.sort((a, b) => (a.order || 0) - (b.order || 0));
+    } else if (orderFilter === "desc") {
+      filtered.sort((a, b) => (b.order || 0) - (a.order || 0));
+    }
+
+    return filtered;
+  }, [
+    sectionData?.data,
+    debouncedSearchQuery,
+    orderFilter
+  ]);
 
   const { mutate: deleteSection, isPending: isDeleting } = useDeleteSection();
 
@@ -186,6 +230,9 @@ function SectionsContainerClient() {
     (value: string) => {
       activateUnit(value);
       activateLesson("");
+      // Reset filters khi chọn unit mới
+      setSearchQuery("");
+      setOrderFilter("default");
 
       if (value) {
         showToast.success(
@@ -201,6 +248,9 @@ function SectionsContainerClient() {
   const handleSelectLesson = React.useCallback(
     (value: string) => {
       activateLesson(value);
+      // Reset filters khi chọn lesson mới
+      setSearchQuery("");
+      setOrderFilter("default");
 
       if (value) {
         showToast.success(
@@ -234,29 +284,87 @@ function SectionsContainerClient() {
     });
   };
 
+  const handleUpdateSection = (section: any) => {
+    if (!activeLesson.lessonId || activeLesson.lessonId === "") {
+      showToast.error("Vui lòng chọn bài học trước khi cập nhật section!");
+      return;
+    }
+
+    const lessonIdNumber = Number(activeLesson.lessonId);
+    if (isNaN(lessonIdNumber) || lessonIdNumber <= 0) {
+      showToast.error("ID bài học không hợp lệ!");
+      return;
+    }
+
+    console.log("🔧 Opening update modal for section:", section);
+
+    handleModalOpen("createUpdateSection", {
+      formType: "update",
+      lessonIds: lessonIdNumber,
+      sections: [section] // Truyền dữ liệu section để update
+    });
+  };
+
   const searchComponent = (
-    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-wrap">
-      <ClassroomCombobox
-        onSelect={handleSelectClassroom}
-        placeholder="Tìm kiếm lớp học..."
-        buttonClassName="w-full sm:w-[250px]"
-      />
-      {activeLesson.classId && (
-        <UnitByClassCombobox
-          onSelect={handleSelectUnit}
-          placeholder="Chọn unit..."
-          classId={activeLesson.classId}
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-row gap-4 items-center">
+        <ClassroomCombobox
+          onSelect={handleSelectClassroom}
+          placeholder="Tìm kiếm lớp học..."
           buttonClassName="w-full sm:w-[250px]"
         />
-      )}
-      {activeLesson.unitId && activeLesson.classId && (
-        <LessonCombobox
-          onSelect={handleSelectLesson}
-          placeholder="Chọn bài học..."
-          unitId={activeLesson.unitId}
-          classId={activeLesson.classId}
-          buttonClassName="w-full sm:w-[250px]"
+        {activeLesson.classId && (
+          <UnitByClassCombobox
+            onSelect={handleSelectUnit}
+            placeholder="Chọn unit..."
+            classId={activeLesson.classId}
+            buttonClassName="w-full sm:w-[250px]"
         />
+        )}
+        {activeLesson.unitId && activeLesson.classId && (
+          <LessonCombobox
+            onSelect={handleSelectLesson}
+            placeholder="Chọn bài học..."
+            unitId={activeLesson.unitId}
+            classId={activeLesson.classId}
+            buttonClassName="w-full sm:w-[250px]"
+          />
+        )}
+      </div>
+      {activeLesson.classId && activeLesson.unitId && activeLesson.lessonId && (
+        <div className="bg-gray-50 p-4 rounded-lg border">
+          <h3 className="text-sm font-semibold text-gray-800 mb-3">
+            Bộ lọc và tìm kiếm
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-700">
+                Tìm kiếm theo tên phần:
+              </label>
+              <Input
+                placeholder="Nhập tên phần..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-700">
+                Sắp xếp theo thứ tự:
+              </label>
+              <Select value={orderFilter} onValueChange={setOrderFilter}>
+                <SelectTrigger className="w-full bg-white">
+                  <SelectValue placeholder="Chọn thứ tự sắp xếp" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="default">Mặc định</SelectItem>
+                  <SelectItem value="asc">Thứ tự tăng dần</SelectItem>
+                  <SelectItem value="desc">Thứ tự giảm dần</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -268,7 +376,7 @@ function SectionsContainerClient() {
   return (
     <div className="bg-white rounded-lg p-10 h-full">
       <GenericTable
-        data={sectionData?.data || []}
+        data={filteredData}
         columns={columns}
         isLoading={sectionLoading || isDeleting}
         searchComponent={searchComponent}

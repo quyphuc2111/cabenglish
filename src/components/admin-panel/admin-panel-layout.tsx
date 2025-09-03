@@ -9,12 +9,12 @@ import { MobileAdminMenu } from "./mobile-admin-menu";
 import AdminModalProvider from "@/providers/admin-modal-provider";
 import { useSession } from "next-auth/react";
 
+
 export default function AdminPanelLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session } = useSession();
   const sidebar = useStore(useSidebarToggle, (state) => state);
 
   const themeClasses = {
@@ -37,6 +37,7 @@ export default function AdminPanelLayout({
     <div className={themeClasses["theme-red"]}>
       <AdminSidebar />
       <MobileAdminMenu />
+
       <main
         className={cn(
           `min-h-screen transition-[margin-left] ease-in-out duration-300 px-3

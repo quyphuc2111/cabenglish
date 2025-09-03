@@ -53,13 +53,31 @@ function ExportSectionModal() {
   const handleExport = async () => {
     try {
       setIsExporting(true);
-      if (exportOption === "all" && sectionData?.data) {
+      
+      // Kiểm tra lessonId
+      if (!activeLesson.lessonId) {
+        showToast.error("Vui lòng chọn bài học trước khi xuất dữ liệu!");
+        return;
+      }
+
+      // Kiểm tra dữ liệu trước khi export
+      if (!sectionData?.data || !Array.isArray(sectionData.data)) {
+        showToast.error("Không có dữ liệu section để xuất!");
+        return;
+      }
+
+      if (sectionData.data.length === 0) {
+        showToast.error("Danh sách section đang trống!");
+        return;
+      }
+
+      if (exportOption === "all") {
         // Chuẩn bị dữ liệu cho xuất Excel
-        const exportData = sectionData?.data.map((section: any) => ({
-          'Tên phần': section.sectionName,
-          'Thời gian ước tính': section.estimateTime,
-          'Thứ tự': section.order,
-          'Hình ảnh': section.iconUrl
+        const exportData = sectionData.data.map((section: any) => ({
+          'Tên phần': section.sectionName || '',
+          'Thời gian ước tính': section.estimateTime || '',
+          'Thứ tự': section.order || 0,
+          'Hình ảnh': section.iconUrl || ''
         }));
 
         // Tạo worksheet từ dữ liệu
@@ -76,7 +94,7 @@ function ExportSectionModal() {
 
         // Tạo workbook mới
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh sách bài học');
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh sách Section');
 
         // Xuất ra buffer
         const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
@@ -92,10 +110,19 @@ function ExportSectionModal() {
 
         showToast.success("Xuất dữ liệu thành công!");
         handleClose();
+      } else {
+        showToast.error("Tùy chọn xuất dữ liệu không hợp lệ!");
       }
     } catch (error) {
       console.error("Export error:", error);
-      showToast.error("Có lỗi xảy ra khi xuất dữ liệu");
+      showToast.error(
+        <div className="flex flex-col gap-1">
+          <p className="font-medium">Có lỗi xảy ra khi xuất dữ liệu</p>
+          <p className="text-sm text-gray-600">
+            {error instanceof Error ? error.message : "Vui lòng thử lại"}
+          </p>
+        </div>
+      );
     } finally {
       setIsExporting(false);
     }

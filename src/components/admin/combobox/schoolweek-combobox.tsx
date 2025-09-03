@@ -24,11 +24,12 @@ import { useSchoolWeek } from "@/hooks/use-schoolweek"
 interface SchoolWeekComboboxProps {
   onSelect: (value: string) => void;
   placeholder?: string;
+  defaultValue?: string;
 }
 
-export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần học..." }: SchoolWeekComboboxProps) {
+export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần học...", defaultValue = "" }: SchoolWeekComboboxProps) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
+  const [value, setValue] = React.useState(defaultValue)
   const [searchQuery, setSearchQuery] = React.useState("")
 
   const { data, isLoading } = useSchoolWeek();
@@ -87,12 +88,14 @@ export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần
     setValue(currentValue === value ? "" : currentValue);
     setOpen(false);
     onSelect(currentValue === value ? "" : currentValue);
+    setSearchQuery("");
   }
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     setValue("");
     onSelect("");
+    setSearchQuery("");
   }
 
   const getDisplayText = React.useCallback((selectedValue: string) => {
@@ -116,13 +119,18 @@ export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần
         >
           {value ? getDisplayText(value) : placeholder}
           <div className="flex items-center gap-1">
-            {value && (
-              <X 
-                className="h-4 w-4 shrink-0 opacity-50 hover:opacity-100 cursor-pointer" 
-                onClick={handleClear}
-              />
-            )}
+           
             <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+             {value && (
+              <div
+                aria-label="Clear selection"
+                role="button"
+                className="relative z-10 p-1 -mr-1.5 rounded-full hover:bg-red-100 dark:hover:bg-red-800"
+                onClick={handleClear}
+              >
+                <X className="h-4 w-4 shrink-0 opacity-50 hover:opacity-100 cursor-pointer" />
+              </div>
+            )}
           </div>
         </Button>
       </PopoverTrigger>

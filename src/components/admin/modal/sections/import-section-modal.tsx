@@ -20,6 +20,7 @@ import { SectionFormValues } from "@/lib/validations/section";
 import { useLessonStore } from "@/store/use-lesson-store";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSectionsValidation } from "@/hooks/use-sections-validation";
 
 // Định nghĩa các tùy chọn import
 type ImportOption = {
@@ -64,6 +65,16 @@ function ImportSectionModal() {
   const { mutate: createSection, isPending: isCreating } = useCreateSection();
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  // Hook validation để kiểm tra trùng lặp
+  const {
+    validateField,
+    validateSection,
+    isLoading: isValidationLoading
+  } = useSectionsValidation(
+    Number(activeLesson.lessonId),
+    null // Không có sectionId khi import
+  );
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -192,16 +203,98 @@ function ImportSectionModal() {
         return rowData;
       });
 
-      const sectionListData = formattedData.map((item) => ({
-        sectionName: item["Tên phần"],
-        estimateTime: item["Thời gian ước tính"],
-        iconUrl: item["Hình ảnh"],
-        order: item["Thứ tự"],
-      }));
+      // Validation từng dòng dữ liệu
+      const validationErrors: string[] = [];
+      const validatedSectionData: any[] = [];
+
+      for (let i = 0; i < filteredRows.length; i++) {
+        const row = filteredRows[i];
+        const rowNumber = i + 2; // +2 vì index 0 là header, +1 để hiển thị số dòng Excel
+        
+        // Lấy dữ liệu từ row theo index của headers
+        const sectionNameIndex = headers.indexOf("Tên phần");
+        const estimateTimeIndex = headers.indexOf("Thời gian ước tính");
+        const iconUrlIndex = headers.indexOf("Hình ảnh");
+        const orderIndex = headers.indexOf("Thứ tự");
+
+        // Kiểm tra xem có tìm thấy tất cả các cột không
+        if (sectionNameIndex === -1 || estimateTimeIndex === -1 || iconUrlIndex === -1 || orderIndex === -1) {
+          validationErrors.push(`Dòng ${rowNumber}: Cấu trúc file không đúng, thiếu cột bắt buộc`);
+          continue;
+        }
+
+        const sectionName = row[sectionNameIndex];
+        const estimateTime = row[estimateTimeIndex];
+        const iconUrl = row[iconUrlIndex];
+        const order = row[orderIndex];
+
+        // Validation sectionName - chuyển đổi về string nếu cần
+        const sectionNameStr = String(sectionName || '').trim();
+        if (!sectionNameStr) {
+          validationErrors.push(`Dòng ${rowNumber}: Tên phần không được để trống`);
+          continue;
+        }
+
+        if (sectionNameStr.length > 100) {
+          validationErrors.push(`Dòng ${rowNumber}: Tên phần không được vượt quá 100 ký tự`);
+          continue;
+        }
+
+        // Validation order
+        if (!order || isNaN(Number(order)) || Number(order) <= 0 || !Number.isInteger(Number(order))) {
+          validationErrors.push(`Dòng ${rowNumber}: Thứ tự phải là số nguyên lớn hơn 0`);
+          continue;
+        }
+
+        // Validation iconUrl - chuyển đổi về string nếu cần
+        const iconUrlStr = String(iconUrl || '').trim();
+        if (!iconUrlStr) {
+          validationErrors.push(`Dòng ${rowNumber}: Hình ảnh không được để trống`);
+          continue;
+        }
+
+        // Validation estimateTime - chuyển đổi về string nếu cần
+        const estimateTimeStr = String(estimateTime || '').trim();
+        if (!estimateTimeStr) {
+          validationErrors.push(`Dòng ${rowNumber}: Thời gian ước tính không được để trống`);
+          continue;
+        }
+
+        // Kiểm tra trùng lặp sectionName
+        const nameError = validateField("sectionName", sectionNameStr);
+        if (nameError) {
+          validationErrors.push(`Dòng ${rowNumber}: ${nameError}`);
+          continue;
+        }
+
+        // Kiểm tra trùng lặp order
+        const orderError = validateField("order", Number(order));
+        if (orderError) {
+          validationErrors.push(`Dòng ${rowNumber}: ${orderError}`);
+          continue;
+        }
+
+        // Nếu tất cả validation đều pass, thêm vào danh sách
+        validatedSectionData.push({
+          sectionName: sectionNameStr,
+          estimateTime: estimateTimeStr,
+          iconUrl: iconUrlStr,
+          order: Number(order)
+        });
+      }
+
+      // Nếu có lỗi validation, hiển thị tất cả lỗi
+      if (validationErrors.length > 0) {
+        throw new Error(`Dữ liệu không hợp lệ:\n${validationErrors.join('\n')}`);
+      }
+
+      if (validatedSectionData.length === 0) {
+        throw new Error("Không có dữ liệu hợp lệ để import");
+      }
 
       const importData = {
-        sectionData: sectionListData,
-        lessonId: activeLesson.lessonId,
+        sectionData: validatedSectionData,
+        lessonId: Number(activeLesson.lessonId),
       }
 
       if (importOption === "create") {
@@ -271,10 +364,10 @@ function ImportSectionModal() {
   };
 
   const handleDownloadTemplate = () => {
-    const templateUrl = "/template/classroom-template.xlsx";
+    const templateUrl = "/template_file/section-template.xlsx";
     const a = document.createElement("a");
     a.href = templateUrl;
-    a.download = "classroom-template.xlsx";
+    a.download = "section-content";
     a.click();
   };
 
@@ -304,7 +397,7 @@ function ImportSectionModal() {
 
       setPreviewData({
         headers: jsonData[0] as string[],
-        rows: jsonData.slice(1, 6) as any[][] // Chỉ lấy 5 dòng đầu để preview
+        rows: jsonData.slice(1, 6) as any[][] 
       });
     } catch (error) {
       console.error("Lỗi khi đọc file Excel:", error);
@@ -433,9 +526,11 @@ function ImportSectionModal() {
                 </h4>
                 <ul className="text-sm text-blue-600 space-y-2 list-disc list-inside mb-4">
                   <li>Sử dụng template mẫu để đảm bảo dữ liệu được import chính xác</li>
-                  <li>Các cột bắt buộc: Tên phần , Thời gian ước tính, Hình ảnh, Thứ tự</li>
+                  <li>Các cột bắt buộc: Tên phần, Thời gian ước tính, Hình ảnh, Thứ tự</li>
                   <li>Không thay đổi tên và thứ tự các cột trong template</li>
                   <li>Dữ liệu trong file Excel phải đúng định dạng quy định</li>
+                  <li><strong>Validation:</strong> Tên phần không được trùng lặp, thứ tự phải là số nguyên lớn hơn 0</li>
+                  <li><strong>Giới hạn:</strong> Tên phần tối đa 100 ký tự</li>
                 </ul>
                 <Button 
                   variant="link" 
@@ -483,6 +578,16 @@ function ImportSectionModal() {
                           ))}
                         </tbody>
                       </table>
+                      <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-xs text-yellow-700 font-medium mb-1">
+                          ⚠️ Lưu ý validation:
+                        </p>
+                        <ul className="text-xs text-yellow-600 space-y-1 list-disc list-inside">
+                          <li>Tên phần: Không được trùng lặp, tối đa 100 ký tự</li>
+                          <li>Thứ tự: Phải là số nguyên lớn hơn 0, không được trùng lặp</li>
+                          <li>Tất cả các trường đều bắt buộc</li>
+                        </ul>
+                      </div>
                       <p className="text-xs text-gray-500 mt-2">
                         * Chỉ hiển thị 5 dòng đầu tiên
                       </p>

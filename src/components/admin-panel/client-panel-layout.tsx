@@ -67,7 +67,8 @@ const ClientPanelLayoutContent = memo(function ClientPanelLayoutContent({
       >
         {children}
       </main>
-      <ToastContainer
+      {/* Đã chuyển ToastContainer về providers.tsx để tránh conflict */}
+      {/* <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -80,7 +81,7 @@ const ClientPanelLayoutContent = memo(function ClientPanelLayoutContent({
         theme="light"
         limit={3}
         containerId="client-toast-container"
-      />
+      /> */}
     </div>
   );
 });

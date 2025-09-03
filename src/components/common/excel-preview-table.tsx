@@ -1,6 +1,12 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 
+interface ValidationError {
+  rowIndex: number;
+  field: string;
+  message: string;
+}
+
 interface ExcelPreviewTableProps {
   headers: string[];
   rows: any[][];
@@ -11,6 +17,7 @@ interface ExcelPreviewTableProps {
   totalRows?: number;
   isLoading?: boolean;
   className?: string;
+  errors?: ValidationError[];
 }
 
 export function ExcelPreviewTable({
@@ -22,7 +29,8 @@ export function ExcelPreviewTable({
   onViewAll,
   totalRows = 0,
   isLoading = false,
-  className = ''
+  className = '',
+  errors = []
 }: ExcelPreviewTableProps) {
   if (isLoading) {
     return (
@@ -84,6 +92,11 @@ export function ExcelPreviewTable({
                   </div>
                 </th>
               ))}
+              {rows.length > 0 && (
+                <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px] sm:min-w-[120px]">
+                  Trạng thái
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -98,15 +111,23 @@ export function ExcelPreviewTable({
                   const cellValue = row[cellIndex];
                   const isEmpty = !cellValue || cellValue.toString().trim() === '';
                   const isRequired = requiredColumns.includes(header);
-                  
+
+                  const headerKey = header.toLowerCase().replace(/\s+/g, '');
+                  const cellError = errors.find(
+                    (e) => e.rowIndex === rowIndex && e.field.toLowerCase() === headerKey
+                  );
+                  const isInvalid = !!cellError;
+
                   return (
                     <td
                       key={cellIndex}
                       className={`px-2 sm:px-3 py-2 text-xs max-w-[120px] sm:max-w-[200px] ${
-                        isEmpty && isRequired 
-                          ? 'bg-red-50 text-red-600 border-l-2 border-red-300' 
-                          : isEmpty 
-                          ? 'text-gray-400 bg-gray-50' 
+                        isInvalid
+                          ? 'bg-red-50 text-red-600 border-l-2 border-red-300'
+                          : isEmpty && isRequired
+                          ? 'bg-red-50 text-red-600 border-l-2 border-red-300'
+                          : isEmpty
+                          ? 'text-gray-400 bg-gray-50'
                           : 'text-gray-700'
                       }`}
                     >
@@ -122,6 +143,25 @@ export function ExcelPreviewTable({
                     </td>
                   );
                 })}
+                {rows.length > 0 && (
+                  <td className="px-2 sm:px-3 py-2 text-xs">
+                    {(() => {
+                      const rowErrors = errors.filter(
+                        (e) => e.rowIndex === rowIndex
+                      );
+                      if (rowErrors.length > 0) {
+                        return (
+                          <div className="text-red-600">
+                            {rowErrors.map((e, index) => (
+                              <div key={`error-${rowIndex}-${index}`}>{`- ${e.message}`}</div>
+                            ))}
+                          </div>
+                        );
+                      }
+                      return <span className="text-green-600">Hợp lệ</span>;
+                    })()}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

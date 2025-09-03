@@ -25,10 +25,11 @@ export const ActionCell = memo(function ActionCell({ row }: ActionCellProps) {
   const { activeLesson } = useLessonStore();
 
   const handleEdit = useCallback(() => {
+    console.log("🔧 Edit section content:", sectionContent);
     onOpen("createUpdateSectionContent", {
       formType: "update",
-      sectionContent: sectionContent,
-      sectionIds: [Number(activeLesson.sectionId)]
+      sectionContents: [sectionContent], 
+      sectionIds: Number(activeLesson.sectionId)
     });
   }, [sectionContent, activeLesson.sectionId, onOpen]);
 

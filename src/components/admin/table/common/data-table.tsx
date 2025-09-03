@@ -101,16 +101,47 @@ export function DataTable<TData, TValue>({
   table
 }: DataTableProps<TData, TValue>) {
 
-  
+  // Hàm xử lý click vào row
+  const handleRowClick = (row: Row<TData>, event: React.MouseEvent) => {
+    // Ngăn chặn click khi click vào checkbox hoặc action buttons
+    const target = event.target as HTMLElement;
+    const isCheckbox = target.closest('[data-checkbox]');
+    const isActionButton = target.closest('[data-action]');
+    
+    if (isCheckbox || isActionButton) {
+      return;
+    }
+
+    // Toggle selection state
+    row.toggleSelected(!row.getIsSelected());
+  };
+
+  // Hàm xử lý click vào checkbox để ngăn chặn event bubbling
+  const handleCheckboxClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+  };
+
+  // Hàm xử lý click vào action buttons để ngăn chặn event bubbling
+  const handleActionClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+  };
+
   return (
-    <div className="w-full overflow-auto">
+    <div className="w-full overflow-x-auto">
       <div className="rounded-md border min-w-[640px]">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup: HeaderGroup<TData>) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header: Header<TData, unknown>) => (
-                  <TableHead key={header.id} className="whitespace-nowrap">
+                  <TableHead 
+                    key={header.id} 
+                    className={`whitespace-nowrap ${
+                      header.column.id === 'actions' 
+                        ? 'sticky right-0 bg-white shadow-[-4px_0_6px_rgba(0,0,0,0.05)] z-10' 
+                        : ''
+                    }`}
+                  >
                     {header.isPlaceholder ? null : flexRender(
                       header.column.columnDef.header,
                       header.getContext()
@@ -138,12 +169,32 @@ export function DataTable<TData, TValue>({
                   <motion.tr
                     key={row.id}
                     variants={tableRowAnimation}
-                    className={`border-b transition-colors hover:bg-muted/50 ${
-                      row.getIsSelected() ? "bg-muted" : ""
+                    className={`border-b transition-all duration-200 hover:bg-muted/50 cursor-pointer relative group ${
+                      row.getIsSelected() 
+                        ? "bg-muted" 
+                        : ""
                     }`}
-                  >
+                    onClick={(event) => handleRowClick(row, event)}
+                  >                  
                     {row.getVisibleCells().map((cell: Cell<TData, unknown>) => (
-                      <TableCell key={cell.id} className="whitespace-nowrap">
+                      <TableCell 
+                        key={cell.id} 
+                        className={`whitespace-nowrap ${
+                          cell.column.id === 'actions' 
+                            ? 'sticky right-0 bg-white shadow-[-4px_0_6px_rgba(0,0,0,0.05)] z-10' 
+                            : ''
+                        }`}
+                        onClick={(event) => {
+                          // Nếu là checkbox column, ngăn chặn event bubbling
+                          if (cell.column.id === 'select') {
+                            handleCheckboxClick(event);
+                          }
+                          // Nếu là actions column, ngăn chặn event bubbling
+                          else if (cell.column.id === 'actions') {
+                            handleActionClick(event);
+                          }
+                        }}
+                      >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}

@@ -42,7 +42,7 @@ function DashboardClient() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="bg-white rounded-lg p-4 grid grid-cols-4 gap-4 min-h-[400px]">
+      <div className="bg-white rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 min-h-[400px]">
         {DASHBOARD_CARDS.map(({ title, key, imageUrl }) => (
           <AdminDashboardCardInfo
             key={key}

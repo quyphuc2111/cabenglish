@@ -14,6 +14,12 @@ interface SectionContentParams {
   sectionContentIds: number[];
 }
 
+interface SectionContentUpdateParams {
+  sectionContentData: SectionContentAdminType;
+  sectionIds: number;
+  sectionContentIds: number[];
+}
+
 export function useGetSectionContentBySectionId(sectionId: number) {
   return useQuery({
     queryKey: ["section-content-by-section-id", sectionId],
@@ -75,8 +81,8 @@ export function useCreateSectionContent() {
 export function useUpdateSectionContent() {
   const queryClient = useQueryClient();
 
-  return useMutation<SectionContentResponse, Error, SectionContentParams>({
-    mutationFn: async (params: SectionContentParams) => {
+  return useMutation<SectionContentResponse, Error, SectionContentUpdateParams>({
+    mutationFn: async (params: SectionContentUpdateParams) => {
       
       if (!params.sectionContentData) {
         throw new Error("Không tìm thấy thông tin sectionData");

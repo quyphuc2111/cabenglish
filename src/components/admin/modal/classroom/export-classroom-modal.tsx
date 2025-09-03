@@ -47,15 +47,15 @@ function ExportClassroomModal() {
       if (exportOption === "all" && classrooms) {
         // Tạo dữ liệu xuất với các trường được chọn
         const exportData = classrooms.data.map((classroom: ClassroomType) => ({
-          'classname': classroom.classname,
-          'description': classroom.description,
-          'imageurl': classroom.imageurl
+          'Tên lớp học': classroom.classname,
+          'Mô tả': classroom.description,
+          'Hình ảnh': classroom.imageurl
         }));
 
         // Tạo workbook và worksheet
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(exportData, {
-          header: ['classname', 'description', 'imageurl']
+          header: ['Tên lớp học', 'Mô tả', 'Hình ảnh']
         });
 
         // Tạo style cho header
@@ -83,7 +83,7 @@ function ExportClassroomModal() {
         XLSX.utils.book_append_sheet(wb, ws, 'Danh sách lớp học');
 
         // Xuất file Excel
-        XLSX.writeFile(wb, 'danh-sach-lop-hoc.xlsx');
+        XLSX.writeFile(wb, `danh-sach-lop-hoc-${new Date().getTime()}.xlsx`);
         
         toast.success("Xuất dữ liệu thành công!");
         handleClose();
@@ -152,7 +152,7 @@ function ExportClassroomModal() {
                   <RadioGroupItem
                     value={option.id}
                     id={option.id}
-                    className="text-blue-500"
+                    className="text-blue-500" 
                     disabled={!isOptionAvailable(option.id)}
                   />
                   <Label
