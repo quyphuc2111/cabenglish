@@ -22,6 +22,7 @@ interface FullDataViewModalProps {
   isLoading?: boolean;
   requiredColumns?: string[];
   duplicateRows?: number[];
+  errors?: { rowIndex: number; field: string; message: string }[];
   className?: string;
 }
 
@@ -38,6 +39,7 @@ export function FullDataViewModal({
   isLoading = false,
   requiredColumns = [],
   duplicateRows = [],
+  errors = [],
   className = ''
 }: FullDataViewModalProps) {
   const totalPages = Math.ceil(totalRows / pageSize);
@@ -142,40 +144,35 @@ export function FullDataViewModal({
                       const isDuplicateRow = duplicateRows.includes(globalRowIndex);
                       
                       // Kiểm tra xem có ô trống nào trong cột bắt buộc không
-                      const hasInvalidData = headers.some((header, cellIndex) => {
-                        const cellValue = row[cellIndex];
-                        const isEmpty = !cellValue || cellValue.toString().trim() === '';
-                        const isRequired = requiredColumns.includes(header);
-                        return isEmpty && isRequired;
-                      });
+                      const rowErrors = errors.filter(e => e.rowIndex === globalRowIndex);
                       
                       // Xác định trạng thái chính xác
                       let statusType: 'duplicate' | 'invalid' | 'valid' = 'valid';
-                      if (isDuplicateRow) {
-                        statusType = 'duplicate';
-                      } else if (hasInvalidData) {
+                      if (rowErrors.length > 0) {
                         statusType = 'invalid';
+                      } else if (isDuplicateRow) {
+                        statusType = 'duplicate';
                       }
                       
                       return (
                         <tr key={rowIndex} className={`hover:bg-gray-50 ${
-                          isDuplicateRow ? 'bg-orange-50 border-l-4 border-orange-400' : 
-                          hasInvalidData ? 'bg-red-50 border-l-4 border-red-400' : ''
+                          statusType === 'invalid' ? 'bg-red-50 border-l-4 border-red-400' :
+                          statusType === 'duplicate' ? 'bg-orange-50 border-l-4 border-orange-400' : ''
                         }`}>
                           <td className={`px-2 sm:px-3 py-2 text-xs font-medium ${
-                            isDuplicateRow ? 'text-orange-600' : 
-                            hasInvalidData ? 'text-red-600' : 'text-gray-400'
+                            statusType === 'invalid' ? 'text-red-600' :
+                            statusType === 'duplicate' ? 'text-orange-600' : 'text-gray-400'
                           }`}>
                             <div className="flex items-center gap-1">
                               {actualRowNumber}
-                              {isDuplicateRow && (
-                                <span className="text-orange-500 text-xs" title="Dữ liệu trùng lặp">
-                                  ⚠️
-                                </span>
-                              )}
-                              {hasInvalidData && !isDuplicateRow && (
+                              {statusType === 'invalid' && (
                                 <span className="text-red-500 text-xs" title="Dữ liệu không hợp lệ">
                                   ❌
+                                </span>
+                              )}
+                              {statusType === 'duplicate' && (
+                                <span className="text-orange-500 text-xs" title="Dữ liệu trùng lặp">
+                                  ⚠️
                                 </span>
                               )}
                             </div>
@@ -186,21 +183,20 @@ export function FullDataViewModal({
                             'text-green-600'
                           }`}>
                             <div className="flex items-center gap-1">
-                              {statusType === 'duplicate' ? (
-                                <>
-                                  <span className="text-orange-500">⚠️</span>
-                                  <span className="font-semibold">Trùng lặp</span>
-                                </>
-                              ) : statusType === 'invalid' ? (
-                                <>
-                                  <span className="text-red-500">❌</span>
-                                  <span className="font-semibold">Không hợp lệ</span>
-                                </>
+                              {statusType === 'invalid' ? (
+                                <div className="text-red-600">
+                                  {rowErrors.map((e, index) => (
+                                    <div key={`error-${globalRowIndex}-${index}`}>{`- ${e.message}`}</div>
+                                  ))}
+                                </div>
+                              ) : statusType === 'duplicate' ? (
+                                <div className="text-orange-700">
+                                  - Trùng lặp
+                                </div>
                               ) : (
-                                <>
-                                  <span className="text-green-500">✓</span>
-                                  <span className="font-semibold">Hợp lệ</span>
-                                </>
+                                <div className="text-green-600">
+                                  Hợp lệ
+                                </div>
                               )}
                             </div>
                           </td>

@@ -20,6 +20,13 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetSectionByLessonId } from "@/hooks/use-sections";
 
+const removeVietnameseAccents = (str: string): string => {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+};
+
 interface SectionsComboboxProps {
   onSelect: (value: string) => void;
   placeholder?: string;
@@ -52,13 +59,13 @@ export function SectionsCombobox({
     }
 
     // Sắp xếp theo order nếu có
-    // return [...data.data].sort((a, b) => {
-    //   if (typeof a.order === "number" && typeof b.order === "number") {
-    //     return a.order - b.order;
-    //   }
-    //   return 0;
-    // });
-    return [...sectionData.data]
+    return [...sectionData.data].sort((a, b) => {
+      if (typeof a.order === "number" && typeof b.order === "number") {
+        return a.order - b.order;
+      }
+      return 0;
+    });
+    // return [...sectionData.data]
   }, [sectionData?.data]);
 
   const handleSelect = React.useCallback(
@@ -72,7 +79,8 @@ export function SectionsCombobox({
   );
 
   // Reset giá trị
-  const handleReset = React.useCallback(() => {
+  const handleReset = React.useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     setValue("");
     onSelect("");
     setOpen(false);
@@ -102,57 +110,55 @@ export function SectionsCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn(
-            "w-[300px] justify-between",
-            buttonClassName,
-            sections.length === 0 ? "opacity-50 cursor-not-allowed" : ""
-          )}
-          disabled={sections.length === 0}
-          title={
-            sections.length === 0 ? "Không có section cho bài học này" : undefined
-          }
-        >
-          <span className="truncate">
-            {sections.length === 0
-              ? "Không có section cho bài học này"
-              : selectedSection
-              ? selectedSection.sectionName
-              : placeholder}
-          </span>
-          <div className="flex items-center gap-2">
-            {value && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-4 w-4 p-0 hover:bg-transparent"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleReset();
-                }}
-              >
-                <X className="h-3 w-3" />
-              </Button>
+      <div className="flex items-center gap-2 relative">
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className={cn(
+              "w-[300px] justify-between pr-8",
+              buttonClassName,
+              sections.length === 0 ? "opacity-50 cursor-not-allowed" : ""
             )}
+            disabled={sections.length === 0}
+            title={
+              sections.length === 0 ? "Không có section cho bài học này" : undefined
+            }
+          >
+            <span className="truncate">
+              {sections.length === 0
+                ? "Không có section cho bài học này"
+                : selectedSection
+                ? selectedSection.sectionName
+                : placeholder}
+            </span>
             <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-          </div>
-        </Button>
-      </PopoverTrigger>
+          </Button>
+        </PopoverTrigger>
+        
+        {value && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 absolute right-1 top-1/2 -translate-y-1/2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full z-10"
+            onClick={handleReset}
+          >
+            <X className="h-3 w-3 text-muted-foreground hover:text-red-500" />
+          </Button>
+        )}
+      </div>
       <PopoverContent className="w-[300px] p-0">
         <Command>
-          <CommandInput placeholder="Tìm kiếm bài học..." className="h-9" />
+          <CommandInput placeholder="Tìm kiếm section..." className="h-9" />
           <CommandList>
-            <CommandEmpty>Không tìm thấy unit nào.</CommandEmpty>
+            <CommandEmpty>Không tìm thấy section nào.</CommandEmpty>
             <CommandGroup>
               {sections.map((section) => (
                 <CommandItem
                   key={section.sectionId}
-                  value={section.sectionId.toString()}
-                  onSelect={handleSelect}
+                  value={`${section.sectionName} ${section.sectionName.toLowerCase()} ${section.sectionName.toUpperCase()} ${removeVietnameseAccents(section.sectionName)}`} // Bao gồm cả tiếng Việt không dấu
+                  onSelect={() => handleSelect(section.sectionId.toString())}
                 >
                   <Check
                     className={cn(

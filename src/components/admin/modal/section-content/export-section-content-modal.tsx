@@ -12,14 +12,8 @@ import { Download } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import * as XLSX from 'xlsx';
-import { useSchoolWeek } from "@/hooks/use-schoolweek";
-import { SchoolWeekType } from "@/types/schoolweek";
 import { showToast } from "@/utils/toast-config";
-import { useLessonsByClassIdUnitId } from "@/hooks/use-lessons";
-import { LessonAdminType, LessonType } from "@/types/lesson";
 import { useLessonStore } from "@/store/use-lesson-store";
-import { useGetSectionByLessonId } from "@/hooks/use-sections";
-import { SectionAdminType } from "@/types/section";
 import { useGetSectionContentBySectionId } from "@/hooks/useSectionContent";
 
 // Định nghĩa các tùy chọn export

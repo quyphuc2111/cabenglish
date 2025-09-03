@@ -14,6 +14,10 @@ import { useLessonStore } from "@/store/use-lesson-store";
 import { SectionsCombobox } from "@/components/admin/combobox/sections-combox";
 import { useGetSectionContentBySectionId } from "@/hooks/useSectionContent";
 import { useSectionContentColumns } from "@/components/admin/table/secton-content/columns";
+import { useDebounce } from "@/hooks/useDebounce";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { X } from "lucide-react";
 
 const handleError = (
   error: any,
@@ -66,6 +70,11 @@ const ActionButtons = ({
       </div>
     ) : (
       <div className="flex flex-row gap-4 items-center flex-wrap justify-end">
+          {Object.keys(rowSelection).length > 0 && (
+            <Button variant="destructive" onClick={onDelete}>
+              Xóa ({Object.keys(rowSelection).length})
+            </Button>
+          )}
         <Button
           className="bg-blue-500 hover:bg-blue-600 text-white"
           onClick={onCreate}
@@ -74,11 +83,7 @@ const ActionButtons = ({
           Tạo mới Section Content
         </Button>
         <div className="flex flex-row gap-4 items-center justify-end flex-wrap">
-          {Object.keys(rowSelection).length > 0 && (
-            <Button variant="destructive" onClick={onDelete}>
-              Xóa ({Object.keys(rowSelection).length})
-            </Button>
-          )}
+        
           <Button variant="outline" onClick={onExport}>
             <Download className="w-4 h-4 mr-2" />
             Xuất dữ liệu
@@ -97,6 +102,12 @@ function SectionContentContainerClient() {
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
   >({});
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [orderFilter, setOrderFilter] = React.useState<string>("all");
+  const [sortOrder, setSortOrder] = React.useState<string>("default");
+  
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  
   const {
     activeLesson,
     activateClass,
@@ -121,6 +132,35 @@ function SectionContentContainerClient() {
     error: sectionContentError
   } = useGetSectionContentBySectionId(Number(activeLesson.sectionId));
 
+  const processedData = React.useMemo(() => {
+    if (!sectionContentData) return [];
+
+    let filtered = sectionContentData;
+
+    if (debouncedSearchQuery) {
+      filtered = filtered.filter((item) =>
+        item.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+      );
+    }
+
+    if (orderFilter !== "all") {
+      const orderValue = parseInt(orderFilter);
+      filtered = filtered.filter((item) => item.order === orderValue);
+    }
+
+    const sorted = [...filtered].sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a.order - b.order;
+      } else if (sortOrder === "desc") {
+        return b.order - a.order;
+      } else {
+        return a.order - b.order;
+      }
+    });
+
+    return sorted;
+  }, [sectionContentData, debouncedSearchQuery, orderFilter, sortOrder]);
+
   React.useEffect(() => {
     if (sectionContentError) {
       handleError(
@@ -141,14 +181,11 @@ function SectionContentContainerClient() {
 
   const handleDeleteSection = () => {
     const selectedIds = Object.keys(rowSelection);
-    const selectedSections =
-      sectionContentData?.filter((sc) =>
-        selectedIds.includes(sc.sc_id.toString())
-      ) || [];
+    const selectedSections = processedData?.filter((sc) => selectedIds.includes(sc.sc_id.toString())) || [];
 
     handleModalOpen("deleteSectionContent", {
       sectionContentIds: selectedIds,
-      sectionContents: selectedSections,
+      sectionContents: selectedSections, // Make sure this is passed correctly
       onSuccess: () => setRowSelection({})
     });
 
@@ -221,36 +258,75 @@ function SectionContentContainerClient() {
   );
 
   const searchComponent = (
-    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-wrap">
-      <ClassroomCombobox
-        onSelect={handleSelectClassroom}
-        placeholder="Tìm kiếm lớp học..."
-        buttonClassName="w-full sm:w-[250px]"
-      />
-      {activeLesson.classId && (
-        <UnitByClassCombobox
-          onSelect={handleSelectUnit}
-          placeholder="Chọn unit..."
-          classId={activeLesson.classId}
+    <div className="flex flex-col gap-4">
+      {/* Selection filters */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-wrap">
+        <ClassroomCombobox
+          onSelect={handleSelectClassroom}
+          placeholder="Tìm kiếm lớp học..."
           buttonClassName="w-full sm:w-[250px]"
         />
-      )}
-      {activeLesson.unitId && activeLesson.classId && (
-        <LessonCombobox
-          onSelect={handleSelectLesson}
-          placeholder="Chọn bài học..."
-          unitId={activeLesson.unitId}
-          classId={activeLesson.classId}
-          buttonClassName="w-full sm:w-[250px]"
-        />
-      )}
-      {activeLesson.lessonId && activeLesson.unitId && activeLesson.classId && (
-        <SectionsCombobox
-          onSelect={handleSelectSection}
-          placeholder="Chọn section..."
-          lessonId={activeLesson.lessonId}
-          buttonClassName="w-full sm:w-[250px]"
-        />
+        {activeLesson.classId && (
+          <UnitByClassCombobox
+            onSelect={handleSelectUnit}
+            placeholder="Chọn unit..."
+            classId={activeLesson.classId}
+            buttonClassName="w-full sm:w-[250px]"
+          />
+        )}
+        {activeLesson.unitId && activeLesson.classId && (
+          <LessonCombobox
+            onSelect={handleSelectLesson}
+            placeholder="Chọn bài học..."
+            unitId={activeLesson.unitId}
+            classId={activeLesson.classId}
+            buttonClassName="w-full sm:w-[250px]"
+          />
+        )}
+        {activeLesson.lessonId && activeLesson.unitId && activeLesson.classId && (
+          <SectionsCombobox
+            onSelect={handleSelectSection}
+            placeholder="Chọn section..."
+            lessonId={activeLesson.lessonId}
+            buttonClassName="w-full sm:w-[250px]"
+          />
+        )}
+      </div>
+      
+      {/* Data filters - only show when section is selected */}
+      {activeLesson.sectionId && (
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-wrap">
+          <div className="w-full sm:w-[300px] relative">
+            <Input
+              placeholder="Tìm kiếm theo tên section content..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pr-10"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-200"
+                onClick={() => setSearchQuery("")}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <Select value={sortOrder} onValueChange={setSortOrder} defaultValue="default">
+              <SelectTrigger className="w-full bg-white">
+                <SelectValue placeholder="Chọn thứ tự sắp xếp" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                <SelectItem value="default">Mặc định</SelectItem>
+                <SelectItem value="asc">Thứ tự tăng dần</SelectItem>
+                <SelectItem value="desc">Thứ tự giảm dần</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -258,7 +334,7 @@ function SectionContentContainerClient() {
   return (
     <div className="bg-white rounded-lg p-10 h-full">
       <GenericTable
-        data={sectionContentData || []}
+        data={processedData}
         columns={columns}
         isLoading={sectionContentLoading}
         searchComponent={searchComponent}

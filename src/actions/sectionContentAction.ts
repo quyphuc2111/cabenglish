@@ -132,7 +132,7 @@ export async function updateSectionContentAdminData({
   sectionContentData
 }: {
   sectionId: number;
-  sectionContentData: SectionContentAdminType[];
+  sectionContentData: SectionContentAdminType;
 }): Promise<SectionContentResponse> {
   try {
     const response = await serverFetch(

@@ -15,6 +15,10 @@ import * as XLSX from 'xlsx';
 import { showToast } from "@/utils/toast-config";
 import { useLessonStore } from "@/store/use-lesson-store";
 import { useCreateSectionContent } from "@/hooks/useSectionContent";
+import { useSectionContentValidation } from "@/hooks/use-section-content-validation";
+import { sectionContentFormSchema } from "@/lib/validations/sectionContent";
+import { FullDataViewModal } from "@/components/common/full-data-view-modal";
+import { ExcelPreviewTable } from "@/components/common/excel-preview-table";
 
 // Định nghĩa các tùy chọn import
 type ImportOption = {
@@ -47,6 +51,14 @@ type PreviewData = {
   rows: any[][];
 };
 
+type FullDataView = {
+  headers: string[];
+  rows: any[][];
+  totalRows: number;
+  currentPage: number;
+  pageSize: number;
+};
+
 function ImportSectionContentModal() {
   const { isOpen, onClose, type } = useModal();
   const [file, setFile] = React.useState<File | null>(null);
@@ -54,10 +66,86 @@ function ImportSectionContentModal() {
   const [importOption, setImportOption] = React.useState<string>("create");
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [previewData, setPreviewData] = React.useState<PreviewData | null>(null);
+  const [showFullData, setShowFullData] = React.useState(false);
+  const [fullData, setFullData] = React.useState<FullDataView | null>(null);
+  const [rawJsonData, setRawJsonData] = React.useState<any[][]>([]);
+  const [totalRows, setTotalRows] = React.useState<number>(0);
   
   const { activeLesson } = useLessonStore();
 
   const { mutate: createSectionContent, isPending: isCreating } = useCreateSectionContent();
+  
+  // Hook validation để kiểm tra trùng lặp
+  const {
+    validateField,
+    validateSectionContent,
+    isLoading: isValidationLoading
+  } = useSectionContentValidation(Number(activeLesson.sectionId));
+
+  const [validationErrors, setValidationErrors] = React.useState<{ rowIndex: number; field: string; message: string }[]>([]);
+
+  const validateData = React.useCallback(async (rows: any[][], headers: string[]): Promise<{ rowIndex: number; field: string; message: string }[]> => {
+    const errors: { rowIndex: number; field: string; message: string }[] = [];
+    const titleIndex = headers.indexOf('Tiêu đề');
+    const descriptionIndex = headers.indexOf('Mô tả');
+    const iframeUrlIndex = headers.indexOf('Iframe Url');
+    const iconUrlIndex = headers.indexOf('Hình ảnh');
+    const orderIndex = headers.indexOf('Thứ tự');
+
+    const seenTitles = new Set<string>();
+    const seenOrders = new Set<number>();
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const rowData = {
+        title: String(row[titleIndex] || ''),
+        description: String(row[descriptionIndex] || ''),
+        iframe_url: String(row[iframeUrlIndex] || ''),
+        icon_url: String(row[iconUrlIndex] || ''),
+        order: row[orderIndex] !== null && row[orderIndex] !== '' ? Number(row[orderIndex]) : undefined,
+      };
+
+      const validationResult = sectionContentFormSchema.safeParse(rowData);
+
+      if (!validationResult.success) {
+        validationResult.error.errors.forEach(err => {
+          errors.push({
+            rowIndex: i,
+            field: err.path[0] as string,
+            message: err.message,
+          });
+        });
+      }
+
+      const title = rowData.title.trim();
+      if (title) {
+        if (seenTitles.has(title.toLowerCase())) {
+          errors.push({ rowIndex: i, field: 'title', message: 'Tiêu đề bị trùng trong file' });
+        } else {
+          seenTitles.add(title.toLowerCase());
+          const dbError = validateField("title", title);
+          if (dbError) {
+            errors.push({ rowIndex: i, field: 'title', message: dbError });
+          }
+        }
+      }
+
+      const order = rowData.order;
+      if (order) {
+        if (seenOrders.has(order)) {
+          errors.push({ rowIndex: i, field: 'order', message: 'Thứ tự bị trùng trong file' });
+        } else {
+          seenOrders.add(order);
+          const dbError = validateField("order", order);
+          if (dbError) {
+            errors.push({ rowIndex: i, field: 'order', message: dbError });
+          }
+        }
+      }
+    }
+
+    return errors;
+  }, [validateField]);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -82,6 +170,7 @@ function ImportSectionContentModal() {
       });
       
       setFile(fileClone);
+      setValidationErrors([]); // Reset validation errors khi chọn file mới
       await generatePreview(fileClone);
       
     } catch (error) {
@@ -186,12 +275,17 @@ function ImportSectionContentModal() {
         return rowData;
       });
 
+      if (validationErrors.length > 0) {
+        throw new Error("Vui lòng sửa các lỗi trong file trước khi import.");
+      }
+
+      // Nếu validation thành công, tạo dữ liệu
       const sectionListData = formattedData.map((item) => ({
-        title: item["Tiêu đề"],
-        description: item["Mô tả"],
-        iframe_url: item["Iframe Url"],
-        order: item["Thứ tự"],
-        icon_url: item["Hình ảnh"],
+        title: String(item["Tiêu đề"] || '').trim(),
+        description: String(item["Mô tả"] || '').trim(),
+        iframe_url: String(item["Iframe Url"] || '').trim(),
+        order: Number(item["Thứ tự"]) || 0,
+        icon_url: String(item["Hình ảnh"] || '').trim(),
         sc_id: 0,
       }));
 
@@ -262,10 +356,16 @@ function ImportSectionContentModal() {
 
   const handleClose = () => {
     setFile(null);
-    setImportOption("create"); 
+    setImportOption("create");
+    setValidationErrors([]); // Reset validation errors khi đóng modal
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    setPreviewData(null);
+    setRawJsonData([]);
+    setTotalRows(0);
+    setShowFullData(false);
+    setFullData(null);
     onClose();
   };
 
@@ -274,11 +374,86 @@ function ImportSectionContentModal() {
     return optionId === "create";
   };
 
+  const generateFullDataView = async (page: number = 1, pageSize: number = 50) => {
+    if (!rawJsonData.length) return;
+
+    const headers = rawJsonData[0] as string[];
+    const allRows = rawJsonData.slice(1) as any[][];
+
+    const validRows = allRows.filter(row =>
+      row.some(cell => cell !== null && cell !== undefined && cell !== '')
+    );
+
+    const totalRows = validRows.length;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, totalRows);
+    const pageRows = validRows.slice(startIndex, endIndex);
+
+    const normalizedRows = await normalizeRowsInChunks(pageRows, headers, pageSize);
+
+    setFullData({
+      headers,
+      rows: normalizedRows,
+      totalRows,
+      currentPage: page,
+      pageSize
+    });
+  };
+
+  const handleShowFullData = async () => {
+    if (!rawJsonData.length) {
+      showToast.error("Chưa có dữ liệu để hiển thị");
+      return;
+    }
+    setShowFullData(true);
+    await generateFullDataView(1, 50);
+  };
+
+  const handlePageChange = async (newPage: number) => {
+    if (!fullData) return;
+    await generateFullDataView(newPage, fullData.pageSize);
+  };
+
+  const normalizeRowsInChunks = (
+    rows: any[][],
+    headers: string[],
+    chunkSize: number = 100
+  ): Promise<any[][]> => {
+    return new Promise((resolve) => {
+      const normalizedRows: any[][] = [];
+      let currentIndex = 0;
+
+      const processChunk = () => {
+        const endIndex = Math.min(currentIndex + chunkSize, rows.length);
+
+        for (let i = currentIndex; i < endIndex; i++) {
+          const row = rows[i];
+          const normalizedRow = [...row];
+
+          while (normalizedRow.length < headers.length) {
+            normalizedRow.push('');
+          }
+          normalizedRows.push(normalizedRow.slice(0, headers.length));
+        }
+
+        currentIndex = endIndex;
+
+        if (currentIndex < rows.length) {
+          setTimeout(processChunk, 0);
+        } else {
+          resolve(normalizedRows);
+        }
+      };
+
+      processChunk();
+    });
+  };
+
   const handleDownloadTemplate = () => {
-    const templateUrl = "/template/classroom-template.xlsx";
+    const templateUrl = "/template_file/section-content-template.xlsx";
     const a = document.createElement("a");
     a.href = templateUrl;
-    a.download = "classroom-template.xlsx";
+    a.download = "section-content-template.xlsx";
     a.click();
   };
 
@@ -294,7 +469,7 @@ function ImportSectionContentModal() {
       });
 
       const workbook = XLSX.read(buffer, { type: 'array' });
-      
+
       if (!workbook.SheetNames.length) {
         throw new Error("File Excel không có sheet nào");
       }
@@ -306,9 +481,25 @@ function ImportSectionContentModal() {
         throw new Error("Không thể đọc dữ liệu từ file Excel");
       }
 
+      const headers = jsonData[0] as string[];
+      const allRows = jsonData.slice(1) as any[][];
+
+      const validRows = allRows.filter(row =>
+        row.some(cell => cell !== null && cell !== undefined && cell !== '')
+      );
+
+      setRawJsonData(jsonData as any[][]);
+      setTotalRows(validRows.length);
+
+      const errors = await validateData(validRows, headers);
+      setValidationErrors(errors);
+
+      const previewRows = allRows.slice(0, 5);
+      const normalizedPreviewRows = await normalizeRowsInChunks(previewRows, headers, 5);
+
       setPreviewData({
-        headers: jsonData[0] as string[],
-        rows: jsonData.slice(1, 6) as any[][] // Chỉ lấy 5 dòng đầu để preview
+        headers,
+        rows: normalizedPreviewRows
       });
     } catch (error) {
       console.error("Lỗi khi đọc file Excel:", error);
@@ -437,9 +628,13 @@ function ImportSectionContentModal() {
                 </h4>
                 <ul className="text-sm text-blue-600 space-y-2 list-disc list-inside mb-4">
                   <li>Sử dụng template mẫu để đảm bảo dữ liệu được import chính xác</li>
-                  <li>Các cột bắt buộc: Tiêu đề , Mô tả, Iframe Url, Hình ảnh, Thứ tự</li>
+                  <li>Các cột bắt buộc: Tiêu đề, Mô tả, Iframe Url, Hình ảnh, Thứ tự</li>
                   <li>Không thay đổi tên và thứ tự các cột trong template</li>
                   <li>Dữ liệu trong file Excel phải đúng định dạng quy định</li>
+                  <li><strong>Tiêu đề:</strong> Tối đa 100 ký tự, không được trùng lặp</li>
+                  <li><strong>Mô tả:</strong> Tối đa 1000 ký tự, không được để trống</li>
+                  <li><strong>Iframe URL & Icon URL:</strong> Phải là URL hợp lệ</li>
+                  <li><strong>Thứ tự:</strong> Số nguyên dương, không được trùng lặp</li>
                 </ul>
                 <Button 
                   variant="link" 
@@ -458,39 +653,14 @@ function ImportSectionContentModal() {
                     Xem trước dữ liệu
                   </h4>
                   {previewData ? (
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            {previewData.headers.map((header, index) => (
-                              <th
-                                key={index}
-                                className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                              >
-                                {header}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {previewData.rows.map((row, rowIndex) => (
-                            <tr key={rowIndex}>
-                              {row.map((cell, cellIndex) => (
-                                <td
-                                  key={cellIndex}
-                                  className="px-3 py-2 text-xs text-gray-500 truncate max-w-[200px]"
-                                >
-                                  {cell?.toString() || ''}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                      <p className="text-xs text-gray-500 mt-2">
-                        * Chỉ hiển thị 5 dòng đầu tiên
-                      </p>
-                    </div>
+                    <ExcelPreviewTable
+                      headers={previewData.headers}
+                      rows={previewData.rows}
+                      totalRows={totalRows}
+                      onViewAll={handleShowFullData}
+                      errors={validationErrors}
+                      requiredColumns={['Tiêu đề', 'Mô tả', 'Iframe Url', 'Hình ảnh', 'Thứ tự']}
+                    />
                   ) : (
                     <div className="text-sm text-gray-500 flex items-center justify-center py-4">
                       <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2" />
@@ -529,6 +699,19 @@ function ImportSectionContentModal() {
           </div>
         </motion.div>
       </DialogContent>
+      <FullDataViewModal
+        isOpen={showFullData}
+        onClose={() => setShowFullData(false)}
+        title="Xem toàn bộ dữ liệu Excel"
+        headers={fullData?.headers || []}
+        rows={fullData?.rows || []}
+        totalRows={fullData?.totalRows || 0}
+        currentPage={fullData?.currentPage || 1}
+        pageSize={fullData?.pageSize || 50}
+        onPageChange={handlePageChange}
+        requiredColumns={['Tiêu đề', 'Mô tả', 'Iframe Url', 'Hình ảnh', 'Thứ tự']}
+        errors={validationErrors}
+      />
     </Dialog>
   );
 }

@@ -73,6 +73,11 @@ const ActionButtons = ({
       </div>
     ) : (
       <div className="flex flex-row gap-4 items-center flex-wrap justify-end">
+           {Object.keys(rowSelection).length > 0 && (
+            <Button variant="destructive" onClick={onDelete}>
+              Xóa ({Object.keys(rowSelection).length})
+            </Button>
+          )}
         <Button
           className="bg-blue-500 hover:bg-blue-600 text-white"
           onClick={onCreate}
@@ -81,11 +86,7 @@ const ActionButtons = ({
           Tạo mới Section
         </Button>
         <div className="flex flex-row gap-4 items-center justify-end flex-wrap">
-          {Object.keys(rowSelection).length > 0 && (
-            <Button variant="destructive" onClick={onDelete}>
-              Xóa ({Object.keys(rowSelection).length})
-            </Button>
-          )}
+       
           <Button variant="outline" onClick={onExport}>
             <Download className="w-4 h-4 mr-2" />
             Xuất dữ liệu
