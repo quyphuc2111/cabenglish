@@ -64,7 +64,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
       <div className="flex flex-col lg:flex-row gap-5 items-start lg:items-center justify-between">
         <SheetMenu />
         <motion.div
-          className={`w-full xl:w-2/3 2xl:w-2/3 3xl:w-2/3 max-h-24 h-16 lg:h-24 ${foregroundThemeClasses[currentTheme]} rounded-xl  lg:rounded-bl-md lg:shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
+          className={`w-full xl:w-2/3 2xl:w-2/3 3xl:w-3/5 max-h-24 h-16 lg:h-24 ${foregroundThemeClasses[currentTheme]} rounded-xl  lg:rounded-bl-md lg:shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
           variants={navbarAnimations.item}
         >
           {/* <motion.div

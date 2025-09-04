@@ -33,7 +33,7 @@ export function Menu({ isOpen, disabled }: MenuProps) {
   const menuList = useMenuList(pathname, currentTeachingMode);
 
   return (
-    <nav className="mt-4 3xl:mt-8 h-full w-full">
+    <nav className="mt-4 h-full w-full">
       <ScrollArea className="h-full w-full pr-2">
         <ul className="flex flex-col items-start space-y-1 px-2 pb-4">
         {menuList.map(({ groupLabel, menus }, index) => (

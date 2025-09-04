@@ -437,9 +437,9 @@ export const ProgressStats = memo(function ProgressStats({
             }
           >
             <span className="flex items-center gap-2">
-              <span>Trang sau</span>
-              <span className="hidden sm:inline">→</span>
-              <span className="sm:hidden">▶</span>
+              <span className={`${currentTheme == "theme-blue" ? "text-black" : ""}`}>Trang sau</span>
+              <span className={`${currentTheme == "theme-blue" ? "text-black" : ""} hidden sm:inline`}>→</span>
+              <span className={`${currentTheme == "theme-blue" ? "text-black" : ""} sm:hidden`}>▶</span>
             </span>
           </motion.button>
         </div>

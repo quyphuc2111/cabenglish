@@ -12,6 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { resetAllSectionContent } from "@/actions/progressAction";
 import { useUserInfo, useInvalidateUserInfo } from "@/hooks/useUserInfo";
 import { useBroadcastSync } from "@/hooks/useBroadcastSync";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -53,98 +54,7 @@ const iconVariants = {
   }
 };
 
-const TEACHING_MODE_DATA = {
-  defaultMode: {
-    title: "Chế độ mặc định",
-    courseData: [
-      {
-        courseTitle: "Unit 1: Hello",
-        courseImage: "/modal/unit1_hello.png",
-        courseWeek: "Tuần học 1",
-        courseCategory: "3 - 4 tuổi",
-        courseName: "Bảng chữ cái tiếng anh",
-        courseProgress: 100,
-        courseLike: 668,
-        courseStatus: "started"
-      },
-      {
-        courseTitle: "Unit 2: Shapes",
-        courseImage: "/modal/unit2_shapes.png",
-        courseWeek: "Tuần học 2",
-        courseCategory: "3 - 4 tuổi",
-        courseName: "Giới thiệu thông tin về bản thân",
-        courseProgress: 100,
-        courseLike: 568,
-        courseStatus: "not_started"
-      },
-      {
-        courseTitle: "Unit 3: Numbers",
-        courseImage: "/modal/unit3_numbers.png",
-        courseWeek: "Tuần học 3",
-        courseCategory: "3 - 4 tuổi",
-        courseName: "Khám phá màu sắc",
-        courseProgress: 100,
-        courseLike: 86,
-        courseStatus: "not_started"
-      },
-      {
-        courseTitle: "Unit 4: Nature",
-        courseImage: "/modal/unit4_nature.png",
-        courseWeek: "Tuần học 1",
-        courseCategory: "3 - 4 tuổi",
-        courseName: "Bảng chữ cái tiếng anh",
-        courseProgress: 100,
-        courseLike: 668,
-        courseStatus: "not_started"
-      }
-    ]
-  },
-  freeMode: {
-    title: "Chế độ tự do",
-    courseData: [
-      {
-        courseTitle: "Unit 1: Hello",
-        courseImage: "/modal/unit1_hello.png",
-        courseWeek: "Tuần học 1",
-        courseCategory: "3 - 4 tuổi",
-        courseName: "Bảng chữ cái tiếng anh",
-        courseProgress: 100,
-        courseLike: 668,
-        courseStatus: "started"
-      },
-      {
-        courseTitle: "Unit 2: Shapes",
-        courseImage: "/modal/unit2_shapes.png",
-        courseWeek: "Tuần học 2",
-        courseCategory: "3 - 4 tuổi",
-        courseName: "Giới thiệu thông tin về bản thân",
-        courseProgress: 100,
-        courseLike: 568,
-        courseStatus: "started"
-      },
-      {
-        courseTitle: "Unit 3: Numbers",
-        courseImage: "/modal/unit3_numbers.png",
-        courseWeek: "Tuần học 3",
-        courseCategory: "3 - 4 tuổi",
-        courseName: "Khám phá màu sắc",
-        courseProgress: 100,
-        courseLike: 86,
-        courseStatus: "started"
-      },
-      {
-        courseTitle: "Unit 4: Nature",
-        courseImage: "/modal/unit4_nature.png",
-        courseWeek: "Tuần học 1",
-        courseCategory: "3 - 4 tuổi",
-        courseName: "Bảng chữ cái tiếng anh",
-        courseProgress: 100,
-        courseLike: 668,
-        courseStatus: "started"
-      }
-    ]
-  }
-};
+
 
 interface ModeHeaderProps {
   icon: string;
@@ -221,6 +131,100 @@ function TeachingModeClient({
   const invalidateUserInfo = useInvalidateUserInfo();
   const { broadcastUpdate } = useBroadcastSync();
   const { onOpen, onClose } = useModal();
+  const { t } = useTranslation("", "common");
+
+  const TEACHING_MODE_DATA = {
+  defaultMode: {
+    title: t("defaultMode"),
+    courseData: [
+      {
+        courseTitle: "Unit 1: Hello",
+        courseImage: "/modal/unit1_hello.png",
+        courseWeek: "Tuần học 1",
+        courseCategory: "3 - 4 tuổi",
+        courseName: "Bảng chữ cái tiếng anh",
+        courseProgress: 100,
+        courseLike: 668,
+        courseStatus: "started"
+      },
+      {
+        courseTitle: "Unit 2: Shapes",
+        courseImage: "/modal/unit2_shapes.png",
+        courseWeek: "Tuần học 2",
+        courseCategory: "3 - 4 tuổi",
+        courseName: "Giới thiệu thông tin về bản thân",
+        courseProgress: 100,
+        courseLike: 568,
+        courseStatus: "not_started"
+      },
+      {
+        courseTitle: "Unit 3: Numbers",
+        courseImage: "/modal/unit3_numbers.png",
+        courseWeek: "Tuần học 3",
+        courseCategory: "3 - 4 tuổi",
+        courseName: "Khám phá màu sắc",
+        courseProgress: 100,
+        courseLike: 86,
+        courseStatus: "not_started"
+      },
+      {
+        courseTitle: "Unit 4: Nature",
+        courseImage: "/modal/unit4_nature.png",
+        courseWeek: "Tuần học 1",
+        courseCategory: "3 - 4 tuổi",
+        courseName: "Bảng chữ cái tiếng anh",
+        courseProgress: 100,
+        courseLike: 668,
+        courseStatus: "not_started"
+      }
+    ]
+  },
+  freeMode: {
+    title: t("freeMode"),
+    courseData: [
+      {
+        courseTitle: "Unit 1: Hello",
+        courseImage: "/modal/unit1_hello.png",
+        courseWeek: "Tuần học 1",
+        courseCategory: "3 - 4 tuổi",
+        courseName: "Bảng chữ cái tiếng anh",
+        courseProgress: 100,
+        courseLike: 668,
+        courseStatus: "started"
+      },
+      {
+        courseTitle: "Unit 2: Shapes",
+        courseImage: "/modal/unit2_shapes.png",
+        courseWeek: "Tuần học 2",
+        courseCategory: "3 - 4 tuổi",
+        courseName: "Giới thiệu thông tin về bản thân",
+        courseProgress: 100,
+        courseLike: 568,
+        courseStatus: "started"
+      },
+      {
+        courseTitle: "Unit 3: Numbers",
+        courseImage: "/modal/unit3_numbers.png",
+        courseWeek: "Tuần học 3",
+        courseCategory: "3 - 4 tuổi",
+        courseName: "Khám phá màu sắc",
+        courseProgress: 100,
+        courseLike: 86,
+        courseStatus: "started"
+      },
+      {
+        courseTitle: "Unit 4: Nature",
+        courseImage: "/modal/unit4_nature.png",
+        courseWeek: "Tuần học 1",
+        courseCategory: "3 - 4 tuổi",
+        courseName: "Bảng chữ cái tiếng anh",
+        courseProgress: 100,
+        courseLike: 668,
+        courseStatus: "started"
+      }
+    ]
+  }
+};
 
   const modeActive = userInfo?.mode === "default" ? "defaultMode" : "freeMode";
 
@@ -414,7 +418,7 @@ function TeachingModeClient({
             className="sm:w-[40px] sm:h-[40px] w-[32px] h-[32px]"
           />
         </motion.div>
-        <p className="text-xl sm:text-2xl md:text-3xl">CHẾ ĐỘ GIẢNG DẠY</p>
+        <p className="text-xl sm:text-2xl md:text-3xl">{t("teachingMode")}</p>
       </motion.div>
       <AnimatePresence>
         <motion.div

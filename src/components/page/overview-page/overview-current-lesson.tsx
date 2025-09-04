@@ -64,7 +64,7 @@ const CurrentLecture = ({
           <h3 className="text-sm sm:text-md md:text-lg font-bold text-gray-800">
             {t("lectureBeingTaught")}
           </h3>
-          <p className="text-xs sm:text-sm text-gray-600">Bài giảng hiện tại</p>
+          <p className="text-xs sm:text-sm text-gray-600">{t("currentLecture")}</p>
         </div>
       </div>
 

@@ -16,9 +16,9 @@ const foregroundThemeClasses: Record<string, string> = {
 export function LogoDecorations({ currentTheme }: LogoDecorationsProps) {
   return (
     <div
-      className={`w-full 3xl:w-5/6 rounded-xl sm:h-14 xl:h-20 2xl:h-24 ${foregroundThemeClasses[currentTheme]} md:rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative `}
+      className={`w-full py-3 h-full rounded-xl ${foregroundThemeClasses[currentTheme]} md:rounded-bl-md shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] flex items-center justify-center `}
     >
-      <div className="w-[100%] flex justify-center md:block md:w-3/4 bg-white absolute md:left-10 top-1 xl:top-3 rounded-xl p-1 sm:p-2 xl:p-2 xl:sm:p-3 xl:md:p-4 px-2 sm:px-4 xl:px-3 xl:sm:px-6 xl:md:px-8 md:translate-x-0">
+      <div className="w-[100%] h-full flex justify-center items-center md:w-3/4 bg-white  md:left-10 top-1 xl:top-3 rounded-xl p-1 sm:p-2 xl:p-2 xl:sm:p-3 xl:md:py-2 px-2 sm:px-4 xl:px-3 xl:sm:px-6 xl:md:px-8 md:translate-x-0">
         <div className="w-fit relative">
           <LogoSection />
         </div>

@@ -14,7 +14,7 @@ export function LogoutButton({ onLogout, t }: LogoutButtonProps) {
         bg-[#E25762]/90 w-full h-10 sm:h-12 md:h-14 xl:h-12
         px-3 sm:px-4 md:pr-3 
         shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
-        hover:bg-[#E25762] transform-gpu will-change-transform backface-visibility-hidden"
+        hover:bg-[#E25762] transform-gpu will-change-transform backface-visibility-hidden order-6"
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       transition={{

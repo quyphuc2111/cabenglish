@@ -118,7 +118,7 @@ function CourseCard({
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: delay + 0.2 }}
-          className={`text-lg font-bold `}
+          className={`text-lg font-bold line-clamp-1`}
         >
           {courseTitle}
         </motion.h2>
@@ -167,7 +167,7 @@ function CourseCard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: delay + 0.4 }}
           className={cn(
-            "text-xl font-bold",
+            "text-xl font-bold line-clamp-1",
             horizontal === true ? "flex-1" : ""
           )}
         >
