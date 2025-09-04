@@ -13,6 +13,16 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNotification } from "@/hooks/client/useNotification";
 import { getNotificationListByUserId } from "@/actions/notificationAction";
 import { useSession } from "next-auth/react";
+import { useUserInfo } from "@/hooks/useUserInfo";
+
+const THEME_BG_CLASSES = {
+  "theme-gold": "bg-[#ECC98D]/60",
+  "theme-blue": "bg-[#A7C6F5]/60",
+  "theme-pink": "bg-[#ea69ae]/60",
+  "theme-red": "bg-[#E25762]/60"
+};
+
+type ThemeType = keyof typeof THEME_BG_CLASSES;
 
 // Thêm các animation variants
 const modalVariants = {
@@ -61,6 +71,9 @@ function NotificationModal() {
   const { socket, notifications: socketNotifications } = useSocket();
   const { mutate: markAsReadNoti } = useNotification();
   const { data: session } = useSession();
+  const { data: userInfo } = useUserInfo(session?.user?.userId);
+  const currentTheme = (userInfo?.theme as ThemeType) || "theme-red";
+  const themeBgClass = THEME_BG_CLASSES[currentTheme];
   const queryClient = useQueryClient();
 
   const { data: notifications = [] } = useQuery({
@@ -102,7 +115,7 @@ function NotificationModal() {
 
   const renderContent = () => {
     return (
-      <ScrollArea className="h-[400px] px-2 py-4 bg-[#E48B8B]/60 ">
+      <ScrollArea className={`h-[400px] px-2 py-4 ${themeBgClass} `}>
         <div className="space-y-3">
           {notifications
             .sort(

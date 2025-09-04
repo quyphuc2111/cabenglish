@@ -602,7 +602,7 @@ const likeButtonStyles = `
 
   @media (min-width: 1536px) {
     .lesson-card {
-      max-width: 360px !important;
+     max-width: 100% !important;
     }
   }
 `;

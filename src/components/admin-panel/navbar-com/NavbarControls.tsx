@@ -91,9 +91,9 @@ export function NavbarControls({
   return (
     <>
       <div className="hidden xl:block relative">
-        <div className="grid grid-cols-3 gap-4 xl:gap-6 w-full md:w-auto items-center">
+        <div className="grid grid-cols-3 gap-4 w-full md:w-auto items-center">
           <Button
-            className="bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 flex items-center gap-2"
+            className="bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 flex items-center gap-2 h-10 sm:h-12 md:h-14 xl:h-12"
             onClick={() => router.push("/")}
           >
             <Home size={16} />
@@ -105,6 +105,7 @@ export function NavbarControls({
             t={t as (key: string) => string}
             userId={userId}
           />
+          <div></div>
           <TeachingModeSwitcher
             t={t as (key: string) => string}
             userId={userId}
