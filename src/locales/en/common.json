@@ -12,6 +12,8 @@
   "restartTeachingProgress": "Restart the teaching progress",
   "year": "Year",
   "lectureBeingTaught": "Lesson being taught",
+  "currentLecture": "Current lecture",
+  "upcomingLecture": "Upcoming lecture",
   "nextLecture": "Next lesson",
   "lecturePending": "Lesson pending",
   "done": "Done",

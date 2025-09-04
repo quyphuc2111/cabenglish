@@ -12,6 +12,8 @@
   "statisticsOfTeachingProgress": "Thống kê tiến trình giảng dạy",
   "year": "Năm học",
   "lectureBeingTaught": "Bài học đang dạy",
+  "currentLecture": "Bài giảng hiện tại",
+  "upcomingLecture":"Bài giảng sắp tới",
   "nextLecture": "Bài học tiếp theo",
   "lecturePending": "Bài học chưa dạy",
   "done": "Đã hoàn thành",

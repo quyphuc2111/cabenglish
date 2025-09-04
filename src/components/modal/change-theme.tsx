@@ -129,7 +129,7 @@ function ChangeTheme() {
 
   return (
     <Dialog open={isOpen && type === "changeTheme"} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-3xl !rounded-3xl overflow-hidden !fixed !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !z-50">
+      <DialogContent className="w-[95vw] max-w-3xl sm:max-w-3xl !rounded-3xl overflow-hidden !fixed !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !z-50 max-h-[90vh] overflow-y-auto">
         {/* Loading Overlay */}
         <AnimatePresence>
           {isPending && (
@@ -140,17 +140,17 @@ function ChangeTheme() {
               className="absolute inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center rounded-3xl"
             >
               <motion.div
-                className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center gap-4"
+                className="bg-white rounded-lg p-4 sm:p-6 shadow-lg flex flex-col items-center gap-3 sm:gap-4 mx-4"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.8, opacity: 0 }}
               >
                 <motion.div
-                  className="w-8 h-8 border-4 border-[#17B155] border-t-transparent rounded-full"
+                  className="w-6 h-6 sm:w-8 sm:h-8 border-4 border-[#17B155] border-t-transparent rounded-full"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 />
-                <p className="text-gray-700 font-medium">
+                <p className="text-gray-700 font-medium text-sm sm:text-base text-center">
                   Đang cập nhật theme...
                 </p>
               </motion.div>
@@ -166,12 +166,12 @@ function ChangeTheme() {
           <DialogHeader>
             <DialogTitle>
               <motion.div
-                className="flex items-center gap-5 w-full"
+                className="flex items-center gap-3 sm:gap-5 w-full justify-center sm:justify-start"
                 initial={{ x: -50 }}
                 animate={{ x: 0 }}
                 transition={{ delay: 0.2, type: "spring" }}
               >
-                <div className="w-[66px] h-[41px] flex items-center">
+                <div className="w-[50px] h-[31px] sm:w-[66px] sm:h-[41px] flex items-center">
                   <Image
                     src="/bkt_logo.png"
                     width={171}
@@ -181,19 +181,19 @@ function ChangeTheme() {
                     priority
                   />
                 </div>
-                <h2 className="flex items-center">SmartKid</h2>
+                <h2 className="flex items-center text-lg sm:text-xl">SmartKid</h2>
               </motion.div>
             </DialogTitle>
           </DialogHeader>
 
           <motion.div
-            className="flex flex-col items-center gap-7"
+            className="flex flex-col items-center gap-4 sm:gap-7 px-2 sm:px-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="flex gap-3 items-center">
-              <p className="font-semibold">Thay đổi màu nền SmartKid</p>
+            <div className="flex gap-2 sm:gap-3 items-center flex-wrap justify-center">
+              <p className="font-semibold text-sm sm:text-base text-center">Thay đổi màu nền SmartKid</p>
               <motion.div
                 initial={{ rotate: -180, opacity: 0 }}
                 animate={{ rotate: 0, opacity: 1 }}
@@ -201,14 +201,15 @@ function ChangeTheme() {
               >
                 <Image
                   src="/navbar/color.png"
-                  width={25}
-                  height={25}
+                  width={20}
+                  height={20}
                   alt="color_icon"
+                  className="sm:w-[25px] sm:h-[25px]"
                 />
               </motion.div>
             </div>
 
-            <div className="flex gap-20">
+            <div className="flex gap-8 sm:gap-12 md:gap-20 flex-wrap justify-center">
               {THEME_OPTIONS.map((theme, index) => (
                 <motion.div
                   key={theme.id}
@@ -221,22 +222,28 @@ function ChangeTheme() {
                     damping: 20
                   }}
                   whileHover={{
-                    scale: 1.2,
-                    rotate: 360,
-                    transition: { duration: 0.5 }
+                    scale: 1.1,
+                    rotate: 180,
+                    transition: { duration: 0.3 }
                   }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() =>
                     !isPending && setSelectedTheme(theme.id as ThemeType)
                   }
-                  className={`cursor-pointer relative ${
+                  className={`cursor-pointer relative touch-manipulation ${
                     isPending ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
-                  <StarIcon width={58} height={58} color={theme.color} />
+                  <div className="w-[45px] h-[45px] sm:w-[58px] sm:h-[58px] flex items-center justify-center">
+                    <StarIcon
+                      width={45}
+                      height={45}
+                      color={theme.color}
+                    />
+                  </div>
                   {selectedTheme === theme.id && (
                     <motion.div
-                      className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 rounded-full"
+                      className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full border-2 border-white"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", stiffness: 500 }}
@@ -248,13 +255,13 @@ function ChangeTheme() {
           </motion.div>
 
           <motion.div
-            className="flex justify-center mt-20 -mb-5"
+            className="flex justify-center mt-8 sm:mt-20 -mb-3 sm:-mb-5 px-2"
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.6 }}
           >
-            <div className="w-1/2 border p-2 rounded relative">
-              <div className="flex items-center justify-center gap-2">
+            <div className="w-full sm:w-3/4 md:w-1/2 border p-3 sm:p-2 rounded relative">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-2">
                 <motion.div
                   animate={{
                     rotate: [0, 360],
@@ -265,19 +272,20 @@ function ChangeTheme() {
                     repeat: Infinity,
                     repeatDelay: 1
                   }}
+                  className="flex-shrink-0"
                 >
                   <StarIcon
-                    width={40}
-                    height={40}
+                    width={32}
+                    height={32}
                     color={
                       THEME_OPTIONS.find((t) => t.id === selectedTheme)
                         ?.color || "#E25762"
                     }
                   />
                 </motion.div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
                   <motion.div
-                    className={`${THEME_CLASSES[selectedTheme]} h-10 w-48 rounded relative overflow-hidden`}
+                    className={`${THEME_CLASSES[selectedTheme]} h-8 sm:h-10 w-full sm:w-48 rounded relative overflow-hidden`}
                     layoutId="themeColor"
                     transition={{ type: "spring", stiffness: 300, damping: 25 }}
                   >
@@ -288,7 +296,7 @@ function ChangeTheme() {
                         animate={{ opacity: 1 }}
                       >
                         <motion.div
-                          className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                          className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full"
                           animate={{ rotate: 360 }}
                           transition={{
                             duration: 1,
@@ -302,16 +310,16 @@ function ChangeTheme() {
                   <Button
                     onClick={handleChangeTheme}
                     disabled={isPending}
-                    className="bg-[#17B155] hover:bg-[#17B155]/80 min-w-[80px] relative"
+                    className="bg-[#17B155] hover:bg-[#17B155]/80 min-w-[80px] w-full sm:w-auto text-sm sm:text-base py-2 sm:py-3 relative touch-manipulation"
                   >
                     {isPending ? (
                       <motion.div
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 justify-center"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                       >
                         <motion.div
-                          className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                          className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full"
                           animate={{ rotate: 360 }}
                           transition={{
                             duration: 1,
@@ -319,7 +327,7 @@ function ChangeTheme() {
                             ease: "linear"
                           }}
                         />
-                        <span>Đang lưu...</span>
+                        <span className="text-sm sm:text-base">Đang lưu...</span>
                       </motion.div>
                     ) : (
                       "Thay đổi"
@@ -330,32 +338,34 @@ function ChangeTheme() {
 
               <Image
                 src="/modal/kilan.png"
-                width={40}
-                height={37}
+                width={30}
+                height={28}
                 alt="kilan"
-                className="absolute -top-10 left-[15%] transform scale-x-[-1]"
+                className="absolute -top-6 sm:-top-10 left-[15%] transform scale-x-[-1] w-[30px] h-[28px] sm:w-[40px] sm:h-[37px]"
               />
               <Image
                 src="/modal/kilan.png"
-                width={40}
-                height={37}
+                width={30}
+                height={28}
                 alt="kilan"
-                className="absolute -top-10 right-[20%]"
+                className="absolute -top-6 sm:-top-10 right-[20%] w-[30px] h-[28px] sm:w-[40px] sm:h-[37px]"
               />
             </div>
           </motion.div>
-          <div className="flex w-full justify-between">
+          <div className="flex w-full justify-between px-2 sm:px-0 mt-6 lg:mt-0">
             <Image
               src="/navbar/nguoi1.png"
-              width={80}
-              height={80}
+              width={60}
+              height={60}
               alt="color_icon"
+              className="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px]"
             />
             <Image
               src="/navbar/nguoi1.png"
-              width={80}
-              height={80}
+              width={60}
+              height={60}
               alt="color_icon"
+              className="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px]"
             />
           </div>
         </motion.div>

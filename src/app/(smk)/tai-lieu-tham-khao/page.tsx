@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/carousel";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Dữ liệu cho 4 cuốn sách theo thứ tự
 const booksData = {
@@ -76,6 +77,7 @@ function TaiLieuThamKhaoPage() {
   const [selectedBook, setSelectedBook] = useState("1");
   const [api, setApi] = useState<CarouselApi>();
   const [isTransitioning, setIsTransitioning] = useState(false);
+    const { t } = useTranslation("", "common");
 
   // Lấy dữ liệu sách được chọn
   const currentBookData = booksData[selectedBook as keyof typeof booksData];
@@ -114,7 +116,7 @@ function TaiLieuThamKhaoPage() {
       <CourseWrapper>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 lg:gap-10">
           <SectionTitle
-            title="Tài liệu tham khảo"
+            title={t("referenceMaterial")}
             image={{
               src: "/menu-icon/tailieuthamkhao.png",
               width: 40,
