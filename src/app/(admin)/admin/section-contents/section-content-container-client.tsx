@@ -129,7 +129,8 @@ function SectionContentContainerClient() {
   const {
     data: sectionContentData,
     isLoading: sectionContentLoading,
-    error: sectionContentError
+    error: sectionContentError,
+    refetch
   } = useGetSectionContentBySectionId(Number(activeLesson.sectionId));
 
   const processedData = React.useMemo(() => {
@@ -181,12 +182,18 @@ function SectionContentContainerClient() {
 
   const handleDeleteSection = () => {
     const selectedIds = Object.keys(rowSelection);
-    const selectedSections = processedData?.filter((sc) => selectedIds.includes(sc.sc_id.toString())) || [];
+    const selectedSections =
+      processedData?.filter((sc) =>
+        selectedIds.includes(sc.sc_id.toString())
+      ) || [];
 
     handleModalOpen("deleteSectionContent", {
       sectionContentIds: selectedIds,
-      sectionContents: selectedSections, // Make sure this is passed correctly
-      onSuccess: () => setRowSelection({})
+      sectionContents: selectedSections,
+      onSuccess: () => {
+        setRowSelection({});
+        refetch();
+      }
     });
 
     setRowSelection({});
