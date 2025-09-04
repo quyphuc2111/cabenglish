@@ -8,6 +8,7 @@ import { AdminSidebar } from "./admin-sidebar";
 import { MobileAdminMenu } from "./mobile-admin-menu";
 import AdminModalProvider from "@/providers/admin-modal-provider";
 import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 
 
 export default function AdminPanelLayout({
@@ -16,6 +17,14 @@ export default function AdminPanelLayout({
   children: React.ReactNode;
 }) {
   const sidebar = useStore(useSidebarToggle, (state) => state);
+//Cái này thêm vào để sử dụng toast ở admin hehe
+  useEffect(() => {
+    document.body.classList.remove("performance-mode");
+
+    return () => {
+      document.body.classList.add("performance-mode");
+    };
+  }, []);
 
   const themeClasses = {
     "theme-gold": "bg-theme-gold-primary",
