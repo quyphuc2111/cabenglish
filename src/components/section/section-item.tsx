@@ -27,7 +27,12 @@ type SectionItemProps = {
   selectedSection?: number;
 };
 
-function SectionItem({ sectionData, onClick, params, selectedSection }: SectionItemProps) {
+function SectionItem({
+  sectionData,
+  onClick,
+  params,
+  selectedSection
+}: SectionItemProps) {
   //   const { part } = lessonInfo;
 
   const {
@@ -40,7 +45,6 @@ function SectionItem({ sectionData, onClick, params, selectedSection }: SectionI
     is_locked
   } = sectionData;
 
-
   const { alpha, beta, gamma } = useDeviceOrientation();
 
   return (
@@ -48,28 +52,29 @@ function SectionItem({ sectionData, onClick, params, selectedSection }: SectionI
       {!params && (
         <div
           onClick={onClick}
-          className={`w-full cursor-pointer bg-white shadow-course-inset mb-4 p-5 rounded-3xl border flex justify-between flex-col lg:flex-row ${is_locked ? "opacity-50 cursor-not-allowed" : ""}`}
+          className={`w-full cursor-pointer bg-white shadow-course-inset mb-4 p-5 rounded-3xl border flex justify-between flex-col lg:flex-row ${
+            is_locked ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
           <div className="flex items-center gap-2 w-1/2">
             <Image src={icon_url} width={58} height={58} alt="" />
             <h5 className="text-lg font-medium">{section_name}</h5>
           </div>
 
-          <div className={`w-1/2 flex items-center gap-2 ${is_locked ? "justify-between " : "justify-end w-full"}`}>
-            {
-                is_locked && (
-                    <div className="w-8 h-8 relative  lg:ml-0">
-                    <Image
-                      src="/lock.png"
-                      fill
-                      objectFit="cover"
-                      alt="lock"
-                    />
-                  </div>
-                )
-            }
-           
-            <div className={`flex items-center gap-3  min-w-[100px] w-[250px] `}>
+          <div
+            className={`w-1/2 flex items-center gap-2 ${
+              is_locked ? "justify-between " : "justify-end w-full"
+            }`}
+          >
+            {is_locked && (
+              <div className="w-8 h-8 relative  lg:ml-0">
+                <Image src="/lock.png" fill objectFit="cover" alt="lock" />
+              </div>
+            )}
+
+            <div
+              className={`flex items-center gap-3  min-w-[100px] w-[250px] `}
+            >
               <p className="text-xl font-semibold w-1/3">
                 {estimate_time} phút
               </p>
@@ -130,7 +135,7 @@ function SectionItem({ sectionData, onClick, params, selectedSection }: SectionI
                     alt="ga-con"
                   />
                   <p className="how-to-play bg-[#f5f5f5] p-9 rounded-3xl border relative">
-                    Cùng Pea học Tiếng Anh qua Video bài giảng thú vị sau đây nhé.
+                    Cùng Pea học Tiếng Anh qua Video Bài học thú vị sau đây nhé.
                     Nếu chưa hiểu bài, em có thể tua lại để hiểu hơn nội dung bài
                     giảng.
                   </p>

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Image from "next/image";
 import React from "react";
 import { Badge } from "../ui/badge";
@@ -26,12 +26,12 @@ function CourseBound({ className }: any) {
   const router = useRouter();
 
   const handleChooseCourse = () => {
-    router.push('/main/khoa-hoc/tieng-anh-lop-1')
-   };
+    router.push("/main/khoa-hoc/tieng-anh-lop-1");
+  };
 
   return (
     <div
-    onClick={handleChooseCourse}
+      onClick={handleChooseCourse}
       className={cn(
         "px-3 py-5 bg-white rounded-3xl flex flex-col gap-3 shadow-course-inset border relative overflow-hidden",
         className
@@ -53,7 +53,7 @@ function CourseBound({ className }: any) {
             <TooltipTrigger asChild>
               <p className="text-sm text-gray-500 line-clamp-3 cursor-pointer">
                 Khoá học bám sát khung chương trình tiếng Anh lớp 1. Mỗi buổi
-                học bao gồm 01 video bài giảng hoặc bài hát, và các bài tập giúp
+                học bao gồm 01 video Bài học hoặc bài hát, và các bài tập giúp
                 con học từ vựng, phát âm, phát triển 04 kỹ năng Nghe - Nói - Đọc
                 - Viết. Các con học phát âm các âm đơn cơ bản, chữ cái tiếng
                 Anh, nói được các từ vựng đơn chứa âm, và nói các mẫu câu đơn
@@ -67,11 +67,11 @@ function CourseBound({ className }: any) {
                 </div>
                 <p className="text-sm text-gray-500">
                   Khoá học bám sát khung chương trình tiếng Anh lớp 1. Mỗi buổi
-                  học bao gồm 01 video bài giảng hoặc bài hát, và các bài tập
-                  giúp con học từ vựng, phát âm, phát triển 04 kỹ năng Nghe -
-                  Nói - Đọc - Viết. Các con học phát âm các âm đơn cơ bản, chữ
-                  cái tiếng Anh, nói được các từ vựng đơn chứa âm, và nói các
-                  mẫu câu đơn ngắn thường gặp về chủ đề đời sống hằng ngày
+                  học bao gồm 01 video Bài học hoặc bài hát, và các bài tập giúp
+                  con học từ vựng, phát âm, phát triển 04 kỹ năng Nghe - Nói -
+                  Đọc - Viết. Các con học phát âm các âm đơn cơ bản, chữ cái
+                  tiếng Anh, nói được các từ vựng đơn chứa âm, và nói các mẫu
+                  câu đơn ngắn thường gặp về chủ đề đời sống hằng ngày
                 </p>
                 <p className="text-xs font-semibold py-5">
                   Giáo viên giảng dạy

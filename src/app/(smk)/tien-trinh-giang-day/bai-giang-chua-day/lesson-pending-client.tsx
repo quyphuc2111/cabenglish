@@ -39,7 +39,7 @@ LessonStats.displayName = "LessonStats";
 const EmptyLessonsState = memo(() => (
   <div className="flex flex-col items-center gap-6 sm:gap-8 md:gap-10 min-h-[300px] sm:min-h-[400px] md:min-h-[600px] justify-center px-4">
     <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#736E6E] text-center leading-relaxed">
-      Hiện tại chưa có bài giảng nào!
+      Hiện tại chưa có Bài học nào!
     </h3>
     <div className="w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36">
       <Image
@@ -419,7 +419,7 @@ function LessonPendingClient({
       // Lưu previous page (để back về đúng nơi)
       setPreviousPage({
         url: "/tien-trinh-giang-day/bai-giang-chua-day",
-        title: "Bài giảng chưa dạy",
+        title: "Bài học chưa dạy",
         state: {
           scrollPosition: window.scrollY,
           filters: {
@@ -498,7 +498,7 @@ function LessonPendingClient({
           <div className="flex flex-col gap-4 w-full sm:gap-6">
             <div className="flex-shrink-0">
               <SectionTitle
-                title="Bài giảng chưa dạy"
+                title="Bài học chưa dạy"
                 image={{
                   src: "/assets/gif/book_animate.gif",
                   width: 32,

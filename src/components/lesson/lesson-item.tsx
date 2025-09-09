@@ -55,22 +55,17 @@ function LessonItem({
             </div>
           ) : (
             <div className="w-8 h-8 relative ml-[65px] lg:ml-0">
-              <Image
-                src="/lock.png"
-                fill
-                objectFit="cover"
-                alt="lock"
-              />
+              <Image src="/lock.png" fill objectFit="cover" alt="lock" />
             </div>
           )}
         </div>
       )}
-      <div className={`absolute top-0 ${
-            params ? "left-0" : "left-full"
-          } flex w-[1150px]`}>
-        <div
-          className={` tab-container h-[800px]`}
-        >
+      <div
+        className={`absolute top-0 ${
+          params ? "left-0" : "left-full"
+        } flex w-[1150px]`}
+      >
+        <div className={` tab-container h-[800px]`}>
           <div className="bg-[#f5fcff] ">
             <div className="p-3 md:p-7 text-white bg-[#00cccc] rounded-tl-3xl">
               <h2 className="text-xl md:text-2xl font-semibold">Unit 9</h2>
@@ -107,15 +102,11 @@ function LessonItem({
         >
           <div className="video-content">
             {!params && activeIndexTab === 1 && (
-              <div>
-                {/* <Video src={learning} /> */}
-              </div>
+              <div>{/* <Video src={learning} /> */}</div>
             )}
 
             {params && activeIndexTab === 1 && (
-              <div>
-                {/* <Video src={learning} /> */}
-              </div>
+              <div>{/* <Video src={learning} /> */}</div>
             )}
 
             <div className="flex items-start gap-7 mt-3">
@@ -126,9 +117,8 @@ function LessonItem({
                 alt="ga-con"
               />
               <p className="how-to-play bg-[#f5f5f5] p-9 rounded-3xl border relative">
-                Cùng Pea học Tiếng Anh qua Video bài giảng thú vị sau đây nhé.
-                Nếu chưa hiểu bài, em có thể tua lại để hiểu hơn nội dung bài
-                giảng.
+                Cùng Pea học Tiếng Anh qua Video Bài học thú vị sau đây nhé. Nếu
+                chưa hiểu bài, em có thể tua lại để hiểu hơn nội dung bài giảng.
               </p>
             </div>
           </div>

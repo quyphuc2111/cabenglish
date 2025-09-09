@@ -64,9 +64,7 @@ const NextLecture = ({
             <h3 className="text-sm sm:text-md md:text-lg font-bold text-gray-800">
               {t("nextLecture")}
             </h3>
-            <p className="text-xs sm:text-sm text-gray-600">
-              Bài giảng sắp tới
-            </p>
+            <p className="text-xs sm:text-sm text-gray-600">Bài học sắp tới</p>
           </div>
         </div>
 
@@ -108,7 +106,9 @@ const NextLecture = ({
           <h3 className="text-sm sm:text-md md:text-lg font-bold text-gray-800">
             {t("nextLecture")}
           </h3>
-          <p className="text-xs sm:text-sm text-gray-600">{t("upcomingLecture")}</p>
+          <p className="text-xs sm:text-sm text-gray-600">
+            {t("upcomingLecture")}
+          </p>
         </div>
       </div>
 

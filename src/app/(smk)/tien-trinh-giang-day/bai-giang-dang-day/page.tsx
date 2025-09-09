@@ -20,7 +20,7 @@ async function LessonTeachingPage() {
     userId
   });
 
-  // Lọc ra các bài giảng đang dạy (0 < progress < 1)
+  // Lọc ra các Bài học đang dạy (0 < progress < 1)
   const teachingLessons = allLessonsResponse.data
     .filter(
       (lesson) => lesson.progress > 0 && lesson.progress < 1 && !lesson.isLocked

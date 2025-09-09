@@ -4,9 +4,9 @@
 
 Optimize responsive design and mobile performance for 3 lesson management pages:
 
-- ✅ **Bài giảng đang dạy** (lesson-teaching-client.tsx)
-- ✅ **Bài giảng chưa dạy** (lesson-pending-client.tsx)
-- ✅ **Bài giảng hoàn thành** (lesson-complete-client.tsx)
+- ✅ **Bài học đang dạy** (lesson-teaching-client.tsx)
+- ✅ **Bài học chưa dạy** (lesson-pending-client.tsx)
+- ✅ **Bài học hoàn thành** (lesson-complete-client.tsx)
 
 ## 🔧 Performance Optimizations Applied
 

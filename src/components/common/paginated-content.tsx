@@ -49,14 +49,14 @@ interface PaginatedContentProps<T> {
 const EmptyState = memo(() => (
   <div className="flex flex-col items-center gap-6 sm:gap-8 md:gap-10 h-full justify-center py-12 sm:py-16">
     <h3 className="text-xl sm:text-2xl md:text-3xl text-[#736E6E] font-medium text-center">
-      Hiện tại chưa có bài giảng nào!
+      Hiện tại chưa có Bài học nào!
     </h3>
     <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 opacity-60">
       <Image
         src="/assets/image/no_course.png"
         width={512}
         height={512}
-        alt="Không có bài giảng"
+        alt="Không có Bài học"
         className="object-contain"
         priority={false}
         loading="lazy"

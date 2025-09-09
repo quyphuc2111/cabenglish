@@ -51,15 +51,15 @@ const MODAL_CONTENT = {
   defaultMode: {
     title: "Chế độ mặc định",
     description: [
-      "Giáo viên cần hoàn thành bài giảng hiện tại trước khi chuyển sang bài giảng mới.",
+      "Giáo viên cần hoàn thành Bài học hiện tại trước khi chuyển sang Bài học mới.",
       "Phù hợp cho những lớp học tuân theo một lộ trình học tập cố định, đảm bảo học sinh nắm vững kiến thức trước khi học nội dung mới."
     ]
   },
   freeMode: {
     title: "Chế độ tự do",
     description: [
-      "Giáo viên có thể chọn dạy bất kỳ bài giảng nào mà không bị ràng buộc theo thứ tự.",
-      "Phù hợp khi giáo viên muốn linh hoạt điều chỉnh bài giảng dựa trên trình độ, nhu cầu hoặc sở thích của học sinh."
+      "Giáo viên có thể chọn dạy bất kỳ Bài học nào mà không bị ràng buộc theo thứ tự.",
+      "Phù hợp khi giáo viên muốn linh hoạt điều chỉnh Bài học dựa trên trình độ, nhu cầu hoặc sở thích của học sinh."
     ]
   },
   hint: "* Bạn cần chọn một chế độ giảng dạy để tiếp tục"

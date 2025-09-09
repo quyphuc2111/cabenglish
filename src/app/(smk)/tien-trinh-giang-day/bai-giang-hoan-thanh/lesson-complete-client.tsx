@@ -92,7 +92,7 @@ LessonStats.displayName = "LessonStats";
 const NoLessons = memo(() => (
   <div className="flex flex-col items-center gap-4 sm:gap-6 md:gap-8 lg:gap-10 min-h-[250px] sm:min-h-[300px] md:min-h-[400px] lg:min-h-[500px] justify-center px-4">
     <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#736E6E] text-center leading-relaxed font-medium">
-      Hiện tại chưa có bài giảng nào!
+      Hiện tại chưa có Bài học nào!
     </h3>
     <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32">
       <OptimizeImage
@@ -113,7 +113,7 @@ NoLessons.displayName = "NoLessons";
 const SectionHeader = memo(() => (
   <div className="flex-shrink-0">
     <SectionTitle
-      title="Bài giảng hoàn thành"
+      title="Bài học hoàn thành"
       image={{
         src: "/assets/gif/book_animate.gif",
         width: 32,
@@ -430,7 +430,7 @@ function LessonCompleteClient({
       // Save previous page with filters and scroll
       setPreviousPage({
         url: "/tien-trinh-giang-day/bai-giang-hoan-thanh",
-        title: "Bài giảng hoàn thành",
+        title: "Bài học hoàn thành",
         state: {
           scrollPosition: window.scrollY,
           filters: {

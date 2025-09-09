@@ -203,7 +203,7 @@ function LessonTeachingClient({
     []
   );
 
-  // Function để tính số lượng bài giảng đang học theo class_id - memoized
+  // Function để tính số lượng Bài học đang học theo class_id - memoized
   const getTeachingLessonCountByClassId = useCallback(
     (classId: number) => {
       if (!Array.isArray(teachingLessons)) return 0;
@@ -246,7 +246,7 @@ function LessonTeachingClient({
     [activeTab]
   );
 
-  // Lọc bài giảng đang dạy với memo để tránh re-computation
+  // Lọc Bài học đang dạy với memo để tránh re-computation
   const filteredTeachingLessons = useMemo(() => {
     if (!Array.isArray(teachingLessons)) return [];
 
@@ -277,7 +277,7 @@ function LessonTeachingClient({
       // Lưu thông tin trang hiện tại vào store
       setPreviousPage({
         url: "/tien-trinh-giang-day/bai-giang-dang-day",
-        title: "Bài giảng đang dạy",
+        title: "Bài học đang dạy",
         state: {
           activeTab,
           scrollPosition: window.scrollY
@@ -395,7 +395,7 @@ function LessonTeachingClient({
             {/* Tab Component */}
             <div className="w-full">
               {/* Tab Content */}
-              {/* Bài giảng đang dạy */}
+              {/* Bài học đang dạy */}
               <div
                 className={cn(
                   "bg-white rounded-lg p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-5 md:space-y-6",
@@ -405,7 +405,7 @@ function LessonTeachingClient({
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="flex-shrink-0">
                     <SectionTitle
-                      title="Bài giảng đang dạy"
+                      title="Bài học đang dạy"
                       image={{
                         src: "/assets/gif/book_animate.gif",
                         width: 32,
@@ -455,7 +455,7 @@ function LessonTeachingClient({
                         Lọc theo lớp học
                       </h3>
                       <p className="text-sm text-gray-600">
-                        Chọn lớp học để xem bài giảng đang dạy
+                        Chọn lớp học để xem Bài học đang dạy
                       </p>
                     </div>
                   </div>

@@ -5,7 +5,7 @@
 ### 1. Server-side Data Loading
 
 - ✅ Load toàn bộ lesson data từ server side trong `page.tsx`
-- ✅ Lọc bài giảng đang dạy (0 < progress < 1) ở server side
+- ✅ Lọc Bài học đang dạy (0 < progress < 1) ở server side
 - ✅ Load danh sách classroom riêng biệt thay vì từ filter service
 - ✅ Truyền dữ liệu đã xử lý vào client component
 
