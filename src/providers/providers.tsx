@@ -11,6 +11,7 @@ import { SessionProvider } from "next-auth/react";
 import { QueryProvider } from "./query-provider";
 import { GoogleReCaptchaProvider } from "@google-recaptcha/react";
 import { FirstLoginGuard } from "@/components/first-login-guard";
+import { TokenValidationProvider } from "./token-validation-provider";
 
 const ToastContainerClient = dynamic(
   () => import("react-toastify").then((mod) => mod.ToastContainer),
@@ -33,20 +34,22 @@ function Providers({
         siteKey="6LfrPQYrAAAAACvE3gCdKyICFMiPcmeFwr7EK-Yq"
       >
         <SessionProvider>
-          <QueryProvider>
-            {/* <SocketProvider> */}
-            <ThemeProvider>
-              <TranslationProvider
-                translations={translations}
-                currentLanguage={currentLanguage}
-              >
-                <FirstLoginGuard>{children}</FirstLoginGuard>
-              </TranslationProvider>
-            </ThemeProvider>
-            {/* </SocketProvider> */}
-            <ModalProvider />
-            <ToastContainerClient />
-          </QueryProvider>
+          <TokenValidationProvider>
+            <QueryProvider>
+              {/* <SocketProvider> */}
+              <ThemeProvider>
+                <TranslationProvider
+                  translations={translations}
+                  currentLanguage={currentLanguage}
+                >
+                  <FirstLoginGuard>{children}</FirstLoginGuard>
+                </TranslationProvider>
+              </ThemeProvider>
+              {/* </SocketProvider> */}
+              <ModalProvider />
+              <ToastContainerClient />
+            </QueryProvider>
+          </TokenValidationProvider>
         </SessionProvider>
       </GoogleReCaptchaProvider>
     </Fragment>

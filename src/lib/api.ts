@@ -36,6 +36,12 @@ export async function serverFetch(
 ) {
   const session = await getServerSession(authOptions);
 
+  // Nếu không có session, return null thay vì throw error
+  if (!session) {
+    console.warn("No session found for serverFetch");
+    return null;
+  }
+
   let headers: Record<string, string> = {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -82,9 +88,8 @@ export async function serverFetch(
           axios.isAxiosError(refreshError) &&
           refreshError.response?.status === 401
         ) {
-          throw new Error(
-            "Authentication session expired. Please sign in again."
-          );
+          console.warn("Refresh token expired, authentication required");
+          return null; // Return null thay vì throw error
         }
 
         // For other refresh errors, continue with original response
@@ -96,6 +101,12 @@ export async function serverFetch(
     }
 
     if (response.status >= 400) {
+      // Nếu là lỗi authentication, return null thay vì throw
+      if (response.status === 401) {
+        console.warn("Authentication required for:", endpoint);
+        return null;
+      }
+
       throw new Error(
         response.data?.message ||
           JSON.stringify(response.data) ||
@@ -106,6 +117,12 @@ export async function serverFetch(
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
+      // Nếu là lỗi authentication, return null
+      if (error.response?.status === 401) {
+        console.warn("Authentication error for:", endpoint);
+        return null;
+      }
+
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
@@ -115,10 +132,34 @@ export async function serverFetch(
 
       throw new Error(`API Error: ${errorMessage}`);
     }
+
+    // Kiểm tra nếu là lỗi authentication trong message
+    if (
+      error instanceof Error &&
+      error.message.includes("Chưa được xác thực")
+    ) {
+      console.warn("Authentication error detected:", error.message);
+      return null;
+    }
+
     throw new Error(
       `Unexpected error: ${
         error instanceof Error ? error.message : "Unknown error"
       }`
     );
+  }
+}
+
+// Helper function để check xem có nên gọi API hay không
+export async function safeServerFetch(
+  endpoint: string,
+  options: ServerFetchOptions = {}
+) {
+  try {
+    const result = await serverFetch(endpoint, options);
+    return result;
+  } catch (error) {
+    console.warn(`Safe server fetch failed for ${endpoint}:`, error);
+    return null;
   }
 }

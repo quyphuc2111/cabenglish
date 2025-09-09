@@ -4,7 +4,7 @@ import { serverFetch } from "@/lib/api";
 
 interface InitializeLockedParams {
   userId: string;
-  mode: "default" | "free"; 
+  mode: "default" | "free";
 }
 
 interface LockedResponse {
@@ -14,7 +14,7 @@ interface LockedResponse {
 
 export async function initializeLocked({
   userId,
-  mode = "default" || "free" 
+  mode = "default" || "free"
 }: InitializeLockedParams): Promise<LockedResponse> {
   if (!userId) {
     return {
@@ -29,9 +29,12 @@ export async function initializeLocked({
       data: { userId, mode }
     });
 
-    // Kiểm tra response từ API nếu cần
+    // Kiểm tra response từ API - nếu null có thể do authentication
     if (!response) {
-      throw new Error("Không nhận được phản hồi từ server");
+      return {
+        success: false,
+        error: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+      };
     }
 
     return {
@@ -71,9 +74,12 @@ export async function switchModeAction({
       data: { userId, mode }
     });
 
-    // Kiểm tra response từ API nếu cần
+    // Kiểm tra response từ API - nếu null có thể do authentication
     if (!response) {
-      throw new Error("Không nhận được phản hồi từ server");
+      return {
+        success: false,
+        error: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+      };
     }
 
     return {
@@ -96,7 +102,13 @@ export async function switchModeAction({
   }
 }
 
-export async function updateSectionLocked({userId, sectionId}: {userId: string, sectionId: number}) {
+export async function updateSectionLocked({
+  userId,
+  sectionId
+}: {
+  userId: string;
+  sectionId: number;
+}) {
   if (!userId || !sectionId) {
     return {
       success: false,
@@ -111,7 +123,10 @@ export async function updateSectionLocked({userId, sectionId}: {userId: string, 
     });
 
     if (!response) {
-      throw new Error("Không nhận được phản hồi từ server");
+      return {
+        success: false,
+        error: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+      };
     }
 
     return {
@@ -133,14 +148,20 @@ export async function updateSectionLocked({userId, sectionId}: {userId: string, 
   }
 }
 
-export async function updateLessonLocked({userId, lessonId}: {userId: string, lessonId: number}) {
+export async function updateLessonLocked({
+  userId,
+  lessonId
+}: {
+  userId: string;
+  lessonId: number;
+}) {
   if (!userId || !lessonId) {
     return {
       success: false,
       error: "UserId hoặc lessonId không được để trống"
     };
   }
-  
+
   try {
     const response = await serverFetch("/api/Locked/updateLessonLocked", {
       method: "PUT",
@@ -148,16 +169,19 @@ export async function updateLessonLocked({userId, lessonId}: {userId: string, le
     });
 
     if (!response) {
-      throw new Error("Không nhận được phản hồi từ server");
+      return {
+        success: false,
+        error: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+      };
     }
 
-    return response
+    return response;
   } catch (error) {
     console.error("Lỗi cập nhật locked lesson", {
       error,
       timestamp: new Date().toISOString()
     });
-    
+
     return {
       success: false,
       error:

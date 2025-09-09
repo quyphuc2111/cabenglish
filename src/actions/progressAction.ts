@@ -26,7 +26,10 @@ export async function initializeProgress(
     });
 
     if (!response) {
-      throw new Error("Không nhận được phản hồi từ server");
+      return {
+        success: false,
+        error: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+      };
     }
 
     return {
@@ -102,9 +105,12 @@ export async function updateProgressSectionContent({
       }
     });
 
-    // Kiểm tra response từ API nếu cần
+    // Kiểm tra response từ API - nếu null có thể do authentication
     if (!response) {
-      throw new Error("Không nhận được phản hồi từ server");
+      return {
+        success: false,
+        error: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+      };
     }
 
     return {
@@ -158,9 +164,12 @@ export async function resetLessonProgress({
       }
     });
 
-    // Kiểm tra response từ API nếu cần
+    // Kiểm tra response từ API - nếu null có thể do authentication
     if (!response) {
-      throw new Error("Không nhận được phản hồi từ server");
+      return {
+        success: false,
+        error: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+      };
     }
 
     return {
@@ -191,7 +200,6 @@ export async function resetAllSectionContent({ userId }: { userId: string }) {
     };
   }
 
-
   try {
     const response = await serverFetch(`/api/Progress/resetAllSectionContent`, {
       method: "POST",
@@ -200,12 +208,16 @@ export async function resetAllSectionContent({ userId }: { userId: string }) {
     });
 
     if (!response) {
-      throw new Error("Không nhận được phản hồi từ server");
+      return {
+        success: false,
+        error: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+      };
     }
 
     return {
       success: true,
-      message: response.message || "Reset tiến trình tất cả section content thành công"
+      message:
+        response.message || "Reset tiến trình tất cả section content thành công"
     };
   } catch (error) {
     // Log chi tiết lỗi để debug
