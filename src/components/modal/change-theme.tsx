@@ -69,10 +69,11 @@ function ChangeTheme() {
           userId: session?.user.userId as string,
           userInfo: {
             theme: selectedTheme,
-            email: session?.user.email || "",
-            language: session?.user.language || "",
-            mode: session?.user.mode || "",
-            is_firstlogin: session?.user.is_firstlogin || false
+            email: userInfo?.email || session?.user.email || "",
+            language: userInfo?.language || session?.user.language || "",
+            mode: userInfo?.mode || "", // ✅ Lấy mode từ userInfo (database) thay vì session
+            is_firstlogin:
+              userInfo?.is_firstlogin ?? session?.user.is_firstlogin ?? false
           }
         },
         {
@@ -181,7 +182,9 @@ function ChangeTheme() {
                     priority
                   />
                 </div>
-                <h2 className="flex items-center text-lg sm:text-xl">SmartKid</h2>
+                <h2 className="flex items-center text-lg sm:text-xl">
+                  SmartKid
+                </h2>
               </motion.div>
             </DialogTitle>
           </DialogHeader>
@@ -193,7 +196,9 @@ function ChangeTheme() {
             transition={{ delay: 0.3 }}
           >
             <div className="flex gap-2 sm:gap-3 items-center flex-wrap justify-center">
-              <p className="font-semibold text-sm sm:text-base text-center">Thay đổi màu nền SmartKid</p>
+              <p className="font-semibold text-sm sm:text-base text-center">
+                Thay đổi màu nền SmartKid
+              </p>
               <motion.div
                 initial={{ rotate: -180, opacity: 0 }}
                 animate={{ rotate: 0, opacity: 1 }}
@@ -235,11 +240,7 @@ function ChangeTheme() {
                   }`}
                 >
                   <div className="w-[45px] h-[45px] sm:w-[58px] sm:h-[58px] flex items-center justify-center">
-                    <StarIcon
-                      width={45}
-                      height={45}
-                      color={theme.color}
-                    />
+                    <StarIcon width={45} height={45} color={theme.color} />
                   </div>
                   {selectedTheme === theme.id && (
                     <motion.div
@@ -327,7 +328,9 @@ function ChangeTheme() {
                             ease: "linear"
                           }}
                         />
-                        <span className="text-sm sm:text-base">Đang lưu...</span>
+                        <span className="text-sm sm:text-base">
+                          Đang lưu...
+                        </span>
                       </motion.div>
                     ) : (
                       "Thay đổi"
