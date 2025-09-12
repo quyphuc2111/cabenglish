@@ -182,12 +182,6 @@ function ClassroomChildClient({
     // Ensure we only restore when coming back to the same classroom page and slug
     if (previousPageInfo.url !== `/lop-hoc/${slug}`) return;
 
-    console.log("🔄 Restoring classroom state:", {
-      url: previousPageInfo.url,
-      filters: previousPageInfo.state?.filters,
-      pagination: previousPageInfo.state?.filters?.pagination
-    });
-
     const filters = previousPageInfo.state?.filters || {};
     setSearchQuery(filters.searchQuery || "");
     setDebouncedSearchQuery(filters.searchQuery || "");
@@ -200,11 +194,6 @@ function ClassroomChildClient({
 
     // Force re-render of PaginatedContent to ensure pagination state is applied
     setPaginationKey((prev) => prev + 1);
-
-    console.log("✅ Restored pagination state:", {
-      currentPage: pagination.currentPage || 1,
-      itemsPerPage: pagination.itemsPerPage || 6
-    });
 
     // Restore scroll slightly after paint
     const t = setTimeout(() => {
@@ -513,22 +502,24 @@ function ClassroomChildClient({
                     onValueChange={handleUnitChange}
                     value={selectedUnit || "all"}
                   >
-                    <SelectTrigger className="w-full h-9 text-sm">
+                    <SelectTrigger className="w-full h-9 text-sm ">
                       <SelectValue placeholder="Unit" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="all">Tất cả units</SelectItem>
-                        {uniqueUnits.length > 0 &&
-                          uniqueUnits.map((unit) => (
-                            <SelectItem
-                              key={`unit-${unit.id}`}
-                              value={unit.id.toString()}
-                            >
-                              {unit.name}
-                            </SelectItem>
-                          ))}
-                      </SelectGroup>
+                      <ScrollArea className="max-h-80 overflow-auto">
+                        <SelectGroup>
+                          <SelectItem value="all">Tất cả units</SelectItem>
+                          {uniqueUnits.length > 0 &&
+                            uniqueUnits.map((unit) => (
+                              <SelectItem
+                                key={`unit-${unit.id}`}
+                                value={unit.id.toString()}
+                              >
+                                {unit.name}
+                              </SelectItem>
+                            ))}
+                        </SelectGroup>
+                      </ScrollArea>
                     </SelectContent>
                   </Select>
                 </div>

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { ScrollArea } from "../ui/scroll-area"
 
 function FilterClassroom() {
   return (
@@ -10,13 +11,15 @@ function FilterClassroom() {
           <SelectValue placeholder="Tìm kiếm tên" />
         </SelectTrigger>
         <SelectContent>
-          <SelectGroup>
-            <SelectItem value="unit1">Unit 1</SelectItem>
-            <SelectItem value="unit2">Unit 2</SelectItem>
-            <SelectItem value="unit3">Unit 3</SelectItem>
-            <SelectItem value="unit4">Unit 4</SelectItem>
-            <SelectItem value="unit5">Unit 5</SelectItem>
-          </SelectGroup>
+          <ScrollArea className="max-h-60">
+            <SelectGroup>
+              <SelectItem value="unit1">Unit 1</SelectItem>
+              <SelectItem value="unit2">Unit 2</SelectItem>
+              <SelectItem value="unit3">Unit 3</SelectItem>
+              <SelectItem value="unit4">Unit 4</SelectItem>
+              <SelectItem value="unit5">Unit 5</SelectItem>
+            </SelectGroup>
+          </ScrollArea>
         </SelectContent>
       </Select>
     </div>
@@ -26,13 +29,15 @@ function FilterClassroom() {
           <SelectValue placeholder="Chọn tuần học" />
         </SelectTrigger>
         <SelectContent>
-          <SelectGroup>
-            <SelectItem value="week1">Tuần học 1</SelectItem>
-            <SelectItem value="week2">Tuần học 2</SelectItem>
-            <SelectItem value="week3">Tuần học 3</SelectItem>
-            <SelectItem value="week4">Tuần học 4</SelectItem>
-            <SelectItem value="week5">Tuần học 5</SelectItem>
-          </SelectGroup>
+          <ScrollArea className="max-h-60">
+            <SelectGroup>
+              <SelectItem value="week1">Tuần học 1</SelectItem>
+              <SelectItem value="week2">Tuần học 2</SelectItem>
+              <SelectItem value="week3">Tuần học 3</SelectItem>
+              <SelectItem value="week4">Tuần học 4</SelectItem>
+              <SelectItem value="week5">Tuần học 5</SelectItem>
+            </SelectGroup>
+          </ScrollArea>
         </SelectContent>
       </Select>
     </div>
@@ -42,12 +47,14 @@ function FilterClassroom() {
           <SelectValue placeholder="Chọn unit" />
         </SelectTrigger>
         <SelectContent>
-          <SelectGroup>
-            <SelectItem value="1">Nhà trẻ</SelectItem>
-            <SelectItem value="2">3 - 4 tuổi</SelectItem>
-            <SelectItem value="3">4 - 5 tuổi</SelectItem>
-            <SelectItem value="4">5 - 6 tuổi</SelectItem>
-          </SelectGroup>
+          <ScrollArea className="max-h-60">
+            <SelectGroup>
+              <SelectItem value="1">Nhà trẻ</SelectItem>
+              <SelectItem value="2">3 - 4 tuổi</SelectItem>
+              <SelectItem value="3">4 - 5 tuổi</SelectItem>
+              <SelectItem value="4">5 - 6 tuổi</SelectItem>
+            </SelectGroup>
+          </ScrollArea>
         </SelectContent>
       </Select>
     </div>
