@@ -100,11 +100,11 @@ export default function HomePage() {
       </Head>
 
       <div className="flex flex-col min-h-screen">
-        <header className="z-[50] sticky top-0 w-full bg-background/95 border-b backdrop-blur-sm dark:bg-black/[0.6] border-border/40">
+        <header className="z-[50] sticky top-0 w-full bg-background/95 border-b backdrop-blur-sm dark:bg-black/[0.6] border-border/40 py-2 2xl:py-0">
           <div className="container h-14 flex items-center">
             <Link
               href="/"
-              className="flex justify-start items-center hover:opacity-85 transition-opacity duration-300"
+              className="flex justify-start items-center hover:opacity-85 transition-opacity duration-300" 
               aria-label="BKT Logo"
             >
               <Image
@@ -113,7 +113,7 @@ export default function HomePage() {
                 height={42}
                 alt="BKT Logo"
                 priority
-                className="border rounded-xl shadow-sm dark:hidden"
+                className="rounded-xl"
               />
             </Link>
             <nav className="ml-auto flex items-center gap-2">
@@ -198,7 +198,7 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div className="col-span-2" variants={fadeInUp}>
-                <h2 className="text-xl font-semibold mb-4 text-center md:text-left">
+                <h2 className="text-lg 2xl:text-xl font-semibold mb-2 2xl:mb-4 text-center md:text-left ">
                   Trụ sở
                 </h2>
                 <div className="flex flex-col md:flex-row md:flex-wrap">
@@ -221,18 +221,18 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div className="col-span-1" variants={fadeInUp}>
-                <h2 className="text-xl font-semibold mb-4 text-center md:text-left">
+                <h2 className="text-lg 2xl:text-xl font-semibold mb-2 2xl:mb-4 text-center md:text-left">
                   Hotline
                 </h2>
                 <ul className="flex flex-col gap-4">
                   <li>
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1">
-                      <span className="font-medium text-center sm:text-left">
+                      <span className="font-medium text-center sm:text-left text-sm 2xl:text-base">
                         Điện thoại:
                       </span>
                       <a
                         href="tel:02437525253"
-                        className="hover:underline font-semibold text-center sm:ml-2 text-white"
+                        className="hover:underline font-semibold text-center sm:ml-2 text-white text-sm 2xl:text-base"
                       >
                         0243 752 5253
                       </a>
@@ -240,12 +240,14 @@ export default function HomePage() {
                   </li>
                   <li>
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1">
-                      <span className="font-medium text-center sm:text-left">
-                        Kỹ thuật (24/7):
+                      <span className="font-medium text-center sm:text-left text-sm 2xl:text-base flex gap-1">
+                        Kỹ thuật 
+                        <span className="hidden xl:block 2xl:text-base"> (24/7) :</span>
+                        <span className="block xl:hidden 2xl:text-base"> :</span>
                       </span>
                       <a
                         href="tel:0337218868"
-                        className="hover:underline font-semibold text-center sm:ml-2 text-white"
+                        className="hover:underline font-semibold text-center  text-white text-sm 2xl:text-base"
                       >
                         033 721 8868
                       </a>
@@ -253,12 +255,12 @@ export default function HomePage() {
                   </li>
                   <li>
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1">
-                      <span className="font-medium text-center sm:text-left">
+                      <span className="font-medium text-center sm:text-left text-sm 2xl:text-base">
                         Kinh doanh:
                       </span>
                       <a
                         href="tel:0868179599"
-                        className="hover:underline font-semibold text-center sm:ml-2 text-white"
+                        className="hover:underline font-semibold text-center sm:ml-2 text-white text-sm 2xl:text-base"
                       >
                         086 817 9599
                       </a>

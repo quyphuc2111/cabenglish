@@ -36,7 +36,7 @@ function ForYouSection() {
                   <div
                     className={`col-span-1 flex ${
                       index % 2 == 0 ? "justify-start" : "justify-end"
-                    } items-center `}
+                    } items-center`}
                   >
                     <Image
                       src={check_button}

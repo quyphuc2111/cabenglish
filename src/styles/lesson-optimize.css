@@ -181,7 +181,8 @@
 /* Tablet Portrait */
 @media screen and (orientation: portrait) and (min-width: 768px) and (max-width: 1023px) {
   .lesson-iframe-container {
-    height: calc(100% - 100px) !important;
+    height: calc(80vh - 100px) !important;
+    /* height: 70vh; */
   }
 
   .lesson-tab-list {
@@ -244,7 +245,8 @@
 /* Desktop - Standard spacing */
 @media screen and (min-width: 1024px) {
   .lesson-iframe-container {
-    height: calc(100% - 120px) !important;
+    /* height: calc(100% - 120px) !important; */
+    height: calc(80vh - 120px) !important;
   }
 
   .lesson-mobile-controls {
@@ -252,6 +254,7 @@
     padding: 8px 24px !important;
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(12px) !important;
+    /* height: calc(70vh - 100px) !important; */
   }
 
   .lesson-mobile-controls button {
