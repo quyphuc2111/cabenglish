@@ -1,0 +1,185 @@
+/* iOS Safe Area Handling for Fullscreen */
+
+/* Base safe area variables */
+:root {
+  --sat: env(safe-area-inset-top);
+  --sar: env(safe-area-inset-right);
+  --sab: env(safe-area-inset-bottom);
+  --sal: env(safe-area-inset-left);
+  
+  /* iPhone 16 Pro Max specific */
+  --iphone16-status-height: 59px; /* Dynamic Island + status bar */
+  --iphone16-home-indicator: 34px;
+  --iphone16-landscape-notch: 59px;
+}
+
+/* Khi fullscreen active, iframe cần tránh bị che bởi UI elements */
+.ios-fullscreen-active {
+  /* Ngăn scroll và bounce effect */
+  overscroll-behavior: none !important;
+  -webkit-overflow-scrolling: auto !important;
+}
+
+/* Container wrapper khi fullscreen */
+.ios-fullscreen-wrapper {
+  /* Sử dụng visual viewport thay vì layout viewport */
+  width: 100vw !important;
+  height: 100vh !important;
+  height: calc(var(--vh, 1vh) * 100) !important;
+}
+
+/* Iframe positioning với safe area */
+.ios-fullscreen-wrapper iframe {
+  /* Reset any existing transforms */
+  transform: none !important;
+  -webkit-transform: none !important;
+  
+  /* Ensure iframe fills available space */
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+/* Portrait orientation - tránh Dynamic Island và Home Indicator */
+@media screen and (orientation: portrait) {
+  .ios-fullscreen-wrapper iframe {
+    /* Sử dụng CSS calc để tính toán chính xác */
+    top: max(var(--sat), var(--iphone16-status-height)) !important;
+    bottom: max(var(--sab), var(--iphone16-home-indicator)) !important;
+    height: calc(
+      100vh - 
+      max(var(--sat), var(--iphone16-status-height)) - 
+      max(var(--sab), var(--iphone16-home-indicator))
+    ) !important;
+  }
+}
+
+/* iPhone 16 Pro Max specific (430x932) */
+@media only screen 
+  and (device-width: 430px) 
+  and (device-height: 932px) 
+  and (-webkit-device-pixel-ratio: 3) {
+  
+  /* Portrait */
+  @media (orientation: portrait) {
+    .ios-fullscreen-wrapper {
+      /* Container padding để tránh UI elements */
+      padding-top: 59px !important;
+      padding-bottom: 34px !important;
+    }
+    
+    .ios-fullscreen-wrapper iframe {
+      top: 59px !important;
+      bottom: 34px !important;
+      height: calc(100vh - 93px) !important; /* 59px + 34px */
+    }
+  }
+  
+  /* Landscape */
+  @media (orientation: landscape) {
+    .ios-fullscreen-wrapper {
+      /* Container padding để tránh Dynamic Island ở cạnh */
+      padding-left: 59px !important;
+      padding-right: 59px !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    
+    .ios-fullscreen-wrapper iframe {
+      left: 59px !important;
+      right: 59px !important;
+      top: 0 !important;
+      bottom: 0 !important;
+      width: calc(100vw - 118px) !important; /* 59px * 2 */
+      height: 100vh !important;
+    }
+  }
+}
+
+/* iPhone 14 Pro và Pro Max (có Dynamic Island) */
+@media only screen 
+  and (min-device-width: 393px)
+  and (max-device-width: 430px)
+  and (-webkit-device-pixel-ratio: 3) {
+  
+  @media (orientation: portrait) {
+    .ios-fullscreen-wrapper iframe {
+      top: max(env(safe-area-inset-top), 54px) !important;
+      bottom: max(env(safe-area-inset-bottom), 34px) !important;
+      height: calc(100vh - max(env(safe-area-inset-top), 54px) - max(env(safe-area-inset-bottom), 34px)) !important;
+    }
+  }
+  
+  @media (orientation: landscape) {
+    .ios-fullscreen-wrapper iframe {
+      left: max(env(safe-area-inset-left), 54px) !important;
+      right: max(env(safe-area-inset-right), 54px) !important;
+      width: calc(100vw - max(env(safe-area-inset-left), 54px) - max(env(safe-area-inset-right), 54px)) !important;
+    }
+  }
+}
+
+/* iPhone 12/13 Pro và Pro Max (có notch) */
+@media only screen 
+  and (min-device-width: 390px)
+  and (max-device-width: 428px)
+  and (-webkit-device-pixel-ratio: 3) {
+  
+  @media (orientation: portrait) {
+    .ios-fullscreen-wrapper iframe {
+      top: max(env(safe-area-inset-top), 47px) !important;
+      bottom: max(env(safe-area-inset-bottom), 34px) !important;
+      height: calc(100vh - max(env(safe-area-inset-top), 47px) - max(env(safe-area-inset-bottom), 34px)) !important;
+    }
+  }
+  
+  @media (orientation: landscape) {
+    .ios-fullscreen-wrapper iframe {
+      left: max(env(safe-area-inset-left), 47px) !important;
+      right: max(env(safe-area-inset-right), 47px) !important;
+      width: calc(100vw - max(env(safe-area-inset-left), 47px) - max(env(safe-area-inset-right), 47px)) !important;
+    }
+  }
+}
+
+/* iPad Pro với Face ID */
+@media only screen 
+  and (min-device-width: 1024px)
+  and (max-device-width: 1366px)
+  and (-webkit-device-pixel-ratio: 2) {
+  
+  .ios-fullscreen-wrapper iframe {
+    top: env(safe-area-inset-top, 20px) !important;
+    bottom: env(safe-area-inset-bottom, 20px) !important;
+    left: env(safe-area-inset-left, 0) !important;
+    right: env(safe-area-inset-right, 0) !important;
+    width: calc(100vw - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)) !important;
+    height: calc(100vh - env(safe-area-inset-top, 20px) - env(safe-area-inset-bottom, 20px)) !important;
+  }
+}
+
+/* Debug mode - hiển thị safe area (comment out khi production) */
+/*
+.ios-fullscreen-wrapper::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: max(env(safe-area-inset-top), var(--iphone16-status-height));
+  background: rgba(255, 0, 0, 0.2);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.ios-fullscreen-wrapper::after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: max(env(safe-area-inset-bottom), var(--iphone16-home-indicator));
+  background: rgba(0, 0, 255, 0.2);
+  z-index: 9999;
+  pointer-events: none;
+}
+*/

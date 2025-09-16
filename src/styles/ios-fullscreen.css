@@ -1,0 +1,320 @@
+/* iOS Fullscreen Specific Styles */
+
+/* Main fullscreen container */
+.ios-fullscreen,
+.ios-fullscreen-wrapper {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  width: 100dvw !important; /* Dynamic viewport width */
+  height: 100vh !important;
+  height: 100dvh !important; /* Dynamic viewport height */
+  height: -webkit-fill-available !important;
+  z-index: 2147483647 !important; /* Max z-index */
+  background: white !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  padding-top: env(safe-area-inset-top) !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
+  padding-left: env(safe-area-inset-left) !important;
+  padding-right: env(safe-area-inset-right) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  overflow-y: auto !important; /* Changed from hidden to auto */
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+  transform: translate3d(0, 0, 0) !important;
+  -webkit-transform: translate3d(0, 0, 0) !important;
+  will-change: transform !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+}
+
+/* Body khi fullscreen active */
+.ios-fullscreen-active {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  top: 0 !important;
+  left: 0 !important;
+  touch-action: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+
+/* iOS Safari safe area insets - Chỉ cho nút thoát */
+@supports (padding: max(0px)) {
+  .ios-fullscreen-wrapper {
+    /* Không padding cho container chính */
+    padding: 0 !important;
+  }
+}
+
+/* Iframe trong fullscreen mode */
+.ios-fullscreen iframe,
+.ios-fullscreen-wrapper iframe {
+  position: relative !important; /* Changed from absolute to relative */
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  min-height: 100% !important;
+  height: auto !important; /* Allow iframe to expand with content */
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  z-index: 1 !important;
+  box-sizing: border-box !important;
+}
+
+/* Nút thoát fullscreen trên iOS */
+.ios-fullscreen button[style*="position: fixed"],
+.ios-fullscreen-wrapper button[style*="position: fixed"] {
+  position: fixed !important;
+  top: max(env(safe-area-inset-top), 16px) !important;
+  left: max(env(safe-area-inset-left), 16px) !important;
+  z-index: 2147483648 !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  /* Đảm bảo nút luôn nổi trên cùng */
+  position: sticky !important;
+  position: -webkit-sticky !important;
+}
+
+/* iPhone 16 Pro Max - nút thoát fullscreen */
+@media only screen 
+  and (device-width: 430px) 
+  and (device-height: 932px) 
+  and (-webkit-device-pixel-ratio: 3) {
+  .ios-fullscreen-wrapper button[style*="position: fixed"] {
+    top: max(env(safe-area-inset-top), 59px) !important;
+    left: max(env(safe-area-inset-left), 16px) !important;
+  }
+  
+  @media (orientation: landscape) {
+    .ios-fullscreen-wrapper button[style*="position: fixed"] {
+      top: 16px !important;
+      left: max(env(safe-area-inset-left), 59px) !important;
+    }
+  }
+}
+
+/* Landscape mode adjustments */
+@media screen and (orientation: landscape) {
+  .ios-fullscreen,
+  .ios-fullscreen-wrapper {
+    height: 100vh !important;
+    min-height: -webkit-fill-available !important;
+    /* Padding cho landscape mode */
+    padding-left: env(safe-area-inset-left) !important;
+    padding-right: env(safe-area-inset-right) !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  
+  .ios-fullscreen-wrapper iframe {
+    position: relative !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    height: auto !important;
+  }
+  
+  /* iPhone X và các thiết bị có notch - Chỉ cho nút */
+  @supports (padding: max(0px)) {
+    .ios-fullscreen-wrapper button[style*="position: fixed"] {
+      left: max(env(safe-area-inset-left), 44px) !important;
+      top: max(env(safe-area-inset-top), 16px) !important;
+    }
+  }
+}
+
+/* Portrait mode adjustments */
+@media screen and (orientation: portrait) {
+  .ios-fullscreen,
+  .ios-fullscreen-wrapper {
+    height: 100vh !important;
+    height: -webkit-fill-available !important;
+    /* Padding cho portrait mode */
+    padding-top: env(safe-area-inset-top) !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  
+  .ios-fullscreen-wrapper iframe {
+    position: relative !important;
+    width: 100% !important;
+    min-height: calc(100vh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0)) !important;
+    height: auto !important;
+  }
+}
+
+/* iPhone specific (bao gồm iPhone 16 Pro Max) */
+@media screen and (max-device-width: 932px) and (-webkit-min-device-pixel-ratio: 2) {
+  .ios-fullscreen,
+  .ios-fullscreen-wrapper {
+    height: 100vh !important;
+    height: -webkit-fill-available !important;
+    width: 100vw !important;
+  }
+  
+  .ios-fullscreen-wrapper iframe {
+    position: absolute !important;
+    /* Tính toán vị trí với safe area */
+    top: env(safe-area-inset-top, 0) !important;
+    left: env(safe-area-inset-left, 0) !important;
+    right: env(safe-area-inset-right, 0) !important;
+    bottom: env(safe-area-inset-bottom, 0) !important;
+    /* Tính toán kích thước trừ đi safe area */
+    width: calc(100vw - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)) !important;
+    height: calc(100vh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0)) !important;
+  }
+}
+
+/* iPad specific */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 1) {
+  .ios-fullscreen {
+    height: 100vh !important;
+  }
+  
+  .ios-fullscreen iframe {
+    height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* Loại bỏ tap highlight trên iOS */
+.ios-fullscreen *,
+.ios-fullscreen-wrapper * {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Ngăn zoom khi double tap */
+.ios-fullscreen,
+.ios-fullscreen-wrapper {
+  touch-action: manipulation !important;
+}
+
+/* Fix cho iOS 15+ Safari (bao gồm iOS 18) */
+@supports (-webkit-touch-callout: none) and (height: 100svh) {
+  .ios-fullscreen,
+  .ios-fullscreen-wrapper {
+    height: 100svh !important;
+    height: 100dvh !important;
+  }
+  
+  .ios-fullscreen-wrapper iframe {
+    height: 100svh !important;
+    height: 100dvh !important;
+  }
+}
+
+/* Smooth transition */
+.ios-fullscreen,
+.ios-fullscreen-wrapper {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Override lesson-optimize.css styles khi fullscreen */
+.ios-fullscreen-wrapper.lesson-iframe-container {
+  height: 100vh !important;
+  height: -webkit-fill-available !important;
+  min-height: 100vh !important;
+  max-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: white !important;
+}
+
+/* Specific cho iPhone 16 Pro Max (430x932) */
+@media only screen 
+  and (device-width: 430px) 
+  and (device-height: 932px) 
+  and (-webkit-device-pixel-ratio: 3) {
+  .ios-fullscreen-wrapper {
+    width: 100vw !important;
+    height: 100vh !important;
+    height: -webkit-fill-available !important;
+    /* Safe area insets cho iPhone 16 Pro Max */
+    padding-top: 59px !important; /* Dynamic Island + status bar */
+    padding-bottom: 44px !important; /* Home indicator + extra padding */
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    box-sizing: border-box !important;
+  }
+  
+  .ios-fullscreen-wrapper iframe {
+    position: relative !important;
+    width: 100% !important;
+    min-height: calc(100vh - 103px) !important; /* 59px top + 44px bottom */
+    height: auto !important;
+    padding-bottom: 20px !important; /* Extra padding để content không bị che */
+  }
+  
+  /* Landscape mode cho iPhone 16 Pro Max */
+  @media (orientation: landscape) {
+    .ios-fullscreen-wrapper {
+      padding-top: 0 !important;
+      padding-bottom: 21px !important; /* Extra padding cho landscape */
+      padding-left: 59px !important; /* Dynamic Island ở cạnh */
+      padding-right: 59px !important;
+      overflow-y: scroll !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .ios-fullscreen-wrapper iframe {
+      position: relative !important;
+      width: 100% !important;
+      min-height: calc(100vh - 21px) !important;
+      height: auto !important;
+      padding-bottom: 20px !important;
+    }
+  }
+}
+
+/* Force full viewport trên iOS khi fullscreen */
+.ios-fullscreen-active .ios-fullscreen-wrapper {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  transform: none !important;
+}
+
+/* Ẩn thanh địa chỉ Safari bằng scroll hack */
+.ios-fullscreen-wrapper {
+  /* Minimal UI mode trigger */
+  min-height: calc(100vh + 1px) !important;
+}

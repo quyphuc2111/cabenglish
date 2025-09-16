@@ -1,0 +1,115 @@
+/* Tabs Container Height Management */
+
+/* Base container height calculation */
+.lesson-tabs-content {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Non-fullscreen mode - allow scrolling */
+.lesson-iframe-container:not(.ios-fullscreen-wrapper) {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-y: contain !important;
+}
+
+/* Calculate available height for content */
+@media screen and (max-width: 767px) {
+  /* Mobile portrait */
+
+  
+  /* Mobile landscape */
+  @media (orientation: landscape) {
+    .lesson-iframe-container:not(.ios-fullscreen-wrapper) {
+      /* Account for tabs (28px) + controls (32px) + padding (4px) + safe area */
+      height: calc(100vh - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 64px) !important;
+      max-height: calc(100vh - 64px) !important;
+    }
+  }
+}
+
+/* Tablet */
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .lesson-iframe-container:not(.ios-fullscreen-wrapper) {
+    height: calc(80vh - 100px) !important;
+    max-height: 80vh !important;
+  }
+}
+
+/* Desktop */
+@media screen and (min-width: 1024px) {
+  .lesson-iframe-container:not(.ios-fullscreen-wrapper) {
+    height: calc(80vh - 120px) !important;
+    max-height: 80vh !important;
+  }
+}
+
+/* iPhone 16 Pro Max specific */
+@media only screen 
+  and (device-width: 430px) 
+  and (device-height: 932px) 
+  and (-webkit-device-pixel-ratio: 3) {
+  
+  @media (orientation: portrait) {
+    .lesson-iframe-container:not(.ios-fullscreen-wrapper) {
+      /* 59px (Dynamic Island) + 34px (Home indicator) + 76px (UI) */
+      height: calc(100vh - 169px) !important;
+      max-height: calc(100vh - 93px - 76px) !important;
+    }
+  }
+  
+  @media (orientation: landscape) {
+    .lesson-iframe-container:not(.ios-fullscreen-wrapper) {
+      /* 59px (Dynamic Island on sides) * 2 + 64px (UI) */
+      height: calc(100vh - 182px) !important;
+      max-height: calc(100vh - 118px - 64px) !important;
+    }
+  }
+}
+
+/* Fullscreen mode - no scrolling needed */
+.lesson-iframe-container.ios-fullscreen-wrapper {
+  overflow: hidden !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+
+/* Ensure iframe can be scrolled within container */
+.lesson-iframe-container iframe {
+  min-height: 100%;
+  width: 100%;
+}
+
+/* Fix for iOS bounce effect */
+@supports (-webkit-touch-callout: none) {
+  .lesson-iframe-container:not(.ios-fullscreen-wrapper) {
+    /* Prevent bounce on iOS */
+    position: relative;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    
+    /* Create scrollable area */
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+    }
+  }
+}
+
+/* Debug helpers - uncomment to see boundaries */
+/*
+.lesson-iframe-container {
+  border: 2px solid red !important;
+}
+
+.lesson-iframe-container iframe {
+  border: 2px solid blue !important;
+}
+*/
