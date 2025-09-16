@@ -26,17 +26,17 @@ const PlatformData = [
 function PlatformSection() {
   return (
     <div className="bg-gray-50 py-8 px-4 sm:py-12 sm:px-6 md:p-16">
-      <div className="container mx-auto max-w-7xl">
+      <div className="mx-auto max-w-8xl">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-center mb-12 sm:mb-16 md:mb-24">
           Các nền tảng của BKT SmartKids
         </h2>
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-8 md:gap-y-20 sm:grid-cols-2 lg:grid-cols-3">
           {PlatformData &&
             PlatformData.map((item, index) => {
               return (
                 <div
                   key={index}
-                  className="flex flex-col gap-4 sm:gap-6 mb-10 sm:mb-0 items-center rounded-3xl bg-white p-6 sm:p-8 md:p-10 shadow-lg border border-gray-100 hover:shadow-xl hover:border-green-200 hover:bg-gradient-to-b hover:from-white hover:to-green-50 transition-all duration-300 group relative"
+                  className="flex flex-col gap-4 sm:gap-6 mb-10 sm:mb-0 items-center rounded-3xl bg-white p-6 sm:p-8 md:p-10 md:px-5 shadow-lg border border-gray-100 hover:shadow-xl hover:border-green-200 hover:bg-gradient-to-b hover:from-white hover:to-green-50 transition-all duration-300 group relative"
                 >
                   {/* Tooltip preview that appears on hover */}
                   <div className="absolute opacity-0 group-hover:opacity-100 -top-4 left-1/2 -translate-x-1/2 transform -translate-y-full bg-white p-2 rounded-xl shadow-2xl border-2 border-green-200 z-10 transition-all duration-300 scale-0 group-hover:scale-100 w-48 h-48 sm:w-56 sm:h-56 pointer-events-none">
@@ -65,7 +65,7 @@ function PlatformSection() {
                     </div>
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-semibold text-center">
+                  <h3 className="text-lg sm:text-xl font-semibold text-left md:text-center">
                     {item.title}
                   </h3>
                   <p className="text-sm sm:text-base text-justify">

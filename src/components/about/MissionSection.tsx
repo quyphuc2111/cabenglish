@@ -96,7 +96,7 @@ function MissionSection() {
           </motion.div>
 
           <motion.div
-            className="bg-white p-10 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
+            className="bg-white p-5 2xl:p-10 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
             variants={itemVariants}
           >
             <motion.h2

@@ -13,8 +13,8 @@ function AdviSection() {
       <div className="absolute left-4 right-0 ">
         <BackgroundSVG width="100%" height={isMobile ? 150 : 462} />
       </div>
-      <div className="container flex absolute top-0 md:left-1/2 transform md:-translate-x-1/2 items-center justify-between md:w-1/2 ">
-        <div className="md:max-w-[520px] flex flex-col gap-5">
+      <div className="container flex absolute top-0 md:left-1/2 transform md:-translate-x-1/2 items-center justify-between 2xl:w-1/2  h-full md:w-[800px]">
+        <div className="max-w-[800px] 2xl:max-w-[520px] flex flex-col gap-5 mt-5 2xl:mt-0 ">
           <h2 className="text-xl font-semibold">
             Trẻ em cần được trao cơ hội để có thể học tập và phát triển tốt hơn.
             Giúp con khai phá tiềm năng tư duy và ngôn ngữ ngay hôm nay.
@@ -37,7 +37,7 @@ function AdviSection() {
             />
           </div>
 
-          <Button size={"lg"} className="bg-green-600">
+          <Button size={"lg"} className="bg-green-600 hover:bg-green-700">
             Nhận tư vấn miễn phí
           </Button>
         </div>

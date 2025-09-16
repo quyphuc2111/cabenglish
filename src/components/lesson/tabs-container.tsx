@@ -26,6 +26,9 @@ import { useSession } from "next-auth/react";
 
 import { OptimizedIframe } from "./optimized-iframe";
 import { useViewportHeight } from "@/hooks/useViewport";
+import "@/styles/ios-fullscreen.css";
+import "@/styles/ios-safe-area.css";
+import "@/styles/tabs-height.css";
 
 // Định nghĩa interface cho H5P global
 interface H5PInstance {
@@ -404,45 +407,140 @@ export const TabsContainer = ({
 
   const handleFullScreen = () => {
     if (iframeContainerRef.current) {
+      // Kiểm tra xem có phải iOS Safari không
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      
       try {
         setIsFullscreen(true);
 
-        // Sử dụng API fullscreen tiêu chuẩn của trình duyệt cho container
-        if (iframeContainerRef.current.requestFullscreen) {
-          iframeContainerRef.current.requestFullscreen();
-        } else if (
-          (iframeContainerRef.current as any).webkitRequestFullscreen
-        ) {
-          (iframeContainerRef.current as any).webkitRequestFullscreen(); // Safari
-        } else if ((iframeContainerRef.current as any).mozRequestFullScreen) {
-          (iframeContainerRef.current as any).mozRequestFullScreen(); // Firefox
-        } else if ((iframeContainerRef.current as any).msRequestFullscreen) {
-          (iframeContainerRef.current as any).msRequestFullscreen(); // IE11
-        } else {
-          // Fallback cho iOS và các trình duyệt không hỗ trợ
+        // Đối với iOS, sử dụng phương pháp thay thế
+        if (isIOS || isSafari) {
+          // iOS không hỗ trợ Fullscreen API đầy đủ, sử dụng CSS để giả lập
           const element = iframeContainerRef.current;
-          element.style.position = "fixed";
-          element.style.top = "0";
-          element.style.left = "0";
-          element.style.width = "100vw";
-          element.style.height = "100vh";
-          element.style.zIndex = "9999";
-          element.style.backgroundColor = "white";
-          document.body.style.overflow = "hidden";
+          
+          // Lưu trạng thái hiện tại
+          element.setAttribute('data-prev-position', element.style.position || '');
+          element.setAttribute('data-prev-top', element.style.top || '');
+          element.setAttribute('data-prev-left', element.style.left || '');
+          element.setAttribute('data-prev-width', element.style.width || '');
+          element.setAttribute('data-prev-height', element.style.height || '');
+          element.setAttribute('data-prev-zindex', element.style.zIndex || '');
+          
+          // Lưu scroll position để khôi phục sau
+          const scrollY = window.scrollY;
+          const scrollX = window.scrollX;
+          element.setAttribute('data-scroll-y', scrollY.toString());
+          element.setAttribute('data-scroll-x', scrollX.toString());
+          
+          // Áp dụng styles fullscreen cho iOS
+          element.style.position = 'fixed';
+          element.style.top = '0';
+          element.style.left = '0';
+          element.style.width = '100vw';
+          element.style.height = '100vh';
+          element.style.zIndex = '99999';
+          element.style.backgroundColor = 'white';
+          element.style.margin = '0';
+          element.style.padding = '0';
+          element.style.border = 'none';
+          element.style.borderRadius = '0';
+          element.style.transform = 'none';
+          
+          // Ẩn thanh cuộn và ngăn cuộn body
+          document.body.style.overflow = 'hidden';
+          document.documentElement.style.overflow = 'hidden';
+          document.body.style.position = 'fixed';
+          document.body.style.width = '100%';
+          
+          // Thêm meta viewport cho iOS
+          let viewport = document.querySelector('meta[name="viewport"]');
+          if (viewport) {
+            viewport.setAttribute('data-prev-content', viewport.getAttribute('content') || '');
+            viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+          }
+          
+          // Thêm class để áp dụng CSS specific cho iOS
+          element.classList.add('ios-fullscreen');
+          document.body.classList.add('ios-fullscreen-active');
+          
+          // Force vào chế độ minimal UI trên iOS
+          // Scroll xuống một chút để ẩn thanh địa chỉ
+          setTimeout(() => {
+            window.scrollTo(0, 1);
+            // Sau đó scroll về top
+            setTimeout(() => {
+              window.scrollTo(0, 0);
+            }, 100);
+          }, 10);
+          
+          // Xử lý orientation change cho iOS
+          const handleOrientationChange = () => {
+            if (isFullscreen) {
+              // Re-apply fullscreen styles
+              element.style.width = '100vw';
+              element.style.height = '100vh';
+              
+              // Re-trigger minimal UI
+              setTimeout(() => {
+                window.scrollTo(0, 1);
+                setTimeout(() => {
+                  window.scrollTo(0, 0);
+                }, 100);
+              }, 100);
+            }
+          };
+          
+          window.addEventListener('orientationchange', handleOrientationChange);
+          window.addEventListener('resize', handleOrientationChange);
+          
+          // Lưu event listeners để cleanup sau
+          element.setAttribute('data-orientation-handler', 'true');
+          
+          // Trigger resize event cho iframe
+          setTimeout(() => {
+            if (iframeRef.current && iframeRef.current.contentWindow) {
+              const resizeEvent = new Event('resize');
+              iframeRef.current.contentWindow.dispatchEvent(resizeEvent);
+            }
+          }, 200);
+          
+        } else {
+          // Sử dụng API fullscreen tiêu chuẩn cho các trình duyệt khác
+          if (iframeContainerRef.current.requestFullscreen) {
+            iframeContainerRef.current.requestFullscreen();
+          } else if ((iframeContainerRef.current as any).webkitRequestFullscreen) {
+            (iframeContainerRef.current as any).webkitRequestFullscreen();
+          } else if ((iframeContainerRef.current as any).mozRequestFullScreen) {
+            (iframeContainerRef.current as any).mozRequestFullScreen();
+          } else if ((iframeContainerRef.current as any).msRequestFullscreen) {
+            (iframeContainerRef.current as any).msRequestFullscreen();
+          } else {
+            // Fallback cho các trình duyệt không hỗ trợ
+            const element = iframeContainerRef.current;
+            element.style.position = 'fixed';
+            element.style.top = '0';
+            element.style.left = '0';
+            element.style.width = '100vw';
+            element.style.height = '100vh';
+            element.style.zIndex = '99999';
+            element.style.backgroundColor = 'white';
+            document.body.style.overflow = 'hidden';
+          }
         }
       } catch (error) {
-        console.error("Lỗi khi chuyển sang chế độ toàn màn hình:", error);
-
+        console.error('Lỗi khi chuyển sang chế độ toàn màn hình:', error);
+        
         // Fallback manual fullscreen
         const element = iframeContainerRef.current;
-        element.style.position = "fixed";
-        element.style.top = "0";
-        element.style.left = "0";
-        element.style.width = "100vw";
-        element.style.height = "100vh";
-        element.style.zIndex = "9999";
-        element.style.backgroundColor = "white";
-        document.body.style.overflow = "hidden";
+        element.style.position = 'fixed';
+        element.style.top = '0';
+        element.style.left = '0';
+        element.style.width = '100vw';
+        element.style.height = '100vh';
+        element.style.zIndex = '99999';
+        element.style.backgroundColor = 'white';
+        document.body.style.overflow = 'hidden';
         setIsFullscreen(true);
       }
     }
@@ -450,7 +548,85 @@ export const TabsContainer = ({
 
   const handleExitFullScreen = () => {
     try {
-      if (document.fullscreenElement) {
+      // Kiểm tra xem có phải iOS Safari không
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      
+      if (isIOS || isSafari) {
+        // Xử lý thoát fullscreen cho iOS
+        if (iframeContainerRef.current) {
+          const element = iframeContainerRef.current;
+          
+          // Khôi phục styles ban đầu
+          element.style.position = element.getAttribute('data-prev-position') || '';
+          element.style.top = element.getAttribute('data-prev-top') || '';
+          element.style.left = element.getAttribute('data-prev-left') || '';
+          element.style.width = element.getAttribute('data-prev-width') || '';
+          element.style.height = element.getAttribute('data-prev-height') || '';
+          element.style.zIndex = element.getAttribute('data-prev-zindex') || '';
+          element.style.backgroundColor = '';
+          element.style.margin = '';
+          element.style.padding = '';
+          element.style.border = '';
+          element.style.borderRadius = '';
+          element.style.transform = '';
+          
+          // Khôi phục scroll position
+          const scrollY = element.getAttribute('data-scroll-y');
+          const scrollX = element.getAttribute('data-scroll-x');
+          
+          // Xóa các attributes đã lưu
+          element.removeAttribute('data-prev-position');
+          element.removeAttribute('data-prev-top');
+          element.removeAttribute('data-prev-left');
+          element.removeAttribute('data-prev-width');
+          element.removeAttribute('data-prev-height');
+          element.removeAttribute('data-prev-zindex');
+          element.removeAttribute('data-scroll-y');
+          element.removeAttribute('data-scroll-x');
+          
+          // Khôi phục overflow và position của body
+          document.body.style.overflow = '';
+          document.body.style.position = '';
+          document.body.style.width = '';
+          document.documentElement.style.overflow = '';
+          
+          // Khôi phục viewport
+          let viewport = document.querySelector('meta[name="viewport"]');
+          if (viewport) {
+            const prevContent = viewport.getAttribute('data-prev-content');
+            if (prevContent) {
+              viewport.setAttribute('content', prevContent);
+              viewport.removeAttribute('data-prev-content');
+            }
+          }
+          
+          // Xóa classes iOS
+          element.classList.remove('ios-fullscreen');
+          document.body.classList.remove('ios-fullscreen-active');
+          
+          // Cleanup event listeners nếu có
+          if (element.getAttribute('data-orientation-handler') === 'true') {
+            const handleOrientationChange = () => {};
+            window.removeEventListener('orientationchange', handleOrientationChange);
+            window.removeEventListener('resize', handleOrientationChange);
+            element.removeAttribute('data-orientation-handler');
+          }
+          
+          // Khôi phục scroll position
+          if (scrollY && scrollX) {
+            window.scrollTo(parseInt(scrollX), parseInt(scrollY));
+          }
+          
+          // Trigger resize event cho iframe
+          setTimeout(() => {
+            if (iframeRef.current && iframeRef.current.contentWindow) {
+              const resizeEvent = new Event('resize');
+              iframeRef.current.contentWindow.dispatchEvent(resizeEvent);
+            }
+          }, 100);
+        }
+      } else if (document.fullscreenElement) {
         document.exitFullscreen();
       } else if ((document as any).webkitFullscreenElement) {
         (document as any).webkitExitFullscreen();
@@ -461,29 +637,34 @@ export const TabsContainer = ({
       } else {
         // Manual exit fallback
         if (iframeContainerRef.current) {
-          iframeContainerRef.current.style.position = "";
-          iframeContainerRef.current.style.top = "";
-          iframeContainerRef.current.style.left = "";
-          iframeContainerRef.current.style.width = "";
-          iframeContainerRef.current.style.height = "";
-          iframeContainerRef.current.style.zIndex = "";
-          iframeContainerRef.current.style.backgroundColor = "";
-          document.body.style.overflow = "";
+          iframeContainerRef.current.style.position = '';
+          iframeContainerRef.current.style.top = '';
+          iframeContainerRef.current.style.left = '';
+          iframeContainerRef.current.style.width = '';
+          iframeContainerRef.current.style.height = '';
+          iframeContainerRef.current.style.zIndex = '';
+          iframeContainerRef.current.style.backgroundColor = '';
+          document.body.style.overflow = '';
         }
       }
       setIsFullscreen(false);
     } catch (error) {
-      console.error("Lỗi khi thoát chế độ toàn màn hình:", error);
+      console.error('Lỗi khi thoát chế độ toàn màn hình:', error);
       // Force exit
       if (iframeContainerRef.current) {
-        iframeContainerRef.current.style.position = "";
-        iframeContainerRef.current.style.top = "";
-        iframeContainerRef.current.style.left = "";
-        iframeContainerRef.current.style.width = "";
-        iframeContainerRef.current.style.height = "";
-        iframeContainerRef.current.style.zIndex = "";
-        iframeContainerRef.current.style.backgroundColor = "";
-        document.body.style.overflow = "";
+        iframeContainerRef.current.style.position = '';
+        iframeContainerRef.current.style.top = '';
+        iframeContainerRef.current.style.left = '';
+        iframeContainerRef.current.style.width = '';
+        iframeContainerRef.current.style.height = '';
+        iframeContainerRef.current.style.zIndex = '';
+        iframeContainerRef.current.style.backgroundColor = '';
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+        
+        // Xóa classes nếu có
+        iframeContainerRef.current.classList.remove('ios-fullscreen');
+        document.body.classList.remove('ios-fullscreen-active');
       }
       setIsFullscreen(false);
     }
@@ -685,44 +866,102 @@ export const TabsContainer = ({
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="bg-white rounded-md h-full flex flex-col overflow-hidden"
+              className={`bg-white rounded-md flex flex-col ${
+                isFullscreen ? 'h-screen' : ''
+              }`}
+              style={{
+                height: '100vh',
+                // minHeight: !isFullscreen 
+                //   ? 'calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 120px)'
+                //   : undefined,
+                // maxHeight: !isFullscreen
+                //   ? 'calc(100vh - 120px)'
+                //   : undefined,
+                overflow: isFullscreen ? 'hidden' : 'visible'
+              }}
             >
               {/* Iframe Container */}
               <div
                 ref={iframeContainerRef}
-                className={`relative flex-1 min-h-0 lesson-iframe-container p-0.5 landscape:p-1 sm:p-2 md:p-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 ${
-                  isFullscreen ? "lesson-fullscreen fullscreen-container" : ""
+                className={`relative flex-1 lesson-iframe-container bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 ${
+                  isFullscreen ? "ios-fullscreen-wrapper" : "p-0.5 landscape:p-1 sm:p-2 md:p-4"
                 }`}
+                style={{
+                  ...(isFullscreen ? {
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    zIndex: 99999,
+                    padding: 0,
+                    margin: 0,
+                    // Thêm padding an toàn cho iOS
+                    paddingTop: 'max(env(safe-area-inset-top), 20px)',
+                    paddingBottom: 'max(env(safe-area-inset-bottom), 34px)',
+                    paddingLeft: 'env(safe-area-inset-left, 0px)',
+                    paddingRight: 'env(safe-area-inset-right, 0px)',
+                    overflowY: 'scroll',
+                    WebkitOverflowScrolling: 'touch',
+                    overscrollBehavior: 'contain',
+                    backgroundColor: 'white',
+                    boxSizing: 'border-box'
+                  } : {
+                    height: 'calc(70vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))',
+                    maxHeight: '75vh',
+                    overflowY: 'auto',
+                    WebkitOverflowScrolling: 'touch',
+                    overscrollBehavior: 'contain'
+                  })
+                }}
               >
                 {/* Exit Fullscreen Button */}
                 {isFullscreen && (
-                  <button
-                    onClick={handleExitFullScreen}
-                    className="absolute top-2 left-2 z-50 bg-black/70 hover:bg-black/90 text-white rounded-full p-2 sm:p-3 transition-all duration-200 hover:scale-110 backdrop-blur-sm"
+                  <div
                     style={{
                       position: "fixed",
-                      top: "16px",
-                      left: "16px",
-                      zIndex: 10000
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      padding: "16px",
+                      paddingTop: "max(env(safe-area-inset-top, 16px), 20px)",
+                      paddingLeft: "max(env(safe-area-inset-left, 16px), 16px)",
+                      zIndex: 2147483648,
+                      pointerEvents: "none"
                     }}
                   >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-4 h-4 sm:w-5 sm:h-5"
+                    <button
+                      onClick={handleExitFullScreen}
+                      className="bg-black/80 hover:bg-black/90 text-white rounded-full p-2.5 sm:p-3 transition-all duration-200 hover:scale-110 backdrop-blur-sm shadow-lg"
+                      style={{
+                        pointerEvents: "auto",
+                        width: "40px",
+                        height: "40px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                      }}
                     >
-                      <path
-                        d="M18 6L6 18M6 6L18 18"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </button>
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          d="M18 6L6 18M6 6L18 18"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 )}
                 {content.iframe_url.startsWith("http") ? (
                   <OptimizedIframe
@@ -746,35 +985,36 @@ export const TabsContainer = ({
                 )}
               </div>
 
-              {/* Description và controls - Ẩn trên mobile portrait, hiện minimal trên landscape */}
-              <div className="hidden landscape:flex sm:flex p-0.5 landscape:p-1 sm:p-2 md:p-4 gap-1 landscape:gap-2 sm:gap-4 items-center justify-between min-h-[32px] landscape:min-h-[36px] sm:min-h-[40px]">
-                <div className="text-[10px] landscape:text-xs sm:text-sm text-gray-500 max-w-lg line-clamp-1 truncate">
-                  {content.description}
-                </div>
-                <button
-                  onClick={
-                    isFullscreen ? handleExitFullScreen : handleFullScreen
-                  }
-                  className="flex items-center justify-center gap-1 bg-gray-100 p-1 landscape:p-1.5 sm:p-2 rounded-md text-[10px] landscape:text-xs sm:text-sm hover:bg-gray-200 transition-colors flex-shrink-0"
-                >
-                  <FullscreenIcon className="w-3 h-3 landscape:w-4 landscape:h-4 sm:w-5 sm:h-5" />
-                  <span className="hidden sm:inline">
-                    {isFullscreen ? "Thoát toàn màn hình" : "Toàn màn hình"}
-                  </span>
-                </button>
-              </div>
+              {/* Description và controls - Hiển thị khi không fullscreen */}
+              {!isFullscreen && (
+                <>
+                  {/* Desktop và Tablet */}
+                  <div className="hidden sm:flex p-0.5 landscape:p-1 sm:p-2 md:p-4 gap-1 landscape:gap-2 sm:gap-4 items-center justify-between min-h-[32px] landscape:min-h-[36px] sm:min-h-[40px]">
+                    <div className="text-[10px] landscape:text-xs sm:text-sm text-gray-500 max-w-lg line-clamp-1 truncate">
+                      {content.description}
+                    </div>
+                    <button
+                      onClick={handleFullScreen}
+                      className="flex items-center justify-center gap-1 bg-gray-100 p-1 landscape:p-1.5 sm:p-2 rounded-md text-[10px] landscape:text-xs sm:text-sm hover:bg-gray-200 transition-colors flex-shrink-0"
+                    >
+                      <FullscreenIcon className="w-3 h-3 landscape:w-4 landscape:h-4 sm:w-5 sm:h-5" />
+                      <span className="hidden sm:inline">Toàn màn hình</span>
+                    </button>
+                  </div>
 
-              {/* Mobile portrait - chỉ hiện nút fullscreen */}
-              <div className="flex landscape:hidden sm:hidden justify-end p-0.5">
-                <button
-                  onClick={
-                    isFullscreen ? handleExitFullScreen : handleFullScreen
-                  }
-                  className="flex items-center justify-center bg-gray-100 p-1 rounded-md hover:bg-gray-200 transition-colors"
-                >
-                  <FullscreenIcon className="w-3 h-3" />
-                </button>
-              </div>
+                  {/* Mobile - hiện nút fullscreen cho cả portrait và landscape */}
+                  <div className="flex sm:hidden justify-end p-1">
+                    <button
+                      onClick={handleFullScreen}
+                      className="flex items-center justify-center bg-gray-100 p-1.5 rounded-md hover:bg-gray-200 transition-colors"
+                    >
+                      <FullscreenIcon className="w-4 h-4" />
+                     
+                    </button>
+                  </div>
+
+                </>
+              )}
             </motion.div>
           </TabsContent>
         ))}
@@ -801,6 +1041,61 @@ export const TabsContainer = ({
           .fullscreen-container {
             height: 100vh !important;
             height: -webkit-fill-available !important;
+          }
+          
+          /* iOS Fullscreen Mode */
+          .ios-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            height: -webkit-fill-available !important;
+            z-index: 99999 !important;
+            background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            transform: none !important;
+            -webkit-transform: none !important;
+          }
+          
+          /* Khi body có class ios-fullscreen-active */
+          body.ios-fullscreen-active {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
+            height: 100% !important;
+            -webkit-overflow-scrolling: touch !important;
+          }
+          
+          /* iOS Safari address bar hide */
+          .ios-fullscreen iframe {
+            width: 100% !important;
+            height: 100% !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+        }
+        
+        /* iOS specific với viewport units */
+        @supports (height: 100svh) {
+          .ios-fullscreen {
+            height: 100svh !important;
+          }
+        }
+        
+        /* iOS Safari Landscape */
+        @media screen and (orientation: landscape) {
+          @supports (-webkit-touch-callout: none) {
+            .ios-fullscreen {
+              height: 100vh !important;
+              min-height: 100vh !important;
+            }
           }
         }
 
