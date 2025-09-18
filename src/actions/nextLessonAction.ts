@@ -39,10 +39,12 @@ export async function getNextLessonByLessonId({
     const classLessons = response.data
       .filter((lesson) => lesson.classId === currentLesson.classId)
       .sort((a, b) => {
-        // Sắp xếp theo unitId trước, sau đó theo lessonOrder hoặc lessonId
+        // Sắp xếp theo lessonOrder trước (ưu tiên), sau đó theo unitId, cuối cùng theo lessonId
+        if (a.lessonOrder && b.lessonOrder) {
+          const orderDiff = a.lessonOrder - b.lessonOrder;
+          if (orderDiff !== 0) return orderDiff;
+        }
         if (a.unitId !== b.unitId) return a.unitId - b.unitId;
-        if (a.lessonOrder && b.lessonOrder)
-          return a.lessonOrder - b.lessonOrder;
         return a.lessonId - b.lessonId;
       });
 

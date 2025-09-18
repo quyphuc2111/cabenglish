@@ -354,14 +354,14 @@ export const authOptions: NextAuthOptions = {
       }
 
       // log xem có phải refresh token không
-      console.log("🔄 [JWT Callback] Refreshing access token...");
-      console.log("Current time:", new Date(Date.now()).toLocaleString());
-      console.log(
-        "Token expires at:",
-        token.accessTokenExpires !== undefined
-          ? new Date(token.accessTokenExpires).toLocaleString()
-          : "undefined"
-      );
+      // console.log("🔄 [JWT Callback] Refreshing access token...");
+      // console.log("Current time:", new Date(Date.now()).toLocaleString());
+      // console.log(
+      //   "Token expires at:",
+      //   token.accessTokenExpires !== undefined
+      //     ? new Date(token.accessTokenExpires).toLocaleString()
+      //     : "undefined"
+      // );
 
       if (token.authCookie) {
         // Validate refresh token format before attempting refresh
