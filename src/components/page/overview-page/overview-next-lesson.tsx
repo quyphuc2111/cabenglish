@@ -1,8 +1,7 @@
-import LessonCard from "@/components/lesson/lesson-card";
+import { LessonCardV2 } from "@/components/lesson/lesson-card-v2";
 import Image from "next/image";
 import React from "react";
-import { CourseCarousel } from "@/components/carousel/course-carousel";
-import { PaginatedContent } from "@/components/common/paginated-content";
+import { PaginatedContentV2 } from "@/components/common/paginated-content-v2";
 import { useSelectLessonStore } from "@/store/useSelectLesson";
 
 interface NextLectureProps {
@@ -112,23 +111,19 @@ const NextLecture = ({
         </div>
       </div>
 
-      <div className="min-h-[230px] sm:min-h-[320px] md:min-h-[370px] lg:min-h-[330px]">
-        {/* Comment: CourseCarousel cũ - đã thay thế bằng PaginatedContent
-        <CourseCarousel
-          courseData={nextLectures}
-          className="h-full"
-          onLessonClick={handleLessonClick}
-          classroomData={classroomData}
-          containerType="next"
-        />
-        */}
-
-        {/* Grid/List + Pagination mới */}
-        <PaginatedContent
+      <div className="min-h-[200px]">
+        {/* Horizontal Scroll với Manual Loading (Click để load thêm) - LessonCardV2 */}
+        <PaginatedContentV2
           items={nextLectures}
-          itemsPerPage={4}
+          itemsPerPage={6}
+          layout="horizontal"
+          loadMode="manual"
+          itemWidth="260px"
+          gap={4}
+          loadingText="Đang tải..."
+          endText="Đã hiển thị tất cả bài học"
           renderItem={(lecture) => (
-            <LessonCard
+            <LessonCardV2
               key={lecture.lessonId}
               classId={lecture.classId || classId}
               unitId={lecture.unitId}
@@ -146,9 +141,6 @@ const NextLecture = ({
               onLikeUpdate={onLikeUpdate}
             />
           )}
-          rowPerPage={2} // 2 cột để phù hợp với layout chia đôi
-          itemInPage={[4, 8, 12]} // Options cho items per page
-          className="h-full"
         />
       </div>
     </div>
