@@ -8,7 +8,7 @@ import Image from "next/image";
 const PlatformData = [
   {
     title: "BKT SmartKids PC",
-    desc: "Với tên gọi BKT SmartKids là một trên máy tính nhằm phục vụ cho lứa tuổi mầm non được các thầy cô sử dụng trực tiếp trong quá trình giảng dạy các bé. Tương thích với nhiều thiết bị màn hình thông minh nhằm nâng cáo quá trình giảng dạy",
+    desc: "Với tên gọi BKT SmartKids là một trên máy tính nhằm phục vụ cho lứa tuổi mầm non được các thầy cô sử dụng trực tiếp trong quá trình giảng dạy các bé. Tương thích với nhiều thiết bị màn hình thông minh nhằm nâng cao quá trình giảng dạy.",
     image: SMK_App
   },
   {
@@ -18,7 +18,7 @@ const PlatformData = [
   },
   {
     title: "BKT SmartKids Mobile",
-    desc: "Xây dựng lộ trình học tập hợp lý với từng trẻ nhỏ, dễ dàng học tập mọi lúc mọi nơi và giúp ba mẹ theo dõi quá trình học tiếng anh và dựa vào các kết quả đánh giá có trên ứng dụng",
+    desc: "Xây dựng lộ trình học tập hợp lý với từng trẻ nhỏ, dễ dàng học tập mọi lúc mọi nơi và giúp ba mẹ theo dõi quá trình học tiếng anh và dựa vào các kết quả đánh giá có trên ứng dụng.",
     image: SMK_Mobile
   }
 ];
