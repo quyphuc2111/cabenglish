@@ -101,16 +101,16 @@ export default function HomePage() {
 
       <div className="flex flex-col min-h-screen">
         <header className="z-[50] sticky top-0 w-full bg-background/95 border-b backdrop-blur-sm dark:bg-black/[0.6] border-border/40 py-2 2xl:py-0">
-          <div className="container h-14 flex items-center">
+          <div className="container flex items-center">
             <Link
               href="/"
-              className="flex justify-start items-center hover:opacity-85 transition-opacity duration-300" 
+              className="flex justify-start items-center hover:opacity-85 transition-opacity duration-300 py-2" 
               aria-label="BKT Logo"
             >
               <Image
                 src={logo}
-                width={122}
-                height={42}
+                width={112}
+                height={32}
                 alt="BKT Logo"
                 priority
                 className="rounded-xl"
@@ -189,7 +189,7 @@ export default function HomePage() {
                     height={100}
                     alt="BKT Logo Footer"
                     priority
-                    className="border rounded-xl shadow-sm dark:hidden"
+                    className=""
                   />
                   <h2 className="font-semibold text-xl">
                     Công ty CP Đầu tư thương mại và công nghệ BKT
@@ -198,14 +198,14 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div className="col-span-2" variants={fadeInUp}>
-                <h2 className="text-lg 2xl:text-xl font-semibold mb-2 2xl:mb-4 text-center md:text-left ">
+                <h2 className="text-lg 2xl:text-xl font-semibold mb-2 2xl:mb-2 text-center md:text-left ">
                   Trụ sở
                 </h2>
                 <div className="flex flex-col md:flex-row md:flex-wrap">
                   {address.map((location, index) => (
                     <motion.div
                       key={location.city}
-                      className="mb-6 md:mb-0 md:w-1/2 p-2"
+                      className="mb-0 md:mb-0 md:w-1/2 p-2"
                       variants={fadeInUp}
                     >
                       <Badge className="mb-2 bg-green-600">
@@ -224,7 +224,7 @@ export default function HomePage() {
                 <h2 className="text-lg 2xl:text-xl font-semibold mb-2 2xl:mb-4 text-center md:text-left">
                   Hotline
                 </h2>
-                <ul className="flex flex-col gap-4">
+                <ul className="flex flex-wrap justify-center md:flex-col gap-4">
                   <li>
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1">
                       <span className="font-medium text-center sm:text-left text-sm 2xl:text-base">

@@ -63,16 +63,16 @@ export default function AdminPanelLayout({
       <AdminModalProvider />
       <ToastContainer
         position="top-right"
-        autoClose={3000}
+        autoClose={8000}
         hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
+        newestOnTop={true}
+        closeOnClick={true}
         rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
+        pauseOnFocusLoss={true}
+        draggable={true}
+        pauseOnHover={true}
         theme="light"
-        limit={3}
+        limit={5}
         containerId="admin-toast-container"
       />
     </div>

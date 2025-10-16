@@ -3,6 +3,7 @@ import Image from "next/image";
 import React from "react";
 import { PaginatedContentV2 } from "@/components/common/paginated-content-v2";
 import { useSelectLessonStore } from "@/store/useSelectLesson";
+import LessonCard from "@/components/lesson/lesson-card";
 
 interface NextLectureProps {
   nextLectures: any[];
@@ -123,7 +124,7 @@ const NextLecture = ({
           loadingText="Đang tải..."
           endText="Đã hiển thị tất cả bài học"
           renderItem={(lecture) => (
-            <LessonCardV2
+            <LessonCard
               key={lecture.lessonId}
               classId={lecture.classId || classId}
               unitId={lecture.unitId}
@@ -134,7 +135,7 @@ const NextLecture = ({
               classRoomName={lecture.className}
               lessonName={lecture.lessonName}
               progress={lecture.progress}
-              numLiked={lecture.numLiked}
+              numLiked={lecture.numLiked} 
               isLocked={lecture.isLocked}
               lessonId={lecture.lessonId}
               onClick={() => handleLessonClickWithData(lecture)}

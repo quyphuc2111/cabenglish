@@ -48,16 +48,16 @@ export default function DashboardPage() {
 function DashboardContent({ userId }: { userId: string }) {
   const { dashboardData, isLoading, error, refetch } = useDashboardData(userId);
 
-  if (isLoading) {
-    return (
-      <ContentLayout title="Dashboard">
-        <DashboardLoading
-          message="Đang tải dữ liệu dashboard..."
-          showProgress={true}
-        />
-      </ContentLayout>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <ContentLayout title="Dashboard">
+  //       <DashboardLoading
+  //         message="Đang tải dữ liệu dashboard..."
+  //         showProgress={true}
+  //       />
+  //     </ContentLayout>
+  //   );
+  // }
 
   if (error) {
     return (
@@ -84,7 +84,7 @@ function DashboardContent({ userId }: { userId: string }) {
     return (
       <ContentLayout title="Dashboard">
         <DashboardLoading
-          message="Đang khởi tạo dữ liệu..."
+          // message="Đang khởi tạo dữ liệu..."
           showProgress={true}
         />
       </ContentLayout>

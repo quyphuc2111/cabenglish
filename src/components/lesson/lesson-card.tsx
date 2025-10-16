@@ -136,7 +136,7 @@ function LessonCard({
     () =>
       cn(
         "lesson-card px-1 sm:px-2 md:px-3 py-1.5 sm:py-2 md:py-4 bg-white rounded-lg sm:rounded-xl md:rounded-2xl flex flex-col gap-1 sm:gap-2 md:gap-3 shadow-course-inset border relative overflow-hidden w-full",
-        "transition-all duration-300 ease-out",
+        "transition-all ease-out",
         // Cố định height để tránh lệch layout
         "min-h-[200px] xs:min-h-[220px] sm:min-h-[240px] md:min-h-[280px]",
         isLocked
@@ -323,7 +323,7 @@ function LessonCard({
               alt={unitName}
               fill
               className={cn(
-                "object-cover transition-opacity duration-300",
+                "object-cover transition-opacity",
                 isLocked && "opacity-50"
               )}
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -416,15 +416,15 @@ function LessonCard({
 
             <button
               className={cn(
-                "like-button relative flex items-center gap-0.5 sm:gap-1 p-1 sm:p-1.5 md:p-2 rounded-lg transition-all duration-300 sm:m-1.5 md:m-2 group",
-                isLiking
+                "like-button relative flex items-center gap-0.5 sm:gap-1 p-1 sm:p-1.5 md:p-2 rounded-lg transition-all sm:m-1.5 md:m-2 group",
+                isLiking || isLocked
                   ? "cursor-not-allowed opacity-50"
                   : "hover:bg-pink-50 active:scale-95",
                 optimisticLikeCount > 0 && "like-button-loved"
               )}
               onClick={handleLessonLike}
               type="button"
-              disabled={isLiking}
+              disabled={isLiking || isLocked}
               aria-label={`${
                 optimisticLikeCount === 0 ? "Like" : "Unlike"
               } this lesson`}
@@ -432,7 +432,7 @@ function LessonCard({
               {/* Background glow effect */}
               <div
                 className={cn(
-                  "absolute inset-0 rounded-lg bg-gradient-to-r from-pink-400 to-red-400 opacity-0 blur-sm transition-opacity duration-300",
+                  "absolute inset-0 rounded-lg bg-gradient-to-r from-pink-400 to-red-400 opacity-0 blur-sm transition-opacity",
                   optimisticLikeCount > 0 && "opacity-20"
                 )}
               ></div>
@@ -461,7 +461,7 @@ function LessonCard({
                         height="18"
                         viewBox="0 0 24 24"
                         className={cn(
-                          "heart-svg transition-all duration-300",
+                          "heart-svg transition-all",
                           "w-[14px] h-[14px] sm:w-[16px] sm:h-[16px] md:w-[20px] md:h-[20px]", // Responsive size
                           optimisticLikeCount > 0
                             ? "fill-red-500 text-red-500 drop-shadow-lg"
@@ -489,7 +489,7 @@ function LessonCard({
               {/* Like count */}
               <span
                 className={cn(
-                  "text-[10px] sm:text-xs md:text-sm font-medium transition-all duration-300", // Responsive text size
+                  "text-[10px] sm:text-xs md:text-sm font-medium transition-all", // Responsive text size
                   isLiking
                     ? "text-gray-400"
                     : optimisticLikeCount > 0
@@ -511,16 +511,23 @@ export default LessonCard;
 
 // Custom CSS cho like effects và removing animations (animations removed)
 const likeButtonStyles = `
-  /* Enhanced card hover effects */
+  /* Enhanced card hover effects - using CSS variables */
   .lesson-card {
-    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition-duration: var(--lesson-card-transition, 500ms);
     box-sizing: border-box;
     max-width: 100%;
   }
 
+  /* Hover effects */
+  .lesson-card:hover {
+    transition-duration: var(--lesson-card-hover, 500ms);
+  }
+
   /* Progress indicator enhancement */
   .progress-flower {
-    transition: all 0.3s ease;
+    transition: all var(--lesson-card-transition, 500ms) ease;
   }
 
   /* Mobile optimizations */
@@ -570,11 +577,12 @@ const likeButtonStyles = `
 
   /* Smooth carousel transitions */
   .course-swiper {
-    transition: height 0.3s ease-in-out;
+    transition: height var(--lesson-card-transition, 500ms) ease-in-out;
   }
 
   .swiper-slide {
-    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    transition: transform var(--lesson-card-transition, 500ms) ease-in-out, 
+                opacity var(--lesson-card-transition, 500ms) ease-in-out;
     box-sizing: border-box;
   }
 
