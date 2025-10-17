@@ -179,7 +179,7 @@ export function LanguageSwitcher({ t, userId }: LanguageSwitcherProps) {
       <div
         className="flex items-center justify-between gap-3 w-full
         bg-white px-3 sm:px-4 md:pr-5 
-        h-10 sm:h-12 md:h-14 xl:h-12
+        h-12 sm:h-12 md:h-14 xl:h-12
         shadow-sm hover:shadow-md transition-all duration-200 
         border border-gray-200 rounded-lg
         transform-gpu will-change-transform backface-visibility-hidden"
