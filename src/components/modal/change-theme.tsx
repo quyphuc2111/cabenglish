@@ -17,6 +17,8 @@ import {
   measureThemeSwitchEnd,
   checkPerformanceIssues
 } from "@/utils/theme-performance";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
 const THEME_OPTIONS = [
   { id: "theme-gold", color: "#ECC98D" },
@@ -40,7 +42,7 @@ function ChangeTheme() {
   const { data: session, update } = useSession();
   const { data: userInfo } = useUserInfo(session?.user?.userId);
   const currentTheme = userInfo?.theme ?? "theme-red";
-
+  const { t } = useTranslation();
   const [selectedTheme, setSelectedTheme] = React.useState<ThemeType>(
     (currentTheme as ThemeType) || "theme-red"
   );
@@ -102,6 +104,8 @@ function ChangeTheme() {
                 selectedTheme,
                 `(${metric?.duration?.toFixed(2)}ms)`
               );
+
+              toast.success("Thay đổi màu nền thành công");
             } catch (sessionError) {
               console.error("Lỗi khi cập nhật session:", sessionError);
               measureThemeSwitchEnd(); // End measurement even on error
@@ -197,7 +201,9 @@ function ChangeTheme() {
           >
             <div className="flex gap-2 sm:gap-3 items-center flex-wrap justify-center">
               <p className="font-semibold text-sm sm:text-base text-center">
-                Thay đổi màu nền SmartKid
+                {
+                  t("changeBackgroundColorSmartKid")
+                }
               </p>
               <motion.div
                 initial={{ rotate: -180, opacity: 0 }}
@@ -333,8 +339,12 @@ function ChangeTheme() {
                         </span>
                       </motion.div>
                     ) : (
-                      "Thay đổi"
-                    )}
+                     
+                    <span className="text-sm sm:text-base">
+                        { t("change")}
+                      </span>
+                     )}
+                    
                   </Button>
                 </div>
               </div>

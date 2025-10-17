@@ -83,7 +83,9 @@ const CurrentLecture = ({
           </div>
           <div className="text-center px-2">
             <p className="text-gray-600 font-medium text-xs sm:text-sm md:text-base">
-              Hiện tại chưa có bài học nào!
+              {
+                t("noLessonsYet")
+              }
             </p>
             <p className="text-xs text-gray-500 mt-1">
               Hãy bắt đầu một bài học mới
@@ -130,8 +132,9 @@ const CurrentLecture = ({
             itemWidth="260px"
             gap={4}
             loadingText="Đang tải..."
-            endText="Đã hiển thị tất cả bài học"
+            endText={t("allLessonsShown")}
             className="h-full"
+            t={t}
           />
         </div>
       )}

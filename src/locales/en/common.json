@@ -65,9 +65,27 @@
   "completed": "Completed ",
   "lesson": "lesson",
   "taughtLessonNumber": "Number of lessons being taught",
+  "taughtLesson": "Lessons being taught",
   "referenceMaterial": "Reference material",
   "expertTeam": "Expert team",
   "logout": "Logout",
   "homepage": "Homepage",
-  "language": "Language"
+  "language": "Language",
+  "manageAndMonitorTeachingProgress": "Manage and monitor teaching progress",
+  "trackTheLearningProgressOfEachClass": "Track the learning progress of each class",
+"noLessonsYet": "No lessons yet",
+  "startANewLesson": "Let's start a new lesson",
+  "seeMore": "See more",
+  "allLessonsShown": "All lessons shown",
+  "previousPage": "Previous page",
+  "nextPage": "Next page",
+  "totalLessons": "Total lessons",
+  "progress": "Progress",
+  "teachingProgressChart": "Teaching progress chart",
+  "noData": "No data",
+  "noDataForProgressChart": "No data for progress chart",
+  "remaining": "Remaining",
+  "changeBackgroundColorSmartKid": "Change background color SmartKid"
+
+
 }

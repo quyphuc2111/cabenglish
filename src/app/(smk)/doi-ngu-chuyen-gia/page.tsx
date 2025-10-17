@@ -6,6 +6,7 @@ import SectionTitle from "@/components/common/section-title";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useModal } from "@/hooks/useModalStore";
+import { useTranslation } from "react-i18next";
 
 const chuyenGiaData = [
   {
@@ -125,7 +126,7 @@ const DoiNguChuyenGiaPage = () => {
   const [selectedExpert, setSelectedExpert] = useState<number | null>(null);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const modal = useModal();
-
+  const { t } = useTranslation();
   const openModal = (expert: (typeof chuyenGiaData)[0]) => {
     modal.onOpen("expertDetail", { expert });
   };
@@ -136,7 +137,7 @@ const DoiNguChuyenGiaPage = () => {
         {/* Header Section */}
         <div className="text-center mb-8 sm:mb-12">
           <SectionTitle
-            title="Đội ngũ chuyên gia"
+            title={t("expertTeam")}
             image={{
               src: "/menu-icon/doinguchuyengia.png",
               width: 40,

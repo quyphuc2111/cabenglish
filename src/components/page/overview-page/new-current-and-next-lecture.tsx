@@ -3,6 +3,7 @@
 import React, { useMemo, memo } from "react";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { AgeGroupSection, Lesson } from "./age-group-section";
+import { useTranslation } from "react-i18next";
 
 interface NewCurrentAndNextLectureProps {
   courseData: any[];
@@ -18,7 +19,7 @@ const NewCurrentAndNextLecture = memo(function NewCurrentAndNextLecture({
   onLikeUpdate,
 }: NewCurrentAndNextLectureProps) {
   const { data: userInfo } = useUserInfo(userId);
-
+  const { t } = useTranslation();
   // Memoize computed data to prevent recalculation on re-renders
   const { currentLecturesByClass, nextLecturesByClass, statsPerClass } =
     useMemo(() => {
@@ -203,10 +204,14 @@ const NewCurrentAndNextLecture = memo(function NewCurrentAndNextLecture({
             </div>
             <div className="text-center px-2">
               <p className="text-gray-800 font-bold text-lg sm:text-xl md:text-2xl mb-2">
-                Hiện tại chưa có bài học nào!
+                {
+                  t("noLessonsYet")
+                }
               </p>
               <p className="text-sm sm:text-base text-gray-600">
-                Hãy bắt đầu một bài học mới để theo dõi tiến độ học tập
+                {
+                  t("startANewLesson")
+                }
               </p>
             </div>
           </div>
@@ -219,10 +224,14 @@ const NewCurrentAndNextLecture = memo(function NewCurrentAndNextLecture({
     <div className="w-full space-y-6">
       <header className="text-center space-y-2 py-3">
         <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Danh sách bài học
+          {
+            t("listOfLecture")
+          }
         </h1>
         <p className="text-gray-600 text-sm sm:text-base max-w-2xl mx-auto">
-          Theo dõi tiến độ học tập của các lớp
+          {
+            t("trackTheLearningProgressOfEachClass")
+          }
         </p>
       </header>
 
@@ -251,6 +260,7 @@ const NewCurrentAndNextLecture = memo(function NewCurrentAndNextLecture({
                   color={getColorForClass(index)}
                   totalLessons={stats.total}
                   completedLessons={stats.completed}
+                  t={t}
                 />
                 {index < allClassIds.size - 1 && (
                   <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent my-4"></div>

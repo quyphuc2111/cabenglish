@@ -65,9 +65,26 @@
   "completed": "Đã hoàn thành ",
   "lesson": "Bài học",
   "taughtLessonNumber": "SL Bài học đang dạy",
+  "taughtLesson": "Bài học đang dạy",
   "referenceMaterial": "Tài liệu tham khảo",
   "expertTeam": "Đội ngũ chuyên gia",
   "logout": "Đăng xuất",
   "homepage": "Trang chủ",
-  "language": "Ngôn ngữ"
+  "language": "Ngôn ngữ",
+  "manageAndMonitorTeachingProgress": "Quản lý và theo dõi tiến trình giảng dạy",
+  "trackTheLearningProgressOfEachClass": "Theo dõi tiến trình học tập của từng lớp",
+  "noLessonsYet": "Hiện tại chưa có bài học nào!",
+  "startANewLesson": "Hãy bắt đầu một bài học mới",
+  "seeMore": "Xem thêm",
+  "allLessonsShown": "Đã hiển thị tất cả bài học",
+ "previousPage": "Trang trước",
+ "nextPage": "Trang sau",
+"totalLessons": "Tổng bài học",
+"progress": "Tiến độ",
+"teachingProgressChart": "Biểu đồ tiến độ giảng dạy",
+"noData": "Không có dữ liệu",
+"noDataForProgressChart": "Lớp học này chưa có dữ liệu tiến độ để hiển thị biểu đồ.",
+"remaining": "Còn lại",
+"changeBackgroundColorSmartKid": "Thay đổi màu nền SmartKid"
+
 }

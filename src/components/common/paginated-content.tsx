@@ -32,6 +32,7 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface PaginatedContentProps<T> {
   items: T[];
@@ -46,10 +47,14 @@ interface PaginatedContentProps<T> {
 }
 
 // Memoized empty state component
-const EmptyState = memo(() => (
+const EmptyState = memo(() => {
+  const { t } = useTranslation();
+  return (
   <div className="flex flex-col items-center gap-6 sm:gap-8 md:gap-10 h-full justify-center py-12 sm:py-16">
     <h3 className="text-xl sm:text-2xl md:text-3xl text-[#736E6E] font-medium text-center">
-      Hiện tại chưa có Bài học nào!
+     {
+      t("noLessonsYet")
+     }
     </h3>
     <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 opacity-60">
       <Image
@@ -63,7 +68,8 @@ const EmptyState = memo(() => (
       />
     </div>
   </div>
-));
+  );
+});
 
 EmptyState.displayName = "EmptyState";
 

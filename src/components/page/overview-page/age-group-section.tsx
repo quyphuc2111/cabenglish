@@ -27,6 +27,7 @@ export interface AgeGroupSectionProps {
   color: "primary" | "secondary" | "accent";
   totalLessons?: number;
   completedLessons?: number;
+  t: (key: string) => string;
 }
 
 const colorClasses = {
@@ -114,6 +115,7 @@ export function AgeGroupSection({
   color,
   totalLessons = 0,
   completedLessons = 0,
+  t,
 }: AgeGroupSectionProps) {
   const colors = colorClasses[color];
   const completionRate =
@@ -171,7 +173,7 @@ export function AgeGroupSection({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <div className={`h-1 w-8 rounded-full ${colors.progress} shadow-sm`} />
-            <h3 className="text-base font-bold text-gray-800">Bài học đang dạy</h3>
+            <h3 className="text-base font-bold text-gray-800">{t("taughtLesson")}</h3>
             {currentLessons.length > 0 && (
               <Badge className={`ml-auto ${colors.badge} shadow-sm text-xs`}>
                 {currentLessons.length}

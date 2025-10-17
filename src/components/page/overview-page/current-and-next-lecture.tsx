@@ -9,8 +9,8 @@ import CurrentLecture from "./overview-current-lesson";
 import NextLecture from "./overview-next-lesson";
 
 const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
-  courseData,
   t,
+  courseData,
   classroomData,
   userId,
   onLikeUpdate
@@ -24,7 +24,6 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
   const router = useRouter();
   const { data: userInfo } = useUserInfo(userId);
   const { setPreviousPage, setOverviewState } = useNavigationStore();
-
   // Thêm breakpoint cho màn hình siêu nhỏ (mobile nhỏ)
   const isExtraSmall = useMediaQuery("(max-width: 1023px)");
 
@@ -243,7 +242,9 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
             </div>
             <div className="text-center px-2">
               <p className="text-gray-600 font-medium text-xs sm:text-sm md:text-base">
-                Hiện tại chưa có bài học nào!
+                {
+                  t("noLessonsYet")
+                }
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 Hãy bắt đầu một bài học mới
@@ -458,15 +459,15 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                 <div className="flex bg-white rounded-t-xl py-2 px-3 gap-4">
                   <div className="flex flex-col items-center border-r border-gray-200 pr-4">
                     <p className="text-2xl font-bold">{stats.completed}</p>
-                    <p className="text-xs text-gray-500">Đã hoàn thành</p>
+                    <p className="text-xs text-gray-500">{t("completed")}</p>
                   </div>
                   <div className="flex flex-col items-center border-r border-gray-200 pr-4">
                     <p className="text-2xl font-bold">{stats.total}</p>
-                    <p className="text-xs text-gray-500">Tổng bài học</p>
+                    <p className="text-xs text-gray-500">{t("totalLessons")}</p>
                   </div>
                   <div className="flex flex-col items-center">
                     <p className="text-2xl font-bold">{stats.progress}%</p>
-                    <p className="text-xs text-gray-500">Tiến độ</p>
+                    <p className="text-xs text-gray-500">{t("progress")}</p>
                   </div>
                 </div>
                </div>

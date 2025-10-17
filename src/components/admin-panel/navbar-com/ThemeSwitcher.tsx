@@ -45,7 +45,7 @@ export function ThemeSwitcher({
         bg-white w-full h-10 sm:h-12 md:h-14 xl:h-12
         px-3 sm:px-4 md:px-5
         shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
-        transform-gpu will-change-transform backface-visibility-hidden"
+        transform-gpu will-change-transform backface-visibility-hidden gap-2"
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       transition={{

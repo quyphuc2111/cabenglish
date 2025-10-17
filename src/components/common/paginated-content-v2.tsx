@@ -16,6 +16,7 @@ interface PaginatedContentV2Props<T> {
   layout?: "grid" | "horizontal"; // layout type: grid hoặc horizontal scroll
   itemWidth?: string; // width của mỗi item khi horizontal (vd: "280px", "300px")
   loadMode?: "auto" | "manual"; // auto: infinite scroll, manual: click button to load
+  t?: (key: string) => string;
 }
 
 export function PaginatedContentV2<T extends { lessonId?: number; id?: number | string }>({
@@ -31,6 +32,7 @@ export function PaginatedContentV2<T extends { lessonId?: number; id?: number | 
   layout = "grid",
   itemWidth = "280px",
   loadMode = "auto",
+  t,
 }: PaginatedContentV2Props<T>) {
   const [displayedItems, setDisplayedItems] = useState<T[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -187,9 +189,9 @@ export function PaginatedContentV2<T extends { lessonId?: number; id?: number | 
                   <ChevronRight className="w-8 h-8 text-blue-500 group-hover:text-blue-600" />
                 </div>
                 <div className="text-center px-4">
-                  <p className="font-semibold text-gray-700 text-sm">Xem thêm</p>
+                  <p className="font-semibold text-gray-700 text-sm">{t("seeMore")}</p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {items.length - displayedItems.length} bài học
+                    {items.length - displayedItems.length} {t("lesson")}
                   </p>
                 </div>
               </button>

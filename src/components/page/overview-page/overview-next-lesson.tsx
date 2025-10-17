@@ -82,10 +82,14 @@ const NextLecture = ({
           </div>
           <div className="text-center px-2">
             <p className="text-gray-600 font-medium text-xs sm:text-sm md:text-base">
-              Chưa có bài học tiếp theo!
+              {
+                t("noLessonsYet")
+              }
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Tất cả bài học đã hoàn thành
+              {
+                t("allLessonsShown")
+              }
             </p>
           </div>
         </div>
@@ -124,7 +128,7 @@ const NextLecture = ({
           itemWidth="260px"
           gap={4}
           loadingText="Đang tải..."
-          endText="Đã hiển thị tất cả bài học"
+          endText={t("allLessonsShown")}
           renderItem={(lecture) => (
             <LessonCard
               key={lecture.lessonId}
@@ -144,6 +148,7 @@ const NextLecture = ({
               onLikeUpdate={onLikeUpdate}
             />
           )}
+          t={t}
         />
       </div>
     </div>
