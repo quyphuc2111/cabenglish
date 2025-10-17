@@ -35,12 +35,6 @@ html {
   --toast-enter-duration: 800ms;
   --toast-exit-duration: 800ms;
   
-  /* Lesson Card animation durations */
-  --lesson-card-transition: 500ms;
-  --lesson-card-hover: 500ms;
-  --lesson-card-like-button: 500ms;
-  --lesson-card-removing: 600ms;
-  
   /* Other UI animation durations */
   --modal-animation-duration: 300ms;
   --sidebar-transition-duration: 300ms;
@@ -132,11 +126,6 @@ body {
   .pagination-button {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-  }
-
-  /* Reduce motion for better performance */
-  .lesson-card:hover {
-    transform: none !important;
   }
 
   /* Optimize text rendering */
@@ -260,9 +249,13 @@ body {
   /* Reduce memory usage on small devices */
   .lesson-card .like-animation,
   .lesson-card .progress-animation,
-  .lesson-card .floating-hearts,
   .lesson-card .sparkle-effects {
     display: none;
+  }
+  
+  /* Keep floating hearts on mobile */
+  .lesson-card .floating-heart {
+    display: block !important;
   }
 }
 
@@ -657,11 +650,6 @@ select {
 .swiper-slide {
   border-radius: 18px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s;
-}
-
-.swiper-slide-active {
-  transform: scale(1.05);
 }
 
 .book-swiper {
@@ -676,11 +664,10 @@ select {
   width: 300px;
   height: 400px;
   position: relative;
-  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .book-swiper .swiper-slide-active {
-  transform: translateY(-20px) scale(1.1);
+  transform: translateY(-20px);
 }
 
 .book-swiper .swiper-slide::after {
@@ -692,11 +679,10 @@ select {
   height: 20px;
   border-radius: 50%;
   filter: blur(10px);
-  transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .book-swiper .swiper-slide-active::after {
-  transform: translateY(20px) scale(1.1);
+  transform: translateY(20px);
   opacity: 0.3;
 }
 
@@ -773,13 +759,11 @@ select {
   width: 300px;
   /* height: 295px; */
   position: relative;
-  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  transform: scale(1) !important;
   box-shadow: none !important;
 }
 
 .course-swiper .swiper-slide-active {
-  transform: translateY(-20px) scale(1.1);
+  transform: translateY(-20px);
 }
 
 .course-swiper .swiper-slide::after {
@@ -793,7 +777,7 @@ select {
 }
 
 .course-swiper .swiper-slide-active::after {
-  transform: translateY(20px) scale(1.1);
+  transform: translateY(20px);
   opacity: 0.3;
 }
 
@@ -918,7 +902,6 @@ select {
 .performance-mode .course-swiper .swiper-slide,
 .performance-mode .book-swiper .swiper-slide,
 .performance-mode .mascot-animation,
-.performance-mode .floating-hearts,
 .performance-mode .sparkle-effects,
 .performance-mode .heart-particle,
 .performance-mode .sparkle-particle,
@@ -932,6 +915,34 @@ select {
   scroll-behavior: auto !important;
 }
 
+/* Allow floating hearts animation even in performance mode */
+.performance-mode .lesson-card .floating-heart {
+  animation-duration: 1s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1s !important;
+}
+
+/* Allow LessonCard smooth transitions and hover effects */
+.performance-mode .lesson-card {
+  transition: transform 0.5s ease-out, box-shadow 0.3s ease-out, opacity 0.3s ease-out !important;
+}
+
+.performance-mode .lesson-card:hover {
+  transition: transform 0.5s ease-out, box-shadow 0.3s ease-out !important;
+}
+
+.performance-mode .lesson-card .like-button {
+  transition: background-color 0.2s ease-out, transform 0.15s ease-out !important;
+}
+
+.performance-mode .lesson-card .heart-svg {
+  transition: fill 0.2s ease-out, color 0.2s ease-out !important;
+}
+
+.performance-mode .lesson-card img {
+  transition: opacity 0.3s ease-out !important;
+}
+
 /* Allow Embla Carousel smooth transitions even in performance mode */
 .performance-mode [data-embla-carousel],
 .performance-mode [data-embla-carousel] * {
@@ -941,9 +952,6 @@ select {
 
 /* Optimize carousel images for smooth scrolling */
 [data-embla-carousel] .lesson-card img {
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
   image-rendering: optimizeSpeed;
   content-visibility: auto;
   contain-intrinsic-size: 300px 169px;
@@ -992,11 +1000,14 @@ select {
 .performance-mode .floating-animation [data-framer-motion],
 .performance-mode .lesson-card .heart-particle,
 .performance-mode .lesson-card .sparkle-particle,
-.performance-mode .lesson-card .floating-hearts,
 .performance-mode .lesson-card .like-animation {
   animation: none !important;
   transition: none !important;
-  transform: none !important;
+}
+
+/* Keep floating heart animation */
+.performance-mode .lesson-card .floating-heart {
+  animation: floatUp 1s ease-out forwards !important;
 }
 
 /* Swiper optimizations */
@@ -1043,7 +1054,6 @@ select {
 .static-mode .animate-text-shine {
   animation: none !important;
   transition: none !important;
-  transform: none !important;
 }
 
 /* Keep essential UI interactions working in static mode */
@@ -1087,7 +1097,61 @@ body.performance-mode .course-swiper [data-framer-motion],
 body.performance-mode .book-swiper [data-framer-motion] {
   animation: none !important;
   transition: none !important;
-  transform: none !important;
+}
+
+/* Allow LessonCard smooth transitions even in body.performance-mode */
+body.performance-mode .lesson-card {
+  transition: transform 0.5s ease-out, box-shadow 0.3s ease-out, opacity 0.3s ease-out !important;
+}
+
+body.performance-mode .lesson-card:hover {
+  transition: transform 0.5s ease-out, box-shadow 0.3s ease-out !important;
+}
+
+body.performance-mode .lesson-card .like-button {
+  transition: background-color 0.2s ease-out, transform 0.15s ease-out !important;
+}
+
+body.performance-mode .lesson-card .heart-svg {
+  transition: fill 0.2s ease-out, color 0.2s ease-out !important;
+}
+
+body.performance-mode .lesson-card img {
+  transition: opacity 0.3s ease-out !important;
+}
+
+body.performance-mode .lesson-card .floating-heart {
+  animation: floatUp 1s ease-out forwards !important;
+  transition: none !important;
+}
+
+/* Allow text and color transitions in LessonCard */
+body.performance-mode .lesson-card span,
+body.performance-mode .lesson-card h2,
+body.performance-mode .lesson-card p,
+body.performance-mode .lesson-card div {
+  transition: color 0.2s ease-out, background-color 0.2s ease-out !important;
+}
+
+/* Allow progress indicator smooth transitions */
+body.performance-mode .lesson-card .progress-flower {
+  transition: opacity 0.3s ease-out !important;
+}
+
+/* Allow glow effects to transition smoothly */
+body.performance-mode .lesson-card .like-button .absolute {
+  transition: opacity 0.2s ease-out !important;
+}
+
+/* Allow GSAP stacking cards to animate smoothly */
+body.performance-mode .classroom-card {
+  animation-duration: 0.5s !important;
+  transition-duration: 0.5s !important;
+  transition: transform 0.5s ease-out, scale 0.5s ease-out !important;
+}
+
+body.performance-mode .classroom-card * {
+  transition-duration: 0.3s !important;
 }
 
 /* Exceptions: Allow essential UI animations to work */
@@ -1168,43 +1232,6 @@ body.performance-mode [class*="Toastify__flip"] {
   animation-fill-mode: both !important;
 }
 
-/* Lesson Card animations must work smoothly - Using CSS variables */
-body.performance-mode .lesson-card,
-body.performance-mode .lesson-card *,
-body.performance-mode .lesson-card .like-button,
-body.performance-mode .lesson-card .like-button *,
-body.performance-mode .lesson-card .progress-flower,
-body.performance-mode .lesson-card .heart-svg,
-body.performance-mode .lesson-card img {
-  animation-duration: var(--lesson-card-transition) !important;
-  transition-duration: var(--lesson-card-transition) !important;
-  animation-iteration-count: 1 !important;
-  transition-delay: 0s !important;
-}
-
-/* Lesson card hover effects */
-body.performance-mode .lesson-card:hover {
-  transition-duration: var(--lesson-card-hover) !important;
-}
-
-/* Like button specific animations */
-body.performance-mode .lesson-card .like-button,
-body.performance-mode .lesson-card .like-button:active {
-  transition-duration: var(--lesson-card-like-button) !important;
-}
-
-/* Heart animation when clicking */
-body.performance-mode .lesson-card .heart-svg {
-  transition-duration: var(--lesson-card-like-button) !important;
-}
-
-/* Removing animations for lesson cards */
-body.performance-mode .lesson-card-removing,
-body.performance-mode .lesson-card-removing * {
-  animation-duration: var(--lesson-card-removing) !important;
-  transition-duration: var(--lesson-card-removing) !important;
-}
-
 /* Dialog and modal animations must work */
 body.performance-mode [data-radix-dialog-overlay],
 body.performance-mode [data-radix-dialog-content],
@@ -1264,10 +1291,6 @@ body.performance-mode .smooth-animations * {
   --toast-transition-duration: 300ms;
   --toast-enter-duration: 300ms;
   --toast-exit-duration: 300ms;
-  --lesson-card-transition: 200ms;
-  --lesson-card-hover: 200ms;
-  --lesson-card-like-button: 200ms;
-  --lesson-card-removing: 400ms;
 }
 
 .animation-normal {
@@ -1275,10 +1298,6 @@ body.performance-mode .smooth-animations * {
   --toast-transition-duration: 500ms;
   --toast-enter-duration: 500ms;
   --toast-exit-duration: 500ms;
-  --lesson-card-transition: 300ms;
-  --lesson-card-hover: 300ms;
-  --lesson-card-like-button: 300ms;
-  --lesson-card-removing: 500ms;
 }
 
 .animation-slow {
@@ -1286,10 +1305,6 @@ body.performance-mode .smooth-animations * {
   --toast-transition-duration: 800ms;
   --toast-enter-duration: 800ms;
   --toast-exit-duration: 800ms;
-  --lesson-card-transition: 400ms;
-  --lesson-card-hover: 400ms;
-  --lesson-card-like-button: 400ms;
-  --lesson-card-removing: 700ms;
 }
 
 .animation-very-slow {
@@ -1297,10 +1312,6 @@ body.performance-mode .smooth-animations * {
   --toast-transition-duration: 1200ms;
   --toast-enter-duration: 1200ms;
   --toast-exit-duration: 1200ms;
-  --lesson-card-transition: 600ms;
-  --lesson-card-hover: 600ms;
-  --lesson-card-like-button: 600ms;
-  --lesson-card-removing: 1000ms;
 }
 
 /* Specific overrides for toast libraries */

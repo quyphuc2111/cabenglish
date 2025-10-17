@@ -157,7 +157,7 @@ export function PaginatedContentV2<T extends { lessonId?: number; id?: number | 
     <div className={`w-full ${className}`}>
       <div className="relative">
         <div 
-          className={`flex overflow-x-auto pb-4 snap-x snap-mandatory ${gapClass} scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-gray-100 hover:scrollbar-thumb-blue-500 scrollbar-thumb-rounded-full scrollbar-track-rounded-full`}
+          className={`flex overflow-x-auto p-4 gap-4 snap-x snap-mandatory ${gapClass} scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-gray-100 hover:scrollbar-thumb-blue-500 scrollbar-thumb-rounded-full scrollbar-track-rounded-full`}
           style={{
             WebkitOverflowScrolling: 'touch',
             scrollBehavior: 'smooth',

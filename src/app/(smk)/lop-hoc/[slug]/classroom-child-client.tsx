@@ -204,9 +204,8 @@ function ClassroomChildClient({
 
   const updateLessonLike = React.useCallback(
     (lessonId: number, newLikeCount: number) => {
-      const sanitizedLikeCount = newLikeCount > 0 ? 1 : 0;
-
-      if (sanitizedLikeCount === 0) {
+      // Use actual like count, not sanitized to 0/1
+      if (newLikeCount === 0) {
         setRemovingLessons((prev) => new Set([...prev, lessonId]));
 
         setTimeout(() => {
@@ -219,8 +218,8 @@ function ClassroomChildClient({
           removeLessonFromCache(lessonId);
         }, 800);
       } else {
-        // Update lesson in cache
-        updateLessonInCache(lessonId, { numLiked: sanitizedLikeCount });
+        // Update lesson in cache with actual like count
+        updateLessonInCache(lessonId, { numLiked: newLikeCount });
       }
     },
     [updateLessonInCache, removeLessonFromCache]

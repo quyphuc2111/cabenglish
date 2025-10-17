@@ -1,7 +1,6 @@
 "use client";
 
 import React, {
-  Fragment,
   useCallback,
   useMemo,
   useState,
@@ -35,6 +34,20 @@ interface LessonCardProps {
   delay?: number;
   removingLessons?: Set<number>;
 }
+
+// Format number for display (10000 -> 10k, 1500 -> 1.5k)
+const formatLikeCount = (count: number): string => {
+  if (count >= 1000000) {
+    return `${(count / 1000000).toFixed(1).replace(/\.0$/, '')}M`;
+  }
+  if (count >= 10000) {
+    return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+  }
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+  }
+  return count.toString();
+};
 
 const ProgressIndicator = ({
   progress,
@@ -101,15 +114,26 @@ function LessonCard({
   const router = useRouter();
   const { mutate: likeAction } = useLessonLike();
   const [isLiking, setIsLiking] = useState(false);
-  const lastActionTimeRef = useRef(0);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingLikesRef = useRef(0);
 
   // State để track optimistic update
   const [optimisticLikeCount, setOptimisticLikeCount] = useState(numLiked);
+  const [floatingHearts, setFloatingHearts] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  
+  // Ref để lưu giá trị mới nhất của optimisticLikeCount
+  const optimisticLikeCountRef = useRef(numLiked);
 
   // Update optimistic state khi props thay đổi
   useEffect(() => {
     setOptimisticLikeCount(numLiked);
+    optimisticLikeCountRef.current = numLiked;
   }, [numLiked]);
+
+  // Sync ref với state
+  useEffect(() => {
+    optimisticLikeCountRef.current = optimisticLikeCount;
+  }, [optimisticLikeCount]);
 
   // Check nếu lesson đang trong quá trình removing
   const isRemoving = removingLessons?.has(lessonId as number) || false;
@@ -135,8 +159,7 @@ function LessonCard({
   const cardClasses = useMemo(
     () =>
       cn(
-        "lesson-card px-1 sm:px-2 md:px-3 py-1.5 sm:py-2 md:py-4 bg-white rounded-lg sm:rounded-xl md:rounded-2xl flex flex-col gap-1 sm:gap-2 md:gap-3 shadow-course-inset border relative overflow-hidden w-full",
-        "transition-all ease-out",
+        "lesson-card px-1 sm:px-2 md:px-3 py-1.5 sm:py-2 md:py-4 bg-white rounded-lg sm:rounded-xl md:rounded-2xl flex flex-col gap-1 sm:gap-2 md:gap-3 shadow-course-inset border relative w-full",
         // Cố định height để tránh lệch layout
         "min-h-[200px] xs:min-h-[220px] sm:min-h-[240px] md:min-h-[280px]",
         isLocked
@@ -154,110 +177,110 @@ function LessonCard({
       e.stopPropagation();
       e.preventDefault();
 
-      // Debounce để tránh multiple rapid clicks
-      const now = Date.now();
-      if (now - lastActionTimeRef.current < 1000) {
-        return; // Ignore clicks within 1 second
+      if (isLocked) return;
+
+      // ===== INSTANT UI UPDATE =====
+      // Tăng like count ngay lập tức
+      const newCount = optimisticLikeCount + 1;
+      setOptimisticLikeCount(newCount);
+
+      // Tạo floating heart tại vị trí click
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const heartId = Date.now() + Math.random();
+      
+      setFloatingHearts(prev => [...prev, { id: heartId, x, y }]);
+      
+      // Xóa heart sau animation (1s)
+      setTimeout(() => {
+        setFloatingHearts(prev => prev.filter(h => h.id !== heartId));
+      }, 1000);
+
+      // ===== DEBOUNCED API CALL =====
+      // Track số lần like pending
+      pendingLikesRef.current += 1;
+
+      // Clear timer cũ nếu có
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
       }
-      lastActionTimeRef.current = now;
 
-      // Prevent double clicks
-      if (isLiking) {
-        return;
-      }
+      // Set timer mới - gọi API sau 500ms không có click mới
+      debounceTimerRef.current = setTimeout(async () => {
+        const likesToSend = pendingLikesRef.current;
+        pendingLikesRef.current = 0;
 
-      setIsLiking(true);
+        if (likesToSend === 0) return;
 
-      const willLike = optimisticLikeCount === 0;
-      const toastId = `like-action-${lessonId}-${now}`;
+        setIsLiking(true);
 
-      // Optimistic update - cập nhật UI ngay lập tức
-      // Tăng/giảm 1 từ giá trị hiện tại thay vì toggle 0/1
-      const newLikeCount = willLike
-        ? optimisticLikeCount + 1
-        : Math.max(0, optimisticLikeCount - 1);
-      setOptimisticLikeCount(newLikeCount);
-
-      try {
-        // Dismiss any existing toasts first
-        toast.dismiss();
-
-        likeAction(
-          {
-            lessonId: String(lessonId),
-            action: willLike ? "like" : "unlike"
-          },
-          {
-            onSuccess: () => {
-              setIsLiking(false);
-
-              // Sử dụng optimistic value vì API có thể không trả về lesson data
-              // Trong tương lai có thể cải thiện khi API trả về numLiked thực tế
-              const actualLikeCount = newLikeCount;
-
-              // Gọi callback để update parent state
-              if (onLikeUpdate) {
-                onLikeUpdate(lessonId as number, actualLikeCount);
-              }
-
-              // Show success toast
-              toast.success(
-                willLike
-                  ? `Đã thích bài học "${lessonName}"! 💖`
-                  : `Đã bỏ thích bài học "${lessonName}"`,
+        // API chỉ hỗ trợ increment từng like một
+        // Gọi API nhiều lần liên tiếp
+        try {
+          for (let i = 0; i < likesToSend; i++) {
+            await new Promise<void>((resolve, reject) => {
+              likeAction(
                 {
-                  position: "top-right",
-                  autoClose: 2000,
-                  hideProgressBar: false,
-                  closeOnClick: true,
-                  pauseOnHover: false,
-                  draggable: true,
-                  toastId: toastId
+                  lessonId: String(lessonId),
+                  action: "like"
+                },
+                {
+                  onSuccess: () => {
+                    resolve();
+                  },
+                  onError: (error) => {
+                    reject(error);
+                  }
                 }
               );
-            },
-            onError: (error) => {
-              setIsLiking(false);
+            });
+        }
 
-              // Revert optimistic update khi có lỗi
-              setOptimisticLikeCount(numLiked);
-
-              console.error("Like action failed:", error);
-
-              toast.error("Có lỗi xảy ra khi thực hiện thao tác!", {
-                position: "top-right",
-                autoClose: 3000,
-                toastId: `error-${toastId}`
-              });
-            }
-          }
-        );
-      } catch (error) {
         setIsLiking(false);
 
-        // Revert optimistic update khi có lỗi
-        setOptimisticLikeCount(numLiked);
+      
+        setTimeout(() => {
+          if (onLikeUpdate) {
+            onLikeUpdate(lessonId as number, optimisticLikeCountRef.current);
+          }
+        }, 0);
 
-        console.error("Like action error:", error);
+        } catch (error) {
+          setIsLiking(false);
 
-        toast.error("Có lỗi xảy ra khi thực hiện thao tác!", {
-          position: "top-right",
-          autoClose: 3000,
-          toastId: `catch-error-${toastId}`
-        });
-      }
+          // Revert tất cả likes pending
+          setOptimisticLikeCount(prev => Math.max(0, prev - likesToSend));
+          pendingLikesRef.current = 0;
+
+          console.error("Like action failed:", error);
+
+          toast.error("Có lỗi xảy ra khi thích bài học!", {
+            position: "top-right",
+            autoClose: 3000,
+            toastId: `error-${lessonId}`
+          });
+        }
+      }, 500); // Debounce 500ms
     },
     [
       likeAction,
       lessonId,
       optimisticLikeCount,
       lessonName,
-      router,
-      isLiking,
-      numLiked,
+      isLocked,
       onLikeUpdate
     ]
   );
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <PerformanceWrapper
@@ -318,12 +341,12 @@ function LessonCard({
           </h2>
 
           <div className="relative w-full aspect-[16/9] border border-gray-200 rounded-md sm:rounded-lg md:rounded-xl overflow-hidden">
-            <Image
+              <Image
               src={validateImageUrl(imageUrl)}
               alt={unitName}
               fill
               className={cn(
-                "object-cover transition-opacity",
+                "object-cover",
                 isLocked && "opacity-50"
               )}
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -354,11 +377,11 @@ function LessonCard({
             horizontal === true ? "flex-1" : "gap-1"
           )}
         >
-          <div className="text-[#736E6E] text-[8px] xs:text-[9px] sm:text-[10px] md:text-[14px] flex justify-between gap-1 min-h-[12px] xs:min-h-[14px] sm:min-h-[16px]">
-            <span className="course-week truncate flex-1 text-left">{`Tuần học ${String(
+          <div className="text-[#736E6E] text-[8px] xs:text-[9px] sm:text-[14px] md:text-[18px] flex justify-between gap-1 min-h-[12px] xs:min-h-[14px] sm:min-h-[16px]">
+            <span className="course-week truncate flex-1 text-left md:text-[12px]">{`Tuần học ${String(
               schoolWeek
             )}`}</span>
-            <span className="course-category truncate flex-1 text-right">
+            <span className="course-category truncate flex-1 text-right md:text-[12px]">
               {classRoomName}
             </span>
           </div>
@@ -416,23 +439,51 @@ function LessonCard({
 
             <button
               className={cn(
-                "like-button relative flex items-center gap-0.5 sm:gap-1 p-1 sm:p-1.5 md:p-2 rounded-lg transition-all sm:m-1.5 md:m-2 group",
-                isLiking || isLocked
+                "like-button relative flex items-center gap-0.5 sm:gap-1 p-1 sm:p-1.5 md:p-2 rounded-lg sm:m-1.5 md:m-2 group overflow-visible",
+                isLocked
                   ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-pink-50 active:scale-95",
+                  : "hover:bg-pink-50 cursor-pointer",
                 optimisticLikeCount > 0 && "like-button-loved"
               )}
               onClick={handleLessonLike}
               type="button"
-              disabled={isLiking || isLocked}
-              aria-label={`${
-                optimisticLikeCount === 0 ? "Like" : "Unlike"
-              } this lesson`}
+              disabled={isLocked}
+              aria-label="Like this lesson"
+              title={`${optimisticLikeCount} lượt thích`}
             >
+              {/* Floating Hearts Container */}
+              {floatingHearts.map(heart => (
+                <div
+                  key={heart.id}
+                  className="floating-heart absolute pointer-events-none"
+                  style={{
+                    left: `${heart.x}px`,
+                    top: `${heart.y}px`,
+                    width: '24px',
+                    height: '24px',
+                    animation: 'floatUp 1s ease-out forwards'
+                  }}
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    className="fill-red-500 text-red-500 drop-shadow-lg"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                    />
+                  </svg>
+                </div>
+              ))}
               {/* Background glow effect */}
               <div
                 className={cn(
-                  "absolute inset-0 rounded-lg bg-gradient-to-r from-pink-400 to-red-400 opacity-0 blur-sm transition-opacity",
+                  "absolute inset-0 rounded-lg bg-gradient-to-r from-pink-400 to-red-400 opacity-0 blur-sm",
                   optimisticLikeCount > 0 && "opacity-20"
                 )}
               ></div>
@@ -443,11 +494,22 @@ function LessonCard({
                   // Loading animation
                   <div className="relative">
                     <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 border-2 border-pink-200 border-t-pink-500 rounded-full animate-spin"></div>
-                    {/* Mini heart */}
+                    {/* Mini heart SVG */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="absolute text-pink-400 text-[10px]">
-                        💖
-                      </div>
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        className="fill-red-500 text-red-500"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                        />
+                      </svg>
                     </div>
                   </div>
                 ) : (
@@ -461,7 +523,7 @@ function LessonCard({
                         height="18"
                         viewBox="0 0 24 24"
                         className={cn(
-                          "heart-svg transition-all",
+                          "heart-svg",
                           "w-[14px] h-[14px] sm:w-[16px] sm:h-[16px] md:w-[20px] md:h-[20px]", // Responsive size
                           optimisticLikeCount > 0
                             ? "fill-red-500 text-red-500 drop-shadow-lg"
@@ -480,7 +542,7 @@ function LessonCard({
 
                     {/* Pulse effect khi liked */}
                     {optimisticLikeCount > 0 && (
-                      <div className="absolute inset-0 border-2 border-red-400 rounded-full opacity-20" />
+                      <div className="absolute inset-0 border-red-400 rounded-full opacity-20" />
                     )}
                   </div>
                 )}
@@ -489,7 +551,7 @@ function LessonCard({
               {/* Like count */}
               <span
                 className={cn(
-                  "text-[10px] sm:text-xs md:text-sm font-medium transition-all", // Responsive text size
+                  "text-[10px] sm:text-xs md:text-sm font-medium",
                   isLiking
                     ? "text-gray-400"
                     : optimisticLikeCount > 0
@@ -497,7 +559,7 @@ function LessonCard({
                     : "text-gray-500 group-hover:text-red-400"
                 )}
               >
-                {optimisticLikeCount}
+                {formatLikeCount(optimisticLikeCount)}
               </span>
             </button>
           </div>
@@ -511,23 +573,48 @@ export default LessonCard;
 
 // Custom CSS cho like effects và removing animations (animations removed)
 const likeButtonStyles = `
-  /* Enhanced card hover effects - using CSS variables */
+  /* Enhanced card hover effects */
   .lesson-card {
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
-    transition-duration: var(--lesson-card-transition, 500ms);
     box-sizing: border-box;
     max-width: 100%;
   }
 
-  /* Hover effects */
-  .lesson-card:hover {
-    transition-duration: var(--lesson-card-hover, 500ms);
+  /* Progress indicator */
+  .progress-flower {
+    /* No transition */
   }
 
-  /* Progress indicator enhancement */
-  .progress-flower {
-    transition: all var(--lesson-card-transition, 500ms) ease;
+  /* Floating heart animation */
+  @keyframes floatUp {
+    0% {
+      opacity: 1;
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(-30px) rotate(10deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-60px) rotate(-10deg);
+    }
+  }
+
+  .floating-heart {
+    z-index: 1000;
+    user-select: none;
+    filter: drop-shadow(0 2px 8px rgba(255, 105, 180, 0.6));
+  }
+
+  /* Like button spam-friendly */
+  .like-button {
+    position: relative;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .like-button:active {
+    /* No scale effect */
   }
 
   /* Mobile optimizations */
@@ -535,10 +622,6 @@ const likeButtonStyles = `
     .like-button {
       padding: 4px;
       margin: 4px;
-    }
-
-    .lesson-card:hover {
-      /* Disable float on mobile */
     }
   }
 
@@ -575,14 +658,12 @@ const likeButtonStyles = `
     }
   }
 
-  /* Smooth carousel transitions */
+  /* Carousel */
   .course-swiper {
-    transition: height var(--lesson-card-transition, 500ms) ease-in-out;
+    /* No transition */
   }
 
   .swiper-slide {
-    transition: transform var(--lesson-card-transition, 500ms) ease-in-out, 
-                opacity var(--lesson-card-transition, 500ms) ease-in-out;
     box-sizing: border-box;
   }
 
@@ -592,7 +673,6 @@ const likeButtonStyles = `
   .lesson-card {
     width: 100% !important;
     box-sizing: border-box;
-    overflow: hidden !important;
   }
 
   /* Giới hạn kích thước trên desktop và tablet lớn */

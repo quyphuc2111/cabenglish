@@ -37,9 +37,9 @@ export function PerformanceWrapper({
 
       case "lesson-card":
         return cn(
-          "performance-no-layout-shift",
+          "performance-no-layout-shift overflow-visible",
           enableTouch && "performance-touch-optimized",
-          "md:hover:scale-105 md:transition-transform md:duration-200",
+          "md:hover:scale-[1.02] md:transition-transform md:duration-300",
           "mobile:performance-no-motion"
         );
 

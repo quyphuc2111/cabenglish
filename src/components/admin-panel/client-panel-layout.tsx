@@ -18,7 +18,7 @@ const ClientPanelLayoutContent = memo(function ClientPanelLayoutContent({
   children: React.ReactNode;
 }) {
   const { data: session } = useSession();
-  const { userInfo } = useUser(); // ✅ Sử dụng context thay vì hook
+  const { userInfo } = useUser(); 
   const currentTheme = (userInfo?.theme ??
     "theme-red") as keyof typeof themeClasses;
   const sidebar = useStore(useSidebarToggle, (state) => state);
@@ -67,21 +67,6 @@ const ClientPanelLayoutContent = memo(function ClientPanelLayoutContent({
       >
         {children}
       </main>
-      {/* Đã chuyển ToastContainer về providers.tsx để tránh conflict */}
-      {/* <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        limit={3}
-        containerId="client-toast-container"
-      /> */}
     </div>
   );
 });

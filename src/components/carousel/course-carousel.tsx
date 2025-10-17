@@ -174,9 +174,9 @@ export function CourseCarousel({
       <div className={cn("relative group w-full", className)}>
         <AnimatePresence>
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="flex flex-col items-center justify-center py-16 px-4"
           >

@@ -13,6 +13,7 @@ interface NextLectureProps {
   t: any;
   classroomData?: any[];
   onLikeUpdate?: (lessonId: number, newLikeCount: number) => void;
+  hasCurrentLectures?: boolean; // Có Current Lectures hay không
 }
 
 const NextLecture = ({
@@ -22,7 +23,8 @@ const NextLecture = ({
   isExtraSmall,
   t,
   classroomData,
-  onLikeUpdate
+  onLikeUpdate,
+  hasCurrentLectures
 }: NextLectureProps) => {
   const { setSelectedLesson } = useSelectLessonStore();
 
@@ -50,7 +52,7 @@ const NextLecture = ({
   };
   if (nextLectures.length === 0) {
     return (
-      <div className="w-full xl:w-full flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
+      <div className={`w-full ${hasCurrentLectures ? "xl:w-1/2" : "xl:w-full"} flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible`}>
         <div className="flex items-center gap-2 sm:gap-3">
           <Image
             src="/person_rank.png"
@@ -92,7 +94,7 @@ const NextLecture = ({
   }
 
   return (
-    <div className="w-full flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
+    <div className={`w-full ${hasCurrentLectures ? "xl:w-1/2" : "xl:w-full"} flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible`}>
       <div className="flex items-center gap-2 sm:gap-3">
         <Image
           src="/person_rank.png"
