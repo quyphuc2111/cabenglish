@@ -7,7 +7,8 @@ import {
   Sheet,
   SheetHeader,
   SheetContent,
-  SheetTrigger
+  SheetTrigger,
+  SheetTitle
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -20,9 +21,10 @@ export function SheetMenu() {
         </Button>
       </SheetTrigger>
       <SheetContent
-        className="sm:w-[75vw] sm:max-w-[75vw] px-3 h-full flex flex-col"
+        className="sm:w-[75vw] sm:max-w-[75vw] landscape:w-[50vw] landscape:max-w-[50vw] px-3 h-full flex flex-col"
         side="left"
       >
+        <SheetTitle></SheetTitle>
         <SheetHeader className="mb-2 flex-shrink-0">
           <div className="flex justify-center items-center w-full">
             <Link href="/" className="no-underline">

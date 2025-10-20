@@ -38,6 +38,8 @@ export function useCreateSchoolWeek() {
     onSuccess: () => {
       // Invalidate và refetch
       queryClient.invalidateQueries({ queryKey: ["school-weeks"] });
+      // ✅ Invalidate query check exists để làm mới cache
+      queryClient.invalidateQueries({ queryKey: ["school-week-exists"] });
     },
     onError: (error: Error) => {
       // console.error("Create error:", error);
@@ -86,6 +88,8 @@ export const useUpdateSchoolWeek = () => {
       queryClient.invalidateQueries({
         queryKey: ["school-week", variables.swId.toString()]
       });
+      // ✅ Invalidate query check exists để làm mới cache
+      queryClient.invalidateQueries({ queryKey: ["school-week-exists"] });
     }
   });
 };
@@ -106,6 +110,8 @@ export const useDeleteSchoolWeek = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["school-weeks"] });
+      // ✅ Invalidate query check exists để làm mới cache
+      queryClient.invalidateQueries({ queryKey: ["school-week-exists"] });
     }
   });
 };
@@ -121,6 +127,8 @@ export function useCheckSchoolWeekExists(value: string | number) {
       return schoolWeeks.data.some((week: any) => week.value === value);
     },
     enabled: !!schoolWeeks,
+    staleTime: 0, // ✅ Luôn lấy data mới nhất
+    refetchOnMount: 'always', // ✅ Luôn refetch khi mount
   });
 }
 

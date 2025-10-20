@@ -12,7 +12,12 @@ export function Navbar() {
   const { t } = useTranslation("", "common");
   const { data: session } = useSession();
   const { data: userInfo } = useUserInfo(session?.user?.userId);
-  const currentTheme = userInfo?.theme ?? "theme-red";
+  
+  // ✅ Ưu tiên theme từ data-theme attribute (đã set từ server)
+  const dataTheme = typeof document !== 'undefined' 
+    ? document.body.getAttribute('data-theme') 
+    : null;
+  const currentTheme = dataTheme || userInfo?.theme || session?.user?.theme || "theme-red";
   const { onOpen } = useModal();
   const { logout } = useLogout();
 

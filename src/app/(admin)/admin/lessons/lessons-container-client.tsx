@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import { UnitByClassCombobox } from "@/components/admin/combobox/unitbyclass-combobox";
 import { useLessonsByClassIdUnitId } from "@/hooks/use-lessons";
 import { useLessonsColumns } from "@/components/admin/table/lessons/columns";
-import { Download, Plus, Upload } from "lucide-react";
+import { Download, Plus, Upload, X } from "lucide-react";
 import { useLessonStore } from "@/store/use-lesson-store";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -250,12 +250,24 @@ function LessonsContainerClient() {
               <label className="text-sm font-medium text-gray-700">
                 Tìm kiếm bài học:
               </label>
-              <Input
-                placeholder="Nhập tên bài học..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white"
-              />
+              <div className="relative w-full">
+                <Input
+                  placeholder="Nhập tên bài học..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-white pr-10"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    aria-label="Xóa tìm kiếm"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">

@@ -916,7 +916,9 @@ select {
 }
 
 /* Allow floating hearts animation even in performance mode */
-.performance-mode .lesson-card .floating-heart {
+.performance-mode .lesson-card .floating-heart,
+.performance-mode .classroom-like-button .floating-heart,
+.performance-mode .floating-heart {
   animation-duration: 1s !important;
   animation-iteration-count: 1 !important;
   transition-duration: 1s !important;
@@ -1006,7 +1008,9 @@ select {
 }
 
 /* Keep floating heart animation */
-.performance-mode .lesson-card .floating-heart {
+.performance-mode .lesson-card .floating-heart,
+.performance-mode .classroom-like-button .floating-heart,
+.performance-mode .floating-heart {
   animation: floatUp 1s ease-out forwards !important;
 }
 
@@ -1125,6 +1129,14 @@ body.performance-mode .lesson-card .floating-heart {
   transition: none !important;
 }
 
+/* Allow classroom floating heart animation */
+body.performance-mode .classroom-like-button .floating-heart,
+body.performance-mode .floating-heart {
+  animation: floatUp 1s ease-out forwards !important;
+  transition: none !important;
+  animation-duration: 1s !important;
+}
+
 /* Allow text and color transitions in LessonCard */
 body.performance-mode .lesson-card span,
 body.performance-mode .lesson-card h2,
@@ -1152,6 +1164,19 @@ body.performance-mode .classroom-card {
 
 body.performance-mode .classroom-card * {
   transition-duration: 0.3s !important;
+}
+
+/* Allow classroom like button smooth transitions */
+body.performance-mode .classroom-like-button {
+  transition: background-color 0.2s ease-out, transform 0.15s ease-out !important;
+}
+
+body.performance-mode .classroom-like-button .heart-svg {
+  transition: fill 0.2s ease-out, color 0.2s ease-out, transform 0.2s ease-out !important;
+}
+
+body.performance-mode .classroom-like-button .absolute {
+  transition: opacity 0.2s ease-out !important;
 }
 
 /* Exceptions: Allow essential UI animations to work */
@@ -1353,4 +1378,23 @@ body.toast-enabled .react-hot-toast * {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* WebKit */
+}
+
+/* Optimize sidebar background texture rendering */
+.bg-menu-texture {
+  position: relative;
+  isolation: isolate;
+}
+
+.bg-menu-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/menu-icon/pattern.png');
+  background-repeat: repeat;
+  background-size: auto;
+  pointer-events: none;
+  z-index: 0;
+  will-change: auto;
+  contain: strict;
 }

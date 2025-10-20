@@ -125,7 +125,7 @@ const PaginationControls = memo(
                     ? "min-w-[30px] h-7 text-xs"
                     : "min-w-[32px] h-8 text-sm",
                   currentPage === i
-                    ? "bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+                    ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white shadow-md"
                     : "hover:bg-blue-50 hover:text-blue-600"
                 )}
               >
@@ -185,10 +185,15 @@ const PaginationControls = memo(
                     href="#"
                     onClick={(e) => {
                       e.preventDefault();
-                      prevPage();
+                      if (currentPage > 1) {
+                        prevPage();
+                      }
                     }}
                     className={cn(
-                      "hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 rounded-md",
+                      "transition-colors duration-200 rounded-md",
+                      currentPage === 1
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-blue-50 hover:text-blue-600 cursor-pointer",
                       isExtraSmall
                         ? "px-1 py-1 text-[10px] min-w-[50px]"
                         : isSmall
@@ -197,6 +202,7 @@ const PaginationControls = memo(
                         ? "px-2 py-1 text-xs min-w-[65px]"
                         : "px-3 py-2 text-sm"
                     )}
+                    aria-disabled={currentPage === 1}
                   />
                 </PaginationItem>
                 <div
@@ -214,10 +220,15 @@ const PaginationControls = memo(
                     href="#"
                     onClick={(e) => {
                       e.preventDefault();
-                      nextPage();
+                      if (currentPage < totalPages) {
+                        nextPage();
+                      }
                     }}
                     className={cn(
-                      "hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 rounded-md",
+                      "transition-colors duration-200 rounded-md",
+                      currentPage === totalPages
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-blue-50 hover:text-blue-600 cursor-pointer",
                       isExtraSmall
                         ? "px-1 py-1 text-[10px] min-w-[50px]"
                         : isSmall
@@ -226,6 +237,7 @@ const PaginationControls = memo(
                         ? "px-2 py-1 text-xs min-w-[65px]"
                         : "px-3 py-2 text-sm"
                     )}
+                    aria-disabled={currentPage === totalPages}
                   />
                 </PaginationItem>
               </PaginationContent>
@@ -331,7 +343,9 @@ export function PaginatedContent<T>({
   // Handle page input change
   const handlePageInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setPageInput(e.target.value);
+      // Chỉ cho phép số nguyên dương, loại bỏ e, E, +, -, .
+      const value = e.target.value.replace(/[eE+\-\.]/g, '');
+      setPageInput(value);
     },
     []
   );
@@ -344,6 +358,14 @@ export function PaginatedContent<T>({
       setPageInput("");
     }
   }, [pageInput, totalPages, goToPage]);
+
+  // Prevent invalid characters in number input
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Chặn: e, E, +, -, . (exponential notation và dấu)
+    if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+      e.preventDefault();
+    }
+  }, []);
 
   // Handle items per page change
   const handleItemsPerPageChange = useCallback(
@@ -474,6 +496,7 @@ export function PaginatedContent<T>({
                 max={totalPages}
                 value={pageInput}
                 onChange={handlePageInputChange}
+                onKeyDown={handleKeyDown}
                 placeholder={
                   isExtraSmall ? "Trang" : isSmall ? "Trang" : "Số trang"
                 }

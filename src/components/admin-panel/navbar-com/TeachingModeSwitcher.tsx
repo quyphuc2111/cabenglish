@@ -27,7 +27,7 @@ export function TeachingModeSwitcher({
     <motion.div
       className="border border-gray-200 rounded-lg flex items-center justify-center md:justify-between
         bg-white w-full h-12 sm:h-12 md:h-14 xl:h-12
-        px-3 sm:px-4 md:px-5
+        px-3 sm:px-4 md:px-2 2xl:px-5
         shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
         transform-gpu will-change-transform backface-visibility-hidden"
       whileHover={{ scale: 1.02 }}

@@ -12,9 +12,8 @@ import { Upload } from "lucide-react";
 import * as XLSX from "xlsx";
 import { showToast } from "@/utils/toast-config";
 import {
-  useCheckSchoolWeekExists,
-  useCreateSchoolWeek,
-  checkSchoolWeekExists
+  useSchoolWeek,
+  useCreateSchoolWeek
 } from "@/hooks/use-schoolweek";
 import { SchoolWeekFormValues } from "@/lib/validations/schoolweek";
 import { ExcelPreviewTable } from "@/components/common/excel-preview-table";
@@ -74,7 +73,12 @@ function ImportSchoolWeekModal() {
   const [validationError, setValidationError] = React.useState<string | null>(
     null
   );
+  const [duplicateRows, setDuplicateRows] = React.useState<number[]>([]);
+  const [validationErrors, setValidationErrors] = React.useState<
+    Array<{ rowIndex: number; field: string; message: string }>
+  >([]);
 
+  const { data: allSchoolWeeks } = useSchoolWeek();
   const { mutate: createSchoolWeek, isPending: isCreating } =
     useCreateSchoolWeek();
 
@@ -95,6 +99,8 @@ function ImportSchoolWeekModal() {
         setRawJsonData([]);
         setTotalRows(0);
         setValidationError(null);
+        setDuplicateRows([]);
+        setValidationErrors([]);
         return;
       }
 
@@ -103,6 +109,8 @@ function ImportSchoolWeekModal() {
       setRawJsonData([]);
       setTotalRows(0);
       setValidationError(null);
+      setDuplicateRows([]);
+      setValidationErrors([]);
 
       const fileClone = new File([selectedFile], selectedFile.name, {
         type: selectedFile.type
@@ -129,12 +137,54 @@ function ImportSchoolWeekModal() {
       setFullData(null);
       setIsProcessing(false);
       setValidationError(null);
+      setDuplicateRows([]);
+      setValidationErrors([]);
     }
   };
 
   const handleUpload = async () => {
     if (!file) {
       showToast.error("Vui lòng chọn file để import");
+      return;
+    }
+
+    // ✅ Kiểm tra duplicate rows trước khi import
+    if (duplicateRows.length > 0) {
+      showToast.error(
+        <div className="flex flex-col gap-1">
+          <p className="font-medium">Phát hiện dữ liệu trùng lặp</p>
+          <p className="text-sm text-gray-600">
+            Có {duplicateRows.length} dòng dữ liệu đã tồn tại trong hệ thống. Vui lòng loại bỏ trước khi import.
+          </p>
+        </div>,
+        {
+          autoClose: 7000,
+          style: {
+            backgroundColor: "#FEF2F2",
+            color: "#991B1B"
+          }
+        }
+      );
+      return;
+    }
+
+    // ✅ Kiểm tra validation errors
+    if (validationErrors.length > 0) {
+      showToast.error(
+        <div className="flex flex-col gap-1">
+          <p className="font-medium">Dữ liệu không hợp lệ</p>
+          <p className="text-sm text-gray-600">
+            Có {validationErrors.length} lỗi trong dữ liệu. Vui lòng kiểm tra lại.
+          </p>
+        </div>,
+        {
+          autoClose: 7000,
+          style: {
+            backgroundColor: "#FEF2F2",
+            color: "#991B1B"
+          }
+        }
+      );
       return;
     }
 
@@ -204,34 +254,6 @@ function ImportSchoolWeekModal() {
         value: item["Tuần học"],
         swId: 0
       }));
-
-      // Kiểm tra từng tuần học có tồn tại không
-      const duplicateWeeks: string[] = [];
-      for (const item of importData) {
-        const exists = await checkSchoolWeekExists(item.value);
-        if (exists) {
-          duplicateWeeks.push(item.value);
-        }
-      }
-
-      if (duplicateWeeks.length > 0) {
-        showToast.error(
-          <div className="flex flex-col gap-1">
-            <p className="font-medium">Phát hiện dữ liệu trùng lặp</p>
-            <p className="text-sm text-gray-600">
-              Các tuần sau đã tồn tại: {duplicateWeeks.join(", ")}
-            </p>
-          </div>,
-          {
-            autoClose: 7000,
-            style: {
-              backgroundColor: "#FEF2F2",
-              color: "#991B1B"
-            }
-          }
-        );
-        return;
-      }
 
       if (importOption === "create") {
         createSchoolWeek(importData as unknown as SchoolWeekFormValues, {
@@ -317,6 +339,8 @@ function ImportSchoolWeekModal() {
       setRawJsonData([]);
       setFullData(null);
       setValidationError(null);
+      setDuplicateRows([]);
+      setValidationErrors([]);
     } finally {
       setIsUploading(false);
     }
@@ -332,6 +356,8 @@ function ImportSchoolWeekModal() {
     setFullData(null);
     setRawJsonData([]);
     setValidationError(null);
+    setDuplicateRows([]);
+    setValidationErrors([]);
     onClose();
   };
 
@@ -352,14 +378,17 @@ function ImportSchoolWeekModal() {
       );
 
       const totalRows = validRows.length;
+      
+      // ✅ Tính toán pagination đúng
       const startIndex = (page - 1) * pageSize;
       const endIndex = Math.min(startIndex + pageSize, totalRows);
       const pageRows = validRows.slice(startIndex, endIndex);
 
+      // ✅ Normalize chỉ các rows trong trang hiện tại
       const normalizedRows = await normalizeRowsInChunks(
         pageRows,
         headers,
-        pageSize
+        pageRows.length
       );
 
       setFullData({
@@ -512,7 +541,52 @@ function ImportSchoolWeekModal() {
         return;
       }
 
-      const previewRows = allRows.slice(0, 5);
+      // ✅ Check validation và duplicates trước khi set preview
+      const weekColumnIndex = headers.indexOf("Tuần học");
+      const duplicates: number[] = [];
+      const errors: Array<{ rowIndex: number; field: string; message: string }> = [];
+
+      // ✅ Lấy danh sách school weeks hiện tại từ database (1 lần duy nhất)
+      // Normalize về number để so sánh chính xác
+      const existingWeeks = allSchoolWeeks?.data?.map((week: any) => Number(week.value)) || [];
+
+      // Check toàn bộ validRows
+      for (let i = 0; i < validRows.length; i++) {
+        const weekValue = validRows[i][weekColumnIndex];
+        
+        // Check trống
+        if (!weekValue || weekValue.toString().trim() === '') {
+          errors.push({
+            rowIndex: i,
+            field: 'tuầnhọc',
+            message: 'Thiếu dữ liệu bắt buộc'
+          });
+          continue;
+        }
+
+        // ✅ Check phải là số
+        const weekNumber = Number(weekValue);
+        if (isNaN(weekNumber) || !Number.isFinite(weekNumber)) {
+          errors.push({
+            rowIndex: i,
+            field: 'tuầnhọc',
+            message: 'Tuần học phải là số'
+          });
+          continue;
+        }
+
+        // ✅ Check trùng lặp với database (trong memory, không gọi API)
+        // So sánh dạng number để tránh mismatch type
+        if (existingWeeks.includes(weekNumber)) {
+          duplicates.push(i);
+        }
+      }
+
+      // ✅ Set duplicates và errors TRƯỚC khi set preview
+      setDuplicateRows(duplicates);
+      setValidationErrors(errors);
+
+      const previewRows = validRows.slice(0, 5);
       const normalizedPreviewRows = await normalizeRowsInChunks(
         previewRows,
         headers,
@@ -590,11 +664,11 @@ function ImportSchoolWeekModal() {
                     Sử dụng template mẫu để đảm bảo dữ liệu được import chính
                     xác
                   </li>
-                  <li>Các cột bắt buộc: Tuần học</li>
+                  <li>Các cột bắt buộc: Tuần học (phải là số)</li>
                   <li>Không thay đổi tên và thứ tự các cột trong template</li>
                   <li>Giới hạn tối đa 100 dòng dữ liệu trong một lần import</li>
                   <li>
-                    Các ô trống trong cột bắt buộc sẽ được đánh dấu màu đỏ
+                    Các ô trống hoặc không hợp lệ sẽ được đánh dấu màu đỏ
                   </li>
                 </ul>
                 <Button
@@ -647,6 +721,8 @@ function ImportSchoolWeekModal() {
                       totalRows={totalRows}
                       onViewAll={handleShowFullData}
                       isLoading={isProcessing}
+                      errors={validationErrors.filter(e => e.rowIndex < 5)}
+                      duplicateRows={duplicateRows.filter(idx => idx < 5)}
                     />
                   )}
                 </div>
@@ -670,7 +746,9 @@ function ImportSchoolWeekModal() {
                 isUploading ||
                 !isOptionAvailable(importOption) ||
                 isCreating ||
-                !!validationError
+                !!validationError ||
+                duplicateRows.length > 0 ||
+                validationErrors.length > 0
               }
               className="bg-blue-500 hover:bg-blue-600 w-full sm:w-auto order-1 sm:order-2"
             >
@@ -694,10 +772,12 @@ function ImportSchoolWeekModal() {
             rows={fullData?.rows || []}
             totalRows={fullData?.totalRows || 0}
             currentPage={fullData?.currentPage || 1}
-            pageSize={fullData?.pageSize || 50}
+            pageSize={fullData?.pageSize || 20}
             onPageChange={handlePageChange}
             title="Dữ liệu Tuần Học"
             requiredColumns={["Tuần học"]}
+            duplicateRows={duplicateRows}
+            errors={validationErrors}
           />
         )}
       </DialogContent>

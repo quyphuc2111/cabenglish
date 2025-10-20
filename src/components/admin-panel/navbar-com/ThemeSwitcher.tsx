@@ -31,7 +31,11 @@ export function ThemeSwitcher({
     "theme-red": "bg-theme-red-primary"
   } as const;
 
-  const currentTheme = userInfo?.theme || "theme-red";
+  // ✅ Ưu tiên theme từ data-theme attribute (đã set từ server)
+  const dataTheme = typeof document !== 'undefined' 
+    ? document.body.getAttribute('data-theme') 
+    : null;
+  const currentTheme = dataTheme || userInfo?.theme || "theme-red";
   const currentColor = themeColors[currentTheme as keyof typeof themeColors];
   const currentClass = themeClasses[currentTheme as keyof typeof themeClasses];
 
@@ -43,7 +47,7 @@ export function ThemeSwitcher({
     <motion.div
       className="border border-gray-200 rounded-lg flex items-center justify-between
         bg-white w-full h-12 sm:h-12 md:h-14 xl:h-12
-        px-3 sm:px-4 md:px-5
+        px-3 sm:px-4 md:px-2 2xl:px-5
         shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
         transform-gpu will-change-transform backface-visibility-hidden gap-2"
       whileHover={{ scale: 1.02 }}
@@ -78,25 +82,6 @@ export function ThemeSwitcher({
         </p>
       </div>
 
-      {/* ✅ Thêm indicator hiển thị theme hiện tại */}
-      <div className="flex items-center gap-2">
-        {isLoading ? (
-          <motion.div
-            className="w-4 h-4 border-2 border-gray-300 border-t-transparent rounded-full"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          />
-        ) : (
-          <motion.div
-            className={`w-6 h-6 rounded-full border-2 border-white shadow-sm ${currentClass}`}
-            style={{ backgroundColor: currentColor }}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            key={currentTheme} // ✅ Key để trigger animation khi theme thay đổi
-          />
-        )}
-      </div>
     </motion.div>
   );
 }

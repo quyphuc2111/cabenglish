@@ -79,15 +79,15 @@ export const Sidebar = memo(function Sidebar({
   return (
     <aside
       className={cn(
-        "sidebar-responsive force-responsive-transform fixed top-0 left-0 z-20 h-screen -translate-x-full lg:translate-x-0 bg-[#c35690] text-white bg-menu-texture",
-        sidebar?.isOpen === false ? "w-[100px]" : "w-72"
+        "sidebar-responsive force-responsive-transform fixed top-0 left-0 z-20 h-screen -translate-x-full lg:translate-x-0 bg-[#c35690] text-white bg-menu-texture transition-[width] duration-200 ease-in-out will-change-[width]",
+        sidebar?.isOpen === false ? "hidden lg:w-[100px] lg:block" : "hidden w-0 lg:w-72 lg:block"
       )}
     >
       <SidebarToggle isOpen={sidebar?.isOpen} setIsOpen={sidebar?.setIsOpen} />
-      <div className="relative h-full flex flex-col px-1 py-4">
+      <div className="relative h-full flex flex-col px-1 py-4 z-[1]">
         {/* Header Section */}
         <div className="flex-shrink-0">
-          <div className="flex justify-between">
+          <div className={`flex  items-center ${sidebar?.isOpen ? "justify-between" : "justify-center"} `}>
             <Image
               src="/bkt_logo.png"
               width={60}
@@ -96,7 +96,14 @@ export const Sidebar = memo(function Sidebar({
               priority
               quality={75}
             />
-            {sidebar?.isOpen && <Badge variant="secondary">Giáo viên</Badge>}
+            {sidebar?.isOpen && (
+              <Badge 
+                variant="secondary" 
+                className="transition-[opacity,transform] duration-200 ease-in-out animate-in fade-in slide-in-from-right-2"
+              >
+                Giáo viên
+              </Badge>
+            )}
           </div>
           <AvatarUser sidebar={sidebar} email={session?.user?.email} />
           <div className="w-full border-t-2 border-white mt-8 relative h-[30px]">

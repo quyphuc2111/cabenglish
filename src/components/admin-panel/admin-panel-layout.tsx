@@ -9,6 +9,7 @@ import { MobileAdminMenu } from "./mobile-admin-menu";
 import AdminModalProvider from "@/providers/admin-modal-provider";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 
 export default function AdminPanelLayout({
@@ -43,7 +44,7 @@ export default function AdminPanelLayout({
   if (!sidebar) return null;
 
   return (
-    <div className={themeClasses["theme-red"]}>
+    <div className={themeClasses["theme-red"] + " flex"}>
       <AdminSidebar />
       <MobileAdminMenu />
 
@@ -52,12 +53,18 @@ export default function AdminPanelLayout({
           `min-h-screen transition-[margin-left] ease-in-out duration-300 px-3
            flex-1 h-full ${themeSecondaryClasses["theme-red"]} lg:rounded-l-[48px]
            overflow-y-hidden `,
-          sidebar?.isOpen === false
-            ? "ml-0 lg:ml-[100px] pl-5"
-            : "ml-0 lg:ml-72"
+          // sidebar?.isOpen === false
+          //   ? "ml-0 lg:ml-[100px] pl-5"
+          //   : "ml-0 lg:ml-72"
+            sidebar?.isOpen === false
+            ? " pl-5"
+            : ""
         )}
       >
-        {children}
+        <ScrollArea className="h-[100vh] w-full">
+          {children}
+        </ScrollArea>
+       
       </main>
       {/* <ModalProvider /> */}
       <AdminModalProvider />

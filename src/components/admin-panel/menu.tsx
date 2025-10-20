@@ -57,7 +57,7 @@ export function Menu({ isOpen, disabled }: MenuProps) {
                       <Ellipsis className="h-5 w-5" />
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent side="right">
+                  <TooltipContent side="right" align="center">
                     <p>{groupLabel}</p>
                   </TooltipContent>
                 </Tooltip>
@@ -106,7 +106,7 @@ export function Menu({ isOpen, disabled }: MenuProps) {
                               </div>
                               <p
                                 className={cn(
-                                  "max-w-[130px] break-words whitespace-normal text-xl font-semibold text-start",
+                                  "max-w-[130px] break-words whitespace-normal text-xl font-semibold text-start transition-[transform,opacity] duration-200 ease-in-out",
                                   isOpen === false
                                     ? "-translate-x-96 opacity-0"
                                     : "translate-x-0 opacity-100"
@@ -125,7 +125,7 @@ export function Menu({ isOpen, disabled }: MenuProps) {
                                 className="max-w-fit opacity-50"
                               />
                               <p className={cn(
-                                "max-w-[130px] break-words whitespace-normal text-xl font-semibold text-start",
+                                "max-w-[130px] break-words whitespace-normal text-xl font-semibold text-start transition-[transform,opacity] duration-200 ease-in-out",
                                 isOpen === false
                                   ? "-translate-x-96 opacity-0"
                                   : "translate-x-0 opacity-100"
@@ -137,7 +137,7 @@ export function Menu({ isOpen, disabled }: MenuProps) {
                         </Button>
                       </TooltipTrigger>
                       {isOpen === false && (
-                        <TooltipContent side="right">{label}</TooltipContent>
+                        <TooltipContent side="right" align="center">{label}</TooltipContent>
                       )}
                     </Tooltip>
                   </TooltipProvider>

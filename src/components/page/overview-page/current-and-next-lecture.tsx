@@ -440,34 +440,35 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                 key={classId}
                 className="relative mb-3 sm:mb-4 overflow-hidden rounded-xl"
               >
-               <div className="flex justify-between items-center">
+               <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-0">
                  {/* Classroom Title */}
-                 <div className="flex items-center gap-2 sm:gap-3 bg-white rounded-t-xl px-3 sm:px-4 py-2 max-w-max h-16">
+                 <div className="flex items-center gap-2 sm:gap-3 bg-white rounded-t-xl sm:rounded-tr-none px-3 sm:px-4 py-2 max-w-max h-12 sm:h-16">
                   <Image
                     src="/menu-icon/lophoc_icon.png"
                     alt="classroom"
                     width={30}
                     height={30}
-                    className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10"
+                    className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
                     unoptimized={true}
                   />
-                  <h3 className="font-bold text-gray-800 translate-y-0.5 text-sm sm:text-base md:text-lg">
+                  <h3 className="font-bold text-gray-800 translate-y-0.5 text-xs sm:text-sm md:text-base lg:text-lg">
                     {getClassroomName(classId)}
                   </h3>
                 </div>
 
-                <div className="flex bg-white rounded-t-xl py-2 px-3 gap-4">
-                  <div className="flex flex-col items-center border-r border-gray-200 pr-4">
-                    <p className="text-2xl font-bold">{stats.completed}</p>
-                    <p className="text-xs text-gray-500">{t("completed")}</p>
+                {/* Stats Section - Responsive */}
+                <div className="flex bg-white rounded-t-xl sm:rounded-tl-none py-2 px-2 sm:px-3 gap-2 sm:gap-3 md:gap-4 justify-around sm:justify-end">
+                  <div className="flex flex-col items-center lg:border-r border-gray-200 pr-2 sm:pr-3 md:pr-4 min-w-0">
+                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">{stats.completed}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap truncate max-w-[80px] sm:max-w-none">{t("completed")}</p>
                   </div>
-                  <div className="flex flex-col items-center border-r border-gray-200 pr-4">
-                    <p className="text-2xl font-bold">{stats.total}</p>
-                    <p className="text-xs text-gray-500">{t("totalLessons")}</p>
+                  <div className="flex flex-col items-center lg:border-r border-gray-200 pr-2 sm:pr-3 md:pr-4 min-w-0">
+                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">{stats.total}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap truncate max-w-[80px] sm:max-w-none">{t("totalLessons")}</p>
                   </div>
-                  <div className="flex flex-col items-center">
-                    <p className="text-2xl font-bold">{stats.progress}%</p>
-                    <p className="text-xs text-gray-500">{t("progress")}</p>
+                  <div className="flex flex-col items-center min-w-0">
+                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">{stats.progress}%</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap truncate max-w-[80px] sm:max-w-none">{t("progress")}</p>
                   </div>
                 </div>
                </div>

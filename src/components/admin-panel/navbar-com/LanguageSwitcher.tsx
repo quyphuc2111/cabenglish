@@ -165,7 +165,7 @@ export function LanguageSwitcher({ t, userId }: LanguageSwitcherProps) {
 
   return (
     <motion.div
-      className="relative flex items-center w-full"
+      className="relative flex items-center w-full cursor-pointer"
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       transition={{
@@ -178,7 +178,7 @@ export function LanguageSwitcher({ t, userId }: LanguageSwitcherProps) {
     >
       <div
         className="flex items-center justify-between gap-3 w-full
-        bg-white px-3 sm:px-4 md:pr-5 
+        bg-white px-3 sm:px-4 md:px-2 2xl:pr-5 
         h-12 sm:h-12 md:h-14 xl:h-12
         shadow-sm hover:shadow-md transition-all duration-200 
         border border-gray-200 rounded-lg

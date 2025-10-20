@@ -19,7 +19,12 @@ const ClientPanelLayoutContent = memo(function ClientPanelLayoutContent({
 }) {
   const { data: session } = useSession();
   const { userInfo } = useUser(); 
-  const currentTheme = (userInfo?.theme ??
+  
+  // ✅ Ưu tiên theme từ data-theme attribute (đã set từ server), sau đó mới đến userInfo
+  const dataTheme = typeof document !== 'undefined' 
+    ? document.body.getAttribute('data-theme') 
+    : null;
+  const currentTheme = (dataTheme || userInfo?.theme || session?.user?.theme ||
     "theme-red") as keyof typeof themeClasses;
   const sidebar = useStore(useSidebarToggle, (state) => state);
 
@@ -56,13 +61,14 @@ const ClientPanelLayoutContent = memo(function ClientPanelLayoutContent({
   if (!sidebar) return null;
 
   return (
-    <div className={cn(themeClasses[currentTheme], "overflow-hidden")}>
+    <div className={cn(themeClasses[currentTheme], "overflow-hidden flex")}>
       <Sidebar notificationList={notificationList} />
       <main
         className={cn(
           `min-h-screen flex-1 h-screen ${themeSecondaryClasses[currentTheme]} lg:rounded-l-[48px] px-2  2xl:px-0 py-2 md:py-0
            overflow-y-hidden `,
-          sidebar?.isOpen === false ? "lg:ml-[100px]" : "lg:ml-72"
+          // sidebar?.isOpen === false ? "lg:ml-[100px]" : "lg:ml-72"
+           sidebar?.isOpen === false ? "" : ""
         )}
       >
         {children}

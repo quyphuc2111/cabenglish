@@ -39,7 +39,12 @@ export function NavbarControls({
   } as const;
 
   const { data: userInfo } = useUserInfo(userId);
-  const currentTheme = (userInfo?.theme ??
+  
+  // ✅ Ưu tiên theme từ data-theme attribute (đã set từ server)
+  const dataTheme = typeof document !== 'undefined' 
+    ? document.body.getAttribute('data-theme') 
+    : null;
+  const currentTheme = (dataTheme || userInfo?.theme ||
     "theme-red") as keyof typeof themeClasses;
   const router = useRouter();
 

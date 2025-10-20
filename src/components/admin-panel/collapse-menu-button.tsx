@@ -110,7 +110,7 @@ export function CollapseMenuButton({
               </p> */}
               <p
                 className={cn(
-                  "max-w-[130px] break-words whitespace-normal text-start cursor-pointer",
+                  "max-w-[130px] break-words whitespace-normal text-start cursor-pointer transition-[transform,opacity] duration-200 ease-in-out",
                   isOpen
                     ? "translate-x-0 opacity-100"
                     : "-translate-x-96 opacity-0"
@@ -122,7 +122,7 @@ export function CollapseMenuButton({
             </div>
             <div
               className={cn(
-                "whitespace-nowrap",
+                "whitespace-nowrap transition-[transform,opacity] duration-200 ease-in-out",
                 isOpen
                   ? "translate-x-0 opacity-100"
                   : "-translate-x-96 opacity-0"
@@ -145,7 +145,7 @@ export function CollapseMenuButton({
               <span className="mr-4 ml-4">{/* <Dot size={18} /> */}</span>
               <p
                 className={cn(
-                  "max-w-[200px] truncate",
+                  "max-w-[200px] truncate transition-[transform,opacity] duration-200 ease-in-out",
                   isOpen
                     ? "translate-x-0 opacity-100"
                     : "-translate-x-96 opacity-0"
@@ -165,7 +165,7 @@ export function CollapseMenuButton({
                 <span className="mr-4 ml-4">{/* <Dot size={18} /> */}</span>
                 <p
                   className={cn(
-                    "max-w-[200px] truncate",
+                    "max-w-[200px] truncate transition-[transform,opacity] duration-200 ease-in-out",
                     isOpen
                       ? "translate-x-0 opacity-100"
                       : "-translate-x-96 opacity-0"
@@ -187,7 +187,7 @@ export function CollapseMenuButton({
             <DropdownMenuTrigger asChild>
               <Button
                 variant={active ? "secondary" : "ghost"}
-                className="w-full justify-start mb-1 h-20"
+                className="w-full justify-start mb-1 h-16"
                 disabled={disabled}
               >
                 <div className="w-full items-center flex justify-between">
@@ -198,14 +198,14 @@ export function CollapseMenuButton({
                     </span> */}
                     <Image
                       src={iconSrc}
-                      width={50}
-                      height={50}
+                      width={40}
+                      height={40}
                       alt="icon"
                       className="object-contain"
                     />
                     <p
                       className={cn(
-                        "max-w-[200px] truncate",
+                        "max-w-[200px] truncate transition-opacity duration-200 ease-in-out",
                         isOpen === false ? "opacity-0" : "opacity-100"
                       )}
                     >
@@ -216,7 +216,7 @@ export function CollapseMenuButton({
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent side="right" align="start" alignOffset={2}>
+          <TooltipContent side="right" align="center">
             {label}
           </TooltipContent>
         </Tooltip>

@@ -511,7 +511,7 @@ function LessonCompleteClient({
         style={{ pointerEvents: "auto" }}
       >
         {/* Standardized sizing wrapper for LessonCard across pages */}
-        <div className="lesson-card-size w-full h-full max-w-[360px] md:max-w-[380px] lg:max-w-[320px] xl:max-w-[340px] min-h-[220px] md:min-h-[240px] lg:min-h-[200px] xl:min-h-[220px] mx-auto">
+        <div className="lesson-card-size w-full h-full max-w-[100%] min-h-[220px] md:min-h-[240px] lg:min-h-[200px] xl:min-h-[220px] mx-auto">
           <LessonCard
             {...lessonItem}
             classRoomName={lessonItem.className}

@@ -270,7 +270,7 @@ function ImportLessonModal() {
   };
 
   const handleDownloadTemplate = () => {
-    const templateUrl = "/template/classroom-template.xlsx";
+    const templateUrl = "/template_file/classroom-template.xlsx";
     const a = document.createElement("a");
     a.href = templateUrl;
     a.download = "classroom-template.xlsx";
