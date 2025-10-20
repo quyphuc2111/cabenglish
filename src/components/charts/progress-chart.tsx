@@ -10,6 +10,8 @@ import {
 } from "recharts";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "../context/TranslationContext";
+import { useTranslation } from "react-i18next";
 
 interface ProgressChartProps {
   data: {
@@ -63,6 +65,7 @@ export function ProgressChart({ data }: ProgressChartProps) {
 
   // Tính tổng số trang
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const { t } = useTranslation();
 
   return (
     <div className="w-full p-4 bg-white rounded-xl shadow-lg">
@@ -79,7 +82,7 @@ export function ProgressChart({ data }: ProgressChartProps) {
             {hiddenBars.includes("completed") && (
               <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gray-400" />
             )}
-            Đã hoàn thành
+            {t("completed")}
           </span>
         </motion.div>
 
@@ -95,7 +98,7 @@ export function ProgressChart({ data }: ProgressChartProps) {
             {hiddenBars.includes("progress") && (
               <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gray-400" />
             )}
-            % hoàn thành
+            % {t("completed")}
           </span>
         </motion.div>
       </div>
@@ -135,7 +138,7 @@ export function ProgressChart({ data }: ProgressChartProps) {
               ticks={[0, 20, 40, 60, 80, 100]}
               domain={[0, 100]}
               label={{
-                value: "Tiến độ (%)",
+                value: t("progress") + " (%)",
                 angle: -90,
                 position: "insideLeft",
                 fill: "#555555"
@@ -177,17 +180,17 @@ export function ProgressChart({ data }: ProgressChartProps) {
             disabled={currentPage === 1}
             className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Trước
+            {t("previousPage")}
           </button>
           <span className="text-sm text-gray-600">
-            Trang {currentPage} / {totalPages}
+            {t("page")} {currentPage} / {totalPages}
           </span>
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
             className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Sau
+            {t("nextPage")}
           </button>
         </div>
       )}

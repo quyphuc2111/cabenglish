@@ -28,7 +28,12 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
 
   const { data: session } = useSession();
   const { data: userInfo } = useUserInfo(session?.user?.userId);
-  const currentTheme = userInfo?.theme ?? "theme-red";
+  
+  // ✅ Ưu tiên theme từ data-theme attribute (đã set từ server)
+  const dataTheme = typeof document !== 'undefined' 
+    ? document.body.getAttribute('data-theme') 
+    : null;
+  const currentTheme = dataTheme || userInfo?.theme || session?.user?.theme || "theme-red";
   const { onOpen } = useModal();
   const router = useRouter();
 
@@ -64,7 +69,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
       <div className="flex flex-col lg:flex-row gap-5 items-start lg:items-center justify-between">
         <SheetMenu />
         <motion.div
-          className={`w-full xl:w-2/3 2xl:w-2/3 3xl:w-3/5 max-h-24 h-16 lg:h-24 ${foregroundThemeClasses[currentTheme]} rounded-xl  lg:rounded-bl-md lg:shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
+          className={`w-full md:w-1/2 2xl:w-2/3 3xl:w-3/5 max-h-24 h-16 lg:h-24 ${foregroundThemeClasses[currentTheme]} rounded-xl  lg:rounded-bl-md lg:shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
           variants={navbarAnimations.item}
         >
           {/* <motion.div
@@ -77,11 +82,11 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
           </motion.div> */}
 
           <div className="w-full lg:w-3/4 lg:bg-white absolute top-1/2 -translate-y-1/2 left-0 lg:left-10  rounded-xl p-2 lg:px-4 xl:px-12">
-            <div className="w-fit relative">
-              <div className="flex gap-5">
+            <div className="w-full md:w-[calc(100%-50px)] relative overflow-x-auto overflow-y-hidden" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <div className="flex gap-5 md:pb-2 2xl:w-fit 2xl:pb-0 min-w-min">
                 <div
                   onClick={handleBack}
-                  className=" cursor-pointer flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group"
+                  className=" cursor-pointer flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group flex-shrink-0"
                 >
                   <div className="relative w-6 h-6 lg:w-10 lg:h-10 flex-shrink-0">
                     <Image
@@ -93,14 +98,14 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                     />
                   </div>
                   <div className="flex flex-col">
-                    <p className="text-[#555] text-base lg:text-xl font-bold group-hover:text-[#4079CE] transition-colors duration-300 line-clamp-1 max-w-[100px] lg:max-w-[250px]">
+                    <p className="text-[#555] text-base lg:text-xl font-bold group-hover:text-[#4079CE] transition-colors duration-300 whitespace-nowrap">
                       Lớp học
                     </p>
                     <div className="h-0.5 w-0 bg-[#4079CE] group-hover:w-full transition-all duration-300" />
                   </div>
                 </div>
                 {title != "Lớp học" && (
-                  <div className="cursor-pointer flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group">
+                  <div className="cursor-pointer flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group flex-shrink-0">
                     <div className="relative w-6 h-6 lg:w-10 lg:h-10 flex-shrink-0">
                       <Image
                         src="/book_multi.png"
@@ -111,7 +116,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                       />
                     </div>
                     <div className="flex flex-col">
-                      <p className="text-[#555] text-base lg:text-xl font-bold group-hover:text-[#4079CE] transition-colors duration-300 line-clamp-1 max-w-[100px] lg:max-w-[250px]">
+                      <p className="text-[#555] text-base lg:text-xl font-bold group-hover:text-[#4079CE] transition-colors duration-300 whitespace-nowrap">
                         {title}
                       </p>
                       <div className="h-0.5 w-0 bg-[#4079CE] group-hover:w-full transition-all duration-300" />

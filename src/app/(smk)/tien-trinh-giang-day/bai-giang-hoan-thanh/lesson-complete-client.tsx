@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useNavigationStore } from "@/store/navigationStore";
 import { useNavigationRestore } from "@/hooks/useNavigationRestore";
+import { useTranslation } from "react-i18next";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -70,17 +71,19 @@ const useLessonFilter = (
 // Memoized component for lesson stats
 const LessonStats = memo(
   ({
+    t,
     completedCount,
     totalCount
   }: {
+    t: (key: string) => string;
     completedCount: number;
     totalCount: number;
   }) => (
     <div className="px-4 sm:px-6 md:px-8">
       <p className="text-[#736E6E] text-sm sm:text-base md:text-md my-2 font-medium">
-        Đã hoàn thành{" "}
+        {t("completed")}{" "}
         <span className="text-[#3EC474] font-semibold">{completedCount}</span>/
-        {totalCount} bài học
+        {totalCount} {t("lesson")}
       </p>
     </div>
   )
@@ -89,10 +92,14 @@ const LessonStats = memo(
 LessonStats.displayName = "LessonStats";
 
 // Memoized NoLessons component with improved responsive design
-const NoLessons = memo(() => (
+const NoLessons = memo(() => {
+  const { t } = useTranslation();
+  return (
   <div className="flex flex-col items-center gap-4 sm:gap-6 md:gap-8 lg:gap-10 min-h-[250px] sm:min-h-[300px] md:min-h-[400px] lg:min-h-[500px] justify-center px-4">
     <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#736E6E] text-center leading-relaxed font-medium">
-      Hiện tại chưa có Bài học nào!
+      {
+        t("noLessonsYet")
+      }
     </h3>
     <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32">
       <OptimizeImage
@@ -105,15 +112,18 @@ const NoLessons = memo(() => (
       />
     </div>
   </div>
-));
+  );
+});
 
 NoLessons.displayName = "NoLessons";
 
 // Memoized SectionHeader component
-const SectionHeader = memo(() => (
+const SectionHeader = memo(() => {
+  const { t } = useTranslation();
+  return (
   <div className="flex-shrink-0">
     <SectionTitle
-      title="Bài học hoàn thành"
+      title={t("lectureCompleted")}
       image={{
         src: "/assets/gif/book_animate.gif",
         width: 32,
@@ -123,7 +133,8 @@ const SectionHeader = memo(() => (
       wrapperClassName="border-[#3EC474]"
     />
   </div>
-));
+);
+});
 
 SectionHeader.displayName = "SectionHeader";
 
@@ -294,7 +305,7 @@ function LessonCompleteClient({
   const [schoolWeeks, setSchoolWeeks] = useState<any[]>([]);
   const [loadingUnits, setLoadingUnits] = useState(false);
   const [loadingWeeks, setLoadingWeeks] = useState(false);
-
+  const { t } = useTranslation();
   // Hydrate dependent options when coming back with restored filters
   useEffect(() => {
     let cancelled = false;
@@ -500,7 +511,7 @@ function LessonCompleteClient({
         style={{ pointerEvents: "auto" }}
       >
         {/* Standardized sizing wrapper for LessonCard across pages */}
-        <div className="lesson-card-size w-full h-full max-w-[360px] md:max-w-[380px] lg:max-w-[320px] xl:max-w-[340px] min-h-[220px] md:min-h-[240px] lg:min-h-[200px] xl:min-h-[220px] mx-auto">
+        <div className="lesson-card-size w-full h-full max-w-[100%] min-h-[220px] md:min-h-[240px] lg:min-h-[200px] xl:min-h-[220px] mx-auto">
           <LessonCard
             {...lessonItem}
             classRoomName={lessonItem.className}
@@ -518,6 +529,7 @@ function LessonCompleteClient({
     <ContentLayout title="BaiGiangHoanThanh">
       <div className="lesson-complete-page">
         <LessonStats
+          t={t}
           completedCount={lessonCounts.completed}
           totalCount={lessonCounts.total}
         />

@@ -10,6 +10,7 @@ import { useUserInfo } from "@/hooks/useUserInfo";
 import { useNavigationStore } from "@/store/navigationStore";
 import { useNavigationRestore } from "@/hooks/useNavigationRestore";
 import CurrentAndNextLecture from "./current-and-next-lecture";
+import NewCurrentAndNextLecture from "./new-current-and-next-lecture";
 import { useTranslation } from "react-i18next";
 
 const LectureFavouriteList = dynamic(
@@ -107,6 +108,14 @@ const OverviewPage = memo(function OverviewPage({
 
   return (
     <div className="w-full flex flex-wrap gap-4">
+       {/* <NewCurrentAndNextLecture
+        courseData={courseData}
+        classroomData={classroomData}
+        userId={session?.user?.userId}
+        onLikeUpdate={handleGlobalLikeUpdate}
+      /> */}
+
+
       <CurrentAndNextLecture
         courseData={courseData}
         classroomData={classroomData}
@@ -114,6 +123,9 @@ const OverviewPage = memo(function OverviewPage({
         t={t}
         onLikeUpdate={handleGlobalLikeUpdate}
       />
+      
+     
+
       <LectureFavouriteList
         courseData={courseData}
         initialFilterData={initialFilterData}
@@ -122,6 +134,8 @@ const OverviewPage = memo(function OverviewPage({
         classrooms={classroomData}
         onLikeUpdate={handleGlobalLikeUpdate}
       />
+
+      
       <TeachingProgress
         courseData={courseData}
         classroomData={classroomData}

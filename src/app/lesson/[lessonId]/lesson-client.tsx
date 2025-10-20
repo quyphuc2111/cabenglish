@@ -364,7 +364,7 @@ function LessonClient({
           )}
         </div>
 
-        <div className={`flex relative h-full pt-1 landscape:pt-2 sm:pt-4 md:pt-6`}>
+        <div className={`flex relative h-full pt-5 landscape:pt-2 sm:pt-4 md:pt-6`}>
           <div className={mainContentStyles.sectionList}>
             <ScrollArea
               className="w-full px-3 sm:px-6 h-full"
@@ -457,7 +457,7 @@ function LessonClient({
                             <div className="flex items-center gap-1">
                               <div
                                 className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
-                                  section.progress === 100
+                                  section.progress === 1
                                     ? "bg-green-500"
                                     : section.progress > 0
                                     ? "bg-yellow-500"
@@ -465,7 +465,7 @@ function LessonClient({
                                 }`}
                               ></div>
                               <span className="text-xs text-gray-500">
-                                {section.progress === 100
+                                {section.progress === 1
                                   ? "Hoàn thành"
                                   : section.progress > 0
                                   ? "Đang học"
@@ -503,7 +503,7 @@ function LessonClient({
                           <div className="flex items-center gap-1">
                             <div
                               className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
-                                section.progress === 100
+                                section.progress === 1
                                   ? "bg-green-500"
                                   : section.progress > 0
                                   ? "bg-yellow-500"
@@ -511,7 +511,7 @@ function LessonClient({
                               }`}
                             ></div>
                             <span className="text-xs text-gray-500">
-                              {section.progress === 100
+                              {section.progress === 1
                                 ? "Hoàn thành"
                                 : section.progress > 0
                                 ? "Đang học"

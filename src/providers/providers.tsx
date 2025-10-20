@@ -47,7 +47,19 @@ function Providers({
               </ThemeProvider>
               {/* </SocketProvider> */}
               <ModalProvider />
-              <ToastContainerClient />
+              <ToastContainerClient 
+                position="top-right"
+                autoClose={8000}
+                hideProgressBar={false}
+                newestOnTop={true}
+                closeOnClick={true}
+                rtl={false}
+                pauseOnFocusLoss={true}
+                draggable={true}
+                pauseOnHover={true}
+                theme="light"
+                limit={5}
+              />
             </QueryProvider>
           </TokenValidationProvider>
         </SessionProvider>

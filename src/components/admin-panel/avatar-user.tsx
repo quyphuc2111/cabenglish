@@ -25,9 +25,14 @@ function AvatarUser({ avatarUrl, email, sidebar }: any) {
             height={80}
           />
         </div>
-        {sidebar?.isOpen && (
-          <Badge className="bg-[#1ACAEF] -left-11 rounded-full absolute bottom-0 text-center flex items-center justify-center">
-            {email || "Bê Ka Tê"}
+        {sidebar?.isOpen && email && (
+          <Badge 
+            title={email || "Bê Ka Tê"} 
+            className="bg-[#1ACAEF] hover:bg-[#1ACAEF] rounded-full bottom-0 text-center flex items-center justify-center absolute left-1/2 -translate-x-1/2 max-w-[200px] min-w-0 transition-[opacity,transform] duration-200 ease-in-out animate-in fade-in slide-in-from-bottom-2"
+          >
+            <span className="truncate block w-full px-2">
+              {email || "Bê Ka Tê"}
+            </span>
           </Badge>
         )}
       </div>

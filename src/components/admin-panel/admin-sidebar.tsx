@@ -13,14 +13,14 @@ export function AdminSidebar() {
   return (
     <aside
         className={cn(
-          "fixed top-0 left-0 z-30 h-screen transition-all ease-in-out duration-300 bg-[#c35690] text-white bg-menu-texture",
+          "fixed top-0 left-0 z-30 h-screen transition-[width] ease-in-out duration-200 bg-[#c35690] text-white bg-menu-texture will-change-[width]",
           // Ẩn hoàn toàn trên mobile/tablet, chỉ hiển thị trên desktop
           "hidden lg:block",
           // Desktop widths
           sidebar?.isOpen === false ? "lg:w-[100px]" : "lg:w-72"
         )}
       >
-        <div className="relative h-full flex flex-col">
+        <div className="relative h-full flex flex-col z-[1]">
           {/* Header với logo */}
           <div className="flex justify-between px-4 py-3 flex-shrink-0">
             <Image
@@ -31,7 +31,7 @@ export function AdminSidebar() {
               priority
               quality={75}
               loading="eager"
-              className="transition-all duration-300"
+              className="transition-[width,height] duration-200 ease-in-out"
             />
           </div>
 

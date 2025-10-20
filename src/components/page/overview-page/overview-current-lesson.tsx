@@ -2,7 +2,7 @@ import LessonCard from "@/components/lesson/lesson-card";
 import Image from "next/image";
 import React from "react";
 import { CourseCarousel } from "@/components/carousel/course-carousel";
-import { PaginatedContent } from "@/components/common/paginated-content";
+import { PaginatedContentV2 } from "@/components/common/paginated-content-v2";
 import { useSelectLessonStore } from "@/store/useSelectLesson";
 
 interface CurrentLectureProps {
@@ -13,6 +13,7 @@ interface CurrentLectureProps {
   t: any;
   classroomData?: any[];
   onLikeUpdate?: (lessonId: number, newLikeCount: number) => void;
+  hasNextLectures?: boolean; // Có Next Lectures hay không
 }
 
 const CurrentLecture = ({
@@ -22,7 +23,8 @@ const CurrentLecture = ({
   isExtraSmall,
   t,
   classroomData,
-  onLikeUpdate
+  onLikeUpdate,
+  hasNextLectures
 }: CurrentLectureProps) => {
   const { setSelectedLesson } = useSelectLessonStore();
 
@@ -49,7 +51,7 @@ const CurrentLecture = ({
     handleLessonClick(lecture.lessonId);
   };
   return (
-    <div className="w-full xl:w-full flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
+    <div className={`w-full ${hasNextLectures ? "xl:w-1/2" : "xl:w-full"} flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible`}>
       <div className="flex items-center gap-2 sm:gap-3">
         <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center">
           <Image
@@ -81,7 +83,9 @@ const CurrentLecture = ({
           </div>
           <div className="text-center px-2">
             <p className="text-gray-600 font-medium text-xs sm:text-sm md:text-base">
-              Hiện tại chưa có bài học nào!
+              {
+                t("noLessonsYet")
+              }
             </p>
             <p className="text-xs text-gray-500 mt-1">
               Hãy bắt đầu một bài học mới
@@ -100,8 +104,8 @@ const CurrentLecture = ({
           />
           */}
 
-          {/* Grid/List + Pagination mới */}
-          <PaginatedContent
+          {/* Grid/List + Pagination V2 - Infinite Scroll */}
+          <PaginatedContentV2
             items={lectures}
             itemsPerPage={4}
             renderItem={(lecture) => (
@@ -123,9 +127,14 @@ const CurrentLecture = ({
                 onLikeUpdate={onLikeUpdate}
               />
             )}
-            rowPerPage={2} // 2 cột để phù hợp với layout chia đôi
-            itemInPage={[4, 8, 12]} // Options cho items per page
+            layout="horizontal"
+            loadMode="manual"
+            itemWidth="260px"
+            gap={4}
+            loadingText="Đang tải..."
+            endText={t("allLessonsShown")}
             className="h-full"
+            t={t}
           />
         </div>
       )}

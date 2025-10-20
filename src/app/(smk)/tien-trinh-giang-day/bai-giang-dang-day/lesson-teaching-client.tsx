@@ -13,7 +13,7 @@ import { CourseCarousel } from "@/components/carousel/course-carousel";
 import { useRouter } from "next/navigation";
 import SectionTitle from "@/components/common/section-title";
 import styles from "./lesson-teaching.module.css";
-
+import { useTranslation } from "react-i18next";
 // Memoized component cho Tab classroom để tránh re-render không cần thiết
 const ClassroomTab = memo(
   ({
@@ -140,7 +140,7 @@ function LessonTeachingClient({
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const breakpoint = useBreakpoint();
-
+  const { t } = useTranslation();
   // Performance: limit total slides to avoid hundreds of mounted slides
   const MAX_SLIDES = 60;
 
@@ -277,7 +277,7 @@ function LessonTeachingClient({
       // Lưu thông tin trang hiện tại vào store
       setPreviousPage({
         url: "/tien-trinh-giang-day/bai-giang-dang-day",
-        title: "Bài học đang dạy",
+        title: t("taughtLesson"),
         state: {
           activeTab,
           scrollPosition: window.scrollY
@@ -405,7 +405,7 @@ function LessonTeachingClient({
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="flex-shrink-0">
                     <SectionTitle
-                      title="Bài học đang dạy"
+                      title={t("taughtLesson")}
                       image={{
                         src: "/assets/gif/book_animate.gif",
                         width: 32,

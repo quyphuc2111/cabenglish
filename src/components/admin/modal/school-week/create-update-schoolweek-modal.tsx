@@ -57,7 +57,21 @@ function CreateUpdateSchoolWeekModal() {
   const { data: schoolWeekData, isLoading } = useGetSingleSchoolWeek(swId?.toString() || "");
   const { mutate: createSchoolWeek, isPending: isCreating } = useCreateSchoolWeek();
   const { mutate: updateSchoolWeek, isPending: isUpdating } = useUpdateSchoolWeek();
-  const { data: schoolWeekExists } = useCheckSchoolWeekExists(form.watch("value"));
+  
+  const { data: allSchoolWeeks } = useSchoolWeek();
+  const currentValue = form.watch("value");
+  
+  const schoolWeekExists = React.useMemo(() => {
+    if (!allSchoolWeeks?.data) return false;
+    
+    if (formType === "update" && swId) {
+      return allSchoolWeeks.data.some((week: any) => 
+        week.value === currentValue && week.swId !== swId
+      );
+    }
+    
+    return allSchoolWeeks.data.some((week: any) => week.value === currentValue);
+  }, [allSchoolWeeks?.data, currentValue, formType, swId]);
 
   const isPending = isCreating || isUpdating || isLoading;
 
@@ -79,11 +93,12 @@ function CreateUpdateSchoolWeekModal() {
 
   const handleSubmit = React.useCallback(async (values: SchoolWeekFormValues) => {
     try {
+      if (schoolWeekExists) {
+        showToast.error("Tuần học đã tồn tại");
+        return;
+      }
+
       if (formType === "create") {
-        if (schoolWeekExists) {
-          showToast.error("Tuần học đã tồn tại");
-          return;
-        }
         createSchoolWeek(values, {
           onSuccess: () => {
             showToast.success("Tạo tuần học thành công");
@@ -94,15 +109,6 @@ function CreateUpdateSchoolWeekModal() {
           }
         });
       } else {
-        // Kiểm tra trùng lặp khi cập nhật
-        const currentData = Array.isArray(schoolWeekData) ? schoolWeekData[0] : schoolWeekData;
-        const isValueChanged = currentData?.value !== values.value;
-        
-        if (isValueChanged && schoolWeekExists) {
-          showToast.error("Tuần học đã tồn tại, không thể cập nhật");
-          return;
-        }
-        
         updateSchoolWeek({ 
           swId: swId as number,
           data: values
@@ -119,7 +125,7 @@ function CreateUpdateSchoolWeekModal() {
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra!");
     }
-  }, [formType, swId, createSchoolWeek, updateSchoolWeek, handleClose, schoolWeekExists, schoolWeekData]);
+  }, [formType, swId, createSchoolWeek, updateSchoolWeek, handleClose, schoolWeekExists]);
 
   if (!isOpen || type !== "createUpdateSchoolWeek") return null;
 

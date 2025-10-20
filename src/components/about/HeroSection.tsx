@@ -23,7 +23,7 @@ function HeroSection() {
             dễ dàng tiếp cận và yêu thích việc học. Đặc biệt, phần mềm cũng cung
             cấp các tính năng quản lý và theo dõi tiến trình học tập, giúp phụ
             huynh và giáo viên có thể nắm bắt và hỗ trợ kịp thời cho sự phát
-            triển của trẻ
+            triển của trẻ.
           </p>
         </div>
 

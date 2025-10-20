@@ -3,7 +3,6 @@
 import { Suspense } from "react";
 import ClassroomClient from "./classroom-client";
 import {
-  decrementLikeByClassroomId,
   getAllClassroomDataByUserId,
   incrementLikeByClassroomId
 } from "@/actions/classroomAction";
@@ -59,20 +58,11 @@ async function ClassroomPage({ searchParams }: PageProps) {
     return classroom;
   };
 
-  const decreamentLike = async ({ classroomId }: { classroomId: number }) => {
-    "use server";
-    const classroom = await decrementLikeByClassroomId({
-      classroomId: classroomId
-    });
-    return classroom;
-  };
-
   return (
     // <Suspense fallback={<Loading />}>
       <ClassroomClient
         classroomData={classroomData.data}
         increamentLike={increamentLike}
-        decreamentLike={decreamentLike}
         selectedClassroomName={classroomName ? decodeURIComponent(classroomName) : undefined}
       />
     // </Suspense>

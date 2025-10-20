@@ -87,7 +87,7 @@ export const TeachingProgress = memo(function TeachingProgress({
                 {t("teachingProgress")}
               </h3>
               <p className="text-sm text-gray-600 ">
-                Quản lý và theo dõi tiến độ giảng dạy
+                {t("manageAndMonitorTeachingProgress")}
               </p>
             </div>
           </div>

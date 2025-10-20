@@ -119,7 +119,7 @@ const config = {
       },
       fontFamily: {
         inter: ["var(--font-inter)", "Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
-        poppins: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"]
+        poppins: ["var(--font-inter)", "Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"]
       },
       boxShadow: {
         "course-inset": "inset 0 -4px 0 rgba(1, 84, 136, 0.1)"
@@ -142,7 +142,11 @@ const config = {
       }
     }
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")]
+  plugins: [
+    require("tailwindcss-animate"), 
+    require("@tailwindcss/typography"),
+    require("tailwind-scrollbar")({ nocompatible: true })
+  ]
 } satisfies Config;
 
 export default config;

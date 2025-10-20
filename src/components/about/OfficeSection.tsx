@@ -34,7 +34,7 @@ const OfficeData = [
 function OfficeSection() {
   return (
     <div className="bg-gray-100">
-      <div className="container flex py-2 md:py-10">
+      <div className="container flex py-2 md:py-10 justify-center">
         <div className="bg-white rounded-xl px-5 md:px-16 py-5 md:py-10 my-12">
           <h2 className="text-2xl md:text-3xl font-bold border-b border-gray-300 py-2 mb-5">
             Văn phòng của BKT

@@ -36,9 +36,9 @@ export function MobileAdminMenu() {
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="w-80 p-0 !bg-[#c35690] text-white border-r-0 bg-menu-texture "
+        className="w-80 p-0 !bg-[#c35690] text-white border-r-0 bg-menu-texture"
       >
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col relative z-[1]">
           <SheetHeader className="px-4 py-4 border-b border-white/20">
             <SheetTitle className="text-left">
               <div className="flex items-center gap-3">

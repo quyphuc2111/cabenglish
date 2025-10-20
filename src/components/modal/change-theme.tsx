@@ -17,6 +17,19 @@ import {
   measureThemeSwitchEnd,
   checkPerformanceIssues
 } from "@/utils/theme-performance";
+import { toast } from "react-toastify";
+
+// ✅ Translation texts để tránh hook order issues
+const TRANSLATIONS = {
+  vi: {
+    changeBackgroundColorSmartKid: "Thay đổi màu nền SmartKid",
+    change: "Thay đổi"
+  },
+  en: {
+    changeBackgroundColorSmartKid: "Change SmartKid background color",
+    change: "Change"
+  }
+};
 
 const THEME_OPTIONS = [
   { id: "theme-gold", color: "#ECC98D" },
@@ -35,12 +48,17 @@ const THEME_CLASSES = {
 type ThemeType = "theme-gold" | "theme-blue" | "theme-pink" | "theme-red";
 
 function ChangeTheme() {
+  // ✅ Call all hooks in consistent order at the top
   const { isOpen, onClose, type } = useModal();
-
   const { data: session, update } = useSession();
   const { data: userInfo } = useUserInfo(session?.user?.userId);
+  const { mutate: updateUserInfo, isPending } = useUpdateUserInfo();
+  
+  // ✅ Get translations based on user language
+  const userLang = (session?.user?.language || userInfo?.language || 'vi') as 'vi' | 'en';
+  const t = (key: keyof typeof TRANSLATIONS.vi) => TRANSLATIONS[userLang]?.[key] || TRANSLATIONS.vi[key];
+  
   const currentTheme = userInfo?.theme ?? "theme-red";
-
   const [selectedTheme, setSelectedTheme] = React.useState<ThemeType>(
     (currentTheme as ThemeType) || "theme-red"
   );
@@ -50,8 +68,6 @@ function ChangeTheme() {
       setSelectedTheme(userInfo.theme as ThemeType);
     }
   }, [userInfo?.theme]);
-
-  const { mutate: updateUserInfo, isPending } = useUpdateUserInfo();
 
   const handleChangeTheme = async () => {
     // ✅ Kiểm tra nếu theme không thay đổi thì không cần update
@@ -79,6 +95,12 @@ function ChangeTheme() {
         {
           onSuccess: async () => {
             try {
+              // ✅ Update data-theme attribute ngay lập tức để tránh FOUC
+              if (typeof document !== 'undefined') {
+                document.body.setAttribute('data-theme', selectedTheme);
+                document.documentElement.setAttribute('data-theme', selectedTheme);
+              }
+
               // ✅ Update session với theme mới
               await update({
                 user: {
@@ -102,6 +124,8 @@ function ChangeTheme() {
                 selectedTheme,
                 `(${metric?.duration?.toFixed(2)}ms)`
               );
+
+              toast.success("Thay đổi màu nền thành công");
             } catch (sessionError) {
               console.error("Lỗi khi cập nhật session:", sessionError);
               measureThemeSwitchEnd(); // End measurement even on error
@@ -114,8 +138,8 @@ function ChangeTheme() {
             measureThemeSwitchEnd(); // End measurement on error
             // ✅ Reset về theme cũ nếu có lỗi
             setSelectedTheme(currentTheme as ThemeType);
-            // ✅ Optional: Show error toast
-            alert("Có lỗi xảy ra khi thay đổi theme. Vui lòng thử lại.");
+            // ✅ Show error toast
+            toast.error("Có lỗi xảy ra khi thay đổi theme. Vui lòng thử lại.");
           }
         }
       );
@@ -124,7 +148,7 @@ function ChangeTheme() {
       measureThemeSwitchEnd(); // End measurement on error
       // ✅ Reset về theme cũ nếu có lỗi
       setSelectedTheme(currentTheme as ThemeType);
-      alert("Có lỗi xảy ra khi thay đổi theme. Vui lòng thử lại.");
+      toast.error("Có lỗi xảy ra khi thay đổi theme. Vui lòng thử lại.");
     }
   };
 
@@ -197,7 +221,9 @@ function ChangeTheme() {
           >
             <div className="flex gap-2 sm:gap-3 items-center flex-wrap justify-center">
               <p className="font-semibold text-sm sm:text-base text-center">
-                Thay đổi màu nền SmartKid
+                {
+                  t("changeBackgroundColorSmartKid")
+                }
               </p>
               <motion.div
                 initial={{ rotate: -180, opacity: 0 }}
@@ -333,8 +359,12 @@ function ChangeTheme() {
                         </span>
                       </motion.div>
                     ) : (
-                      "Thay đổi"
-                    )}
+                     
+                    <span className="text-sm sm:text-base">
+                        { t("change")}
+                      </span>
+                     )}
+                    
                   </Button>
                 </div>
               </div>

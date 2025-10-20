@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { BreadcrumbLayout } from "@/components/admin-panel/breadcrumb-layout";
 import { useRouter } from "next/navigation";
@@ -11,16 +11,19 @@ import { ClassroomType } from "@/types/classroom";
 function ClassroomClient({
   classroomData,
   increamentLike,
-  decreamentLike,
   selectedClassroomName
 }: {
   classroomData: ClassroomType[];
   increamentLike: (params: { classroomId: number }) => Promise<any>;
-  decreamentLike: (params: { classroomId: number }) => Promise<any>;
   selectedClassroomName?: string;
 }) {
   const router = useRouter();
   const [likedClassrooms, setLikedClassrooms] = useState<Record<number, boolean>>({});
+  const [likeCount, setLikeCount] = useState<Record<number, number>>({});
+  
+  // Debounce timers cho mỗi classroom
+  const debounceTimersRef = useRef<Record<number, NodeJS.Timeout>>({});
+  const pendingLikesRef = useRef<Record<number, number>>({});
 
   // Nếu có selectedClassroomName, tự động chuyển đến classroom đó
   useEffect(() => {
@@ -45,35 +48,70 @@ function ClassroomClient({
 
   const handleLikeClick = async (classroomId: number) => {
     try {
-      const isLiked = likedClassrooms[classroomId];
-      
-      if (!isLiked) {
-        const messageResponse = await increamentLike({ classroomId });
-        if (!messageResponse.error && messageResponse.data) {
-          setLikedClassrooms(prev => ({
-            ...prev,
-            [classroomId]: true
-          }));
-          router.refresh();
-        }
-      } else {
-        const messageResponse = await decreamentLike({ classroomId });
-        if (!messageResponse.error && messageResponse.data) {
-          setLikedClassrooms(prev => ({
-            ...prev,
-            [classroomId]: false
-          }));
-          router.refresh();
-        }
+      // ===== INSTANT UI UPDATE =====
+      // Tăng like count ngay lập tức
+      setLikeCount(prev => ({
+        ...prev,
+        [classroomId]: (prev[classroomId] || 0) + 1
+      }));
+
+      // Đánh dấu là đã like
+      setLikedClassrooms(prev => ({
+        ...prev,
+        [classroomId]: true
+      }));
+
+      // ===== DEBOUNCED API CALL =====
+      // Track số lần like pending
+      if (!pendingLikesRef.current[classroomId]) {
+        pendingLikesRef.current[classroomId] = 0;
       }
+      pendingLikesRef.current[classroomId] += 1;
+
+      // Clear timer cũ nếu có
+      if (debounceTimersRef.current[classroomId]) {
+        clearTimeout(debounceTimersRef.current[classroomId]);
+      }
+
+      // Set timer mới - gọi API sau 500ms không có click mới
+      debounceTimersRef.current[classroomId] = setTimeout(async () => {
+        const likesToSend = pendingLikesRef.current[classroomId];
+        pendingLikesRef.current[classroomId] = 0;
+
+        if (likesToSend === 0) return;
+
+        try {
+          // Gọi API nhiều lần liên tiếp
+          for (let i = 0; i < likesToSend; i++) {
+            await increamentLike({ classroomId });
+          }
+        } catch (error) {
+          console.error("Lỗi khi xử lý like:", error);
+          
+          // Revert tất cả likes pending
+          setLikeCount(prev => ({
+            ...prev,
+            [classroomId]: Math.max(0, (prev[classroomId] || 0) - likesToSend)
+          }));
+        }
+      }, 500); // Debounce 500ms
     } catch (error) {
       console.error("Lỗi khi xử lý like:", error);
     }
   };
 
+  // Cleanup debounce timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(debounceTimersRef.current).forEach(timer => {
+        if (timer) clearTimeout(timer);
+      });
+    };
+  }, []);
+
   return (
     <BreadcrumbLayout title="Lớp học">
-      <div className="flex flex-col gap-3 sm:gap-5 w-full max-w-full overflow-hidden">
+      <div className="flex flex-col gap-3 sm:gap-5 w-full max-w-full">
         <div className="flex flex-wrap items-center gap-3 sm:gap-5 px-2 sm:px-0">
           <Image
             src="/menu-icon/lophoc_icon.png"
@@ -94,13 +132,18 @@ function ClassroomClient({
             const isSelected = selectedClassroomName && 
               classroomItem.classname.toLowerCase() === selectedClassroomName.toLowerCase();
             
+            // Sử dụng likeCount optimistic hoặc giá trị gốc
+            const currentLikeCount = likeCount[classroomItem.class_id] !== undefined 
+              ? classroomItem.numliked + likeCount[classroomItem.class_id]
+              : classroomItem.numliked;
+            
             return (
               <div key={index} className="w-full h-full">
                 <ClassroomCard
                   class_id={classroomItem.class_id}
                   classname={classroomItem.classname}
                   description={classroomItem.description}
-                  numliked={classroomItem.numliked}
+                  numliked={currentLikeCount}
                   imageurl={classroomItem.imageurl}
                   progress={classroomItem.progress}
                   order={classroomItem.order}

@@ -39,7 +39,12 @@ export function NavbarControls({
   } as const;
 
   const { data: userInfo } = useUserInfo(userId);
-  const currentTheme = (userInfo?.theme ??
+  
+  // ✅ Ưu tiên theme từ data-theme attribute (đã set từ server)
+  const dataTheme = typeof document !== 'undefined' 
+    ? document.body.getAttribute('data-theme') 
+    : null;
+  const currentTheme = (dataTheme || userInfo?.theme ||
     "theme-red") as keyof typeof themeClasses;
   const router = useRouter();
 
@@ -137,14 +142,14 @@ export function NavbarControls({
             <div className="absolute bottom-16 right-0 flex flex-col-reverse gap-2 sm:gap-3 min-w-max max-w-[calc(100vw-2rem)]">
               {menuItems.map((item, index) => (
                 <div key={index} className="flex items-center gap-2 sm:gap-3">
-                  <div className="bg-white text-gray-800 px-2 py-2 rounded-lg text-xs sm:text-sm font-medium shadow-lg border border-gray-200 max-w-[120px] sm:max-w-none">
+                  <div className="h-9 bg-white text-gray-800 px-2 py-2 rounded-lg text-xs sm:text-sm font-medium shadow-lg border border-gray-200 max-w-[120px] sm:max-w-none">
                     <span className="whitespace-nowrap overflow-hidden text-ellipsis block">
                       {item.label}
                     </span>
                   </div>
 
                   {item.component ? (
-                    <div className="w-fit min-w-[200px] sm:min-w-[240px] h-12 rounded-lg bg-white shadow-lg border border-gray-200 flex items-center justify-center overflow-hidden">
+                    <div className="w-fit min-w-[200px] sm:min-w-[240px] h-12 rounded-lg flex items-center justify-center overflow-hidden">
                       <div className="scale-75 sm:scale-90 w-full">
                         {item.component}
                       </div>

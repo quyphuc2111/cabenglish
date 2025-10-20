@@ -29,7 +29,7 @@ interface GenericTableProps<T> {
 
 // Tách SearchAndActions thành component riêng với responsive design
 const SearchAndActions = ({ searchComponent, actionButtons }: { searchComponent: React.ReactNode, actionButtons: React.ReactNode }) => (
-  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+  <div className="flex flex-col justify-end  gap-4 2xl:flex-row 2xl:justify-between 2xl:items-center">
     {searchComponent && (
       <div className="flex-1 sm:flex-none sm:min-w-0 sm:max-w-3xl" onClick={(e) => e.stopPropagation()}>
         {searchComponent}

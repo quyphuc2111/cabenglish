@@ -1,9 +1,9 @@
-import LessonCard from "@/components/lesson/lesson-card";
+import { LessonCardV2 } from "@/components/lesson/lesson-card-v2";
 import Image from "next/image";
 import React from "react";
-import { CourseCarousel } from "@/components/carousel/course-carousel";
-import { PaginatedContent } from "@/components/common/paginated-content";
+import { PaginatedContentV2 } from "@/components/common/paginated-content-v2";
 import { useSelectLessonStore } from "@/store/useSelectLesson";
+import LessonCard from "@/components/lesson/lesson-card";
 
 interface NextLectureProps {
   nextLectures: any[];
@@ -13,6 +13,7 @@ interface NextLectureProps {
   t: any;
   classroomData?: any[];
   onLikeUpdate?: (lessonId: number, newLikeCount: number) => void;
+  hasCurrentLectures?: boolean; // Có Current Lectures hay không
 }
 
 const NextLecture = ({
@@ -22,7 +23,8 @@ const NextLecture = ({
   isExtraSmall,
   t,
   classroomData,
-  onLikeUpdate
+  onLikeUpdate,
+  hasCurrentLectures
 }: NextLectureProps) => {
   const { setSelectedLesson } = useSelectLessonStore();
 
@@ -50,7 +52,7 @@ const NextLecture = ({
   };
   if (nextLectures.length === 0) {
     return (
-      <div className="w-full xl:w-full flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
+      <div className={`w-full ${hasCurrentLectures ? "xl:w-1/2" : "xl:w-full"} flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible`}>
         <div className="flex items-center gap-2 sm:gap-3">
           <Image
             src="/person_rank.png"
@@ -80,10 +82,14 @@ const NextLecture = ({
           </div>
           <div className="text-center px-2">
             <p className="text-gray-600 font-medium text-xs sm:text-sm md:text-base">
-              Chưa có bài học tiếp theo!
+              {
+                t("noLessonsYet")
+              }
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Tất cả bài học đã hoàn thành
+              {
+                t("allLessonsShown")
+              }
             </p>
           </div>
         </div>
@@ -92,7 +98,7 @@ const NextLecture = ({
   }
 
   return (
-    <div className="w-full flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible">
+    <div className={`w-full ${hasCurrentLectures ? "xl:w-1/2" : "xl:w-full"} flex flex-col space-y-3 sm:space-y-4 md:space-y-6 min-w-0 overflow-visible`}>
       <div className="flex items-center gap-2 sm:gap-3">
         <Image
           src="/person_rank.png"
@@ -112,21 +118,17 @@ const NextLecture = ({
         </div>
       </div>
 
-      <div className="min-h-[230px] sm:min-h-[320px] md:min-h-[370px] lg:min-h-[330px]">
-        {/* Comment: CourseCarousel cũ - đã thay thế bằng PaginatedContent
-        <CourseCarousel
-          courseData={nextLectures}
-          className="h-full"
-          onLessonClick={handleLessonClick}
-          classroomData={classroomData}
-          containerType="next"
-        />
-        */}
-
-        {/* Grid/List + Pagination mới */}
-        <PaginatedContent
+      <div className="min-h-[200px]">
+        {/* Horizontal Scroll với Manual Loading (Click để load thêm) - LessonCardV2 */}
+        <PaginatedContentV2
           items={nextLectures}
-          itemsPerPage={4}
+          itemsPerPage={6}
+          layout="horizontal"
+          loadMode="manual"
+          itemWidth="260px"
+          gap={4}
+          loadingText="Đang tải..."
+          endText={t("allLessonsShown")}
           renderItem={(lecture) => (
             <LessonCard
               key={lecture.lessonId}
@@ -139,16 +141,14 @@ const NextLecture = ({
               classRoomName={lecture.className}
               lessonName={lecture.lessonName}
               progress={lecture.progress}
-              numLiked={lecture.numLiked}
+              numLiked={lecture.numLiked} 
               isLocked={lecture.isLocked}
               lessonId={lecture.lessonId}
               onClick={() => handleLessonClickWithData(lecture)}
               onLikeUpdate={onLikeUpdate}
             />
           )}
-          rowPerPage={2} // 2 cột để phù hợp với layout chia đôi
-          itemInPage={[4, 8, 12]} // Options cho items per page
-          className="h-full"
+          t={t}
         />
       </div>
     </div>

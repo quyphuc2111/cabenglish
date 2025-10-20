@@ -129,9 +129,6 @@ export const DashboardService = {
       const session = await getServerSession(authOptions);
       const mode = (session?.user?.mode as UserMode) || "default";
 
-      console.log(
-        `📊 Fetching dashboard data for user: ${userId}, mode: ${mode}`
-      );
 
       return await fetchCoreData(userId, mode);
     } catch (error) {
@@ -155,10 +152,6 @@ export const DashboardService = {
       if (!mode || !["default", "free"].includes(mode)) {
         throw new Error(`Invalid mode: ${mode}. Must be 'default' or 'free'`);
       }
-
-      console.log(
-        `📊 Fetching dashboard data for user: ${userId}, explicit mode: ${mode}`
-      );
 
       return await fetchCoreData(userId, mode);
     } catch (error) {

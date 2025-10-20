@@ -394,7 +394,7 @@ export const ProgressStats = memo(function ProgressStats({
               {t("statisticsOfTeachingProgress")}
             </h2>
             <p className="text-sm sm:text-base text-white/80 mt-1">
-              Theo dõi tiến độ học tập của từng lớp
+              {t("trackTheLearningProgressOfEachClass")}
             </p>
           </div>
         </div>
@@ -417,7 +417,7 @@ export const ProgressStats = memo(function ProgressStats({
             <span className="flex items-center gap-2">
               <span className="hidden sm:inline">←</span>
               <span className="sm:hidden">◀</span>
-              <span>Trang trước</span>
+              <span>{t("previousPage")}</span>
             </span>
           </motion.button>
 
@@ -437,7 +437,7 @@ export const ProgressStats = memo(function ProgressStats({
             }
           >
             <span className="flex items-center gap-2">
-              <span className={`${currentTheme == "theme-blue" ? "text-black" : ""}`}>Trang sau</span>
+              <span className={`${currentTheme == "theme-blue" ? "text-black" : ""}`}>{t("nextPage")}</span>
               <span className={`${currentTheme == "theme-blue" ? "text-black" : ""} hidden sm:inline`}>→</span>
               <span className={`${currentTheme == "theme-blue" ? "text-black" : ""} sm:hidden`}>▶</span>
             </span>
@@ -482,7 +482,7 @@ export const ProgressStats = memo(function ProgressStats({
                 <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
                   📊
                 </div>
-                Biểu đồ tiến độ giảng dạy
+                {t("teachingProgressChart")}
               </DialogTitle>
             </DialogHeader>
           </div>
@@ -495,10 +495,10 @@ export const ProgressStats = memo(function ProgressStats({
                   <span className="text-2xl text-gray-400">📊</span>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                  Không có dữ liệu
+                  {t("noData")}
                 </h3>
                 <p className="text-gray-500">
-                  Lớp học này chưa có dữ liệu tiến độ để hiển thị biểu đồ.
+                  {t("noDataForProgressChart")}
                 </p>
               </div>
             )}

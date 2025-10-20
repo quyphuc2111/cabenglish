@@ -9,8 +9,8 @@ import CurrentLecture from "./overview-current-lesson";
 import NextLecture from "./overview-next-lesson";
 
 const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
-  courseData,
   t,
+  courseData,
   classroomData,
   userId,
   onLikeUpdate
@@ -24,7 +24,6 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
   const router = useRouter();
   const { data: userInfo } = useUserInfo(userId);
   const { setPreviousPage, setOverviewState } = useNavigationStore();
-
   // Thêm breakpoint cho màn hình siêu nhỏ (mobile nhỏ)
   const isExtraSmall = useMediaQuery("(max-width: 1023px)");
 
@@ -188,6 +187,21 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
     return classroom?.classname || `Lớp ${classId}`;
   };
 
+  // Calculate statistics for each classroom
+  const getClassroomStats = useCallback((classId: string) => {
+    const classLessons = courseData.filter((course) => String(course.classId) === classId);
+    
+    if (classLessons.length === 0) {
+      return { completed: 0, total: 0, progress: 0 };
+    }
+
+    const completed = classLessons.filter((course) => course.progress === 1).length;
+    const total = classLessons.length;
+    const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    return { completed, total, progress };
+  }, [courseData]);
+
   // Check if we have any classes with lectures (current or next)
   const hasAnyLectures = Object.keys(currentLecturesByClass).some((classId) => {
     const currentLectures = currentLecturesByClass[classId] || [];
@@ -212,7 +226,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
 
   if (!hasAnyLectures) {
     return (
-      <div className="w-full overflow-hidden py-2 min-w-0">
+      <div className="w-full xl:w-1/2 overflow-hidden py-2 min-w-0">
         <div className="relative z-10 p-3 sm:p-4 md:p-6">
           <div
             className={`flex flex-col items-center justify-center gap-2 sm:gap-3 md:gap-4 py-6 sm:py-8 md:py-12`}
@@ -228,7 +242,9 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
             </div>
             <div className="text-center px-2">
               <p className="text-gray-600 font-medium text-xs sm:text-sm md:text-base">
-                Hiện tại chưa có bài học nào!
+                {
+                  t("noLessonsYet")
+                }
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 Hãy bắt đầu một bài học mới
@@ -400,19 +416,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
           }
         }
       `}</style>
-
-      <div className="flex items-center gap-2 p-3 sm:p-4 w-full bg-white rounded-xl mb-3 sm:mb-4">
-        <Image
-          src="/book_multi.png"
-          alt="book"
-          width={40}
-          height={40}
-          className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10"
-        />
-        <p className="text-sm sm:text-lg md:text-xl text-[#555555] font-medium">
-          {t("listOfLecture")}
-        </p>
-      </div>
+      
       <div
         className={`w-full grid grid-cols-1 gap-4 sm:gap-6 md:gap-8 container-constraint `}
       >
@@ -426,6 +430,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
           return Array.from(allClassIds).map((classId) => {
             const lectures = currentLecturesByClass[classId] || [];
             const nextLectures = nextLecturesByClass[classId] || [];
+            const stats = getClassroomStats(classId);
 
             // Show class even if no current lectures but has next lectures
             if (lectures.length === 0 && nextLectures.length === 0) return null;
@@ -435,22 +440,41 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                 key={classId}
                 className="relative mb-3 sm:mb-4 overflow-hidden rounded-xl"
               >
-                {/* Classroom Title */}
-                <div className="flex gap-2 sm:gap-3 bg-white rounded-t-xl px-3 sm:px-4 pt-3 sm:pt-4 max-w-max">
+               <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-0">
+                 {/* Classroom Title */}
+                 <div className="flex items-center gap-2 sm:gap-3 bg-white rounded-t-xl sm:rounded-tr-none px-3 sm:px-4 py-2 max-w-max h-12 sm:h-16">
                   <Image
                     src="/menu-icon/lophoc_icon.png"
                     alt="classroom"
                     width={30}
                     height={30}
-                    className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10"
+                    className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
                     unoptimized={true}
                   />
-                  <h3 className="font-bold text-gray-800 translate-y-0.5 text-sm sm:text-base md:text-lg">
+                  <h3 className="font-bold text-gray-800 translate-y-0.5 text-xs sm:text-sm md:text-base lg:text-lg">
                     {getClassroomName(classId)}
                   </h3>
                 </div>
 
-                <div className="relative z-10 p-3 sm:p-4 md:p-6 bg-white rounded-tr-xl overflow-hidden">
+                {/* Stats Section - Responsive */}
+                <div className="flex bg-white rounded-t-xl sm:rounded-tl-none py-2 px-2 sm:px-3 gap-2 sm:gap-3 md:gap-4 justify-around sm:justify-end">
+                  <div className="flex flex-col items-center lg:border-r border-gray-200 pr-2 sm:pr-3 md:pr-4 min-w-0">
+                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">{stats.completed}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap truncate max-w-[80px] sm:max-w-none">{t("completed")}</p>
+                  </div>
+                  <div className="flex flex-col items-center lg:border-r border-gray-200 pr-2 sm:pr-3 md:pr-4 min-w-0">
+                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">{stats.total}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap truncate max-w-[80px] sm:max-w-none">{t("totalLessons")}</p>
+                  </div>
+                  <div className="flex flex-col items-center min-w-0">
+                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">{stats.progress}%</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap truncate max-w-[80px] sm:max-w-none">{t("progress")}</p>
+                  </div>
+                </div>
+               </div>
+     
+
+                <div className="relative z-10 p-3 sm:p-4 md:p-6 bg-white overflow-hidden">
                   {/* Grid Container for this classroom */}
                   <div
                     className={`flex flex-col xl:flex-row gap-4 sm:gap-6 lg:gap-8 xl:gap-12 min-w-0 justify-start
@@ -465,6 +489,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                       t={t}
                       classroomData={classroomData}
                       onLikeUpdate={onLikeUpdate}
+                      hasNextLectures={nextLectures.length > 0}
                     />
 
                     {/* Responsive divider */}
@@ -490,6 +515,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                       t={t}
                       classroomData={classroomData}
                       onLikeUpdate={onLikeUpdate}
+                      hasCurrentLectures={lectures.length > 0}
                     />
                   </div>
                 </div>

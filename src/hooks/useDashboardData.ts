@@ -81,10 +81,6 @@ export const useDashboardData = (userId: string): UseDashboardDataReturn => {
 
         lastFetchRef.current = currentFetch;
 
-        console.log(
-          `🔄 Fetching dashboard data for user: ${userId}, mode: ${userInfo.mode}`
-        );
-
         const startTime = performance.now();
         const data = await DashboardService.fetchDashboardDataWithMode(
           userId,

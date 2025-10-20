@@ -88,7 +88,7 @@ function MissionSection() {
             >
               <p className="text-white font-semibold text-xl leading-relaxed">
                 Với các tính năng tương tác của phần mềm linh hoạt, áp dụng cho
-                tất cả các lứa tuổi, Nâng cao hứng thú, động lực của người dùng
+                tất cả các lứa tuổi, nâng cao hứng thú, động lực của người dùng
                 thông qua các công cụ đa chức năng và các chủ đề phong phú, đơn
                 giản hóa thao tác sử dụng.
               </p>
@@ -109,7 +109,7 @@ function MissionSection() {
               {[
                 "Với các tính năng tương tác của phần mềm linh hoạt, dễ dàng thao tác và sử dụng cho tất cả các lứa tuổi. Nâng cao hứng thú, động lực của người dùng thông qua nhiều Bài học thú vị và thiết thực, được chia làm các chủ đề cụ thể, xây dựng qua nhiều hình thức học tập khác nhau.",
                 "Người dùng sẽ cảm thấy dễ dàng, tự tin hơn khi sử dụng phần mềm: Thiết kế gần gũi với nhận thức của người dùng, tiếp cận nhanh với mọi tính năng của phần mềm.",
-                "Thay vì loay hoay cho việc nghiên cứu, tìm kiếm tài liệu học tập – giảng dạy. Phần mềm là lựa chọn tuyệt vời giúp bạn tiết kiệm rất nhiều thời gian; sử dụng triệt để các tính năng của phần mềm."
+                "Thay vì loay hoay cho việc nghiên cứu, tìm kiếm tài liệu học tập – giảng dạy. Phần mềm là lựa chọn tuyệt vời giúp bạn tiết kiệm rất nhiều thời gian, sử dụng triệt để các tính năng của phần mềm."
               ].map((text, index) => (
                 <motion.div
                   key={index}

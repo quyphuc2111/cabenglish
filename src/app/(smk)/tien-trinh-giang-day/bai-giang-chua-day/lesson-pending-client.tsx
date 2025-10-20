@@ -15,20 +15,23 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useNavigationStore } from "@/store/navigationStore";
 import { useNavigationRestore } from "@/hooks/useNavigationRestore";
+import { useTranslation } from "react-i18next";
 
 // Memoized stats component
 const LessonStats = memo(
   ({
+    t,
     filteredCount,
     totalCount
   }: {
+    t: (key: string) => string;
     filteredCount: number;
     totalCount: number;
   }) => (
     <p className="text-[#736E6E] text-sm sm:text-base md:text-md mx-2 sm:mx-4 md:mx-8 my-2 font-medium">
-      Còn lại{" "}
+      {t("remaining")}{" "}
       <span className="text-[#e25762] font-semibold">{filteredCount}</span>/
-      {totalCount} bài học chưa dạy
+      {totalCount} {t("lesson")}
     </p>
   )
 );
@@ -36,10 +39,12 @@ const LessonStats = memo(
 LessonStats.displayName = "LessonStats";
 
 // Memoized empty state component
-const EmptyLessonsState = memo(() => (
+const EmptyLessonsState = memo(() => {
+  const { t } = useTranslation();
+  return (
   <div className="flex flex-col items-center gap-6 sm:gap-8 md:gap-10 min-h-[300px] sm:min-h-[400px] md:min-h-[600px] justify-center px-4">
     <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#736E6E] text-center leading-relaxed">
-      Hiện tại chưa có Bài học nào!
+      {t("noLessonsYet")}
     </h3>
     <div className="w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36">
       <Image
@@ -53,7 +58,8 @@ const EmptyLessonsState = memo(() => (
       />
     </div>
   </div>
-));
+  );
+});
 
 EmptyLessonsState.displayName = "EmptyLessonsState";
 
@@ -181,7 +187,7 @@ function LessonPendingClient({
   const router = useRouter();
   const { setPreviousPage } = useNavigationStore();
   const { isReturningFromLesson } = useNavigationRestore();
-
+  const { t } = useTranslation();
   // Keys for sessionStorage persistence
   const PERSIST_KEY = "lesson_pending_filters_v1";
 
@@ -472,7 +478,7 @@ function LessonPendingClient({
         style={{ pointerEvents: "auto" }}
       >
         {/* Standardized sizing wrapper for LessonCard across pages */}
-        <div className="lesson-card-size w-full h-full max-w-[360px] md:max-w-[380px] lg:max-w-[320px] xl:max-w-[340px] min-h-[220px] md:min-h-[240px] lg:min-h-[200px] xl:min-h-[220px] mx-auto">
+        <div className="lesson-card-size w-full h-full max-w-[100%] min-h-[220px] md:min-h-[240px] lg:min-h-[200px] xl:min-h-[220px] mx-auto">
           <LessonCard
             {...lessonItem}
             classRoomName={lessonItem.className}
@@ -492,13 +498,14 @@ function LessonPendingClient({
         <LessonStats
           filteredCount={filteredLessons.length}
           totalCount={totalLessons}
+          t={t}
         />
 
         <div className="bg-white p-3 sm:p-4 md:p-6 relative rounded-xl mx-2 sm:mx-4 md:mx-0">
           <div className="flex flex-col gap-4 w-full sm:gap-6">
             <div className="flex-shrink-0">
               <SectionTitle
-                title="Bài học chưa dạy"
+                title={t("pendingLecture")}
                 image={{
                   src: "/assets/gif/book_animate.gif",
                   width: 32,

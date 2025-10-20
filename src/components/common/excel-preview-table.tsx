@@ -18,6 +18,7 @@ interface ExcelPreviewTableProps {
   isLoading?: boolean;
   className?: string;
   errors?: ValidationError[];
+  duplicateRows?: number[];
 }
 
 export function ExcelPreviewTable({
@@ -30,7 +31,8 @@ export function ExcelPreviewTable({
   totalRows = 0,
   isLoading = false,
   className = '',
-  errors = []
+  errors = [],
+  duplicateRows = []
 }: ExcelPreviewTableProps) {
   if (isLoading) {
     return (
@@ -100,70 +102,91 @@ export function ExcelPreviewTable({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {rows.slice(0, maxRows).map((row, rowIndex) => (
-              <tr key={rowIndex} className="hover:bg-gray-50">
-                {showRowNumbers && (
-                  <td className="px-2 sm:px-3 py-2 text-xs text-gray-400 font-medium">
-                    {rowIndex + 1}
-                  </td>
-                )}
-                {headers.map((header, cellIndex) => {
-                  const cellValue = row[cellIndex];
-                  const isEmpty = !cellValue || cellValue.toString().trim() === '';
-                  const isRequired = requiredColumns.includes(header);
+            {rows.slice(0, maxRows).map((row, rowIndex) => {
+              const isDuplicate = duplicateRows.includes(rowIndex);
+              const rowErrors = errors.filter((e) => e.rowIndex === rowIndex);
+              const hasErrors = rowErrors.length > 0;
 
-                  const headerKey = header.toLowerCase().replace(/\s+/g, '');
-                  const cellError = errors.find(
-                    (e) => e.rowIndex === rowIndex && e.field.toLowerCase() === headerKey
-                  );
-                  const isInvalid = !!cellError;
-
-                  return (
-                    <td
-                      key={cellIndex}
-                      className={`px-2 sm:px-3 py-2 text-xs max-w-[120px] sm:max-w-[200px] ${
-                        isInvalid
-                          ? 'bg-red-50 text-red-600 border-l-2 border-red-300'
-                          : isEmpty && isRequired
-                          ? 'bg-red-50 text-red-600 border-l-2 border-red-300'
-                          : isEmpty
-                          ? 'text-gray-400 bg-gray-50'
-                          : 'text-gray-700'
-                      }`}
-                    >
-                      <div className="truncate" title={cellValue?.toString() || ''}>
-                        {isEmpty ? (
-                          <span className="italic">
-                            {isRequired ? 'Thiếu dữ liệu bắt buộc' : 'Trống'}
-                          </span>
-                        ) : (
-                          cellValue.toString()
+              return (
+                <tr 
+                  key={rowIndex} 
+                  className={`hover:bg-gray-50 ${
+                    hasErrors ? 'bg-red-50 border-l-4 border-red-400' :
+                    isDuplicate ? 'bg-orange-50 border-l-4 border-orange-400' : ''
+                  }`}
+                >
+                  {showRowNumbers && (
+                    <td className={`px-2 sm:px-3 py-2 text-xs font-medium ${
+                      hasErrors ? 'text-red-600' :
+                      isDuplicate ? 'text-orange-600' : 'text-gray-400'
+                    }`}>
+                      <div className="flex items-center gap-1">
+                        {rowIndex + 1}
+                        {hasErrors && (
+                          <span className="text-red-500 text-xs" title="Dữ liệu không hợp lệ">❌</span>
+                        )}
+                        {isDuplicate && !hasErrors && (
+                          <span className="text-orange-500 text-xs" title="Dữ liệu trùng lặp">⚠️</span>
                         )}
                       </div>
                     </td>
-                  );
-                })}
-                {rows.length > 0 && (
-                  <td className="px-2 sm:px-3 py-2 text-xs">
-                    {(() => {
-                      const rowErrors = errors.filter(
-                        (e) => e.rowIndex === rowIndex
-                      );
-                      if (rowErrors.length > 0) {
-                        return (
-                          <div className="text-red-600">
-                            {rowErrors.map((e, index) => (
-                              <div key={`error-${rowIndex}-${index}`}>{`- ${e.message}`}</div>
-                            ))}
-                          </div>
-                        );
-                      }
-                      return <span className="text-green-600">Hợp lệ</span>;
-                    })()}
-                  </td>
-                )}
-              </tr>
-            ))}
+                  )}
+                  {headers.map((header, cellIndex) => {
+                    const cellValue = row[cellIndex];
+                    const isEmpty = !cellValue || cellValue.toString().trim() === '';
+                    const isRequired = requiredColumns.includes(header);
+
+                    const headerKey = header.toLowerCase().replace(/\s+/g, '');
+                    const cellError = errors.find(
+                      (e) => e.rowIndex === rowIndex && e.field.toLowerCase() === headerKey
+                    );
+                    const isInvalid = !!cellError;
+
+                    return (
+                      <td
+                        key={cellIndex}
+                        className={`px-2 sm:px-3 py-2 text-xs max-w-[120px] sm:max-w-[200px] ${
+                          isInvalid
+                            ? 'bg-red-50 text-red-600 border-l-2 border-red-300'
+                            : isDuplicate
+                            ? 'bg-orange-50 text-orange-700'
+                            : isEmpty && isRequired
+                            ? 'bg-red-50 text-red-600 border-l-2 border-red-300'
+                            : isEmpty
+                            ? 'text-gray-400 bg-gray-50'
+                            : 'text-gray-700'
+                        }`}
+                      >
+                        <div className="truncate" title={cellValue?.toString() || ''}>
+                          {isEmpty ? (
+                            <span className="italic">
+                              {isRequired ? 'Thiếu dữ liệu bắt buộc' : 'Trống'}
+                            </span>
+                          ) : (
+                            cellValue.toString()
+                          )}
+                        </div>
+                      </td>
+                    );
+                  })}
+                  {rows.length > 0 && (
+                    <td className="px-2 sm:px-3 py-2 text-xs">
+                      {hasErrors ? (
+                        <div className="text-red-600">
+                          {rowErrors.map((e, index) => (
+                            <div key={`error-${rowIndex}-${index}`}>{`- ${e.message}`}</div>
+                          ))}
+                        </div>
+                      ) : isDuplicate ? (
+                        <span className="text-orange-700">- Trùng lặp</span>
+                      ) : (
+                        <span className="text-green-600">Hợp lệ</span>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

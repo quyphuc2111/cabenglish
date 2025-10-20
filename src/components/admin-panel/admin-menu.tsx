@@ -46,7 +46,7 @@ export function AdminMenu({ isOpen, disabled }: MenuProps) {
       opacity: 1,
       x: 0,
       transition: {
-        duration: 0.5
+        duration: 0.2
       }
     }
   };
@@ -100,7 +100,7 @@ export function AdminMenu({ isOpen, disabled }: MenuProps) {
                         <Ellipsis className="h-5 w-5" />
                       </motion.div>
                     </TooltipTrigger>
-                    <TooltipContent side="right">
+                    <TooltipContent side="right" align="center">
                       <p>{groupLabel}</p>
                     </TooltipContent>
                   </Tooltip>
@@ -168,7 +168,8 @@ export function AdminMenu({ isOpen, disabled }: MenuProps) {
                                       opacity: isOpen === false ? 0 : 1
                                     }}
                                     transition={{
-                                      duration: 0.3
+                                      duration: 0.2,
+                                      ease: "easeInOut"
                                     }}
                                   >
                                     {label}
@@ -185,7 +186,7 @@ export function AdminMenu({ isOpen, disabled }: MenuProps) {
                                   />
                                   <p
                                     className={cn(
-                                      "max-w-[130px] break-words whitespace-normal text-xl font-semibold text-start",
+                                      "max-w-[130px] break-words whitespace-normal text-xl font-semibold text-start transition-[transform,opacity] duration-200 ease-in-out",
                                       isOpen === false
                                         ? "-translate-x-96 opacity-0"
                                         : "translate-x-0 opacity-100"
@@ -198,7 +199,7 @@ export function AdminMenu({ isOpen, disabled }: MenuProps) {
                             </Button>
                           </TooltipTrigger>
                           {isOpen === false && (
-                            <TooltipContent side="right">
+                            <TooltipContent side="right" align="center">
                               {label}
                             </TooltipContent>
                           )}
