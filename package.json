@@ -126,7 +126,6 @@
     "eslint-config-next": "14.2.3",
     "patch-package": "^8.0.0",
     "postcss": "^8.4.35",
-    "tailwind-scrollbar": "^4.0.2",
     "typescript": "^5"
   }
 }
