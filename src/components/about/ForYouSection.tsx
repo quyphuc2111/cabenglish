@@ -6,13 +6,13 @@ import img_mk from "@/assets/img-mk.png";
 
 const ForYouData = [
   {
-    desc: "BKT SmartKids dành cho trẻ em từ 18 tháng tuổi – 5 tuổi áp dụng các phương pháp giáo dục sớm, lấy sự phát triển của trẻ làm trung tâm, xây dựng môi trường học thông minh và hiện đại."
+    desc: "BKT SmartKids dành cho trẻ em từ 3 tuổi – 5 tuổi áp dụng các phương pháp giáo dục sớm, lấy sự phát triển của trẻ làm trung tâm, xây dựng môi trường học thông minh và hiện đại."
   },
   {
     desc: "BKT SmartKids giáo trình được biên soạn kĩ lưỡng, kết hợp với nhiều phương pháp như Phonics giúp bé có thể luyện, và nhận biết mặt chữ từ khi còn bé bằng Flashcard, phương pháp dạy và học phù hợp với độ tuổi của bé."
   },
   {
-    desc: "BKT SmartKids giúp các trẻ tiếp cận từ mới thông qua hình ảnh và trương tác với nhiều từ mới, mẫu câu được giới thiệu theo ngữ cảnh một cách tự nhiên, luyện nghe, nói  giúp các bé dễ nhận biết, hình dung và ghi nhớ từ lâu hơn từ đó trẻ phát triển toàn diện về cả tư duy lẫn ngoại ngữ."
+    desc: "BKT SmartKids giúp các trẻ tiếp cận từ mới thông qua hình ảnh và tương tác với nhiều từ mới, mẫu câu được giới thiệu theo ngữ cảnh một cách tự nhiên, luyện nghe, nói  giúp các bé dễ nhận biết, hình dung và ghi nhớ từ lâu hơn từ đó trẻ phát triển toàn diện về cả tư duy lẫn ngoại ngữ."
   },
   {
     desc: "Những gia đình chưa có định hướng học tập cho trẻ, BKT sẽ giúp ba mẹ thấu hiểu xác định chính xác để xây dựng nên một lộ trình học chuẩn cho trẻ dựa vào độ tuổi và sở thích của trẻ từ đó xây dựng nên một môi trường học tập đầy hứng thú và linh hoạt."
