@@ -107,6 +107,18 @@ const config = {
         slideLeft: {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-100%)" }
+        },
+        "slide-up": {
+          "0%": { transform: "translateY(100%)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" }
+        },
+        "spin-slow": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" }
+        },
+        "shimmer": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" }
         }
       },
       animation: {
@@ -115,7 +127,10 @@ const config = {
         "collapsible-down": "collapsible-down 0.2s ease-out",
         "collapsible-up": "collapsible-up 0.2s ease-out",
         slideRight: "slideRight 1s ease-out forwards",
-        slideLeft: "slideLeft 1s ease-out forwards"
+        slideLeft: "slideLeft 1s ease-out forwards",
+        "slide-up": "slide-up 0.3s ease-out",
+        "spin-slow": "spin-slow 3s linear infinite",
+        "shimmer": "shimmer 2s infinite"
       },
       fontFamily: {
         inter: ["var(--font-inter)", "Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],

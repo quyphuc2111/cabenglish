@@ -142,6 +142,20 @@ export function useMenuList(
       groupLabel: "",
       menus: [
         {
+          href: "/danh-sach-tro-choi",
+          label: t("listOfGames"),
+          active: pathname.includes("/danh-sach-tro-choi"),
+          icon: Tag,
+          iconSrc: "/menu-icon/setting_mode.png",
+          submenus: []
+        }
+       
+      ]
+    },
+    {
+      groupLabel: "",
+      menus: [
+        {
           href: "/che-do-giang-day",
           label: t("setTeachingMode"),
           active: pathname.includes("/che-do-giang-day"),
