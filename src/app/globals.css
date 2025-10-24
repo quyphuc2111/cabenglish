@@ -2,6 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(-25%);
+      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+  }
+
+  @keyframes bounce-slow {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes wiggle {
+    0%, 100% {
+      transform: rotate(-5deg) scale(1);
+    }
+    50% {
+      transform: rotate(5deg) scale(1.1);
+    }
+  }
+
+  @keyframes progress {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes progress-reverse {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-bounce {
+    animation: bounce 1s infinite;
+  }
+
+  .animate-bounce-slow {
+    animation: bounce-slow 3s ease-in-out infinite;
+  }
+
+  .animate-wiggle {
+    animation: wiggle 1s ease-in-out infinite;
+  }
+
+  .animate-progress {
+    animation: progress 1.5s ease-out forwards;
+  }
+
+  .animate-progress-reverse {
+    animation: progress-reverse 1.5s ease-out forwards;
+  }
+}
+
 * {
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   text-rendering: optimizeLegibility;
@@ -1025,12 +1107,11 @@ select {
 
 /* Common animation classes disabled */
 .performance-mode .animate-spin,
-.performance-mode .animate-pulse,
-.performance-mode .animate-bounce,
 .performance-mode .animate-text-shine,
 .performance-mode .animate-bounce-subtle {
   animation: none !important;
 }
+
 
 /* Motion reduce class */
 .motion-reduce {
@@ -1093,6 +1174,54 @@ body.performance-mode [data-state="open"],
 body.performance-mode [data-state="open"] * {
   animation-duration: 0.3s !important;
   transition-duration: 0.3s !important;
+}
+
+/* Allow completion celebration animations to work fully */
+body.performance-mode .completion-celebration,
+body.performance-mode .completion-celebration * {
+  animation-duration: unset !important;
+  animation-iteration-count: unset !important;
+  transition-duration: unset !important;
+  transition-delay: unset !important;
+  animation: unset !important;
+  transition: unset !important;
+}
+
+/* Explicitly re-enable each animation */
+body.performance-mode .completion-celebration .animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+}
+
+body.performance-mode .completion-celebration .animate-bounce {
+  animation: bounce 1s infinite !important;
+}
+
+body.performance-mode .completion-celebration .animate-bounce-slow {
+  animation: bounce-slow 3s ease-in-out infinite !important;
+}
+
+body.performance-mode .completion-celebration .animate-wiggle {
+  animation: wiggle 1s ease-in-out infinite !important;
+}
+
+body.performance-mode .completion-celebration .animate-progress {
+  animation: progress 1.5s ease-out forwards !important;
+}
+
+body.performance-mode .completion-celebration .animate-progress-reverse {
+  animation: progress-reverse 1.5s ease-out forwards !important;
+}
+
+/* Re-enable transitions for completion celebration */
+body.performance-mode .completion-celebration button,
+body.performance-mode .completion-celebration .hover\:scale-\[1\.02\],
+body.performance-mode .completion-celebration .hover\:scale-110,
+body.performance-mode .completion-celebration .hover\:-translate-y-1,
+body.performance-mode .completion-celebration .group-hover\:translate-x-1,
+body.performance-mode .completion-celebration .hover\:shadow-lg,
+body.performance-mode .completion-celebration .hover\:shadow-xl,
+body.performance-mode .completion-celebration .hover\:shadow-2xl {
+  transition: all 0.3s ease !important;
 }
 
 /* Force static rendering for non-essential motion elements */
