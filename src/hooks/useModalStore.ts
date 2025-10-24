@@ -61,7 +61,20 @@ export type ModalType =
   | "importLessons"
   | "logout"
   | "errorDetails"
-  | "exportNotiType";
+  | "exportNotiType"
+  | "createUpdateGameTopic"
+  | "deleteGameTopic"
+  | "exportGameTopics"
+  | "importGameTopics"
+  | "createUpdateGameAge"
+  | "deleteGameAge"
+  | "exportGameAges"
+  | "importGameAges"
+  | "viewGame"
+  | "createUpdateGame"
+  | "deleteGame"
+  | "exportGames"
+  | "importGames";
 
 export interface ModalData {
   onConfirm?: () => void;
@@ -140,6 +153,61 @@ export interface ModalData {
   error?: Error | null;
   errorTitle?: string;
   selectedClassId?: number | string;
+  gameTopic?: {
+    topicId: number;
+    topicName: string;
+    topicNameVi: string;
+    iconUrl?: string;
+    description?: string;
+    order: number;
+    isActive: boolean;
+  };
+  topicId?: number;
+  gameAge?: {
+    ageId: number;
+    ageName: string;
+    ageNameEn: string;
+    description?: string;
+    minAge: number;
+    maxAge: number;
+    order: number;
+  };
+  ageId?: number;
+  game?: {
+    gameId: number;
+    gameName: string;
+    gameNameVi: string;
+    description?: string;
+    descriptionVi?: string;
+    imageUrl?: string;
+    urlGame: string;
+    numLiked: number;
+    difficultyLevel: "easy" | "medium" | "hard";
+    estimatedDuration: number;
+    isActive: boolean;
+    topics: Array<{
+      topicId: number;
+      topicName: string;
+      topicNameVi: string;
+      iconUrl?: string;
+    }>;
+    ages: Array<{
+      ageId: number;
+      ageName: string;
+      ageNameEn: string;
+    }>;
+  };
+  topicsData?: Array<{
+    topicId: number;
+    topicName: string;
+    topicNameVi: string;
+    iconUrl?: string;
+  }>;
+  agesData?: Array<{
+    ageId: number;
+    ageName: string;
+    ageNameEn: string;
+  }>;
 }
 
 export interface ModalStore {

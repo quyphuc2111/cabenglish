@@ -1,0 +1,249 @@
+"use client";
+
+import { ColumnDef } from "@tanstack/react-table";
+import { useMemo } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ActionCell } from "./action-cell";
+import { Badge } from "@/components/ui/badge";
+import { GripVertical } from "lucide-react";
+import Image from "next/image";
+
+export type GameRow = {
+  gameId: number;
+  gameName: string;
+  gameNameVi: string;
+  description?: string;
+  descriptionVi?: string;
+  imageUrl?: string;
+  urlGame: string;
+  numLiked: number;
+  difficultyLevel: "easy" | "medium" | "hard";
+  estimatedDuration: number;
+  isActive: boolean;
+  topics: Array<{
+    topicId: number;
+    topicName: string;
+    topicNameVi: string;
+    iconUrl?: string;
+  }>;
+  ages: Array<{
+    ageId: number;
+    ageName: string;
+    ageNameEn: string;
+  }>;
+};
+
+const getDifficultyColor = (level: string) => {
+  switch (level) {
+    case "easy": return "bg-green-100 text-green-700";
+    case "medium": return "bg-yellow-100 text-yellow-700";
+    case "hard": return "bg-red-100 text-red-700";
+    default: return "bg-gray-100 text-gray-700";
+  }
+};
+
+const getDifficultyLabel = (level: string) => {
+  switch (level) {
+    case "easy": return "Dễ";
+    case "medium": return "Trung bình";
+    case "hard": return "Khó";
+    default: return level;
+  }
+};
+
+export function useGamesColumns() {
+  const columns = useMemo<ColumnDef<GameRow>[]>(
+    () => [
+      {
+        id: "drag-handle",
+        header: "",
+        cell: () => (
+          <div
+            className="cursor-grab active:cursor-grabbing p-2 hover:bg-gray-100 rounded transition-colors"
+            data-drag-handle
+          >
+            <GripVertical className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+          </div>
+        ),
+        size: 50,
+        enableSorting: false,
+        enableHiding: false
+      },
+      {
+        id: "select",
+        header: ({ table }) => (
+          <div className="flex items-center justify-center" data-checkbox>
+            <Checkbox
+              checked={
+                table.getIsAllPageRowsSelected() ||
+                (table.getIsSomePageRowsSelected() && "indeterminate")
+              }
+              onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+              aria-label="Select all"
+              className="translate-y-[2px]"
+            />
+          </div>
+        ),
+        cell: ({ row }) => (
+          <div className="flex items-center justify-center" data-checkbox>
+            <Checkbox
+              checked={row.getIsSelected()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label="Select row"
+              className="translate-y-[2px]"
+            />
+          </div>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+        size: 50
+      },
+      {
+        accessorKey: "gameId",
+        header: "ID",
+        cell: ({ row }) => (
+          <div className="font-medium text-gray-900">
+            {row.getValue("gameId")}
+          </div>
+        ),
+        size: 80
+      },
+      {
+        accessorKey: "imageUrl",
+        header: "Hình ảnh",
+        cell: ({ row }) => {
+          const imageUrl = row.getValue("imageUrl") as string;
+          const gameNameVi = row.original.gameNameVi;
+          return imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={gameNameVi}
+              width={64}
+              height={64}
+              className="rounded-lg object-cover"
+              unoptimized
+            />
+          ) : (
+            <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+              <span className="text-2xl">🎮</span>
+            </div>
+          );
+        },
+        size: 100
+      },
+      {
+        id: "gameName",
+        header: "Tên game",
+        cell: ({ row }) => (
+          <div>
+            <p className="font-medium text-gray-900">{row.original.gameNameVi}</p>
+            <p className="text-sm text-gray-500">{row.original.gameName}</p>
+          </div>
+        ),
+        size: 200
+      },
+      {
+        id: "topics",
+        header: "Chủ đề",
+        cell: ({ row }) => {
+          const topics = row.original.topics;
+          return (
+            <div className="flex flex-wrap gap-1">
+              {topics.slice(0, 2).map(topic => (
+                <Badge key={topic.topicId} variant="secondary" className="text-xs">
+                  {topic.iconUrl} {topic.topicNameVi}
+                </Badge>
+              ))}
+              {topics.length > 2 && (
+                <Badge variant="secondary" className="text-xs">
+                  +{topics.length - 2}
+                </Badge>
+              )}
+            </div>
+          );
+        },
+        size: 150
+      },
+      {
+        id: "ages",
+        header: "Nhóm tuổi",
+        cell: ({ row }) => {
+          const ages = row.original.ages;
+          return (
+            <div className="flex flex-wrap gap-1">
+              {ages.slice(0, 2).map(age => (
+                <Badge key={age.ageId} variant="outline" className="text-xs">
+                  {age.ageName}
+                </Badge>
+              ))}
+              {ages.length > 2 && (
+                <Badge variant="outline" className="text-xs">
+                  +{ages.length - 2}
+                </Badge>
+              )}
+            </div>
+          );
+        },
+        size: 150
+      },
+      {
+        accessorKey: "difficultyLevel",
+        header: "Độ khó",
+        cell: ({ row }) => {
+          const level = row.getValue("difficultyLevel") as string;
+          return (
+            <Badge className={getDifficultyColor(level)}>
+              {getDifficultyLabel(level)}
+            </Badge>
+          );
+        },
+        size: 100
+      },
+      {
+        accessorKey: "estimatedDuration",
+        header: "Thời lượng",
+        cell: ({ row }) => (
+          <div className="text-gray-700">
+            ⏱️ {row.getValue("estimatedDuration")} phút
+          </div>
+        ),
+        size: 120
+      },
+      {
+        accessorKey: "numLiked",
+        header: "Lượt thích",
+        cell: ({ row }) => (
+          <div className="font-medium text-gray-900">
+            ❤️ {row.getValue("numLiked")}
+          </div>
+        ),
+        size: 100
+      },
+      {
+        accessorKey: "isActive",
+        header: "Trạng thái",
+        cell: ({ row }) => {
+          const isActive = row.getValue("isActive") as boolean;
+          return (
+            <Badge className={isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}>
+              {isActive ? "Hoạt động" : "Vô hiệu"}
+            </Badge>
+          );
+        },
+        size: 120
+      },
+      {
+        id: "actions",
+        header: "Hành động",
+        cell: ({ row, table }) => <ActionCell row={row} table={table} />,
+        size: 150,
+        enableSorting: false,
+        enableHiding: false
+      }
+    ],
+    []
+  );
+
+  return columns;
+}
+

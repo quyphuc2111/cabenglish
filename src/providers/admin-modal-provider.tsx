@@ -34,6 +34,19 @@ import ExportUnitsModal from "@/components/admin/modal/units/export-units-modal"
 import { ErrorDetailsModal } from "@/components/common/error-details-modal";
 import { useModal } from "@/hooks/useModalStore";
 import ExportNotiTypeModal from "@/components/admin/modal/notitype/export-notitype-modal";
+import { CreateUpdateGameTopicModal } from "@/components/admin/modal/topics/create-update-game-topic-modal";
+import { DeleteGameTopicModal } from "@/components/admin/modal/topics/delete-game-topic-modal";
+import ExportGameTopicsModal from "@/components/admin/modal/topics/export-game-topics-modal";
+import ImportGameTopicsModal from "@/components/admin/modal/topics/import-game-topics-modal";
+import { CreateUpdateGameAgeModal } from "@/components/admin/modal/ages/create-update-game-age-modal";
+import { DeleteGameAgeModal } from "@/components/admin/modal/ages/delete-game-age-modal";
+import ExportGameAgesModal from "@/components/admin/modal/ages/export-game-ages-modal";
+import ImportGameAgesModal from "@/components/admin/modal/ages/import-game-ages-modal";
+import { ViewGameModal } from "@/components/admin/modal/games/view-game-modal";
+import { DeleteGameModal } from "@/components/admin/modal/games/delete-game-modal";
+import { CreateUpdateGameModal } from "@/components/admin/modal/games/create-update-game-modal";
+import ExportGamesModal from "@/components/admin/modal/games/export-games-modal";
+import ImportGamesModal from "@/components/admin/modal/games/import-games-modal";
 
 function AdminModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
@@ -95,6 +108,25 @@ function AdminModalProvider() {
       <CreateUpdateNotiModal />
       <DeleteNotiModal />
       <SendNotiModal />
+
+      {/* game topics */}
+      <CreateUpdateGameTopicModal />
+      <DeleteGameTopicModal />
+      <ExportGameTopicsModal />
+      <ImportGameTopicsModal />
+
+      {/* game ages */}
+      <CreateUpdateGameAgeModal />
+      <DeleteGameAgeModal />
+      <ExportGameAgesModal />
+      <ImportGameAgesModal />
+
+      {/* games */}
+      <ViewGameModal />
+      <CreateUpdateGameModal />
+      <DeleteGameModal />
+      <ExportGamesModal />
+      <ImportGamesModal />
 
       {/* error details */}
       <ErrorDetailsModal

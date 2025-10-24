@@ -261,6 +261,35 @@ export function useAdminMenuList(pathname: string): Group[] {
           ]
         },
         {
+          href: "/admin/games",
+          label: "Quản lý trò chơi",
+          active: pathname.includes("/admin/games"),
+          icon: LayoutGrid,
+          iconSrc: "/menu-icon/setting_mode.png",
+          submenus: [
+            {
+              href: "/admin/games/topics",
+              label: "Quản lý chủ đề",
+              active: pathname === "/admin/games/topics"
+            },
+            {
+              href: "/admin/games/ages",
+              label: "Quản lý nhóm tuổi",
+              active: pathname === "/admin/games/ages"
+            },
+            {
+              href: "/admin/games",
+              label: "Quản lý games",
+              active: pathname === "/admin/games"
+            },
+            {
+              href: "/admin/games/import-export",
+              label: "Import/Export",
+              active: pathname === "/admin/games/import-export"
+            }
+          ]
+        },
+        {
           href: "/admin/units",
           label: "Quản lý Unit",
           active: pathname.includes("/admin/units"),
