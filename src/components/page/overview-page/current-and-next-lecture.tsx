@@ -188,19 +188,26 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
   };
 
   // Calculate statistics for each classroom
-  const getClassroomStats = useCallback((classId: string) => {
-    const classLessons = courseData.filter((course) => String(course.classId) === classId);
-    
-    if (classLessons.length === 0) {
-      return { completed: 0, total: 0, progress: 0 };
-    }
+  const getClassroomStats = useCallback(
+    (classId: string) => {
+      const classLessons = courseData.filter(
+        (course) => String(course.classId) === classId
+      );
 
-    const completed = classLessons.filter((course) => course.progress === 1).length;
-    const total = classLessons.length;
-    const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+      if (classLessons.length === 0) {
+        return { completed: 0, total: 0, progress: 0 };
+      }
 
-    return { completed, total, progress };
-  }, [courseData]);
+      const completed = classLessons.filter(
+        (course) => course.progress === 1
+      ).length;
+      const total = classLessons.length;
+      const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      return { completed, total, progress };
+    },
+    [courseData]
+  );
 
   // Check if we have any classes with lectures (current or next)
   const hasAnyLectures = Object.keys(currentLecturesByClass).some((classId) => {
@@ -242,9 +249,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
             </div>
             <div className="text-center px-2">
               <p className="text-gray-600 font-medium text-xs sm:text-sm md:text-base">
-                {
-                  t("noLessonsYet")
-                }
+                {t("noLessonsYet")}
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 Hãy bắt đầu một bài học mới
@@ -416,7 +421,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
           }
         }
       `}</style>
-      
+
       <div
         className={`w-full grid grid-cols-1 gap-4 sm:gap-6 md:gap-8 container-constraint `}
       >
@@ -433,91 +438,258 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
             const stats = getClassroomStats(classId);
 
             // Show class even if no current lectures but has next lectures
-            if (lectures.length === 0 && nextLectures.length === 0) return null;
+            // if (lectures.length === 0 && nextLectures.length === 0) return <div>123</div>;
 
             return (
               <div
                 key={classId}
                 className="relative mb-3 sm:mb-4 overflow-hidden rounded-xl"
               >
-               <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-0">
-                 {/* Classroom Title */}
-                 <div className="flex items-center gap-2 sm:gap-3 bg-white rounded-t-xl sm:rounded-tr-none px-3 sm:px-4 py-2 max-w-max h-12 sm:h-16">
-                  <Image
-                    src="/menu-icon/lophoc_icon.png"
-                    alt="classroom"
-                    width={30}
-                    height={30}
-                    className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
-                    unoptimized={true}
-                  />
-                  <h3 className="font-bold text-gray-800 translate-y-0.5 text-xs sm:text-sm md:text-base lg:text-lg">
-                    {getClassroomName(classId)}
-                  </h3>
-                </div>
+                <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-0">
+                  {/* Classroom Title */}
+                  <div className="flex items-center gap-2 sm:gap-3 bg-white rounded-t-xl sm:rounded-tr-none px-3 sm:px-4 py-2 max-w-max h-12 sm:h-16">
+                    <Image
+                      src="/menu-icon/lophoc_icon.png"
+                      alt="classroom"
+                      width={30}
+                      height={30}
+                      className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
+                      unoptimized={true}
+                    />
+                    <h3 className="font-bold text-gray-800 translate-y-0.5 text-xs sm:text-sm md:text-base lg:text-lg">
+                      {getClassroomName(classId)}
+                    </h3>
+                  </div>
 
-                {/* Stats Section - Responsive */}
-                <div className="flex bg-white rounded-t-xl sm:rounded-tl-none py-2 px-2 sm:px-3 gap-2 sm:gap-3 md:gap-4 justify-around sm:justify-end">
-                  <div className="flex flex-col items-center lg:border-r border-gray-200 pr-2 sm:pr-3 md:pr-4 min-w-0">
-                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">{stats.completed}</p>
-                    <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap truncate max-w-[80px] sm:max-w-none">{t("completed")}</p>
-                  </div>
-                  <div className="flex flex-col items-center lg:border-r border-gray-200 pr-2 sm:pr-3 md:pr-4 min-w-0">
-                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">{stats.total}</p>
-                    <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap truncate max-w-[80px] sm:max-w-none">{t("totalLessons")}</p>
-                  </div>
-                  <div className="flex flex-col items-center min-w-0">
-                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">{stats.progress}%</p>
-                    <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap truncate max-w-[80px] sm:max-w-none">{t("progress")}</p>
+                  {/* Stats Section - Responsive */}
+                  <div className="flex bg-white rounded-t-xl sm:rounded-tl-none py-2 px-2 sm:px-3 gap-2 sm:gap-3 md:gap-4 justify-around sm:justify-end">
+                    <div className="flex flex-col items-center lg:border-r border-gray-200 pr-2 sm:pr-3 md:pr-4 min-w-0">
+                      <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">
+                        {stats.completed}
+                      </p>
+                      <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap truncate max-w-[80px] sm:max-w-none">
+                        {t("completed")}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-center lg:border-r border-gray-200 pr-2 sm:pr-3 md:pr-4 min-w-0">
+                      <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">
+                        {stats.total}
+                      </p>
+                      <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap truncate max-w-[80px] sm:max-w-none">
+                        {t("totalLessons")}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-center min-w-0">
+                      <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">
+                        {stats.progress}%
+                      </p>
+                      <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap truncate max-w-[80px] sm:max-w-none">
+                        {t("progress")}
+                      </p>
+                    </div>
                   </div>
                 </div>
-               </div>
-     
 
                 <div className="relative z-10 p-3 sm:p-4 md:p-6 bg-white overflow-hidden">
                   {/* Grid Container for this classroom */}
-                  <div
-                    className={`flex flex-col xl:flex-row gap-4 sm:gap-6 lg:gap-8 xl:gap-12 min-w-0 justify-start
-                     `}
-                  >
-                    {/* Current Lectures */}
-                    <CurrentLecture
-                      lectures={lectures}
-                      classId={classId}
-                      handleLessonClick={handleLessonClick}
-                      isExtraSmall={isExtraSmall}
-                      t={t}
-                      classroomData={classroomData}
-                      onLikeUpdate={onLikeUpdate}
-                      hasNextLectures={nextLectures.length > 0}
-                    />
+                  {lectures.length === 0 && nextLectures.length === 0 ? (
+                    <div className="completion-celebration relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
+                      {/* Decorative floating stars */}
+                      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <div 
+                          className="absolute top-20 left-16 text-amber-400 text-2xl animate-pulse" 
+                          style={{ animationDelay: '0s' }}
+                        >✨</div>
+                        <div 
+                          className="absolute top-32 right-24 text-yellow-400 text-xl animate-pulse" 
+                          style={{ animationDelay: '0.5s' }}
+                        >⭐</div>
+                        <div 
+                          className="absolute bottom-40 left-32 text-amber-300 text-lg animate-pulse" 
+                          style={{ animationDelay: '1s' }}
+                        >✨</div>
+                        <div 
+                          className="absolute top-48 right-1/4 text-yellow-300 text-2xl animate-pulse" 
+                          style={{ animationDelay: '1.5s' }}
+                        >⭐</div>
+                        <div 
+                          className="absolute bottom-32 right-20 text-amber-400 text-xl animate-pulse" 
+                          style={{ animationDelay: '2s' }}
+                        >✨</div>
+                        <div 
+                          className="absolute top-1/3 left-1/4 text-yellow-400 text-lg animate-pulse" 
+                          style={{ animationDelay: '2.5s' }}
+                        >⭐</div>
+                        <div 
+                          className="absolute bottom-1/3 right-1/3 text-amber-300 text-2xl animate-pulse" 
+                          style={{ animationDelay: '3s' }}
+                        >✨</div>
+                        <div 
+                          className="absolute top-2/3 left-1/3 text-yellow-300 text-xl animate-pulse" 
+                          style={{ animationDelay: '3.5s' }}
+                        >⭐</div>
+                      </div>
 
-                    {/* Responsive divider */}
+                      {/* Content Container */}
+                      <div className="relative z-10 flex flex-col items-center py-6 sm:py-8 px-4">
+                        {/* Trophy Circle with glow effect */}
+                        <div className="flex justify-center mb-4 animate-bounce-slow">
+                          <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-400 rounded-full blur-xl opacity-40 animate-pulse"></div>
+                            <div className="relative bg-gradient-to-br from-amber-300 via-yellow-300 to-amber-400 rounded-full p-4 sm:p-5 shadow-2xl transform hover:scale-110 transition-transform duration-300">
+                              <div className="text-4xl sm:text-5xl">🏆</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Main content card */}
+                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 text-center transform hover:scale-[1.02] transition-all duration-300 w-full max-w-xl">
+                          {/* Celebration header */}
+                          <div className="flex items-center justify-center gap-2 mb-3">
+                            <span 
+                              className="text-2xl sm:text-3xl animate-wiggle" 
+                              style={{ animationDelay: '0s' }}
+                            >🎉</span>
+                            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-emerald-600">
+                              Xuất sắc!
+                            </h1>
+                            <span 
+                              className="text-2xl sm:text-3xl animate-wiggle" 
+                              style={{ animationDelay: '0.2s' }}
+                            >🎊</span>
+                          </div>
+
+                          {/* Success message */}
+                          <p className="text-gray-600 text-sm sm:text-base mb-1.5">
+                            Bạn đã hoàn thành{" "}
+                            <span className="font-semibold text-gray-800">tất cả khóa học</span>{" "}
+                            của
+                          </p>
+                          <p className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+                            {getClassroomName(classId)}
+                          </p>
+
+                          {/* Progress bar */}
+                          <div className="mb-5">
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="h-1.5 flex-1 bg-gray-200 rounded-full overflow-hidden">
+                                <div className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 rounded-full animate-progress"></div>
+                              </div>
+                              <span className="text-emerald-600 font-bold text-base sm:text-lg">
+                                100%
+                              </span>
+                              <div className="h-1.5 flex-1 bg-gray-200 rounded-full overflow-hidden">
+                                <div className="h-full bg-gradient-to-r from-teal-600 via-emerald-500 to-teal-500 rounded-full animate-progress-reverse"></div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Achievement badge */}
+                          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-xl p-3 sm:p-4 mb-4 transform hover:shadow-lg transition-all duration-300">
+                            <div className="flex items-center justify-center gap-2.5 sm:gap-3">
+                              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-2 shadow-lg">
+                                <svg
+                                  className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                                  />
+                                </svg>
+                              </div>
+                              <div className="text-left">
+                                <p className="text-[10px] sm:text-xs text-gray-600 mb-0.5">
+                                  Thành tựu đạt được
+                                </p>
+                                <p className="text-sm sm:text-base font-bold text-emerald-700">
+                                  Hoàn thành khóa học
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* CTA Button */}
+                          <button
+                            onClick={() =>
+                              router.push(`/lop-hoc/${getClassroomName(classId)}`)
+                            }
+                            className="group bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 mx-auto text-sm sm:text-base"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                              />
+                            </svg>
+                            <span>Xem chi tiết lớp học</span>
+                            <span className="transform group-hover:translate-x-1 transition-transform duration-300">
+                              →
+                            </span>
+                          </button>
+                        </div>
+
+                        {/* Confetti effect text */}
+                        <p className="text-center mt-3 sm:mt-4 text-gray-500 text-[10px] sm:text-xs">
+                          Chúc mừng bạn đã hoàn thành hành trình học tập!
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
                     <div
-                      className={`hidden xl:block border-r-2 ${getThemeColor(
-                        userInfo?.theme || ""
-                      )} `}
-                    ></div>
+                      className={`flex flex-col xl:flex-row gap-4 sm:gap-6 lg:gap-8 xl:gap-12 min-w-0 justify-start
+                       `}
+                    >
+                      {/* Current Lectures */}
+                      <CurrentLecture
+                        lectures={lectures}
+                        classId={classId}
+                        handleLessonClick={handleLessonClick}
+                        isExtraSmall={isExtraSmall}
+                        t={t}
+                        classroomData={classroomData}
+                        onLikeUpdate={onLikeUpdate}
+                        hasNextLectures={nextLectures.length > 0}
+                      />
 
-                    {/* Mobile divider */}
-                    <div
-                      className={`xl:hidden w-full h-px border-b ${getThemeColor(
-                        userInfo?.theme || ""
-                      )}`}
-                    ></div>
+                      {/* Responsive divider */}
+                      <div
+                        className={`hidden xl:block border-r-2 ${getThemeColor(
+                          userInfo?.theme || ""
+                        )} `}
+                      ></div>
 
-                    {/* Next Lectures */}
-                    <NextLecture
-                      nextLectures={nextLectures}
-                      classId={classId}
-                      handleLessonClick={handleLessonClick}
-                      isExtraSmall={isExtraSmall}
-                      t={t}
-                      classroomData={classroomData}
-                      onLikeUpdate={onLikeUpdate}
-                      hasCurrentLectures={lectures.length > 0}
-                    />
-                  </div>
+                      {/* Mobile divider */}
+                      <div
+                        className={`xl:hidden w-full h-px border-b ${getThemeColor(
+                          userInfo?.theme || ""
+                        )}`}
+                      ></div>
+
+                      {/* Next Lectures */}
+                      <NextLecture
+                        nextLectures={nextLectures}
+                        classId={classId}
+                        handleLessonClick={handleLessonClick}
+                        isExtraSmall={isExtraSmall}
+                        t={t}
+                        classroomData={classroomData}
+                        onLikeUpdate={onLikeUpdate}
+                        hasCurrentLectures={lectures.length > 0}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             );
