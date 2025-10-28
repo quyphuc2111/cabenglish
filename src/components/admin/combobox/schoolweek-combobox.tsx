@@ -142,7 +142,7 @@ export function SchoolWeekCombobox({ onSelect, placeholder = "Tìm kiếm tuần
             onValueChange={setSearchQuery}
           />
           <CommandList>
-            <CommandEmpty>Không tìm thấy tuần học.</CommandEmpty>
+            <CommandEmpty>{`Không tìm thấy tuần học '${searchQuery}'`}</CommandEmpty>
             <CommandGroup>
               {filteredWeeks.map((schoolweek) => (
                 <CommandItem

@@ -75,6 +75,7 @@ export interface ModalData {
   formType?: "create" | "update";
   classroomId?: string;
   classroomIds?: string[];
+  classroomNames?: string[];
   schoolWeekIds?: string[];
   notiTypeIds?: string[];
   notiTypes?: NotiType[];

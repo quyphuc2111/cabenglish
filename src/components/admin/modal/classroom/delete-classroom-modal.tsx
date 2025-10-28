@@ -24,8 +24,7 @@ const modalVariants = {
       opacity: 1,
       scale: 1,
       transition: {
-        duration: 0.3,
-        ease: [0.4, 0, 0.2, 1]
+        duration: 0.3
       }
     },
     exit: {
@@ -217,19 +216,32 @@ function DeleteClassroomModal() {
                   height={90}
                 />
               </motion.div>
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-3 max-w-2xl">
                 <p className="text-2xl font-medium">
-                  Bạn có muốn xóa {data?.classroomIds?.length} lớp học này
-                  không?
+                  Bạn có muốn xóa {data?.classroomIds?.length || 0} lớp học này không?
                 </p>
-                {data?.classroom?.classname && (
+                {Array.isArray(data?.classroomNames) && data.classroomNames.length > 0 ? (
+                  <div className="text-sm text-gray-700">
+                    <p className="mb-1 font-medium">Danh sách lớp học:</p>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {data.classroomNames.map((name: string, idx: number) => (
+                        <span
+                          key={`${name}-${idx}`}
+                          className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100"
+                        >
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : data?.classroom?.classname ? (
                   <p className="text-lg text-gray-600">
                     Tên lớp học:{" "}
                     <span className="font-medium text-blue-600">
                       {data.classroom.classname}
                     </span>
                   </p>
-                )}
+                ) : null}
               </div>
               {renderRelatedUnits()}
               <div className="flex gap-20">
