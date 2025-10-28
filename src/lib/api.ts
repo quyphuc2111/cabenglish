@@ -63,42 +63,25 @@ export async function serverFetch(
 
     let response = await axios(axiosConfig);
 
-    if (response.status === 401 && session?.user?.authCookie) {
-      try {
-        const tokenResponse = await refreshAccessToken(session.user.authCookie);
-        headers = {
-          ...headers,
-          Authorization: `Bearer ${tokenResponse.accessToken}`
-        };
+    // TEMPORARILY DISABLED: Refresh token logic
+    // if (response.status === 401 && session?.user?.authCookie) {
+    //   try {
+    //     const tokenResponse = await refreshAccessToken(session.user.authCookie);
+    //     headers = {
+    //       ...headers,
+    //       Authorization: `Bearer ${tokenResponse.accessToken}`
+    //     };
 
-        // TODO: Consider updating session with new token
-        // This would require implementing a session update mechanism
-        // For now, the JWT callback will handle the refresh on next request
-
-        const retryConfig: AxiosRequestConfig = {
-          ...axiosConfig,
-          headers
-        };
-        response = await axios(retryConfig);
-      } catch (refreshError) {
-        console.error("Token refresh failed:", refreshError);
-
-        // If refresh token is expired (401), don't retry with old token
-        if (
-          axios.isAxiosError(refreshError) &&
-          refreshError.response?.status === 401
-        ) {
-          console.warn("Refresh token expired, authentication required");
-          return null; // Return null thay vì throw error
-        }
-
-        // For other refresh errors, continue with original response
-        // This allows the request to complete even if refresh fails
-        console.warn(
-          "Continuing with original response due to refresh failure"
-        );
-      }
-    }
+    //     const retryConfig: AxiosRequestConfig = {
+    //       ...axiosConfig,
+    //       headers
+    //     };
+    //     response = await axios(retryConfig);
+    //   } catch (refreshError) {
+    //     console.error("Token refresh failed:", refreshError);
+    //     console.warn("Refresh token temporarily disabled");
+    //   }
+    // }
 
     if (response.status >= 400) {
       // Nếu là lỗi authentication, return null thay vì throw
@@ -107,11 +90,16 @@ export async function serverFetch(
         return null;
       }
 
-      throw new Error(
-        response.data?.message ||
-          JSON.stringify(response.data) ||
-          `Request failed with status ${response.status}`
-      );
+      // ✅ Return full error response để caller có thể xử lý
+      // Đảm bảo có statusCode, message, errors
+      console.warn(`API returned error status ${response.status} for ${endpoint}:`, response.data);
+      return {
+        success: false,
+        statusCode: response.status,
+        message: response.data?.message || `Request failed with status ${response.status}`,
+        errors: response.data?.errors || [],
+        data: response.data?.data || null
+      };
     }
 
     return response.data;
@@ -123,14 +111,15 @@ export async function serverFetch(
         return null;
       }
 
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.response?.data ||
-        error.message ||
-        "Unknown API error";
-
-      throw new Error(`API Error: ${errorMessage}`);
+      // ✅ Return structured error response thay vì throw
+      console.error("Axios error for:", endpoint, error.response?.data);
+      return {
+        success: false,
+        statusCode: error.response?.status || 500,
+        message: error.response?.data?.message || error.message || "API Error",
+        errors: error.response?.data?.errors || [],
+        data: null
+      };
     }
 
     // Kiểm tra nếu là lỗi authentication trong message
@@ -142,11 +131,15 @@ export async function serverFetch(
       return null;
     }
 
-    throw new Error(
-      `Unexpected error: ${
-        error instanceof Error ? error.message : "Unknown error"
-      }`
-    );
+    // ✅ Return structured error response thay vì throw
+    console.error("Unexpected error for:", endpoint, error);
+    return {
+      success: false,
+      statusCode: 500,
+      message: error instanceof Error ? error.message : "Unknown error",
+      errors: [],
+      data: null
+    };
   }
 }
 

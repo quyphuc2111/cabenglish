@@ -6,15 +6,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ActionCell } from "./action-cell";
 import { Badge } from "@/components/ui/badge";
 import { GripVertical } from "lucide-react";
+import Image from "next/image";
 
 export type GameTopicRow = {
-  topicId: number;
-  topicName: string;
-  topicNameVi: string;
-  iconUrl?: string;
+  topic_id: number;
+  topic_name: string;
+  topic_name_vi: string;
+  icon_url?: string;
   description?: string;
   order: number;
-  isActive: boolean;
+  is_active: boolean;
 };
 
 export function useGameTopicsColumns() {
@@ -77,26 +78,24 @@ export function useGameTopicsColumns() {
         }
       },
       {
-        accessorKey: "iconUrl",
+        accessorKey: "icon_url",
         header: () => (
           <div className="font-semibold text-gray-900">Icon</div>
         ),
         cell: ({ row }) => {
-          const icon = row.original.iconUrl;
+          const icon = row.original.icon_url;
           return (
-            <div className="text-2xl">
-              {icon || "🎮"}
-            </div>
+            <Image src={icon || "/assets/image/no_image.png"} alt="Icon" width={48} height={48} />
           );
         }
       },
       {
-        accessorKey: "topicName",
+        accessorKey: "topic_name",
         header: () => (
           <div className="font-semibold text-gray-900">Tên (English)</div>
         ),
         cell: ({ row }) => {
-          const value = row.original.topicName;
+          const value = row.original.topic_name;
           return (
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 rounded-full bg-blue-500" />
@@ -108,12 +107,12 @@ export function useGameTopicsColumns() {
         }
       },
       {
-        accessorKey: "topicNameVi",
+        accessorKey: "topic_name_vi",
         header: () => (
           <div className="font-semibold text-gray-900">Tên (Tiếng Việt)</div>
         ),
         cell: ({ row }) => {
-          const value = row.original.topicNameVi;
+          const value = row.original.topic_name_vi;
           return (
             <div className="font-medium text-gray-700 line-clamp-1 max-w-[300px]">
               {value}
@@ -153,12 +152,12 @@ export function useGameTopicsColumns() {
         }
       },
       {
-        accessorKey: "isActive",
+        accessorKey: "is_active",
         header: () => (
           <div className="font-semibold text-gray-900">Trạng thái</div>
         ),
         cell: ({ row }) => {
-          const isActive = row.original.isActive;
+          const isActive = row.original.is_active;
           return (
             <Badge
               variant={isActive ? "default" : "secondary"}

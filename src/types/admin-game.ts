@@ -1,45 +1,75 @@
 // Admin Game Management Types
+// Using snake_case to match API directly
 
+export interface ApiResponse<T> {
+  statusCode: number;
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+export interface TopicsListData {
+  items: GameTopic[];
+  total: number;
+}
+
+// Game Topic (snake_case)
 export interface GameTopic {
-  topicId: number;
-  topicName: string;
-  topicNameVi: string;
+  topic_id: number;
+  topic_name: string;
+  topic_name_vi: string;
   description?: string;
-  iconUrl?: string;
+  icon_url?: string;
   order: number;
-  isActive: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+  game_count?: number;
 }
 
+// Game Age (snake_case)
 export interface GameAge {
-  ageId: number;
-  ageName: string;
-  ageNameEn: string;
+  age_id: number;
+  age_name: string;
+  age_name_en: string;
   description?: string;
-  minAge: number;
-  maxAge: number;
+  min_age: number;
+  max_age: number;
   order: number;
-  createdAt?: string;
-  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
+// Admin Game (snake_case)
 export interface AdminGame {
-  gameId: number;
-  gameName: string;
-  gameNameVi: string;
+  game_id: number;
+  game_name: string;
+  game_name_vi: string;
   description?: string;
-  descriptionVi?: string;
-  imageUrl?: string;
-  urlGame: string;
-  numLiked: number;
-  difficultyLevel: "easy" | "medium" | "hard";
-  estimatedDuration: number;
-  isActive: boolean;
-  topics: GameTopic[];
-  ages: GameAge[];
-  createdAt?: string;
-  updatedAt?: string;
+  description_vi?: string;
+  image_url?: string;
+  url_game: string;
+  num_liked: number;
+  difficulty_level: "easy" | "medium" | "hard";
+  estimated_duration: number;
+  is_active: boolean;
+  topics: Array<{
+    topic_id: number;
+    topic_name: string;
+    topic_name_vi: string;
+  }>;
+  ages: Array<{
+    age_id: number;
+    age_name: string;
+    age_name_en: string;
+    min_age: number;
+    max_age: number;
+  }>;
+  created_at?: string;
+  updated_at?: string;
+  // User-specific fields
+  is_self_liked?: boolean;
+  self_progress_info?: any;
 }
 
 // Query Parameters
@@ -66,37 +96,40 @@ export interface AdminGamesQuery {
   difficultyLevel?: string;
 }
 
-// Form Data
+// Form Data (snake_case)
+// Note: is_active is optional for create (backend sets default), required for update
 export interface GameTopicFormData {
-  topicName: string;
-  topicNameVi: string;
+  topic_name: string;
+  topic_name_vi: string;
   description?: string;
-  iconUrl?: string;
+  icon_url?: string;
   order: number;
-  isActive: boolean;
+  is_active?: boolean;
 }
 
+// Game Age Form Data (snake_case)
 export interface GameAgeFormData {
-  ageName: string;
-  ageNameEn: string;
+  age_name: string;
+  age_name_en: string;
   description?: string;
-  minAge: number;
-  maxAge: number;
+  min_age: number;
+  max_age: number;
   order: number;
 }
 
+// Admin Game Form Data (snake_case)
 export interface AdminGameFormData {
-  gameName: string;
-  gameNameVi: string;
+  game_name: string;
+  game_name_vi: string;
   description?: string;
-  descriptionVi?: string;
-  imageUrl?: string;
-  urlGame: string;
-  difficultyLevel: "easy" | "medium" | "hard";
-  estimatedDuration: number;
-  isActive: boolean;
-  topicIds: number[];
-  ageIds: number[];
+  description_vi?: string;
+  image_url?: string;
+  url_game: string;
+  difficulty_level: "easy" | "medium" | "hard";
+  estimated_duration: number;
+  is_active: boolean;
+  topic_ids: number[];
+  age_ids: number[];
 }
 
 // API Responses
@@ -137,7 +170,31 @@ export interface ImportResult {
 }
 
 export interface ReorderItem {
-  id: number;
+  topic_id: number;
   order: number;
 }
 
+export interface ReorderAgeItem {
+  age_id: number;
+  order: number;
+}
+
+export interface ReorderGameItem {
+  game_id: number;
+  order: number;
+}
+
+// Game Form Data (snake_case)
+export interface GameFormData {
+  game_name: string;
+  game_name_vi: string;
+  description?: string;
+  image_url?: string;
+  url_game: string;
+  difficulty_level: "easy" | "medium" | "hard";
+  estimated_duration: number;
+  is_active?: boolean; // Optional - only used for update
+  order: number;
+  topic_ids: number[];
+  age_ids: number[];
+}

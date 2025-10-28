@@ -21,7 +21,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { uploadFiles } from "@/app/api/actions/uploadFiles";
 import { showToast } from "@/utils/toast-config";
 import Image from "next/image";
@@ -33,38 +33,6 @@ interface ImageUploaderProps {
 }
 
 // Animation variants
-const fadeIn = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    transition: {
-      duration: 0.3,
-      ease: "easeOut"
-    }
-  },
-  exit: { 
-    opacity: 0, 
-    y: -10,
-    transition: {
-      duration: 0.2
-    }
-  }
-};
-
-const scaleIn = {
-  hidden: { scale: 0.9, opacity: 0 },
-  visible: { 
-    scale: 1, 
-    opacity: 1,
-    transition: {
-      type: "spring",
-      stiffness: 300,
-      damping: 20
-    }
-  }
-};
-
 const dropzoneAnimation = {
   dragOver: { 
     scale: 1.02,
@@ -85,7 +53,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   React.useEffect(() => {
     if (value) {
-      if (value.startsWith('http')) {
+      if (value.startsWith('http') || value.startsWith('https')) {
         setActiveTab('url');
         setImageUrl(value);
       }
@@ -209,11 +177,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   };
 
   return (
-    <motion.div 
-      initial="hidden"
-      animate="visible"
-      className="w-full space-y-4"
-    >
+    <div className="w-full space-y-4">
       <Tabs defaultValue="upload" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="upload">
@@ -242,92 +206,59 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                             ${disabled || isUploading ? 'cursor-not-allowed opacity-50' : ''}
                           `}
                         >
-                          <AnimatePresence mode="wait">
-                            {isUploading ? (
-                              <motion.div
-                                key="loading"
-                                initial="hidden"
-                                animate="visible"
-                                exit="exit"
-                                variants={fadeIn}
-                                className="flex flex-col items-center"
-                              >
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                                <p className="mt-2 text-sm text-gray-500">Đang tải lên...</p>
-                              </motion.div>
-                            ) : preview ? (
-                              <motion.div
-                                key="preview"
-                                initial="hidden"
-                                animate="visible"
-                                exit="exit"
-                                variants={scaleIn}
-                              >
-                                <Image
-                                  src={preview}
-                                  alt="Ảnh đã tải lên"
-                                  width={400}
-                                  height={200}
-                                  className="max-h-[200px] rounded-lg object-cover"
-                                  unoptimized
-                                />
-                              </motion.div>
-                            ) : (
-                              <motion.div
-                                key="placeholder"
-                                initial="hidden"
-                                animate="visible"
-                                exit="exit"
-                                variants={fadeIn}
-                              >
-                                <ImagePlus className="h-20 w-20 text-gray-400" />
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
+                          {isUploading ? (
+                            <div className="flex flex-col items-center">
+                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                              <p className="mt-2 text-sm text-gray-500">Đang tải lên...</p>
+                            </div>
+                          ) : preview ? (
+                            <div>
+                              <Image
+                                src={preview}
+                                alt="Ảnh đã tải lên"
+                                width={400}
+                                height={200}
+                                className="max-h-[200px] rounded-lg object-cover"
+                                unoptimized
+                              />
+                            </div>
+                          ) : (
+                            <div>
+                              <ImagePlus className="h-20 w-20 text-gray-400" />
+                            </div>
+                          )}
                           <Input {...getInputProps()} type="file" />
                           {!isUploading && (
-                            <motion.div
-                              variants={fadeIn}
-                              className="text-center"
-                            >
+                            <div className="text-center">
                               <p className="text-sm text-gray-500">
                                 {isDragActive ? "Thả ảnh vào đây!" : "Nhấp vào đây hoặc kéo thả ảnh để tải lên"}
                               </p>
                               <p className="text-xs text-gray-400 mt-1">
                                 Hỗ trợ: PNG, JPG, JPEG, GIF (tối đa 100MB)
                               </p>
-                            </motion.div>
+                            </div>
                           )}
                         </motion.div>
                       </div>
                     </FormControl>
-                    <AnimatePresence>
-                      {fileRejections.length !== 0 && (
-                        <motion.div
-                          initial="hidden"
-                          animate="visible"
-                          exit="exit"
-                          variants={fadeIn}
-                        >
-                          <FormMessage>
-                            {fileRejections.map((rejection, index) => (
-                              <div key={index} className="text-sm text-red-500 space-y-1">
-                                {rejection.errors.map((error, errorIndex) => (
-                                  <p key={errorIndex}>
-                                    {error.code === 'file-too-large' 
-                                      ? `File quá lớn. Kích thước tối đa cho phép là 50MB.`
-                                      : error.code === 'file-invalid-type'
-                                      ? `Định dạng file không hợp lệ. Vui lòng chọn file ảnh (png, jpg, jpeg, gif, webp, svg, bmp, tiff, ico, avif).`
-                                      : error.message
-                                    }
-                                  </p>
-                                ))}
-                              </div>
+                    {fileRejections.length !== 0 && (
+                      <FormMessage>
+                        {fileRejections.map((rejection, index) => (
+                          <div key={index} className="text-sm text-red-500 space-y-1">
+                            {rejection.errors.map((error, errorIndex) => (
+                              <p key={errorIndex}>
+                                {error.code === 'file-too-large' 
+                                  ? `File quá lớn. Kích thước tối đa cho phép là 50MB.`
+                                  : error.code === 'file-invalid-type'
+                                  ? `Định dạng file không hợp lệ. Vui lòng chọn file ảnh (png, jpg, jpeg, gif, webp, svg, bmp, tiff, ico, avif).`
+                                  : error.message
+                                }
+                              </p>
                             ))}
-                          </FormMessage>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                          </div>
+                        ))}
+                      </FormMessage>
+                    )}
                   </FormItem>
                 )}
               />
@@ -336,12 +267,9 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         </TabsContent>
 
         <TabsContent value="url">
-          <motion.div 
-            variants={fadeIn}
-            className="space-y-4"
-          >
+          <div className="space-y-4">
             <div className="flex gap-2">
-              <motion.div className="flex-1" whileTap={{ scale: 0.995 }}>
+              <div className="flex-1">
                 <Input
                   type="url"
                   placeholder="Nhập URL hình ảnh..."
@@ -349,7 +277,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                   onChange={(e) => setImageUrl(e.target.value)}
                   disabled={disabled}
                 />
-              </motion.div>
+              </div>
               <Button 
                 type="button"
                 onClick={handleUrlSubmit}
@@ -359,56 +287,39 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                 Thêm
               </Button>
             </div>
-            <AnimatePresence>
-              {preview && (
-                <motion.div
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  variants={scaleIn}
-                  className="rounded-lg border border-gray-200 p-2"
-                >
-                  <Image
-                    src={preview}
-                    alt="Ảnh từ URL"
-                    width={400}
-                    height={200}
-                    className="max-h-[200px] rounded-lg object-cover mx-auto"
-                    unoptimized
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+            {preview && (
+              <div className="rounded-lg border border-gray-200 p-2">
+                <Image
+                  src={preview}
+                  alt="Ảnh từ URL"
+                  width={400}
+                  height={200}
+                  className="max-h-[200px] rounded-lg object-cover mx-auto"
+                  unoptimized
+                />
+              </div>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
 
-      <AnimatePresence>
-        {preview && (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={fadeIn}
-          >
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={() => {
-                setPreview(null);
-                setImageUrl("");
-                if (onChange) {
-                  onChange("");
-                }
-              }}
-              disabled={disabled}
-            >
-              Xóa ảnh
-            </Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+      {preview && (
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={() => {
+            setPreview(null);
+            setImageUrl("");
+            if (onChange) {
+              onChange("");
+            }
+          }}
+          disabled={disabled}
+        >
+          Xóa ảnh
+        </Button>
+      )}
+    </div>
   );
 };

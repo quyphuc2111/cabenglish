@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import * as XLSX from 'xlsx';
 import { showToast } from "@/utils/toast-config";
-import { AdminGameService } from "@/services/admin-game.service";
+import { getAllAges } from "@/app/api/actions/age";
 import { GameAge } from "@/types/admin-game";
 
 // Định nghĩa các tùy chọn export
@@ -46,18 +46,18 @@ function ExportGameAgesModal() {
       setIsExporting(true);
       if (exportOption === "all") {
         // Lấy dữ liệu ages
-        const response = await AdminGameService.getAges({
+        const response = await getAllAges({
           page: 1,
-          pageSize: 1000 // Lấy tất cả
+          pageSize: 100 // Max allowed by backend
         });
 
-        if (response.success && response.data.ages) {
+        if (response.data && response.data.length > 0) {
           // Chuẩn bị dữ liệu cho xuất Excel
-          const exportData = response.data.ages.map((age: GameAge) => ({
-            'Tên nhóm tuổi (VI)': age.ageName,
-            'Tên nhóm tuổi (EN)': age.ageNameEn,
-            'Tuổi tối thiểu': age.minAge,
-            'Tuổi tối đa': age.maxAge,
+          const exportData = response.data.map((age: GameAge) => ({
+            'Tên nhóm tuổi (VI)': age.age_name,
+            'Tên nhóm tuổi (EN)': age.age_name_en,
+            'Tuổi tối thiểu': age.min_age,
+            'Tuổi tối đa': age.max_age,
             'Mô tả': age.description || '',
             'Thứ tự': age.order
           }));
@@ -100,7 +100,8 @@ function ExportGameAgesModal() {
       }
     } catch (error) {
       console.error("Export error:", error);
-      showToast.error("Có lỗi xảy ra khi xuất dữ liệu");
+      const errorMessage = error instanceof Error ? error.message : "Có lỗi xảy ra khi xuất dữ liệu";
+      showToast.error(errorMessage);
     } finally {
       setIsExporting(false);
     }

@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useModal } from "@/hooks/useModalStore";
-import { AdminGameService } from "@/services/admin-game.service";
+import { deleteAge } from "@/app/api/actions/age";
 import { toast } from "react-toastify";
 
 export function DeleteGameAgeModal() {
@@ -24,7 +24,7 @@ export function DeleteGameAgeModal() {
 
     setIsDeleting(true);
     try {
-      await AdminGameService.deleteAge(selectedAge.ageId);
+      await deleteAge(selectedAge.age_id);
       toast.success("Xóa nhóm tuổi thành công");
 
       if (data?.onSuccess) {
@@ -33,7 +33,8 @@ export function DeleteGameAgeModal() {
       onClose();
     } catch (error) {
       console.error("Error deleting age:", error);
-      toast.error("Có lỗi xảy ra khi xóa nhóm tuổi");
+      const errorMessage = error instanceof Error ? error.message : "Có lỗi xảy ra khi xóa nhóm tuổi";
+      toast.error(errorMessage);
     } finally {
       setIsDeleting(false);
     }
@@ -59,7 +60,7 @@ export function DeleteGameAgeModal() {
             <DialogDescription className="space-y-3">
               <p className="text-base text-gray-700">
                 Bạn có chắc chắn muốn xóa nhóm tuổi{" "}
-                <span className="font-bold text-purple-600">{selectedAge?.ageName}</span>?
+                <span className="font-bold text-purple-600">{selectedAge?.age_name}</span>?
               </p>
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                 <p className="text-sm text-red-700 flex items-start gap-2">

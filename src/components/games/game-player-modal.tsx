@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Loader2, Maximize2, Minimize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Game } from "@/types/game";
+import { AdminGame } from "@/types/admin-game";
 
 interface GamePlayerModalProps {
-  game: Game | null;
+  game: AdminGame | null;
   isOpen: boolean;
   onClose: () => void;
   onPlayTimeUpdate?: (gameId: number, playTime: number) => void;
@@ -88,7 +88,7 @@ export function GamePlayerModal({
   const handleClose = () => {
     // Save play time before closing
     if (game && playTime > 0 && onPlayTimeUpdate) {
-      onPlayTimeUpdate(game.gameId, playTime);
+      onPlayTimeUpdate(game.game_id, playTime);
     }
 
     // Clear interval
@@ -160,7 +160,7 @@ export function GamePlayerModal({
               <span className="text-2xl">🎮</span>
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-lg line-clamp-1">{game.gameNameVi}</h3>
+              <h3 className="font-bold text-lg line-clamp-1">{game.game_name_vi}</h3>
               <p className="text-xs text-blue-100">
                 Thời gian chơi: {formatPlayTime(playTime)}
               </p>
@@ -221,8 +221,8 @@ export function GamePlayerModal({
           {/* Game Iframe */}
           <iframe
             ref={iframeRef}
-            src={game.urlGame}
-            title={game.gameNameVi}
+            src={game.url_game}
+            title={game.game_name_vi}
             className="w-full h-full border-0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             allowFullScreen

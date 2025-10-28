@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import { Upload } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { showToast } from "@/utils/toast-config";
-import { AdminGameService } from "@/services/admin-game.service";
+import { getAllAges, createAge } from "@/app/api/actions/age";
 import { GameAgeFormData } from "@/types/admin-game";
 import { ExcelPreviewTable } from "@/components/common/excel-preview-table";
 import { FullDataViewModal } from "@/components/common/full-data-view-modal";
@@ -190,16 +190,16 @@ function ImportGameAgesModal() {
       });
 
       const agesData: GameAgeFormData[] = formattedData.map((item) => ({
-        ageName: item["Tên nhóm tuổi (VI)"],
-        ageNameEn: item["Tên nhóm tuổi (EN)"],
+        age_name: item["Tên nhóm tuổi (VI)"],
+        age_name_en: item["Tên nhóm tuổi (EN)"],
         description: item["Mô tả"] || "",
-        minAge: Number(item["Tuổi tối thiểu"]) || 0,
-        maxAge: Number(item["Tuổi tối đa"]) || 0,
+        min_age: Number(item["Tuổi tối thiểu"]) || 0,
+        max_age: Number(item["Tuổi tối đa"]) || 0,
         order: Number(item["Thứ tự"]) || 0
       }));
 
       const invalidRows = agesData.filter(age => 
-        !age.ageName || !age.ageNameEn || age.minAge >= age.maxAge || age.order <= 0
+        !age.age_name || !age.age_name_en || age.min_age >= age.max_age || age.order <= 0
       );
 
       if (invalidRows.length > 0) {
@@ -212,7 +212,7 @@ function ImportGameAgesModal() {
 
         for (const ageData of agesData) {
           try {
-            await AdminGameService.createAge(ageData);
+            await createAge(ageData);
             successCount++;
           } catch (error) {
             console.error("Error creating age:", error);
@@ -369,17 +369,17 @@ function ImportGameAgesModal() {
     try {
       setIsCheckingDuplicates(true);
       
-      const response = await AdminGameService.getAges({
+      const response = await getAllAges({
         page: 1,
-        pageSize: 1000
+        pageSize: 100 // Max allowed by backend
       });
       
-      if (!response.success || !response.data.ages) {
+      if (!response.data || response.data.length === 0) {
         setDuplicateRows([]);
         return;
       }
       
-      const existingAges = response.data.ages;
+      const existingAges = response.data;
       const duplicates: number[] = [];
       
       const ageNameViIndex = headers.indexOf('Tên nhóm tuổi (VI)');
@@ -397,8 +397,8 @@ function ImportGameAgesModal() {
         const order = Number(row[orderIndex]);
         
         const isDuplicate = existingAges.some(existingAge => 
-          existingAge.ageName?.toLowerCase() === ageName?.toLowerCase() ||
-          existingAge.ageNameEn?.toLowerCase() === ageNameEn?.toLowerCase() ||
+          existingAge.age_name?.toLowerCase() === ageName?.toLowerCase() ||
+          existingAge.age_name_en?.toLowerCase() === ageNameEn?.toLowerCase() ||
           existingAge.order === order
         );
         

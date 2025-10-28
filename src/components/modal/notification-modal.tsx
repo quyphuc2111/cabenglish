@@ -93,9 +93,9 @@ function NotificationModal() {
     }
   }, [socketNotifications, queryClient]);
 
-  const unreadCount = notifications.filter(
+  const unreadCount = notifications && notifications.length > 0 ? notifications?.filter(
     (n: NotificationType) => !n.isRead
-  ).length;
+  ).length : 0;
 
   const handleNotificationClick = (notification: NotificationType) => {
     setSelectedNotification(notification);

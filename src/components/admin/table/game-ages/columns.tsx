@@ -8,12 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { GripVertical } from "lucide-react";
 
 export type GameAgeRow = {
-  ageId: number;
-  ageName: string;
-  ageNameEn: string;
+  age_id: number;
+  age_name: string;
+  age_name_en: string;
   description?: string;
-  minAge: number;
-  maxAge: number;
+  min_age: number;
+  max_age: number;
   order: number;
 };
 
@@ -65,31 +65,31 @@ export function useGameAgesColumns() {
         size: 50
       },
       {
-        accessorKey: "ageId",
+        accessorKey: "age_id",
         header: "ID",
         cell: ({ row }) => (
           <div className="font-medium text-gray-900">
-            {row.getValue("ageId")}
+            {row.getValue("age_id")}
           </div>
         ),
         size: 80
       },
       {
-        accessorKey: "ageName",
+        accessorKey: "age_name",
         header: "Tên (Tiếng Việt)",
         cell: ({ row }) => (
           <div className="font-medium text-gray-900">
-            {row.getValue("ageName")}
+            {row.getValue("age_name")}
           </div>
         ),
         size: 200
       },
       {
-        accessorKey: "ageNameEn",
+        accessorKey: "age_name_en",
         header: "Tên (English)",
         cell: ({ row }) => (
           <div className="text-gray-700">
-            {row.getValue("ageNameEn")}
+            {row.getValue("age_name_en")}
           </div>
         ),
         size: 200
@@ -98,8 +98,8 @@ export function useGameAgesColumns() {
         id: "ageRange",
         header: "Độ tuổi",
         cell: ({ row }) => {
-          const minAge = row.original.minAge;
-          const maxAge = row.original.maxAge;
+          const minAge = row.original.min_age;
+          const maxAge = row.original.max_age;
           return (
             <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">
               {minAge} - {maxAge} tuổi

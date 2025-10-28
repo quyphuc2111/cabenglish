@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useModal } from "@/hooks/useModalStore";
-import { AdminGameService } from "@/services/admin-game.service";
+import { deleteTopic } from "@/app/api/actions/topics";
 import { toast } from "react-toastify";
 
 export function DeleteGameTopicModal() {
@@ -26,7 +26,7 @@ export function DeleteGameTopicModal() {
     
     setIsDeleting(true);
     try {
-      await AdminGameService.deleteTopic(selectedTopic.topicId);
+      await deleteTopic(selectedTopic.topic_id);
       toast.success("Xóa chủ đề thành công");
       
       if (data?.onSuccess) {
@@ -35,7 +35,8 @@ export function DeleteGameTopicModal() {
       onClose();
     } catch (error) {
       console.error("Error deleting topic:", error);
-      toast.error("Có lỗi xảy ra khi xóa chủ đề");
+      const errorMessage = error instanceof Error ? error.message : "Có lỗi xảy ra khi xóa chủ đề";
+      toast.error(errorMessage);
     } finally {
       setIsDeleting(false);
     }
@@ -62,7 +63,7 @@ export function DeleteGameTopicModal() {
               <p className="text-base text-gray-700">
                 Bạn có chắc chắn muốn xóa chủ đề{" "}
                 <span className="font-bold text-blue-600">
-                  {selectedTopic?.topicNameVi}
+                  {selectedTopic?.topic_name_vi}
                 </span>
                 ?
               </p>

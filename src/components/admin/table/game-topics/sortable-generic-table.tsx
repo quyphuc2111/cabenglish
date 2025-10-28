@@ -24,6 +24,15 @@ interface SortableGenericTableProps<T> {
   rowSelection?: Record<string, boolean>;
   onRowSelectionChange?: (updaterOrValue: ((old: Record<string, boolean>) => Record<string, boolean>) | Record<string, boolean>) => void;
   getRowId?: (row: T) => string;
+  // Server-side pagination props
+  serverPagination?: {
+    currentPage: number;
+    pageSize: number;
+    totalPages: number;
+    totalItems: number;
+    onPageChange: (page: number) => void;
+    onPageSizeChange: (pageSize: number) => void;
+  };
 }
 
 const SearchAndActions = ({ searchComponent, actionButtons }: { searchComponent: React.ReactNode, actionButtons: React.ReactNode }) => (
@@ -54,6 +63,7 @@ export function SortableGenericTable<T>({
   rowSelection = {},
   onRowSelectionChange,
   getRowId = (row: any) => row.id?.toString(),
+  serverPagination,
 }: SortableGenericTableProps<T>) {
   const [tableState, setTableState] = useState<TableState>({
     searchQuery: "",
@@ -64,9 +74,21 @@ export function SortableGenericTable<T>({
   const [isChangingPage, setIsChangingPage] = useState(false);
   const isLoading = initialLoading || isChangingPage;
 
-  // Calculate paginated data, total pages, and total items
+  // Use server-side pagination if provided, otherwise client-side
+  const useServerPagination = !!serverPagination;
+
+  // Calculate paginated data, total pages, and total items (client-side)
   const { paginatedData, totalPages, totalItems } = useMemo(() => {
-    // Filter data first
+    if (useServerPagination) {
+      // Server-side: use data as-is (already paginated)
+      return {
+        paginatedData: data,
+        totalPages: serverPagination.totalPages,
+        totalItems: serverPagination.totalItems
+      };
+    }
+
+    // Client-side: filter and paginate
     const filtered = !tableState.searchQuery 
       ? data 
       : data.filter(item => filterFunction?.(item, tableState.searchQuery));
@@ -81,14 +103,12 @@ export function SortableGenericTable<T>({
     const startIndex = (tableState.page - 1) * tableState.pageSize;
     const endIndex = Math.min(startIndex + tableState.pageSize, filtered.length);
     
-    const result = {
+    return {
       paginatedData: filtered.slice(startIndex, endIndex),
       totalPages: calculatedTotalPages,
       totalItems: filtered.length
     };
-    
-    return result;
-  }, [data, tableState, filterFunction]);
+  }, [data, tableState, filterFunction, useServerPagination, serverPagination]);
 
   // Handle search
   const handleSearch = useCallback((value: string) => {
@@ -102,11 +122,28 @@ export function SortableGenericTable<T>({
 
   // Handle page change
   const handlePageChange = useCallback(async (page: number) => {
-    setIsChangingPage(true);
-    setTableState(prev => ({ ...prev, page }));
-    await new Promise(resolve => setTimeout(resolve, 300));
-    setIsChangingPage(false);
-  }, []);
+    if (useServerPagination) {
+      serverPagination.onPageChange(page);
+    } else {
+      setIsChangingPage(true);
+      setTableState(prev => ({ ...prev, page }));
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setIsChangingPage(false);
+    }
+  }, [useServerPagination, serverPagination]);
+
+  // Handle page size change
+  const handlePageSizeChange = useCallback((pageSize: number) => {
+    if (useServerPagination) {
+      serverPagination.onPageSizeChange(pageSize);
+    } else {
+      setTableState(prev => ({ 
+        ...prev, 
+        pageSize, 
+        page: 1 
+      }));
+    }
+  }, [useServerPagination, serverPagination]);
 
   const table = useReactTable({
     data: paginatedData,
@@ -114,8 +151,8 @@ export function SortableGenericTable<T>({
     getCoreRowModel: getCoreRowModel(),
     state: {
       pagination: {
-        pageIndex: tableState.page - 1,
-        pageSize: tableState.pageSize,
+        pageIndex: (useServerPagination ? serverPagination.currentPage : tableState.page) - 1,
+        pageSize: useServerPagination ? serverPagination.pageSize : tableState.pageSize,
       },
       rowSelection,
     },
@@ -136,14 +173,10 @@ export function SortableGenericTable<T>({
         columns={columns}
         isLoading={isLoading}
         pageCount={totalPages}
-        currentPage={tableState.page}
-        pageSize={tableState.pageSize}
+        currentPage={useServerPagination ? serverPagination.currentPage : tableState.page}
+        pageSize={useServerPagination ? serverPagination.pageSize : tableState.pageSize}
         onPageChange={handlePageChange}
-        onPageSizeChange={(pageSize) => setTableState(prev => ({ 
-          ...prev, 
-          pageSize, 
-          page: 1 
-        }))}
+        onPageSizeChange={handlePageSizeChange}
         totalItems={totalItems}
       />
     </div>

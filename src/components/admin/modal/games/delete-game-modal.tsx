@@ -10,21 +10,39 @@ import {
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useModal } from "@/hooks/useModalStore";
-import { AdminGameService } from "@/services/admin-game.service";
+import { useDeleteGame } from "@/hooks/use-game";
 import { toast } from "react-toastify";
 
 export function DeleteGameModal() {
   const { isOpen, onClose, type, data } = useModal();
+  const deleteGameMutation = useDeleteGame();
   const [isDeleting, setIsDeleting] = React.useState(false);
 
   const selectedGame = data?.game;
+  const setLoadingRows = data?.setLoadingRows as ((fn: (prev: Set<number>) => Set<number>) => void) | undefined;
 
   const handleConfirm = async () => {
     if (!selectedGame) return;
 
+    console.log("🗑️ Delete game:", selectedGame.game_id);
+    console.log("Has setLoadingRows?", !!setLoadingRows);
+
     setIsDeleting(true);
+    
+    // Set loading state for this row
+    if (setLoadingRows) {
+      console.log("Setting loading for game:", selectedGame.game_id);
+      setLoadingRows((prev) => {
+        const newSet = new Set(prev).add(selectedGame.game_id);
+        console.log("New loadingRows:", Array.from(newSet));
+        return newSet;
+      });
+    } else {
+      console.warn("⚠️ setLoadingRows is undefined!");
+    }
+    
     try {
-      await AdminGameService.deleteGame(selectedGame.gameId);
+      await deleteGameMutation.mutateAsync(selectedGame.game_id);
       toast.success("Xóa game thành công");
 
       if (data?.onSuccess) {
@@ -36,6 +54,15 @@ export function DeleteGameModal() {
       toast.error("Có lỗi xảy ra khi xóa game");
     } finally {
       setIsDeleting(false);
+      
+      // Clear loading state for this row
+      if (setLoadingRows) {
+        setLoadingRows((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(selectedGame.game_id);
+          return newSet;
+        });
+      }
     }
   };
 
@@ -59,7 +86,7 @@ export function DeleteGameModal() {
             <DialogDescription className="space-y-3">
               <p className="text-base text-gray-700">
                 Bạn có chắc chắn muốn xóa game{" "}
-                <span className="font-bold text-blue-600">{selectedGame?.gameNameVi}</span>?
+                <span className="font-bold text-blue-600">{selectedGame?.game_name_vi}</span>?
               </p>
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                 <p className="text-sm text-red-700 flex items-start gap-2">

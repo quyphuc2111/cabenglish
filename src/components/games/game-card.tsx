@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import { Heart, Play, Star } from "lucide-react";
-import { Game } from "@/types/game";
+import { AdminGame } from "@/types/admin-game";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface GameCardProps {
-  game: Game;
+  game: AdminGame;
   userAge?: number;
   onLike?: (gameId: number, isLiked: boolean) => void;
-  onClick?: (game: Game) => void;
+  onClick?: (game: AdminGame) => void;
 }
 
 // Floating heart animation
@@ -21,18 +21,14 @@ interface FloatingHeart {
 }
 
 export default function GameCard({ game, userAge, onLike, onClick }: GameCardProps) {
-  const [isLiked, setIsLiked] = useState(game.isLikedByUser);
-  const [likes, setLikes] = useState(game.numLiked);
+  const [isLiked, setIsLiked] = useState(game.is_self_liked || false);
+  const [likes, setLikes] = useState(game.num_liked);
   const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
 
   // Check if game is appropriate for user's age
   const isAgeAppropriate = userAge 
-    ? game.ageGroups.some(range => {
-        const ages = range.match(/\d+/g)?.map(Number);
-        if (ages && ages.length >= 1) {
-          return userAge >= ages[0] && userAge <= (ages[1] || ages[0] + 1);
-        }
-        return false;
+    ? game.ages.some(age => {
+        return userAge >= age.min_age && userAge <= age.max_age;
       })
     : false;
 
@@ -91,7 +87,7 @@ export default function GameCard({ game, userAge, onLike, onClick }: GameCardPro
     setLikes(prev => newIsLiked ? prev + 1 : prev - 1);
     
     if (onLike) {
-      onLike(game.gameId, newIsLiked);
+      onLike(game.game_id, newIsLiked);
     }
   };
 
@@ -113,8 +109,8 @@ export default function GameCard({ game, userAge, onLike, onClick }: GameCardPro
       {/* Thumbnail */}
       <div className="relative h-44 bg-gradient-to-br from-blue-100 via-purple-50 to-pink-50 overflow-hidden">
         <Image
-          src={game.imageUrl || "/placeholder.png"}
-          alt={game.gameNameVi}
+          src={game.image_url || "/placeholder.png"}
+          alt={game.game_name_vi}
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-500"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -133,7 +129,7 @@ export default function GameCard({ game, userAge, onLike, onClick }: GameCardPro
 
         {/* Badges */}
         <div className="absolute top-2 right-2 flex flex-col gap-2">
-          {game.isPlayedByUser && (
+          {game.self_progress_info && (
             <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
               ✓ Đã chơi
             </span>
@@ -175,7 +171,7 @@ export default function GameCard({ game, userAge, onLike, onClick }: GameCardPro
         {/* Duration Badge */}
         <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1">
           <span>⏱️</span>
-          <span>{game.estimatedDuration} phút</span>
+          <span>{game.estimated_duration} phút</span>
         </div>
       </div>
 
@@ -183,13 +179,13 @@ export default function GameCard({ game, userAge, onLike, onClick }: GameCardPro
       <div className="p-4 bg-gradient-to-br from-white to-gray-50">
         <div className="flex items-start justify-between gap-2 mb-2">
           <h3 className="font-bold text-gray-900 line-clamp-2 text-sm leading-tight flex-1 min-h-[2.5rem]">
-            {game.gameNameVi}
+            {game.game_name_vi}
           </h3>
           <div className={cn(
             "shrink-0 text-[11px] font-bold px-2 py-1 rounded-lg shadow-sm",
-            difficultyColors[game.difficultyLevel]
+            difficultyColors[game.difficulty_level]
           )}>
-            {difficultyText[game.difficultyLevel]}
+            {difficultyText[game.difficulty_level]}
           </div>
         </div>
 
@@ -202,11 +198,11 @@ export default function GameCard({ game, userAge, onLike, onClick }: GameCardPro
         <div className="flex flex-wrap gap-1.5 mb-3">
           {game.topics.slice(0, 2).map((topic) => (
             <span
-              key={topic}
+              key={topic.topic_id}
               className="inline-flex items-center gap-1 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 text-xs font-medium px-2.5 py-1 rounded-full border border-blue-100"
             >
-              <span>{topicEmojis[topic] || "📚"}</span>
-              <span>{topic}</span>
+              <span>{topicEmojis[topic.topic_name] || "📚"}</span>
+              <span>{topic.topic_name}</span>
             </span>
           ))}
           {game.topics.length > 2 && (
@@ -226,7 +222,7 @@ export default function GameCard({ game, userAge, onLike, onClick }: GameCardPro
           
           </div>
           <div className="text-xs font-bold text-gray-700 bg-gradient-to-r from-gray-100 to-gray-200 px-3 py-1.5 rounded-lg border border-gray-300">
-            {game.ageGroups[0]}
+            {game.ages[0] ? `${game.ages[0].min_age}-${game.ages[0].max_age} tuổi` : "N/A"}
           </div>
         </div>
       </div>

@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import * as XLSX from 'xlsx';
 import { showToast } from "@/utils/toast-config";
-import { AdminGameService } from "@/services/admin-game.service";
+import { getAllTopics } from "@/app/api/actions/topics";
 import { GameTopic } from "@/types/admin-game";
 
 // Định nghĩa các tùy chọn export
@@ -46,20 +46,20 @@ function ExportGameTopicsModal() {
       setIsExporting(true);
       if (exportOption === "all") {
         // Lấy dữ liệu topics
-        const response = await AdminGameService.getTopics({
+        const response = await getAllTopics({
           page: 1,
-          pageSize: 1000 // Lấy tất cả
+          pageSize: 100 // Max allowed by backend
         });
 
-        if (response.success && response.data.topics) {
+        if (response.data && response.data.length > 0) {
           // Chuẩn bị dữ liệu cho xuất Excel
-          const exportData = response.data.topics.map((topic: GameTopic) => ({
-            'Tên chủ đề (EN)': topic.topicName,
-            'Tên chủ đề (VI)': topic.topicNameVi,
+          const exportData = response.data.map((topic: GameTopic) => ({
+            'Tên chủ đề (EN)': topic.topic_name,
+            'Tên chủ đề (VI)': topic.topic_name_vi,
             'Mô tả': topic.description || '',
-            'Icon URL': topic.iconUrl || '',
+            'Icon URL': topic.icon_url || '',
             'Thứ tự': topic.order,
-            'Trạng thái': topic.isActive ? 'Hoạt động' : 'Không hoạt động'
+            'Trạng thái': topic.is_active ? 'Hoạt động' : 'Không hoạt động'
           }));
 
           // Tạo worksheet từ dữ liệu
@@ -100,7 +100,8 @@ function ExportGameTopicsModal() {
       }
     } catch (error) {
       console.error("Export error:", error);
-      showToast.error("Có lỗi xảy ra khi xuất dữ liệu");
+      const errorMessage = error instanceof Error ? error.message : "Có lỗi xảy ra khi xuất dữ liệu";
+      showToast.error(errorMessage);
     } finally {
       setIsExporting(false);
     }

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useGameTopicsColumns } from "@/components/admin/table/game-topics/columns";
 import { toast } from "react-toastify";
 import { Plus, Download, Upload, Search } from "lucide-react";
-import { AdminGameService } from "@/services/admin-game.service";
+import { getAllTopics, createTopic, updateTopic, deleteTopic, deleteTopics, reorderTopics } from "@/app/api/actions/topics";
 import { GameTopic } from "@/types/admin-game";
 import { Input } from "@/components/ui/input";
 import { useModal } from "@/hooks/useModalStore";
@@ -27,7 +27,7 @@ import {
 } from "@dnd-kit/sortable";
 
 interface TopicRow {
-  topicId: number;
+  topic_id: number;
 }
 
 interface ActionButtonsProps {
@@ -53,21 +53,6 @@ const ActionButtons = ({
       <Plus className="w-4 h-4 mr-2" />
       Tạo chủ đề mới
     </Button>
-    <div className="flex flex-col xl:flex-row gap-4 w-full xl:w-auto">
-      <Button variant="outline" onClick={onExport}>
-        <Download className="w-4 h-4 mr-2" />
-        Xuất dữ liệu
-      </Button>
-      <Button variant="outline" onClick={onImport}>
-        <Upload className="w-4 h-4 mr-2" />
-        Nhập dữ liệu
-      </Button>
-      {Object.keys(rowSelection).length > 0 && onDelete && (
-        <Button variant="destructive" onClick={onDelete}>
-          Xóa ({Object.keys(rowSelection).length})
-        </Button>
-      )}
-    </div>
   </div>
 );
 
@@ -98,18 +83,19 @@ function TopicsContainerClient() {
   const loadTopics = React.useCallback(async () => {
     setLoading(true);
     try {
-      const response = await AdminGameService.getTopics({
+      const response = await getAllTopics({
         page: 1,
-        pageSize: 1000, // Load all for client-side filtering
+        pageSize: 100, // Max allowed by backend
         keyword: keyword || undefined
       });
 
-      if (response.success) {
-        setTopics(response.data.topics);
+      if (response.data) {
+        setTopics(response.data);
       }
     } catch (error) {
       console.error("Error loading topics:", error);
-      toast.error("Không thể tải danh sách chủ đề");
+      const errorMessage = error instanceof Error ? error.message : "Không thể tải danh sách chủ đề";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -129,7 +115,7 @@ function TopicsContainerClient() {
   const handleDeleteTopics = React.useCallback(async () => {
     const selectedIds = Object.keys(rowSelection);
     const selectedTopics = topics.filter((topic) =>
-      selectedIds.includes(topic.topicId.toString())
+      selectedIds.includes(topic.topic_id.toString())
     );
 
     if (selectedTopics.length === 0) return;
@@ -139,9 +125,8 @@ function TopicsContainerClient() {
     }
 
     try {
-      await Promise.all(
-        selectedIds.map(id => AdminGameService.deleteTopic(parseInt(id)))
-      );
+      // Xóa nhiều topics trong 1 request
+      await deleteTopics(selectedIds.map(id => parseInt(id)));
       
       setRowSelection({});
       loadTopics();
@@ -155,7 +140,8 @@ function TopicsContainerClient() {
       );
     } catch (error) {
       console.error("Error deleting topics:", error);
-      toast.error("Có lỗi xảy ra khi xóa chủ đề");
+      const errorMessage = error instanceof Error ? error.message : "Có lỗi xảy ra khi xóa chủ đề";
+      toast.error(errorMessage);
     }
   }, [rowSelection, topics, loadTopics]);
 
@@ -178,8 +164,8 @@ function TopicsContainerClient() {
     const activeId = typeof active.id === 'string' ? parseInt(active.id) : active.id;
     const overId = typeof over.id === 'string' ? parseInt(over.id) : over.id;
 
-    const oldIndex = topics.findIndex((t) => t.topicId === activeId);
-    const newIndex = topics.findIndex((t) => t.topicId === overId);
+    const oldIndex = topics.findIndex((t) => t.topic_id === activeId);
+    const newIndex = topics.findIndex((t) => t.topic_id === overId);
 
     if (oldIndex === -1 || newIndex === -1) return;
 
@@ -197,16 +183,19 @@ function TopicsContainerClient() {
     try {
       // Call API to update order
       const reorderItems = updatedTopics.map((topic) => ({
-        id: topic.topicId,
+        topic_id: topic.topic_id,
         order: topic.order
       }));
 
-      await AdminGameService.reorderTopics(reorderItems);
+      console.log("reorderItems", reorderItems);
+
+      await reorderTopics(reorderItems);
       
       toast.success("Đã cập nhật thứ tự chủ đề");
     } catch (error) {
       console.error("Error reordering topics:", error);
-      toast.error("Không thể cập nhật thứ tự chủ đề");
+      const errorMessage = error instanceof Error ? error.message : "Không thể cập nhật thứ tự chủ đề";
+      toast.error(errorMessage);
       // Rollback on error
       loadTopics();
     }
@@ -218,8 +207,8 @@ function TopicsContainerClient() {
 
     const lowerFilter = filter.toLowerCase();
     return data.filter((item) =>
-      item.topicName.toLowerCase().includes(lowerFilter) ||
-      item.topicNameVi.toLowerCase().includes(lowerFilter) ||
+      item.topic_name.toLowerCase().includes(lowerFilter) ||
+      item.topic_name_vi.toLowerCase().includes(lowerFilter) ||
       (item.description && item.description.toLowerCase().includes(lowerFilter))
     );
   }, []);
@@ -251,7 +240,7 @@ function TopicsContainerClient() {
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={topics.map((t) => t.topicId.toString())}
+          items={topics.map((t) => t.topic_id.toString())}
           strategy={verticalListSortingStrategy}
         >
           <SortableGenericTable
@@ -270,7 +259,7 @@ function TopicsContainerClient() {
             }
             filterFunction={filterTopics as any}
             enableRowSelection={true}
-            getRowId={(row: TopicRow) => row.topicId.toString()}
+            getRowId={(row: TopicRow) => row.topic_id.toString()}
             rowSelection={rowSelection}
             onRowSelectionChange={setRowSelection}
             meta={{

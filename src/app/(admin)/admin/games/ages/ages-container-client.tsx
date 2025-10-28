@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useGameAgesColumns } from "@/components/admin/table/game-ages/columns";
 import { toast } from "react-toastify";
 import { Plus, Download, Upload, Search } from "lucide-react";
-import { AdminGameService } from "@/services/admin-game.service";
+import { getAllAges, deleteAges, reorderAges } from "@/app/api/actions/age";
 import { GameAge } from "@/types/admin-game";
 import { Input } from "@/components/ui/input";
 import { useModal } from "@/hooks/useModalStore";
@@ -27,7 +27,7 @@ import {
 } from "@dnd-kit/sortable";
 
 interface AgeRow {
-  ageId: number;
+  age_id: number;
 }
 
 interface ActionButtonsProps {
@@ -53,21 +53,6 @@ const ActionButtons = ({
       <Plus className="w-4 h-4 mr-2" />
       Tạo nhóm tuổi mới
     </Button>
-    <div className="flex flex-col xl:flex-row gap-4 w-full xl:w-auto">
-      <Button variant="outline" onClick={onExport}>
-        <Download className="w-4 h-4 mr-2" />
-        Xuất dữ liệu
-      </Button>
-      <Button variant="outline" onClick={onImport}>
-        <Upload className="w-4 h-4 mr-2" />
-        Nhập dữ liệu
-      </Button>
-      {Object.keys(rowSelection).length > 0 && onDelete && (
-        <Button variant="destructive" onClick={onDelete}>
-          Xóa ({Object.keys(rowSelection).length})
-        </Button>
-      )}
-    </div>
   </div>
 );
 
@@ -98,18 +83,19 @@ function AgesContainerClient() {
   const loadAges = React.useCallback(async () => {
     setLoading(true);
     try {
-      const response = await AdminGameService.getAges({
+      const response = await getAllAges({
         page: 1,
-        pageSize: 1000, // Load all for client-side filtering
+        pageSize: 100, // Max allowed by backend
         keyword: keyword || undefined
       });
 
-      if (response.success) {
-        setAges(response.data.ages);
+      if (response.data) {
+        setAges(response.data);
       }
     } catch (error) {
       console.error("Error loading ages:", error);
-      toast.error("Không thể tải danh sách nhóm tuổi");
+      const errorMessage = error instanceof Error ? error.message : "Không thể tải danh sách nhóm tuổi";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -129,7 +115,7 @@ function AgesContainerClient() {
   const handleDeleteAges = React.useCallback(async () => {
     const selectedIds = Object.keys(rowSelection);
     const selectedAges = ages.filter((age) =>
-      selectedIds.includes(age.ageId.toString())
+      selectedIds.includes(age.age_id.toString())
     );
 
     if (selectedAges.length === 0) return;
@@ -139,9 +125,8 @@ function AgesContainerClient() {
     }
 
     try {
-      await Promise.all(
-        selectedIds.map(id => AdminGameService.deleteAge(parseInt(id)))
-      );
+      // Xóa nhiều ages trong 1 request
+      await deleteAges(selectedIds.map(id => parseInt(id)));
       
       setRowSelection({});
       loadAges();
@@ -155,7 +140,8 @@ function AgesContainerClient() {
       );
     } catch (error) {
       console.error("Error deleting ages:", error);
-      toast.error("Có lỗi xảy ra khi xóa nhóm tuổi");
+      const errorMessage = error instanceof Error ? error.message : "Có lỗi xảy ra khi xóa nhóm tuổi";
+      toast.error(errorMessage);
     }
   }, [rowSelection, ages, loadAges]);
 
@@ -178,8 +164,8 @@ function AgesContainerClient() {
     const activeId = typeof active.id === 'string' ? parseInt(active.id) : active.id;
     const overId = typeof over.id === 'string' ? parseInt(over.id) : over.id;
 
-    const oldIndex = ages.findIndex((a) => a.ageId === activeId);
-    const newIndex = ages.findIndex((a) => a.ageId === overId);
+    const oldIndex = ages.findIndex((a) => a.age_id === activeId);
+    const newIndex = ages.findIndex((a) => a.age_id === overId);
 
     if (oldIndex === -1 || newIndex === -1) return;
 
@@ -197,16 +183,17 @@ function AgesContainerClient() {
     try {
       // Call API to update order
       const reorderItems = updatedAges.map((age) => ({
-        id: age.ageId,
+        age_id: age.age_id,
         order: age.order
       }));
 
-      await AdminGameService.reorderAges(reorderItems);
+      await reorderAges(reorderItems);
       
       toast.success("Đã cập nhật thứ tự nhóm tuổi");
     } catch (error) {
       console.error("Error reordering ages:", error);
-      toast.error("Không thể cập nhật thứ tự nhóm tuổi");
+      const errorMessage = error instanceof Error ? error.message : "Không thể cập nhật thứ tự nhóm tuổi";
+      toast.error(errorMessage);
       // Rollback on error
       loadAges();
     }
@@ -218,8 +205,8 @@ function AgesContainerClient() {
 
     const lowerFilter = filter.toLowerCase();
     return data.filter((item) =>
-      item.ageName.toLowerCase().includes(lowerFilter) ||
-      item.ageNameEn.toLowerCase().includes(lowerFilter) ||
+      item.age_name.toLowerCase().includes(lowerFilter) ||
+      item.age_name_en.toLowerCase().includes(lowerFilter) ||
       (item.description && item.description.toLowerCase().includes(lowerFilter))
     );
   }, []);
@@ -251,7 +238,7 @@ function AgesContainerClient() {
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={ages.map((a) => a.ageId.toString())}
+          items={ages.map((a) => a.age_id.toString())}
           strategy={verticalListSortingStrategy}
         >
           <SortableGenericTable
@@ -270,7 +257,7 @@ function AgesContainerClient() {
             }
             filterFunction={filterAges as any}
             enableRowSelection={true}
-            getRowId={(row: AgeRow) => row.ageId.toString()}
+            getRowId={(row: AgeRow) => row.age_id.toString()}
             rowSelection={rowSelection}
             onRowSelectionChange={setRowSelection}
             meta={{

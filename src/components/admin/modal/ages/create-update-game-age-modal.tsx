@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Edit } from "lucide-react";
 import { GameAgeFormData } from "@/types/admin-game";
 import { useModal } from "@/hooks/useModalStore";
-import { AdminGameService } from "@/services/admin-game.service";
+import { createAge, updateAge } from "@/app/api/actions/age";
 import { toast } from "react-toastify";
 
 export function CreateUpdateGameAgeModal() {
@@ -23,11 +23,11 @@ export function CreateUpdateGameAgeModal() {
   const formType = selectedAge ? "update" : "create";
 
   const [formData, setFormData] = React.useState<GameAgeFormData>({
-    ageName: "",
-    ageNameEn: "",
+    age_name: "",
+    age_name_en: "",
     description: "",
-    minAge: 3,
-    maxAge: 4,
+    min_age: 3,
+    max_age: 4,
     order: 0
   });
 
@@ -36,20 +36,20 @@ export function CreateUpdateGameAgeModal() {
   React.useEffect(() => {
     if (selectedAge) {
       setFormData({
-        ageName: selectedAge.ageName,
-        ageNameEn: selectedAge.ageNameEn,
+        age_name: selectedAge.age_name,
+        age_name_en: selectedAge.age_name_en,
         description: selectedAge.description || "",
-        minAge: selectedAge.minAge,
-        maxAge: selectedAge.maxAge,
+        min_age: selectedAge.min_age,
+        max_age: selectedAge.max_age,
         order: selectedAge.order
       });
     } else {
       setFormData({
-        ageName: "",
-        ageNameEn: "",
+        age_name: "",
+        age_name_en: "",
         description: "",
-        minAge: 3,
-        maxAge: 4,
+        min_age: 3,
+        max_age: 4,
         order: 0
       });
     }
@@ -58,7 +58,7 @@ export function CreateUpdateGameAgeModal() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (formData.minAge >= formData.maxAge) {
+    if (formData.min_age >= formData.max_age) {
       toast.error("Tuổi tối thiểu phải nhỏ hơn tuổi tối đa");
       return;
     }
@@ -67,10 +67,10 @@ export function CreateUpdateGameAgeModal() {
 
     try {
       if (selectedAge) {
-        await AdminGameService.updateAge(selectedAge.ageId, formData);
+        await updateAge(selectedAge.age_id, formData);
         toast.success("Cập nhật nhóm tuổi thành công");
       } else {
-        await AdminGameService.createAge(formData);
+        await createAge(formData);
         toast.success("Tạo nhóm tuổi thành công");
       }
 
@@ -79,9 +79,50 @@ export function CreateUpdateGameAgeModal() {
       }
 
       onClose();
-    } catch (error) {
-      console.error("Error saving age:", error);
-      toast.error("Có lỗi xảy ra khi lưu nhóm tuổi");
+    } catch (error: any) {
+      console.error("❌ Error saving age:", error);
+      console.log("📊 Error object:", {
+        message: error?.message,
+        statusCode: error?.statusCode,
+        errors: error?.errors,
+        errorType: typeof error,
+      });
+      
+      // Display detailed error message with statusCode
+      const errorMessage = error?.message || "Có lỗi xảy ra khi lưu nhóm tuổi";
+      const statusCode = error?.statusCode;
+      const errors = error?.errors || [];
+      
+      console.log("📝 Processing error display:");
+      console.log("  - errorMessage:", errorMessage);
+      console.log("  - statusCode:", statusCode);
+      console.log("  - errors array:", errors);
+      
+      // Split by newline to get main message and error details
+      const errorLines = errorMessage.split('\n').filter((line: string) => line.trim() !== '');
+      
+      console.log("  - errorLines:", errorLines);
+      console.log("  - errorLines.length:", errorLines.length);
+      
+      if (errorLines.length > 1) {
+        // Multiple errors - show in a list
+        console.log("✅ Showing multiple errors in list format");
+        toast.error(
+          <div className="space-y-2">
+            <p className="font-semibold text-base">{errorLines[0]}</p>
+            <ul className="list-disc pl-4 space-y-1">
+              {errorLines.slice(1).map((line: string, idx: number) => (
+                <li key={idx} className="text-sm">{line}</li>
+              ))}
+            </ul>
+          </div>,
+          { autoClose: 7000 }
+        );
+      } else {
+        // Single error message
+        console.log("ℹ️ Showing single error message");
+        toast.error(errorMessage, { autoClose: 5000 });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -115,13 +156,13 @@ export function CreateUpdateGameAgeModal() {
           <form onSubmit={handleSubmit}>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="ageName" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="age_name" className="text-sm font-medium text-gray-700">
                   Tên nhóm tuổi (Tiếng Việt) <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="ageName"
-                  value={formData.ageName}
-                  onChange={(e) => setFormData({ ...formData, ageName: e.target.value })}
+                  id="age_name"
+                  value={formData.age_name}
+                  onChange={(e) => setFormData({ ...formData, age_name: e.target.value })}
                   placeholder="3-4 tuổi"
                   className="border-gray-300 focus:border-purple-500"
                   required
@@ -129,13 +170,13 @@ export function CreateUpdateGameAgeModal() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="ageNameEn" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="age_name_en" className="text-sm font-medium text-gray-700">
                   Tên nhóm tuổi (English) <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="ageNameEn"
-                  value={formData.ageNameEn}
-                  onChange={(e) => setFormData({ ...formData, ageNameEn: e.target.value })}
+                  id="age_name_en"
+                  value={formData.age_name_en}
+                  onChange={(e) => setFormData({ ...formData, age_name_en: e.target.value })}
                   placeholder="3-4 years old"
                   className="border-gray-300 focus:border-purple-500"
                   required
@@ -144,39 +185,39 @@ export function CreateUpdateGameAgeModal() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="minAge" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="min_age" className="text-sm font-medium text-gray-700">
                     Tuổi tối thiểu <span className="text-red-500">*</span>
                   </Label>
                   <Input
-                    id="minAge"
+                    id="min_age"
                     type="number"
                     min="0"
                     max="12"
-                    value={formData.minAge}
-                    onChange={(e) => setFormData({ ...formData, minAge: parseInt(e.target.value) })}
+                    value={formData.min_age}
+                    onChange={(e) => setFormData({ ...formData, min_age: parseInt(e.target.value) })}
                     className="border-gray-300 focus:border-purple-500"
                     required
                     disabled={isSubmitting}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="maxAge" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="max_age" className="text-sm font-medium text-gray-700">
                     Tuổi tối đa <span className="text-red-500">*</span>
                   </Label>
                   <Input
-                    id="maxAge"
+                    id="max_age"
                     type="number"
                     min="0"
                     max="12"
-                    value={formData.maxAge}
-                    onChange={(e) => setFormData({ ...formData, maxAge: parseInt(e.target.value) })}
+                    value={formData.max_age}
+                    onChange={(e) => setFormData({ ...formData, max_age: parseInt(e.target.value) })}
                     className="border-gray-300 focus:border-purple-500"
                     required
                     disabled={isSubmitting}
                   />
                 </div>
               </div>
-              {formData.minAge >= formData.maxAge && (
+              {formData.min_age >= formData.max_age && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                   <p className="text-sm text-red-700 flex items-center gap-2">
                     <span>⚠️</span>
@@ -226,7 +267,7 @@ export function CreateUpdateGameAgeModal() {
               </Button>
               <Button 
                 type="submit" 
-                disabled={formData.minAge >= formData.maxAge || isSubmitting}
+                disabled={formData.min_age >= formData.max_age || isSubmitting}
                 className="min-w-[100px] bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
               >
                 {isSubmitting ? (

@@ -13,9 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Edit } from "lucide-react";
-import { AdminGameFormData } from "@/types/admin-game";
+import { GameFormData } from "@/types/admin-game";
 import { useModal } from "@/hooks/useModalStore";
-import { AdminGameService } from "@/services/admin-game.service";
+import { useCreateGame, useUpdateGame } from "@/hooks/use-game";
 import { toast } from "react-toastify";
 import {
   Select,
@@ -26,6 +26,53 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import Image from "next/image";
+import { validateImageUrl } from "@/lib/utils";
+import { ImageUploader } from "@/components/ui/image-upload";
+
+// Zod validation schema
+const gameFormSchema = z.object({
+  game_name: z.string().min(1, "Tên game (EN) là bắt buộc"),
+  game_name_vi: z.string().min(1, "Tên game (VI) là bắt buộc"),
+  description: z.string().optional(),
+  image_url: z.string().refine(
+    (val) => {
+      if (!val || val === "") return true;
+      try {
+        new URL(val);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    { message: "URL hình ảnh không hợp lệ" }
+  ).optional(),
+  url_game: z.string().refine(
+    (val) => {
+      if (!val) return false;
+      try {
+        new URL(val);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    { message: "URL game không hợp lệ" }
+  ),
+  difficulty_level: z.enum(["easy", "medium", "hard"], {
+    errorMap: () => ({ message: "Độ khó phải là: easy, medium hoặc hard" })
+  }),
+  estimated_duration: z.number().min(1, "Thời lượng phải lớn hơn 0 giây"),
+  is_active: z.boolean().optional(), // Optional - only for update
+  order: z.number().min(1, "Thứ tự phải lớn hơn 0"),
+  topic_ids: z.array(z.number().min(1, "Topic ID phải lớn hơn 0"))
+    .min(1, "Vui lòng chọn ít nhất 1 chủ đề"),
+  age_ids: z.array(z.number().min(1, "Age ID phải lớn hơn 0"))
+    .min(1, "Vui lòng chọn ít nhất 1 nhóm tuổi"),
+});
 
 export function CreateUpdateGameModal() {
   const { isOpen, onClose, type, data } = useModal();
@@ -33,119 +80,90 @@ export function CreateUpdateGameModal() {
   const formType = selectedGame ? "update" : "create";
   const topicsData = data?.topicsData || [];
   const agesData = data?.agesData || [];
+  const setLoadingRows = data?.setLoadingRows as ((fn: (prev: Set<number>) => Set<number>) => void) | undefined;
 
-  const [formData, setFormData] = React.useState<AdminGameFormData>({
-    gameName: "",
-    gameNameVi: "",
+  const createGameMutation = useCreateGame();
+  const updateGameMutation = useUpdateGame();
+
+  const defaultValues: GameFormData = {
+    game_name: "",
+    game_name_vi: "",
     description: "",
-    descriptionVi: "",
-    imageUrl: "",
-    urlGame: "",
-    difficultyLevel: "easy",
-    estimatedDuration: 5,
-    isActive: true,
-    topicIds: [],
-    ageIds: []
-  });
-
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [errors, setErrors] = React.useState<Record<string, string>>({});
-
-  React.useEffect(() => {
-    if (selectedGame) {
-      setFormData({
-        gameName: selectedGame.gameName,
-        gameNameVi: selectedGame.gameNameVi,
-        description: selectedGame.description || "",
-        descriptionVi: selectedGame.descriptionVi || "",
-        imageUrl: selectedGame.imageUrl || "",
-        urlGame: selectedGame.urlGame,
-        difficultyLevel: selectedGame.difficultyLevel,
-        estimatedDuration: selectedGame.estimatedDuration,
-        isActive: selectedGame.isActive,
-        topicIds: selectedGame.topics.map(t => t.topicId),
-        ageIds: selectedGame.ages.map(a => a.ageId)
-      });
-    } else {
-      setFormData({
-        gameName: "",
-        gameNameVi: "",
-        description: "",
-        descriptionVi: "",
-        imageUrl: "",
-        urlGame: "",
-        difficultyLevel: "easy",
-        estimatedDuration: 5,
-        isActive: true,
-        topicIds: [],
-        ageIds: []
-      });
-    }
-    setErrors({});
-  }, [selectedGame, isOpen]);
-
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.gameName.trim()) {
-      newErrors.gameName = "Tên game (EN) là bắt buộc";
-    }
-
-    if (!formData.gameNameVi.trim()) {
-      newErrors.gameNameVi = "Tên game (VI) là bắt buộc";
-    }
-
-    if (!formData.urlGame.trim()) {
-      newErrors.urlGame = "URL game là bắt buộc";
-    } else {
-      // Validate URL format
-      try {
-        new URL(formData.urlGame);
-      } catch {
-        newErrors.urlGame = "URL không hợp lệ";
-      }
-    }
-
-    if (formData.imageUrl && formData.imageUrl.trim()) {
-      try {
-        new URL(formData.imageUrl);
-      } catch {
-        newErrors.imageUrl = "URL hình ảnh không hợp lệ";
-      }
-    }
-
-    if (formData.estimatedDuration < 1) {
-      newErrors.estimatedDuration = "Thời lượng phải lớn hơn 0";
-    }
-
-    if (formData.topicIds.length === 0) {
-      newErrors.topicIds = "Vui lòng chọn ít nhất 1 chủ đề";
-    }
-
-    if (formData.ageIds.length === 0) {
-      newErrors.ageIds = "Vui lòng chọn ít nhất 1 nhóm tuổi";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    image_url: "",
+    url_game: "",
+    difficulty_level: "easy",
+    estimated_duration: 5,
+    order: 1,
+    topic_ids: [],
+    age_ids: []
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const { 
+    register, 
+    control, 
+    handleSubmit, 
+    formState: { errors, isSubmitting }, 
+    reset,
+    watch,
+    setValue
+  } = useForm<GameFormData>({
+    resolver: zodResolver(gameFormSchema),
+    defaultValues
+  });
 
-    if (!validateForm()) {
-      toast.error("Vui lòng kiểm tra lại các trường thông tin");
-      return;
+  // Watch topic_ids và age_ids để hiển thị count
+  const watchedTopicIds = watch("topic_ids") || [];
+  const watchedAgeIds = watch("age_ids") || [];
+
+  React.useEffect(() => {
+    if (isOpen) {
+      if (selectedGame) {
+        reset({
+          game_name: selectedGame.game_name,
+          game_name_vi: selectedGame.game_name_vi,
+          description: selectedGame.description || "",
+          image_url: selectedGame.image_url || "",
+          url_game: selectedGame.url_game,
+          difficulty_level: selectedGame.difficulty_level,
+          estimated_duration: selectedGame.estimated_duration,
+          is_active: selectedGame.is_active,
+          order: 1, // Default order nếu không có
+          topic_ids: selectedGame.topics.map(t => t.topic_id),
+          age_ids: selectedGame.ages.map(a => a.age_id)
+        });
+      } else {
+        reset(defaultValues);
+      }
     }
+  }, [selectedGame, isOpen, reset]);
 
-    setIsSubmitting(true);
-
+  const onSubmit = async (formData: GameFormData) => {
+    console.log("📝 Form Data:", formData);
+    
+    // Set loading state for this row if updating
+    if (selectedGame && setLoadingRows) {
+      setLoadingRows((prev) => new Set(prev).add(selectedGame.game_id));
+    }
+    
     try {
       if (selectedGame) {
-        await AdminGameService.updateGame(selectedGame.gameId, formData);
+        // Update mode - send all data including is_active
+        console.log("🔄 Update mode - gameId:", selectedGame.game_id);
+        await updateGameMutation.mutateAsync({ 
+          gameId: selectedGame.game_id, 
+          data: formData 
+        });
         toast.success("Cập nhật game thành công");
       } else {
-        await AdminGameService.createGame(formData);
+        const { is_active, ...restData } = formData;
+        const createData = {
+          ...restData,
+          description: restData.description || "",
+          image_url: restData.image_url || "",
+        };
+        
+        console.log("✨ Create mode - Data to send:", JSON.stringify(createData, null, 2));
+        await createGameMutation.mutateAsync(createData as any);
         toast.success("Tạo game thành công");
       }
 
@@ -154,30 +172,82 @@ export function CreateUpdateGameModal() {
       }
 
       onClose();
-    } catch (error) {
-      console.error("Error saving game:", error);
-      toast.error("Có lỗi xảy ra khi lưu game");
+    } catch (error: any) {
+      console.error("❌ Error saving game:", error);
+      console.log("📊 Error object:", {
+        message: error?.message,
+        statusCode: error?.statusCode,
+        errors: error?.errors,
+        errorType: typeof error,
+      });
+      
+      // Display detailed error message with statusCode
+      const errorMessage = error?.message || "Có lỗi xảy ra khi lưu game";
+      const statusCode = error?.statusCode;
+      const errors = error?.errors || [];
+      
+      console.log("📝 Processing error display:");
+      console.log("  - errorMessage:", errorMessage);
+      console.log("  - statusCode:", statusCode);
+      console.log("  - errors array:", errors);
+      
+      // Split by newline to get main message and error details
+      const errorLines = errorMessage.split('\n').filter((line: string) => line.trim() !== '');
+      
+      console.log("  - errorLines:", errorLines);
+      console.log("  - errorLines.length:", errorLines.length);
+      
+      if (errorLines.length > 1) {
+        // Multiple errors - show in a list
+        console.log("✅ Showing multiple errors in list format");
+        toast.error(
+          <div className="space-y-2">
+            <p className="font-semibold text-base">{errorLines[0]}</p>
+            <ul className="list-disc pl-4 space-y-1">
+              {errorLines.slice(1).map((line: string, idx: number) => (
+                <li key={idx} className="text-sm">{line}</li>
+              ))}
+            </ul>
+          </div>,
+          { autoClose: 7000 }
+        );
+      } else {
+        // Single error message
+        console.log("ℹ️ Showing single error message");
+        toast.error(errorMessage, { autoClose: 5000 });
+      }
     } finally {
-      setIsSubmitting(false);
+      // Clear loading state for this row if updating
+      if (selectedGame && setLoadingRows) {
+        setLoadingRows((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(selectedGame.game_id);
+          return newSet;
+        });
+      }
     }
   };
 
   const toggleTopic = (topicId: number) => {
-    setFormData(prev => ({
-      ...prev,
-      topicIds: prev.topicIds.includes(topicId)
-        ? prev.topicIds.filter(id => id !== topicId)
-        : [...prev.topicIds, topicId]
-    }));
+    const currentTopicIds = watch("topic_ids") || [];
+    setValue(
+      "topic_ids",
+      currentTopicIds.includes(topicId)
+        ? currentTopicIds.filter(id => id !== topicId)
+        : [...currentTopicIds, topicId],
+      { shouldValidate: true }
+    );
   };
 
   const toggleAge = (ageId: number) => {
-    setFormData(prev => ({
-      ...prev,
-      ageIds: prev.ageIds.includes(ageId)
-        ? prev.ageIds.filter(id => id !== ageId)
-        : [...prev.ageIds, ageId]
-    }));
+    const currentAgeIds = watch("age_ids") || [];
+    setValue(
+      "age_ids",
+      currentAgeIds.includes(ageId)
+        ? currentAgeIds.filter(id => id !== ageId)
+        : [...currentAgeIds, ageId],
+      { shouldValidate: true }
+    );
   };
 
   if (!isOpen || type !== "createUpdateGame") return null;
@@ -206,114 +276,136 @@ export function CreateUpdateGameModal() {
         </DialogHeader>
         
         <ScrollArea className="flex-1 pr-4 ">
-          <form onSubmit={handleSubmit} className="space-y-4 py-4 px-2 pb-6 h-[600px] overflow-y-auto">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4 px-2 pb-6 h-[600px] overflow-y-auto">
             {/* Game Names */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="gameName">
+                <Label htmlFor="game_name">
                   Tên game (English) <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="gameName"
-                  value={formData.gameName}
-                  onChange={(e) => setFormData({ ...formData, gameName: e.target.value })}
+                  id="game_name"
+                  {...register("game_name")}
                   placeholder="Animal Match"
                   disabled={isSubmitting}
-                  className={errors.gameName ? "border-red-500" : ""}
+                  className={errors.game_name ? "border-red-500" : ""}
                 />
-                {errors.gameName && (
-                  <p className="text-sm text-red-500">{errors.gameName}</p>
+                {errors.game_name && (
+                  <p className="text-sm text-red-500">{errors.game_name.message}</p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gameNameVi">
+                <Label htmlFor="game_name_vi">
                   Tên game (Tiếng Việt) <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="gameNameVi"
-                  value={formData.gameNameVi}
-                  onChange={(e) => setFormData({ ...formData, gameNameVi: e.target.value })}
+                  id="game_name_vi"
+                  {...register("game_name_vi")}
                   placeholder="Ghép đôi động vật"
                   disabled={isSubmitting}
-                  className={errors.gameNameVi ? "border-red-500" : ""}
+                  className={errors.game_name_vi ? "border-red-500" : ""}
                 />
-                {errors.gameNameVi && (
-                  <p className="text-sm text-red-500">{errors.gameNameVi}</p>
+                {errors.game_name_vi && (
+                  <p className="text-sm text-red-500">{errors.game_name_vi.message}</p>
                 )}
               </div>
             </div>
 
             {/* URLs */}
             <div className="space-y-2">
-              <Label htmlFor="urlGame">
+              <Label htmlFor="url_game">
                 URL Game <span className="text-red-500">*</span>
               </Label>
               <Input
-                id="urlGame"
+                id="url_game"
                 type="url"
-                value={formData.urlGame}
-                onChange={(e) => setFormData({ ...formData, urlGame: e.target.value })}
+                {...register("url_game")}
                 placeholder="https://example.com/game"
                 disabled={isSubmitting}
-                className={errors.urlGame ? "border-red-500" : ""}
+                className={errors.url_game ? "border-red-500" : ""}
               />
-              {errors.urlGame && (
-                <p className="text-sm text-red-500">{errors.urlGame}</p>
+              {errors.url_game && (
+                <p className="text-sm text-red-500">{errors.url_game.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="imageUrl">URL hình ảnh</Label>
-              <Input
-                id="imageUrl"
-                type="url"
-                value={formData.imageUrl}
-                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                placeholder="https://example.com/image.jpg"
-                disabled={isSubmitting}
-                className={errors.imageUrl ? "border-red-500" : ""}
+              <Label htmlFor="image_url">Hình ảnh game</Label>
+              <Controller
+                name="image_url"
+                control={control}
+                render={({ field }) => (
+                  <div>
+                    <ImageUploader
+                      value={field.value || ""}
+                      disabled={isSubmitting}
+                      onChange={field.onChange}
+                    />
+                    {errors.image_url && (
+                      <p className="text-sm text-red-500 mt-2">{errors.image_url.message}</p>
+                    )}
+                  </div>
+                )}
               />
-              {errors.imageUrl && (
-                <p className="text-sm text-red-500">{errors.imageUrl}</p>
-              )}
             </div>
 
-            {/* Difficulty & Duration */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Difficulty & Duration & Order */}
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="difficultyLevel">
+                <Label htmlFor="difficulty_level">
                   Độ khó <span className="text-red-500">*</span>
                 </Label>
-                <Select
-                  value={formData.difficultyLevel}
-                  onValueChange={(value: any) => setFormData({ ...formData, difficultyLevel: value })}
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="easy">Dễ</SelectItem>
-                    <SelectItem value="medium">Trung bình</SelectItem>
-                    <SelectItem value="hard">Khó</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="difficulty_level"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isSubmitting}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="easy">Dễ</SelectItem>
+                        <SelectItem value="medium">Trung bình</SelectItem>
+                        <SelectItem value="hard">Khó</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="estimatedDuration">
+                <Label htmlFor="estimated_duration">
                   Thời lượng (phút) <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="estimatedDuration"
+                  id="estimated_duration"
                   type="number"
                   min="1"
-                  value={formData.estimatedDuration}
-                  onChange={(e) => setFormData({ ...formData, estimatedDuration: parseInt(e.target.value) || 0 })}
+                  {...register("estimated_duration", { valueAsNumber: true })}
                   disabled={isSubmitting}
-                  className={errors.estimatedDuration ? "border-red-500" : ""}
+                  className={errors.estimated_duration ? "border-red-500" : ""}
                 />
-                {errors.estimatedDuration && (
-                  <p className="text-sm text-red-500">{errors.estimatedDuration}</p>
+                {errors.estimated_duration && (
+                  <p className="text-sm text-red-500">{errors.estimated_duration.message}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="order">
+                  Thứ tự <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="order"
+                  type="number"
+                  min="1"
+                  {...register("order", { valueAsNumber: true })}
+                  disabled={isSubmitting}
+                  className={errors.order ? "border-red-500" : ""}
+                />
+                {errors.order && (
+                  <p className="text-sm text-red-500">{errors.order.message}</p>
                 )}
               </div>
             </div>
@@ -323,23 +415,9 @@ export function CreateUpdateGameModal() {
               <Label htmlFor="description">Mô tả (English)</Label>
               <Textarea
                 id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                {...register("description")}
                 rows={2}
                 placeholder="Match animal pairs to learn..."
-                disabled={isSubmitting}
-                className="resize-none"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="descriptionVi">Mô tả (Tiếng Việt)</Label>
-              <Textarea
-                id="descriptionVi"
-                value={formData.descriptionVi}
-                onChange={(e) => setFormData({ ...formData, descriptionVi: e.target.value })}
-                rows={2}
-                placeholder="Ghép đôi các con vật để học..."
                 disabled={isSubmitting}
                 className="resize-none"
               />
@@ -350,17 +428,34 @@ export function CreateUpdateGameModal() {
               <Label>
                 Chủ đề <span className="text-red-500">*</span>
               </Label>
-              <div className={`border rounded-md p-3 ${errors.topicIds ? 'border-red-500' : ''}`}>
+              <div className={`border rounded-md p-3 ${errors.topic_ids ? 'border-red-500' : ''}`}>
                 {topicsData.length > 0 ? (
                   <div className="grid grid-cols-2 gap-2">
                     {topicsData.map(topic => (
-                      <label key={topic.topicId} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                      <label key={topic.topic_id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
                         <Checkbox
-                          checked={formData.topicIds.includes(topic.topicId)}
-                          onCheckedChange={() => toggleTopic(topic.topicId)}
+                          checked={watchedTopicIds.includes(topic.topic_id)}
+                          onCheckedChange={() => toggleTopic(topic.topic_id)}
                           disabled={isSubmitting}
                         />
-                        <span className="text-sm">{topic.iconUrl} {topic.topicNameVi}</span>
+
+                        <div className="flex items-center gap-2">
+                          {
+                            validateImageUrl(topic.icon_url) ? (
+                          
+                            <Image
+                              src={validateImageUrl(topic.icon_url)}
+                              alt={topic.topic_name_vi}
+                              width={48}
+                              height={48}
+                              className="rounded-sm"
+                              unoptimized
+                            />  
+                          ) : (
+                            <div className="w-8 h-8 bg-gray-200 rounded-sm" />
+                          )}
+                          <span className="text-sm">{topic.topic_name_vi}</span>
+                        </div>
                       </label>
                     ))}
                   </div>
@@ -368,11 +463,11 @@ export function CreateUpdateGameModal() {
                   <p className="text-sm text-gray-500">Không có chủ đề nào</p>
                 )}
               </div>
-              {errors.topicIds && (
-                <p className="text-sm text-red-500">{errors.topicIds}</p>
+              {errors.topic_ids && (
+                <p className="text-sm text-red-500">{errors.topic_ids.message}</p>
               )}
-              {formData.topicIds.length > 0 && (
-                <p className="text-xs text-gray-500">Đã chọn {formData.topicIds.length} chủ đề</p>
+              {watchedTopicIds.length > 0 && (
+                <p className="text-xs text-gray-500">Đã chọn {watchedTopicIds.length} chủ đề</p>
               )}
             </div>
 
@@ -381,17 +476,17 @@ export function CreateUpdateGameModal() {
               <Label>
                 Nhóm tuổi <span className="text-red-500">*</span>
               </Label>
-              <div className={`border rounded-md p-3 ${errors.ageIds ? 'border-red-500' : ''}`}>
+              <div className={`border rounded-md p-3 ${errors.age_ids ? 'border-red-500' : ''}`}>
                 {agesData.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {agesData.map(age => (
-                      <label key={age.ageId} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded border">
+                      <label key={age.age_id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded border">
                         <Checkbox
-                          checked={formData.ageIds.includes(age.ageId)}
-                          onCheckedChange={() => toggleAge(age.ageId)}
+                          checked={watchedAgeIds.includes(age.age_id)}
+                          onCheckedChange={() => toggleAge(age.age_id)}
                           disabled={isSubmitting}
                         />
-                        <span className="text-sm">👶 {age.ageName}</span>
+                        <span className="text-sm">👶 {age.age_name}</span>
                       </label>
                     ))}
                   </div>
@@ -399,26 +494,34 @@ export function CreateUpdateGameModal() {
                   <p className="text-sm text-gray-500">Không có nhóm tuổi nào</p>
                 )}
               </div>
-              {errors.ageIds && (
-                <p className="text-sm text-red-500">{errors.ageIds}</p>
+              {errors.age_ids && (
+                <p className="text-sm text-red-500">{errors.age_ids.message}</p>
               )}
-              {formData.ageIds.length > 0 && (
-                <p className="text-xs text-gray-500">Đã chọn {formData.ageIds.length} nhóm tuổi</p>
+              {watchedAgeIds.length > 0 && (
+                <p className="text-xs text-gray-500">Đã chọn {watchedAgeIds.length} nhóm tuổi</p>
               )}
             </div>
 
-            {/* Active Status */}
-            <div className="flex items-center space-x-2 py-2">
-              <Switch
-                id="isActive"
-                checked={formData.isActive}
-                onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
-                disabled={isSubmitting}
-              />
-              <Label htmlFor="isActive" className="cursor-pointer">
-                Kích hoạt game
-              </Label>
-            </div>
+            {/* Active Status - Only show for Update */}
+            {formType === "update" && (
+              <div className="flex items-center space-x-2 py-2">
+                <Controller
+                  name="is_active"
+                  control={control}
+                  render={({ field }) => (
+                    <Switch
+                      id="is_active"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isSubmitting}
+                    />
+                  )}
+                />
+                <Label htmlFor="is_active" className="cursor-pointer">
+                  Kích hoạt game
+                </Label>
+              </div>
+            )}
           </form>
         </ScrollArea>
 
@@ -433,7 +536,8 @@ export function CreateUpdateGameModal() {
             Hủy
           </Button>
           <Button 
-            onClick={handleSubmit}
+            type="submit"
+            onClick={handleSubmit(onSubmit)}
             disabled={isSubmitting}
             className="min-w-[100px] bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
           >

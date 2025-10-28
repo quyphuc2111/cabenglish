@@ -117,6 +117,10 @@ export interface ModalData {
     value: number;
     swId: number;
   };
+  // Export modal data
+  selectedGames?: any[];
+  filterParams?: any;
+  hasFilters?: boolean;
   notiType?: {
     id: number;
     value: string;
@@ -154,60 +158,63 @@ export interface ModalData {
   errorTitle?: string;
   selectedClassId?: number | string;
   gameTopic?: {
-    topicId: number;
-    topicName: string;
-    topicNameVi: string;
-    iconUrl?: string;
+    topic_id: number;
+    topic_name: string;
+    topic_name_vi: string;
+    icon_url?: string;
     description?: string;
     order: number;
-    isActive: boolean;
+    is_active: boolean;
   };
   topicId?: number;
   gameAge?: {
-    ageId: number;
-    ageName: string;
-    ageNameEn: string;
+    age_id: number;
+    age_name: string;
+    age_name_en: string;
     description?: string;
-    minAge: number;
-    maxAge: number;
+    min_age: number;
+    max_age: number;
     order: number;
   };
   ageId?: number;
   game?: {
-    gameId: number;
-    gameName: string;
-    gameNameVi: string;
+    game_id: number;
+    game_name: string;
+    game_name_vi: string;
     description?: string;
-    descriptionVi?: string;
-    imageUrl?: string;
-    urlGame: string;
-    numLiked: number;
-    difficultyLevel: "easy" | "medium" | "hard";
-    estimatedDuration: number;
-    isActive: boolean;
+    description_vi?: string;
+    image_url?: string;
+    url_game: string;
+    num_liked: number;
+    order: number;
+    difficulty_level: "easy" | "medium" | "hard";
+    estimated_duration: number;
+    is_active: boolean;
     topics: Array<{
-      topicId: number;
-      topicName: string;
-      topicNameVi: string;
-      iconUrl?: string;
+      topic_id: number;
+      topic_name: string;
+      topic_name_vi: string;
+      icon_url?: string;
     }>;
     ages: Array<{
-      ageId: number;
-      ageName: string;
-      ageNameEn: string;
+      age_id: number;
+      age_name: string;
+      age_name_en: string;
     }>;
   };
   topicsData?: Array<{
-    topicId: number;
-    topicName: string;
-    topicNameVi: string;
-    iconUrl?: string;
+    topic_id: number;
+    topic_name: string;
+    topic_name_vi: string;
+    icon_url?: string;
   }>;
   agesData?: Array<{
-    ageId: number;
-    ageName: string;
-    ageNameEn: string;
+    age_id: number;
+    age_name: string;
+    age_name_en: string;
   }>;
+  loadingRows?: Set<number>;
+  setLoadingRows?: (rows: Set<number> | ((prev: Set<number>) => Set<number>)) => void;
 }
 
 export interface ModalStore {

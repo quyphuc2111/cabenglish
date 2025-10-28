@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import { Upload } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { showToast } from "@/utils/toast-config";
-import { AdminGameService } from "@/services/admin-game.service";
+import { getAllTopics, createTopic } from "@/app/api/actions/topics";
 import { GameTopicFormData } from "@/types/admin-game";
 import { ExcelPreviewTable } from "@/components/common/excel-preview-table";
 import { FullDataViewModal } from "@/components/common/full-data-view-modal";
@@ -199,17 +199,17 @@ function ImportGameTopicsModal() {
 
       // Chuyển đổi sang định dạng GameTopicFormData
       const topicsData: GameTopicFormData[] = formattedData.map((item) => ({
-        topicName: item["Tên chủ đề (EN)"],
-        topicNameVi: item["Tên chủ đề (VI)"],
+        topic_name: item["Tên chủ đề (EN)"],
+        topic_name_vi: item["Tên chủ đề (VI)"],
         description: item["Mô tả"] || "",
-        iconUrl: item["Icon URL"] || "",
+        icon_url: item["Icon URL"] || "",
         order: Number(item["Thứ tự"]) || 0,
-        isActive: item["Trạng thái"] === "Hoạt động" || item["Trạng thái"] === true || item["Trạng thái"] === "true"
+        is_active: item["Trạng thái"] === "Hoạt động" || item["Trạng thái"] === true || item["Trạng thái"] === "true"
       }));
 
       // Validate dữ liệu
       const invalidRows = topicsData.filter(topic => 
-        !topic.topicName || !topic.topicNameVi || topic.order <= 0
+        !topic.topic_name || !topic.topic_name_vi || topic.order <= 0
       );
 
       if (invalidRows.length > 0) {
@@ -223,7 +223,7 @@ function ImportGameTopicsModal() {
 
         for (const topicData of topicsData) {
           try {
-            await AdminGameService.createTopic(topicData);
+            await createTopic(topicData);
             successCount++;
           } catch (error) {
             console.error("Error creating topic:", error);
@@ -388,17 +388,17 @@ function ImportGameTopicsModal() {
       setIsCheckingDuplicates(true);
       
       // Lấy dữ liệu topics hiện có
-      const response = await AdminGameService.getTopics({
+      const response = await getAllTopics({
         page: 1,
-        pageSize: 1000
+        pageSize: 100 // Max allowed by backend
       });
       
-      if (!response.success || !response.data.topics) {
+      if (!response.data || response.data.length === 0) {
         setDuplicateRows([]);
         return;
       }
       
-      const existingTopics = response.data.topics;
+      const existingTopics = response.data;
       const duplicates: number[] = [];
       
       // Tìm index của các cột cần kiểm tra
@@ -418,8 +418,8 @@ function ImportGameTopicsModal() {
         
         // Kiểm tra trùng tên hoặc thứ tự
         const isDuplicate = existingTopics.some(existingTopic => 
-          existingTopic.topicName?.toLowerCase() === topicName?.toLowerCase() ||
-          existingTopic.topicNameVi?.toLowerCase() === topicNameVi?.toLowerCase() ||
+          existingTopic.topic_name?.toLowerCase() === topicName?.toLowerCase() ||
+          existingTopic.topic_name_vi?.toLowerCase() === topicNameVi?.toLowerCase() ||
           existingTopic.order === order
         );
         

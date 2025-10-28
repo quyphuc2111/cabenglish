@@ -17,8 +17,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Edit } from "lucide-react";
 import { GameTopicFormData } from "@/types/admin-game";
 import { useModal } from "@/hooks/useModalStore";
-import { AdminGameService } from "@/services/admin-game.service";
+import { createTopic, updateTopic } from "@/app/api/actions/topics";
 import { toast } from "react-toastify";
+import { ImageUploader } from "@/components/ui/image-upload";
 
 export function CreateUpdateGameTopicModal() {
   const { isOpen, onClose, type, data } = useModal();
@@ -26,12 +27,12 @@ export function CreateUpdateGameTopicModal() {
   const formType = selectedTopic ? "update" : "create";
 
   const [formData, setFormData] = React.useState<GameTopicFormData>({
-    topicName: "",
-    topicNameVi: "",
+    topic_name: "",
+    topic_name_vi: "",
     description: "",
-    iconUrl: "",
+    icon_url: "",
     order: 0,
-    isActive: true
+    is_active: true // Will be used for update only, not sent on create
   });
 
   // Update form when modal opens with data
@@ -39,22 +40,22 @@ export function CreateUpdateGameTopicModal() {
     if (isOpen && type === "createUpdateGameTopic") {
       if (selectedTopic) {
         setFormData({
-          topicName: selectedTopic.topicName,
-          topicNameVi: selectedTopic.topicNameVi,
+          topic_name: selectedTopic.topic_name,
+          topic_name_vi: selectedTopic.topic_name_vi,
           description: selectedTopic.description || "",
-          iconUrl: selectedTopic.iconUrl || "",
+          icon_url: selectedTopic.icon_url || "",
           order: selectedTopic.order,
-          isActive: selectedTopic.isActive
+          is_active: selectedTopic.is_active
         });
       } else {
         // Reset form for create
         setFormData({
-          topicName: "",
-          topicNameVi: "",
+          topic_name: "",
+          topic_name_vi: "",
           description: "",
-          iconUrl: "",
+          icon_url: "",
           order: 0,
-          isActive: true
+          is_active: true
         });
       }
     }
@@ -65,10 +66,10 @@ export function CreateUpdateGameTopicModal() {
     
     try {
       if (selectedTopic) {
-        await AdminGameService.updateTopic(selectedTopic.topicId, formData);
+        await updateTopic(selectedTopic.topic_id, formData);
         toast.success("Cập nhật chủ đề thành công");
       } else {
-        await AdminGameService.createTopic(formData);
+        await createTopic(formData);
         toast.success("Tạo chủ đề thành công");
       }
       
@@ -76,16 +77,57 @@ export function CreateUpdateGameTopicModal() {
         data.onSuccess();
       }
       onClose();
-    } catch (error) {
-      console.error("Error saving topic:", error);
-      toast.error("Có lỗi xảy ra khi lưu chủ đề");
+    } catch (error: any) {
+      console.error("❌ Error saving topic:", error);
+      console.log("📊 Error object:", {
+        message: error?.message,
+        statusCode: error?.statusCode,
+        errors: error?.errors,
+        errorType: typeof error,
+      });
+      
+      // Display detailed error message with statusCode
+      const errorMessage = error?.message || "Có lỗi xảy ra khi lưu chủ đề";
+      const statusCode = error?.statusCode;
+      const errors = error?.errors || [];
+      
+      console.log("📝 Processing error display:");
+      console.log("  - errorMessage:", errorMessage);
+      console.log("  - statusCode:", statusCode);
+      console.log("  - errors array:", errors);
+      
+      // Split by newline to get main message and error details
+      const errorLines = errorMessage.split('\n').filter((line: string) => line.trim() !== '');
+      
+      console.log("  - errorLines:", errorLines);
+      console.log("  - errorLines.length:", errorLines.length);
+      
+      if (errorLines.length > 1) {
+        // Multiple errors - show in a list
+        console.log("✅ Showing multiple errors in list format");
+        toast.error(
+          <div className="space-y-2">
+            <p className="font-semibold text-base">{errorLines[0]}</p>
+            <ul className="list-disc pl-4 space-y-1">
+              {errorLines.slice(1).map((line: string, idx: number) => (
+                <li key={idx} className="text-sm">{line}</li>
+              ))}
+            </ul>
+          </div>,
+          { autoClose: 7000 }
+        );
+      } else {
+        // Single error message
+        console.log("ℹ️ Showing single error message");
+        toast.error(errorMessage, { autoClose: 5000 });
+      }
     }
   };
 
   if (!isOpen || type !== "createUpdateGameTopic") return null;
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] !rounded-2xl overflow-y-auto bg-gradient-to-br from-white via-white to-blue-50/30 p-0 max-h-[90vh]">
+      <DialogContent className="sm:max-w-[800px] !rounded-2xl overflow-y-auto bg-gradient-to-br from-white via-white to-blue-50/30 p-0 max-h-[90vh]">
         <div className="p-6">
           <DialogHeader className="border-b pb-4 mb-6 space-y-2">
             <DialogTitle>
@@ -107,19 +149,20 @@ export function CreateUpdateGameTopicModal() {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
+          <div className="space-y-2">
                 <Label
-                  htmlFor="topicName"
+                  htmlFor="topic_name"
                   className="text-sm font-medium text-gray-700"
                 >
                   Tên chủ đề (English) <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="topicName"
-                  value={formData.topicName}
+                  id="topic_name"
+                  value={formData.topic_name}
                   onChange={(e) =>
-                    setFormData({ ...formData, topicName: e.target.value })
+                    setFormData({ ...formData, topic_name: e.target.value })
                   }
                   placeholder="Animals, Numbers..."
                   className="border-gray-300 focus:border-blue-500"
@@ -128,16 +171,16 @@ export function CreateUpdateGameTopicModal() {
               </div>
               <div className="space-y-2">
                 <Label
-                  htmlFor="topicNameVi"
+                  htmlFor="topic_name_vi"
                   className="text-sm font-medium text-gray-700"
                 >
                   Tên chủ đề (Tiếng Việt) <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="topicNameVi"
-                  value={formData.topicNameVi}
+                  id="topic_name_vi"
+                  value={formData.topic_name_vi}
                   onChange={(e) =>
-                    setFormData({ ...formData, topicNameVi: e.target.value })
+                    setFormData({ ...formData, topic_name_vi: e.target.value })
                   }
                   placeholder="Động vật, Số học..."
                   className="border-gray-300 focus:border-blue-500"
@@ -162,62 +205,57 @@ export function CreateUpdateGameTopicModal() {
                   className="border-gray-300 focus:border-blue-500 resize-none"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="iconUrl"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Icon
-                  </Label>
-                  <Input
-                    id="iconUrl"
-                    value={formData.iconUrl}
-                    onChange={(e) =>
-                      setFormData({ ...formData, iconUrl: e.target.value })
-                    }
-                    placeholder="🎮"
-                    className="border-gray-300 focus:border-blue-500 text-2xl text-center"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="order"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Thứ tự <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="order"
-                    type="number"
-                    min="0"
-                    value={formData.order}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        order: parseInt(e.target.value)
-                      })
-                    }
-                    className="border-gray-300 focus:border-blue-500"
-                    required
-                  />
-                </div>
+          </div>
+            <div className="space-y-4">
+            <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Icon
+                </Label>
+                <ImageUploader
+                  value={formData.icon_url}
+                  onChange={(url) =>
+                    setFormData({ ...formData, icon_url: url })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="order"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Thứ tự <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="order"
+                  type="number"
+                  min="0"
+                  value={formData.order}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      order: parseInt(e.target.value)
+                    })
+                  }
+                  className="border-gray-300 focus:border-blue-500"
+                  required
+                />
               </div>
               <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <Switch
-                  id="isActive"
-                  checked={formData.isActive}
+                  id="is_active"
+                  checked={formData.is_active}
                   onCheckedChange={(checked) =>
-                    setFormData({ ...formData, isActive: checked })
+                    setFormData({ ...formData, is_active: checked })
                   }
                 />
                 <Label
-                  htmlFor="isActive"
+                  htmlFor="is_active"
                   className="text-sm font-medium text-gray-700 cursor-pointer"
                 >
                   Kích hoạt chủ đề này
                 </Label>
               </div>
+            </div>
             </div>
             <DialogFooter className="gap-2 pt-4">
               <Button

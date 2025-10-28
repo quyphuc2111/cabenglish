@@ -233,7 +233,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
 
   if (!hasAnyLectures) {
     return (
-      <div className="w-full xl:w-1/2 overflow-hidden py-2 min-w-0">
+      <div className={`w-full ${hasAnyLectures ? "xl:w-1/2" : "xl:w-full"} overflow-hidden py-2 min-w-0`}>
         <div className="relative z-10 p-3 sm:p-4 md:p-6">
           <div
             className={`flex flex-col items-center justify-center gap-2 sm:gap-3 md:gap-4 py-6 sm:py-8 md:py-12`}

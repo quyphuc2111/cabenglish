@@ -42,6 +42,8 @@ export default function DashboardPage() {
     throw new Error("User ID is undefined");
   }
 
+  console.log("session.user.userId", session.user.userId);
+
   return <DashboardContent userId={session.user.userId} />;
 }
 

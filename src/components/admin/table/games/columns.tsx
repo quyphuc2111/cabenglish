@@ -9,27 +9,27 @@ import { GripVertical } from "lucide-react";
 import Image from "next/image";
 
 export type GameRow = {
-  gameId: number;
-  gameName: string;
-  gameNameVi: string;
+  game_id: number;
+  game_name: string;
+  game_name_vi: string;
   description?: string;
-  descriptionVi?: string;
-  imageUrl?: string;
-  urlGame: string;
-  numLiked: number;
-  difficultyLevel: "easy" | "medium" | "hard";
-  estimatedDuration: number;
-  isActive: boolean;
+  image_url?: string;
+  url_game: string;
+  num_liked: number;
+  difficulty_level: "easy" | "medium" | "hard";
+  estimated_duration: number;
+  is_active: boolean;
+  order: number;
   topics: Array<{
-    topicId: number;
-    topicName: string;
-    topicNameVi: string;
-    iconUrl?: string;
+    topic_id: number;
+    topic_name: string;
+    topic_name_vi: string;
+    icon_url?: string;
   }>;
   ages: Array<{
-    ageId: number;
-    ageName: string;
-    ageNameEn: string;
+    age_id: number;
+    age_name: string;
+    age_name_en: string;
   }>;
 };
 
@@ -99,45 +99,41 @@ export function useGamesColumns() {
         size: 50
       },
       {
-        accessorKey: "gameId",
+        accessorKey: "game_id",
         header: "ID",
         cell: ({ row }) => (
           <div className="font-medium text-gray-900">
-            {row.getValue("gameId")}
+            {row.getValue("game_id")}
           </div>
         ),
         size: 80
       },
       {
-        accessorKey: "imageUrl",
+        accessorKey: "image_url",
         header: "Hình ảnh",
         cell: ({ row }) => {
-          const imageUrl = row.getValue("imageUrl") as string;
-          const gameNameVi = row.original.gameNameVi;
-          return imageUrl ? (
+          const imageUrl = row.getValue("image_url") as string;
+          const gameNameVi = row.original.game_name_vi;
+          return (
             <Image
-              src={imageUrl}
-              alt={gameNameVi}
-              width={64}
-              height={64}
-              className="rounded-lg object-cover"
-              unoptimized
-            />
-          ) : (
-            <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-              <span className="text-2xl">🎮</span>
-            </div>
-          );
+            src={imageUrl || "/assets/image/no_image.png"}
+            alt={gameNameVi}
+            width={64}
+            height={64}
+            className="rounded-lg object-cover"
+            unoptimized
+          />
+          )
         },
         size: 100
       },
       {
-        id: "gameName",
+        id: "game_name",
         header: "Tên game",
         cell: ({ row }) => (
           <div>
-            <p className="font-medium text-gray-900">{row.original.gameNameVi}</p>
-            <p className="text-sm text-gray-500">{row.original.gameName}</p>
+            <p className="font-medium text-gray-900">{row.original.game_name_vi}</p>
+            <p className="text-sm text-gray-500">{row.original.game_name}</p>
           </div>
         ),
         size: 200
@@ -150,8 +146,8 @@ export function useGamesColumns() {
           return (
             <div className="flex flex-wrap gap-1">
               {topics.slice(0, 2).map(topic => (
-                <Badge key={topic.topicId} variant="secondary" className="text-xs">
-                  {topic.iconUrl} {topic.topicNameVi}
+                <Badge key={topic.topic_id} variant="secondary" className="text-xs">
+                  {topic.icon_url} {topic.topic_name_vi}
                 </Badge>
               ))}
               {topics.length > 2 && (
@@ -172,8 +168,8 @@ export function useGamesColumns() {
           return (
             <div className="flex flex-wrap gap-1">
               {ages.slice(0, 2).map(age => (
-                <Badge key={age.ageId} variant="outline" className="text-xs">
-                  {age.ageName}
+                <Badge key={age.age_id} variant="outline" className="text-xs">
+                  {age.age_name}
                 </Badge>
               ))}
               {ages.length > 2 && (
@@ -187,10 +183,10 @@ export function useGamesColumns() {
         size: 150
       },
       {
-        accessorKey: "difficultyLevel",
+        accessorKey: "difficulty_level",
         header: "Độ khó",
         cell: ({ row }) => {
-          const level = row.getValue("difficultyLevel") as string;
+          const level = row.getValue("difficulty_level") as string;
           return (
             <Badge className={getDifficultyColor(level)}>
               {getDifficultyLabel(level)}
@@ -200,30 +196,30 @@ export function useGamesColumns() {
         size: 100
       },
       {
-        accessorKey: "estimatedDuration",
+        accessorKey: "estimated_duration",
         header: "Thời lượng",
         cell: ({ row }) => (
           <div className="text-gray-700">
-            ⏱️ {row.getValue("estimatedDuration")} phút
+            ⏱️ {row.getValue("estimated_duration")} phút
           </div>
         ),
         size: 120
       },
       {
-        accessorKey: "numLiked",
+        accessorKey: "num_liked",
         header: "Lượt thích",
         cell: ({ row }) => (
           <div className="font-medium text-gray-900">
-            ❤️ {row.getValue("numLiked")}
+            ❤️ {row.getValue("num_liked")}
           </div>
         ),
         size: 100
       },
       {
-        accessorKey: "isActive",
+        accessorKey: "is_active",
         header: "Trạng thái",
         cell: ({ row }) => {
-          const isActive = row.getValue("isActive") as boolean;
+          const isActive = row.getValue("is_active") as boolean;
           return (
             <Badge className={isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}>
               {isActive ? "Hoạt động" : "Vô hiệu"}
@@ -231,6 +227,16 @@ export function useGamesColumns() {
           );
         },
         size: 120
+      },
+      {
+        accessorKey: "order",
+        header: "Thứ tự",
+        cell: ({ row }) => (
+          <div className="text-gray-700">
+            {row.getValue("order")}
+          </div>
+        ),
+        size: 100
       },
       {
         id: "actions",

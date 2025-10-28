@@ -282,11 +282,11 @@ export function useAdminMenuList(pathname: string): Group[] {
               label: "Quản lý games",
               active: pathname === "/admin/games"
             },
-            {
-              href: "/admin/games/import-export",
-              label: "Import/Export",
-              active: pathname === "/admin/games/import-export"
-            }
+            // {
+            //   href: "/admin/games/import-export",
+            //   label: "Import/Export",
+            //   active: pathname === "/admin/games/import-export"
+            // }
           ]
         },
         {
