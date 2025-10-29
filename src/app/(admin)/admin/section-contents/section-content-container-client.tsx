@@ -126,6 +126,13 @@ function SectionContentContainerClient() {
     activateClass("");
   }, []);
 
+  console.log("activeLesson in section content container client", activeLesson);
+  console.log("activateClass in section content container client", activateClass);
+  console.log("activateUnit in section content container client", activateUnit);
+  console.log("activateLesson in section content container client", activateLesson);
+  console.log("activateSection in section content container client", activateSection);
+  console.log("activateFullPath in section content container client", activateFullPath);
+
   const {
     data: sectionContentData,
     isLoading: sectionContentLoading,
@@ -134,9 +141,11 @@ function SectionContentContainerClient() {
   } = useGetSectionContentBySectionId(Number(activeLesson.sectionId));
 
   const processedData = React.useMemo(() => {
-    if (!sectionContentData) return [];
+    // Chỉ hiển thị dữ liệu khi đã chọn section hợp lệ
+    if (!activeLesson.sectionId) return [];
+    if (!sectionContentData || !Array.isArray(sectionContentData)) return [];
 
-    let filtered = sectionContentData;
+    let filtered = [...sectionContentData];
 
     if (debouncedSearchQuery) {
       filtered = filtered.filter((item) =>
@@ -149,7 +158,7 @@ function SectionContentContainerClient() {
       filtered = filtered.filter((item) => item.order === orderValue);
     }
 
-    const sorted = [...filtered].sort((a, b) => {
+    const sorted = filtered.sort((a, b) => {
       if (sortOrder === "asc") {
         return a.order - b.order;
       } else if (sortOrder === "desc") {
@@ -160,7 +169,22 @@ function SectionContentContainerClient() {
     });
 
     return sorted;
-  }, [sectionContentData, debouncedSearchQuery, orderFilter, sortOrder]);
+  }, [activeLesson.sectionId, sectionContentData, debouncedSearchQuery, orderFilter, sortOrder]);
+
+  // Khi thay đổi lớp, unit, bài học hoặc section: reset selection và bộ lọc
+  React.useEffect(() => {
+    setRowSelection({});
+    setSearchQuery("");
+    setOrderFilter("all");
+    setSortOrder("default");
+  }, [activeLesson.classId, activeLesson.unitId, activeLesson.lessonId, activeLesson.sectionId]);
+
+  // Tự refetch khi chọn section mới
+  React.useEffect(() => {
+    if (activeLesson.sectionId) {
+      refetch();
+    }
+  }, [activeLesson.sectionId, refetch]);
 
   React.useEffect(() => {
     if (sectionContentError) {
@@ -171,6 +195,21 @@ function SectionContentContainerClient() {
       );
     }
   }, [sectionContentError]);
+
+  // Reset UI state whenever class/unit/lesson/section changes
+  React.useEffect(() => {
+    setRowSelection({});
+    setSearchQuery("");
+    setOrderFilter("all");
+    setSortOrder("default");
+  }, [activeLesson.classId, activeLesson.unitId, activeLesson.lessonId, activeLesson.sectionId]);
+
+  // Refetch on section change when valid
+  React.useEffect(() => {
+    if (activeLesson.sectionId) {
+      refetch();
+    }
+  }, [activeLesson.sectionId, refetch]);
 
   const handleModalOpen = (modalType: ModalType, options: ModalData = {}) => {
     try {
@@ -203,6 +242,10 @@ function SectionContentContainerClient() {
       activateClass(value);
       activateUnit("");
       activateLesson("");
+      setRowSelection({});
+      setSearchQuery("");
+      setOrderFilter("all");
+      setSortOrder("default");
 
       if (value) {
         showToast.success(
@@ -219,6 +262,8 @@ function SectionContentContainerClient() {
     (value: string) => {
       activateUnit(value);
       activateLesson("");
+      activateSection("");
+      setRowSelection({});
 
       if (value) {
         showToast.success(
@@ -234,6 +279,7 @@ function SectionContentContainerClient() {
   const handleSelectLesson = React.useCallback(
     (value: string) => {
       activateLesson(value);
+      setRowSelection({});
 
       if (value) {
         showToast.success(

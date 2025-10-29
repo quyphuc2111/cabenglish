@@ -511,8 +511,8 @@ function ImportSectionContentModal() {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[1150px] !rounded-xl">
-        <DialogHeader>
+      <DialogContent className="w-[75vw] max-w-[85vw] h-[80vh] max-h-[90vh] !rounded-xl p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="p-4 sm:p-6 pb-4">
           <DialogTitle>
             <motion.div
               className="flex items-center gap-3"
@@ -526,13 +526,14 @@ function ImportSectionContentModal() {
           </DialogTitle>
         </DialogHeader>
 
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
-          className="mt-4"
-        >
-          <div className="grid grid-cols-2 gap-6">
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.3 }}
+          >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Cột trái: Upload và Options */}
             <div className="space-y-6">
               {/* Drop zone */}
@@ -672,23 +673,27 @@ function ImportSectionContentModal() {
             </div>
           </div>
 
-          {/* Buttons */}
-          <div className="flex justify-end gap-3 pt-4 mt-6 border-t">
+          </motion.div>
+        </div>
+
+        {/* Fixed footer */}
+        <div className="border-t bg-white p-4 sm:p-6 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end gap-3">
             <Button
               variant="outline"
               onClick={handleClose}
               disabled={isUploading}
-              className="border-2"
+              className="border-2 w-full sm:w-auto order-2 sm:order-1"
             >
               Hủy
             </Button>
             <Button
               onClick={handleUpload}
               disabled={!file || isUploading || !isOptionAvailable(importOption) || isCreating}
-              className="bg-blue-500 hover:bg-blue-600"
+              className="bg-blue-500 hover:bg-blue-600 w-full sm:w-auto order-1 sm:order-2"
             >
               {isUploading ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-center">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   <span>Đang xử lý...</span>
                 </div>
@@ -697,7 +702,7 @@ function ImportSectionContentModal() {
               )}
             </Button>
           </div>
-        </motion.div>
+        </div>
       </DialogContent>
       <FullDataViewModal
         isOpen={showFullData}

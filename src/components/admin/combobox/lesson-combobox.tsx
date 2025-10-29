@@ -72,6 +72,24 @@ export function LessonCombobox({
     // return [...data.data]
   }, [data?.data]);
 
+  // Normalizer không dấu để dùng lại trong filter và keywords
+  const normalize = React.useCallback((str: string) => removeVietnameseAccents(str || "").toLowerCase(), []);
+
+  // Filter tuỳ chỉnh cho Command (tối ưu tìm kiếm có/không dấu, ưu tiên bắt đầu bằng)
+  const commandFilter = React.useCallback(
+    (value: string, search: string, keywords?: string[]) => {
+      const v = normalize(value);
+      const s = normalize(search);
+      if (!s) return 1;
+      if (v === s) return 1;
+      if (v.startsWith(s)) return 0.9;
+      if (v.includes(s)) return 0.6;
+      if (keywords && keywords.some(k => normalize(k).includes(s))) return 0.5;
+      return 0;
+    },
+    [normalize]
+  );
+
   const handleSelect = React.useCallback(
     (currentValue: string) => {
       const newValue = currentValue === value ? "" : currentValue;
@@ -154,18 +172,19 @@ export function LessonCombobox({
       </div>
       
       <PopoverContent className="w-[300px] p-0">
-        <Command>
+        <Command filter={commandFilter}>
                       <CommandInput 
               placeholder="Tìm kiếm bài học..." 
               className="h-9" 
             />
           <CommandList>
-            <CommandEmpty>Không tìm thấy unit nào.</CommandEmpty>
+            <CommandEmpty>Không tìm thấy bài học nào.</CommandEmpty>
             <CommandGroup>
               {lessons.map((lesson) => (
                 <CommandItem
                   key={lesson.lessonId}
-                  value={`${lesson.lessonName} ${lesson.lessonName.toLowerCase()} ${lesson.lessonName.toUpperCase()} ${removeVietnameseAccents(lesson.lessonName)}`} // Bao gồm cả tiếng Việt không dấu
+                  value={lesson.lessonName}
+                  keywords={[removeVietnameseAccents(lesson.lessonName)]}
                   onSelect={() => handleSelect(lesson.lessonId.toString())}
                 >
                   <Check

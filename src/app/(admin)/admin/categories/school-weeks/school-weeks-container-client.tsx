@@ -9,6 +9,7 @@ import { ModalData, ModalType, useModal } from "@/hooks/useModalStore";
 import { useSchoolWeekColumns } from "@/components/admin/table/school-weeks/columns";
 import { SchoolWeekCombobox } from "@/components/admin/combobox/schoolweek-combobox";
 import { Download, Plus, Upload } from "lucide-react";
+import { toast } from "react-toastify";
 
 // Xử lý lỗi
 const handleError = (
@@ -28,36 +29,42 @@ interface ActionButtonsProps {
   onCreate: () => void;
 }
 
-const ActionButtons = ({
+const ActionButtons = React.memo(({
   rowSelection,
   onDelete,
   onExport,
   onImport,
   onCreate
-}: ActionButtonsProps) => (
-  <>
-    {Object.keys(rowSelection).length > 0 && (
-      <Button variant="destructive" onClick={onDelete}>
-        Xóa ({Object.keys(rowSelection).length})
+}: ActionButtonsProps) => {
+  const selectedCount = Object.keys(rowSelection).length;
+  
+  return (
+    <>
+      {selectedCount > 0 && (
+        <Button variant="destructive" onClick={onDelete}>
+          Xóa ({selectedCount})
+        </Button>
+      )}
+      <Button variant="outline" onClick={onExport}>
+        <Download className="w-4 h-4 mr-2" />
+        Xuất dữ liệu
       </Button>
-    )}
-    <Button variant="outline" onClick={onExport}>
-      <Download className="w-4 h-4 mr-2" />
-      Xuất dữ liệu
-    </Button>
-    <Button variant="outline" onClick={onImport}>
-      <Upload className="w-4 h-4 mr-2" />
-      Nhập dữ liệu
-    </Button>
-    <Button
-      className="bg-blue-500 hover:bg-blue-600 text-white"
-      onClick={onCreate}
-    >
-      <Plus className="w-4 h-4 mr-2" />
-      Tạo mới tuần học
-    </Button>
-  </>
-);
+      <Button variant="outline" onClick={onImport}>
+        <Upload className="w-4 h-4 mr-2" />
+        Nhập dữ liệu
+      </Button>
+      <Button
+        className="bg-blue-500 hover:bg-blue-600 text-white"
+        onClick={onCreate}
+      >
+        <Plus className="w-4 h-4 mr-2" />
+        Tạo mới tuần học
+      </Button>
+    </>
+  );
+});
+
+ActionButtons.displayName = 'ActionButtons';
 
 function SchoolWeekContainerClient() {
   const [selectedWeekId, setSelectedWeekId] = React.useState<string | null>(
@@ -95,7 +102,10 @@ function SchoolWeekContainerClient() {
     handleModalOpen("deleteSchoolWeek", {
       schoolWeekIds: selectedIds,
       schoolWeeks: selectedWeeks,
-      onSuccess: () => setRowSelection({})
+      onSuccess: () => {
+        // ✅ Reset rowSelection ngay lập tức
+        setRowSelection({});
+      }
     });
   };
 
@@ -149,6 +159,7 @@ function SchoolWeekContainerClient() {
         getRowId={(row) => row.swId.toString()}
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
+        enableRowClick={true}
       />
     </div>
   );

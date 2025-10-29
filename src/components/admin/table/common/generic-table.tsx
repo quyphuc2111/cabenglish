@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import { cn } from "@/lib/utils";
 import { DataTable } from "@/components/admin/table/common/data-table";
 import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
 import React from "react";
@@ -18,6 +19,11 @@ interface GenericTableProps<T> {
   isLoading?: boolean;
   searchComponent?: React.ReactNode;
   actionButtons?: React.ReactNode;
+  // Optional class overrides for flexible layout control from callers
+  containerClassName?: string;
+  headerClassName?: string;
+  searchAreaClassName?: string;
+  actionsAreaClassName?: string;
   onSearch?: (value: string) => void;
   filterFunction?: (item: T, searchQuery: string) => boolean;
   meta?: any;
@@ -25,18 +31,46 @@ interface GenericTableProps<T> {
   rowSelection?: Record<string, boolean>;
   onRowSelectionChange?: (updaterOrValue: ((old: Record<string, boolean>) => Record<string, boolean>) | Record<string, boolean>) => void;
   getRowId?: (row: T) => string;
+  enableRowClick?: boolean; // ✅ Thêm prop để enable/disable row click
 }
 
 // Tách SearchAndActions thành component riêng với responsive design
-const SearchAndActions = ({ searchComponent, actionButtons }: { searchComponent: React.ReactNode, actionButtons: React.ReactNode }) => (
-  <div className="flex flex-col justify-end  gap-4 2xl:flex-row 2xl:justify-between 2xl:items-center">
+const SearchAndActions = ({
+  searchComponent,
+  actionButtons,
+  headerClassName,
+  searchAreaClassName,
+  actionsAreaClassName,
+}: {
+  searchComponent: React.ReactNode,
+  actionButtons: React.ReactNode,
+  headerClassName?: string,
+  searchAreaClassName?: string,
+  actionsAreaClassName?: string,
+}) => (
+  <div className={cn(
+    "flex flex-col gap-4 2xl:flex-row 2xl:justify-between 2xl:items-end",
+    headerClassName
+  )}
+  >
     {searchComponent && (
-      <div className="flex-1 sm:flex-none sm:min-w-0 sm:max-w-3xl" onClick={(e) => e.stopPropagation()}>
+      <div
+        className={cn(
+          "flex-1 sm:flex-none sm:min-w-0 2xl:max-w-4xl",
+          searchAreaClassName
+        )}
+        onClick={(e) => e.stopPropagation()}
+      >
         {searchComponent}
       </div>
     )}
     {actionButtons && (
-      <div className="flex flex-wrap gap-2 sm:gap-3 justify-start sm:justify-center">
+      <div
+        className={cn(
+          "flex flex-wrap gap-2 sm:gap-3 justify-start sm:justify-end",
+          actionsAreaClassName
+        )}
+      >
         {actionButtons}
       </div>
     )}
@@ -49,6 +83,10 @@ export function GenericTable<T>({
   isLoading: initialLoading = false,
   searchComponent,
   actionButtons,
+  containerClassName,
+  headerClassName,
+  searchAreaClassName,
+  actionsAreaClassName,
   onSearch,
   filterFunction,
   meta,
@@ -56,6 +94,7 @@ export function GenericTable<T>({
   rowSelection = {},
   onRowSelectionChange,
   getRowId = (row: any) => row.id?.toString(),
+  enableRowClick = true, // ✅ Default enable row click
 }: GenericTableProps<T>) {
   const [tableState, setTableState] = useState<TableState>({
     searchQuery: "",
@@ -130,10 +169,13 @@ export function GenericTable<T>({
   });
 
   return (
-    <div className="space-y-4">
-      <SearchAndActions 
+    <div className={cn("space-y-4", containerClassName)}>
+      <SearchAndActions
         searchComponent={searchComponent}
         actionButtons={actionButtons}
+        headerClassName={headerClassName}
+        searchAreaClassName={searchAreaClassName}
+        actionsAreaClassName={actionsAreaClassName}
       />
       <DataTable
         table={table}
@@ -150,6 +192,7 @@ export function GenericTable<T>({
           page: 1 
         }))}
         totalItems={totalItems}
+        enableRowClick={enableRowClick && enableRowSelection}
       />
     </div>
   );

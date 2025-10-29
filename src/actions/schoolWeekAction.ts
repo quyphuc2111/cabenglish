@@ -80,16 +80,19 @@ export async function createSchoolWeekAdminData({
       data: schoolWeekData
     });
 
-    if (!response || response.error) {
+    // Khi serverFetch trả lỗi có dạng { success: false, message, errors, data }
+    if (!response || (typeof response === 'object' && 'success' in response && response.success === false)) {
+      const message = (response as any)?.message || (response as any)?.error || "Có lỗi xảy ra khi tạo tuần học";
       return {
         data: [],
         success: false,
-        error: response?.error || "Có lỗi xảy ra khi tạo tuần học 120" 
+        error: message
       };
     }
 
+    // Thành công - chuẩn hóa output
     return {
-      data: response.data,
+      data: (response as any)?.data ?? response,
       success: true,
       error: undefined
     };

@@ -462,7 +462,7 @@ function CreateUpdateLessonModal() {
                         return (
                           <FormItem>
                             <FormLabel className="text-base font-medium text-blue-700">
-                              Tên bài học
+                              Tên bài học <span className="text-red-500">*</span>
                             </FormLabel>
                             <FormControl>
                               <div className="space-y-2">
@@ -534,7 +534,7 @@ function CreateUpdateLessonModal() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-medium text-emerald-700">
-                            Tuần học
+                            Tuần học <span className="text-red-500">*</span>
                           </FormLabel>
                           <FormControl>
                             <Select
@@ -604,7 +604,7 @@ function CreateUpdateLessonModal() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-medium text-purple-700">
-                            Thứ tự
+                            Thứ tự <span className="text-red-500">*</span>
                           </FormLabel>
                           <FormControl>
                             <div className="space-y-3">
@@ -708,7 +708,7 @@ function CreateUpdateLessonModal() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-base font-medium text-indigo-700">
-                          Hình ảnh bài học
+                          Hình ảnh bài học <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <div className="">

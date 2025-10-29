@@ -7,7 +7,8 @@ import { LessonAdminType } from "@/types/lesson";
 import {
   deleteLessonAdminData,
   getSingleLessonAdminData,
-  updateLessonAdminDataByClassIdUnitId
+  updateLessonAdminDataByClassIdUnitId,
+  LessonAdminResponse
 } from "@/actions/lessonAction";
 
 interface LessonResponse {
@@ -153,7 +154,7 @@ export const useUpdateLessonByClassIdUnitId = (
 export function useDeleteLesson() {
   const queryClient = useQueryClient();
 
-  return useMutation<LessonResponse, Error, LessonParams>({
+  return useMutation<LessonAdminResponse, Error, LessonParams>({
     mutationFn: async (params: LessonParams) => {
       if (!params.lessonIds?.length) {
         throw new Error("Không tìm thấy thông tin lessonIds");
@@ -189,8 +190,10 @@ export function useDeleteLesson() {
         ],
         ["lessons-by-class-id", String(variables.classId)],
         ["lessons"],
-        // Invalidate validation cache để cập nhật suggestNextOrder
-        ["lessons-validation", variables.classId, variables.unitId]
+        // ✅ Invalidate validation cache để cập nhật suggestNextOrder
+        ["lessons-validation", variables.classId, variables.unitId],
+        // ✅ Invalidate tất cả queries có chứa lessons-validation
+        ["lessons-validation"]
       ];
 
       queryKeys.forEach((queryKey) => {
