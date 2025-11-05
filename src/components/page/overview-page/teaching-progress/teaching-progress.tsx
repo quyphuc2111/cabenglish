@@ -97,7 +97,7 @@ export const TeachingProgress = memo(function TeachingProgress({
       {/* Main Content với improved layout */}
       <div className=" w-full">
         {/* Content container */}
-        <div className="mb-48 bg-white w-full sm:h-[650px] h-[820px] px-4 sm:px-6 lg:px-8 3xl:px-10 py-6 sm:py-8 lg:py-10 flex flex-col xl:flex-row gap-6 lg:gap-8 xl:gap-10 rounded-r-3xl rounded-bl-3xl  ">
+        <div className=" bg-white w-full sm:h-[650px] h-[950px] px-4 sm:px-6 lg:px-8 3xl:px-10 py-6 sm:py-8 lg:py-10 flex flex-col xl:flex-row gap-6 lg:gap-8 xl:gap-10 rounded-r-3xl rounded-bl-3xl  ">
           <ProgressStats
             onOpen={onOpen}
             t={t}

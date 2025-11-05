@@ -184,8 +184,7 @@ export const Sidebar = memo(function Sidebar({
                 className="absolute top-0 right-1 rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium"
               >
                 {
-                  notificationList.filter((item) => item.isRead === false)
-                    .length
+                  notificationList.length > 0 && notificationList?.filter((item) => item?.isRead === false)?.length
                 }
               </Badge>
             </div>

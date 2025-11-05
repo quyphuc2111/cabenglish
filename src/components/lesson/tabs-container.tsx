@@ -787,6 +787,7 @@ export const TabsContainer = ({
               width={64}
               height={64}
               alt="section_icon"
+              unoptimized
             />
           </div>
           <h5 className="text-[10px] landscape:text-xs sm:text-sm md:text-base font-medium text-white truncate">

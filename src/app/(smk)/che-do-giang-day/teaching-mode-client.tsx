@@ -411,8 +411,8 @@ function TeachingModeClient({
           }}
         >
           <Image
-            src="/book.gif"
-            alt="book"
+            src="/menu-icon/setting_mode.png"
+            alt="setting_mode"
             width={32}
             height={32}
             className="sm:w-[40px] sm:h-[40px] w-[32px] h-[32px]"

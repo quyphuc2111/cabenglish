@@ -445,7 +445,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                 key={classId}
                 className="relative mb-3 sm:mb-4 overflow-hidden rounded-xl"
               >
-                <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-0">
+                <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-0">
                   {/* Classroom Title */}
                   <div className="flex items-center gap-2 sm:gap-3 bg-white rounded-t-xl sm:rounded-tr-none px-3 sm:px-4 py-2 max-w-max h-12 sm:h-16">
                     <Image
@@ -462,7 +462,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                   </div>
 
                   {/* Stats Section - Responsive */}
-                  <div className="flex bg-white rounded-t-xl sm:rounded-tl-none py-2 px-2 sm:px-3 gap-2 sm:gap-3 md:gap-4 justify-around sm:justify-end">
+                  <div className="flex bg-white rounded-tr-xl md:rounded-t-xl sm:rounded-tl-none py-2.5 px-2 sm:px-4 gap-2 sm:gap-3 md:gap-4 justify-around sm:justify-end">
                     <div className="flex flex-col items-center lg:border-r border-gray-200 pr-2 sm:pr-3 md:pr-4 min-w-0">
                       <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">
                         {stats.completed}

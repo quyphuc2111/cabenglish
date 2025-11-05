@@ -412,6 +412,7 @@ function LessonClient({
                                 width={64}
                                 height={64}
                                 alt="section_icon"
+                                unoptimized
                               />
                             </div>
 

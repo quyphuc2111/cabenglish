@@ -475,10 +475,11 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
       <div className="bg-white px-3 md:px-7 py-3 md:py-5  relative rounded-tr-xl rounded-b-xl ">
         {/* Filter section */}
         <div className="mb-4 md:mb-6">
-          <div className="bg-gradient-to-br from-gray-50 to-green-50/30 p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
+          <div className="bg-gradient-to-br from-gray-50 to-green-50/30 p-4 sm:p-4 rounded-2xl border border-gray-200 shadow-sm">
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-              {/* Filter Lớp học */}
-              <div className="flex-1 min-w-0">
+           <div className="flex flex-row basis-2/3 gap-2 lg:gap-6">
+               {/* Filter Lớp học */}
+               <div className="basis-1/2 min-w-0">
                 <CustomSelect
                   value={selectedClassId}
                   onChange={handleClassChange}
@@ -496,7 +497,7 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
               </div>
 
               {/* Filter Unit */}
-              <div className="flex-1 min-w-0">
+              <div className="basis-1/2 min-w-0">
                 <CustomSelect
                   value={selectedUnitId}
                   onChange={handleUnitChange}
@@ -514,9 +515,10 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
                   label="Unit"
                 />
               </div>
+           </div>
 
               {/* Filter Tuần học */}
-              <div className="flex-1 min-w-0">
+              <div className="basis-1/3 min-w-0">
                 <CustomSelect
                   value={selectedWeekId}
                   onChange={handleWeekChange}

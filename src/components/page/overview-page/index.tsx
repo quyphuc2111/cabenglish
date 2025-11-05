@@ -107,7 +107,7 @@ const OverviewPage = memo(function OverviewPage({
   }, [session?.user?.userId, session?.user?.mode, isRefetching, courseData]);
 
   return (
-    <div className="w-full flex flex-wrap gap-4">
+    <div className="w-full flex flex-wrap gap-4 overflow-hidden">
        {/* <NewCurrentAndNextLecture
         courseData={courseData}
         classroomData={classroomData}
