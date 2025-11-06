@@ -111,39 +111,39 @@ export default function ListOfGamesPage() {
     const themes = {
       "theme-gold": {
         primary: "#ECC98D",
-        secondary: "#f5e6d3",
+        secondary: "#e8d5b8",
         accent: "#d4a574",
         dark: "#8b7355",
-        light: "#faf3e8",
-        gradient: "from-[#ECC98D] via-[#f5e6d3] to-[#d4a574]",
-        ages: ["#e8b04b", "#ecc98d", "#f5e6d3", "#d4a574"]
+        light: "#f5e8d5",
+        gradient: "from-[#ECC98D] via-[#e0c090] to-[#d4a574]",
+        ages: ["#8b6914", "#b8892a", "#d4a040", "#8b7355"]
       },
       "theme-blue": {
         primary: "#A7C6F5",
-        secondary: "#e6f0ff",
+        secondary: "#d0e0fa",
         accent: "#7ba7e8",
         dark: "#5686d4",
-        light: "#f0f6ff",
-        gradient: "from-[#A7C6F5] via-[#e6f0ff] to-[#7ba7e8]",
-        ages: ["#5686d4", "#7ba7e8", "#a7c6f5", "#e6f0ff"]
+        light: "#e6f0ff",
+        gradient: "from-[#A7C6F5] via-[#90b5ee] to-[#7ba7e8]",
+        ages: ["#2e5a9e", "#4a7bc8", "#5686d4", "#3d6bb8"]
       },
       "theme-pink": {
         primary: "#ea69ae",
-        secondary: "#fce4f3",
+        secondary: "#f5c5e0",
         accent: "#d43f8d",
         dark: "#b8186d",
-        light: "#fff0f8",
-        gradient: "from-[#ea69ae] via-[#fce4f3] to-[#d43f8d]",
-        ages: ["#b8186d", "#d43f8d", "#ea69ae", "#fce4f3"]
+        light: "#fce4f3",
+        gradient: "from-[#ea69ae] via-[#e254a0] to-[#d43f8d]",
+        ages: ["#8a1052", "#b8186d", "#d43f8d", "#c72876"]
       },
       "theme-red": {
         primary: "#E25762",
-        secondary: "#ffe6e8",
+        secondary: "#f5c8cc",
         accent: "#d63843",
         dark: "#b41e28",
-        light: "#fff0f1",
-        gradient: "from-[#E25762] via-[#ffe6e8] to-[#d63843]",
-        ages: ["#b41e28", "#d63843", "#e25762", "#ffe6e8"]
+        light: "#ffeaec",
+        gradient: "from-[#E25762] via-[#dc4853] to-[#d63843]",
+        ages: ["#8b1419", "#b41e28", "#d63843", "#a82834"]
       }
     };
     return themes[currentTheme as keyof typeof themes] || themes["theme-red"];
@@ -383,7 +383,7 @@ export default function ListOfGamesPage() {
                     isCurrentAge ? "scale-110" : "hover:scale-105"
                   )}
                   style={{ 
-                    color,
+                    color: "#ffffff",
                     textShadow: isCurrentAge ? `0 0 10px ${color}` : "none",
                     opacity: isCurrentAge ? 1 : 0.7
                   }}
@@ -548,8 +548,17 @@ export default function ListOfGamesPage() {
                 </div>
               </div>
 
-              <div className="w-full md:w-3/4 lg:w-1/2 block mt-2 pr-4">
-                <div className="flex flex-wrap gap-2">
+              <div className="w-full md:w-3/4 lg:w-2/3 block mt-2">
+                <div 
+                  className="pb-5 overflow-y-auto pl-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/40 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-white/60"
+                  style={{
+                    maxHeight: "211px",
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "rgba(255, 255, 255, 0.4) transparent",
+                    direction: "rtl",
+                  }}
+                >
+                  <div className="flex flex-wrap gap-3 pr-4" style={{ direction: "ltr" }}>
                   {topics.length > 0 ? (
                     topics.map((topic, index) => {
                       const colorScheme = defaultTopicColors[index % defaultTopicColors.length];
@@ -572,7 +581,7 @@ export default function ListOfGamesPage() {
                             }
                             scrollToTop();
                           }}
-                          className="transition-all hover:scale-105 hover:brightness-110 hover:shadow-xl group"
+                          className="transition-all hover:scale-105 hover:brightness-110 hover:shadow-xl group flex-shrink-0"
                           style={{
                             backgroundImage,
                             backgroundRepeat: topic.icon_url ? "no-repeat, no-repeat" : "no-repeat",
@@ -582,18 +591,31 @@ export default function ListOfGamesPage() {
                               ? `0 .35rem 0 0 ${colorScheme.shadow}, 0 0 20px ${colorScheme.bg}40`
                               : `0 .25rem 0 0 ${colorScheme.shadow}80`,
                             borderRadius: "30px",
-                            width: index === 0 || index === 1 ? "200px" : "180px",
+                            minWidth: "140px",
+                            maxWidth: "220px",
                             height: "50px",
-                            fontSize: "14px",
+                            fontSize: "13px",
                             fontWeight: "bold",
                             color: "#fff",
                             textTransform: "uppercase",
                             paddingLeft: topic.icon_url ? "80px" : "20px",
-                            margin: "10px 5px 0 0",
-                            opacity: isSelected ? 1 : 0.8
+                            paddingRight: "20px",
+                            opacity: isSelected ? 1 : 0.8,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: topic.icon_url ? "flex-start" : "center"
                           }}
                         >
-                          <span className="drop-shadow-md group-hover:drop-shadow-lg transition-all">
+                          <span 
+                            className="drop-shadow-md group-hover:drop-shadow-lg transition-all block truncate"
+                            style={{
+                              maxWidth: "100%",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap"
+                            }}
+                            title={topic.topic_name}
+                          >
                             {topic.topic_name}
                           </span>
                         </Button>
@@ -604,19 +626,21 @@ export default function ListOfGamesPage() {
                       {Array.from({ length: 3 }).map((_, index) => (
                         <div
                           key={`skeleton-${index}`}
-                          className="animate-pulse"
+                          className="animate-pulse flex-shrink-0"
                           style={{
-                            width: index === 0 || index === 1 ? "200px" : "180px",
+                            minWidth: "140px",
+                            maxWidth: "220px",
+                            width: "180px",
                             height: "50px",
                             borderRadius: "30px",
                             background: "rgba(255, 255, 255, 0.2)",
-                            margin: "10px 5px 0 0",
                             backdropFilter: "blur(4px)"
                           }}
                         />
                       ))}
                     </>
                   )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -765,3 +789,4 @@ export default function ListOfGamesPage() {
     </ContentLayout>
   );
 }
+
