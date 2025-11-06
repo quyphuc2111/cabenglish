@@ -148,7 +148,8 @@ const CustomSelect = memo(
     disabled = false,
     loading = false,
     icon: Icon,
-    label
+    label,
+    t
   }: {
     value: string;
     onChange: (value: string) => void;
@@ -158,6 +159,7 @@ const CustomSelect = memo(
     loading?: boolean;
     icon?: any;
     label: string;
+    t: (key: string) => string;
   }) => {
     const [isOpen, setIsOpen] = useState(false);
     const selectedOption = options.find((opt) => opt.value === value);
@@ -195,7 +197,7 @@ const CustomSelect = memo(
                 hasValue ? "text-green-900 font-semibold" : "text-gray-500"
               )}
             >
-              {loading ? "Đang tải..." : selectedOption?.label || placeholder}
+              {loading ? `${t("loading")}...` : selectedOption?.label || placeholder}
             </span>
 
             <ChevronDown
@@ -547,15 +549,16 @@ function LessonCompleteClient({
                     value={selectedClassId}
                     onChange={handleClassChange}
                     options={[
-                      { value: "", label: "Tất cả lớp học" },
+                      { value: "", label: t("allClasses") },
                       ...classrooms.map((classroom) => ({
                         value: classroom.class_id.toString(),
                         label: classroom.classname
                       }))
                     ]}
-                    placeholder="Chọn lớp học"
+                    placeholder={t("selectClass")}
                     icon={Users}
-                    label="Lớp học"
+                    label={t("class")}
+                    t={t}
                   />
                 </div>
 
@@ -565,17 +568,18 @@ function LessonCompleteClient({
                     value={selectedUnitId}
                     onChange={handleUnitChange}
                     options={[
-                      { value: "", label: "Tất cả Unit" },
+                      { value: "", label: t("allUnits") },
                       ...units.map((unit) => ({
                         value: unit.unitId.toString(),
                         label: unit.unitName
                       }))
                     ]}
-                    placeholder="Chọn Unit"
+                    placeholder={t("selectUnit")}
                     disabled={!selectedClassId}
                     loading={loadingUnits}
                     icon={BookOpen}
                     label="Unit"
+                    t={t}
                   />
                 </div>
 
@@ -585,17 +589,18 @@ function LessonCompleteClient({
                     value={selectedWeekId}
                     onChange={handleWeekChange}
                     options={[
-                      { value: "", label: "Tất cả tuần học" },
+                      { value: "", label: t("allWeeks") },
                       ...schoolWeeks.map((week) => ({
                         value: week.swId.toString(),
-                        label: `Tuần ${week.value}`
+                        label: `${t("week")} ${week.value}`
                       }))
                     ]}
-                    placeholder="Chọn tuần học"
+                    placeholder={t("selectWeek")}
                     disabled={!selectedUnitId}
                     loading={loadingWeeks}
                     icon={Calendar}
-                    label="Tuần học"
+                    label={t("week")}
+                    t={t}
                   />
                 </div>
               </div>
@@ -604,7 +609,7 @@ function LessonCompleteClient({
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   <span className="text-gray-600 font-medium">
-                    Bộ lọc đang áp dụng:
+                  {t("filterApplied")}:
                   </span>
                   {selectedClassId && (
                     <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full font-medium">
@@ -626,7 +631,7 @@ function LessonCompleteClient({
                   )}
                   {selectedWeekId && (
                     <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full font-medium">
-                      Tuần{" "}
+                      {t("week")}{" "}
                       {
                         schoolWeeks.find(
                           (w) => w.swId.toString() === selectedWeekId
@@ -636,7 +641,7 @@ function LessonCompleteClient({
                   )}
                   {!selectedClassId && !selectedUnitId && !selectedWeekId && (
                     <span className="text-gray-500 italic">
-                      Hiển thị tất cả
+                      {t("showingAll")}
                     </span>
                   )}
                 </div>

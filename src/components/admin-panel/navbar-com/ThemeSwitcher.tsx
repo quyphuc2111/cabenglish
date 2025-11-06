@@ -45,7 +45,7 @@ export function ThemeSwitcher({
 
   return (
     <motion.div
-      className="border border-gray-200 rounded-lg flex items-center justify-between
+      className="border border-gray-200 rounded-lg flex items-center justify-center
         bg-white w-full h-12 sm:h-12 md:h-14 xl:h-12
         px-3 sm:px-4 md:px-2 2xl:px-5
         shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
@@ -63,10 +63,10 @@ export function ThemeSwitcher({
       <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap">
         <Image
           src="/assets/image/navbar/color.webp"
-          width={32}
-          height={32}
+          width={40}
+          height={40}
           alt="color_icon"
-          className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8
+          className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10
             object-contain flex-shrink-0 hover:opacity-90 transition-opacity
             transform-gpu will-change-transform"
           priority

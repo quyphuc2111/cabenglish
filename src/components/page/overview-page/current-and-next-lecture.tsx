@@ -462,7 +462,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                   </div>
 
                   {/* Stats Section - Responsive */}
-                  <div className="flex bg-white rounded-tr-xl md:rounded-t-xl sm:rounded-tl-none py-2.5 px-2 sm:px-4 gap-2 sm:gap-3 md:gap-4 justify-around sm:justify-end">
+                  <div className="flex bg-white rounded-tr-xl md:rounded-t-xl sm:rounded-tl-none py-2.5 lg:py-2 px-2 sm:px-4 gap-2 sm:gap-3 md:gap-4 justify-around sm:justify-end">
                     <div className="flex flex-col items-center lg:border-r border-gray-200 pr-2 sm:pr-3 md:pr-4 min-w-0">
                       <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">
                         {stats.completed}
@@ -551,7 +551,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                               style={{ animationDelay: '0s' }}
                             >🎉</span>
                             <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-emerald-600">
-                              Xuất sắc!
+                              {t("excellent")}
                             </h1>
                             <span 
                               className="text-2xl sm:text-3xl animate-wiggle" 
@@ -561,9 +561,9 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
 
                           {/* Success message */}
                           <p className="text-gray-600 text-sm sm:text-base mb-1.5">
-                            Bạn đã hoàn thành{" "}
-                            <span className="font-semibold text-gray-800">tất cả khóa học</span>{" "}
-                            của
+                            {t("youHaveCompleted")}{" "}
+                            <span className="font-semibold text-gray-800">{t("allCourses")}</span>{" "}
+                            {t("of")}
                           </p>
                           <p className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
                             {getClassroomName(classId)}
@@ -604,10 +604,10 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                               </div>
                               <div className="text-left">
                                 <p className="text-[10px] sm:text-xs text-gray-600 mb-0.5">
-                                  Thành tựu đạt được
+                                  {t("achievementUnlocked")}
                                 </p>
                                 <p className="text-sm sm:text-base font-bold text-emerald-700">
-                                  Hoàn thành khóa học
+                                  {t("courseCompletion")}
                                 </p>
                               </div>
                             </div>
@@ -633,7 +633,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
                                 d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
                               />
                             </svg>
-                            <span>Xem chi tiết lớp học</span>
+                            <span>{t("viewClassDetails")}</span>
                             <span className="transform group-hover:translate-x-1 transition-transform duration-300">
                               →
                             </span>
@@ -642,7 +642,7 @@ const CurrentAndNextLecture = memo(function CurrentAndNextLecture({
 
                         {/* Confetti effect text */}
                         <p className="text-center mt-3 sm:mt-4 text-gray-500 text-[10px] sm:text-xs">
-                          Chúc mừng bạn đã hoàn thành hành trình học tập!
+                          {t("congratulationsMessage")}
                         </p>
                       </div>
                     </div>

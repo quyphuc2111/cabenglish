@@ -5,179 +5,65 @@ import { TeachingModeSwitcher } from "./TeachingModeSwitcher";
 import { LogoutButton } from "./LogoutButton";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import {
-  SettingsIcon,
-  Home,
-  Settings,
-  LogOut,
-  Globe,
-  Palette
-} from "lucide-react";
-import { useUserInfo } from "@/hooks/useUserInfo";
+import { Home } from "lucide-react";
 
 interface NavbarControlsProps {
   t: (key: string, options?: any) => string | object;
   onChangeTheme: () => void;
   onLogout: () => void;
   userId?: string;
+  showText?: boolean;
 }
 
 export function NavbarControls({
   t,
   onChangeTheme,
   onLogout,
-  userId
+  userId,
+  showText
 }: NavbarControlsProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const themeClasses = {
-    "theme-gold": "bg-theme-gold-primary",
-    "theme-blue": "bg-theme-blue-primary",
-    "theme-pink": "bg-theme-pink-primary",
-    "theme-red": "bg-theme-red-primary"
-  } as const;
-
-  const { data: userInfo } = useUserInfo(userId);
-  
-  // ✅ Ưu tiên theme từ data-theme attribute (đã set từ server)
-  const dataTheme = typeof document !== 'undefined' 
-    ? document.body.getAttribute('data-theme') 
-    : null;
-  const currentTheme = (dataTheme || userInfo?.theme ||
-    "theme-red") as keyof typeof themeClasses;
   const router = useRouter();
-
-  const menuItems = [
-    {
-      icon: Home,
-      label: t("homepage") as string,
-      onClick: () => router.push("/"),
-      color: "bg-blue-500 hover:bg-blue-600"
-    },
-    {
-      icon: Globe,
-      label: t("language") as string,
-      component: (
-        <LanguageSwitcher t={t as (key: string) => string} userId={userId} />
-      )
-    },
-    {
-      icon: Palette,
-      label: t("changeTheme") as string,
-      component: (
-        <ThemeSwitcher
-          onChangeTheme={onChangeTheme}
-          t={t as (key: string) => string}
-          userId={userId}
-        />
-      )
-    },
-    {
-      icon: Settings,
-      label: t("teachingMode") as string,
-      component: (
-        <TeachingModeSwitcher
-          t={t as (key: string) => string}
-          userId={userId}
-          onClick={() => router.push("/che-do-giang-day")}
-        />
-      )
-    },
-    {
-      icon: LogOut,
-      label: t("logout") as string,
-      component: (
-        <LogoutButton onLogout={onLogout} t={t as (key: string) => string} />
-      )
-    }
-  ];
 
   return (
     <>
       <div className="hidden xl:block relative">
-        <div className="grid grid-cols-3 gap-4 w-full md:w-auto items-center">
+        <div className="grid grid-cols-6 gap-4 w-full md:w-auto items-center">
           <Button
-            className="bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 flex items-center gap-2 h-10 sm:h-12 md:h-14 xl:h-12"
+            className="col-span-2 bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 flex items-center gap-2 h-10 sm:h-12 md:h-14 xl:h-12"
             onClick={() => router.push("/")}
           >
             <Home size={16} />
             {t("homepage") as string}
           </Button>
-          <LanguageSwitcher t={t as (key: string) => string} userId={userId} />
-          <ThemeSwitcher
-            onChangeTheme={onChangeTheme}
-            t={t as (key: string) => string}
-            userId={userId}
-          />
-          <div></div>
-          <TeachingModeSwitcher
-            t={t as (key: string) => string}
-            userId={userId}
-            onClick={() => {
-              router.push("/che-do-giang-day");
-            }}
-          />
-          <LogoutButton onLogout={onLogout} t={t as (key: string) => string} />
-        </div>
-      </div>
-
-      <div
-        className="fixed bottom-0 right-0 z-50 xl:hidden"
-        style={{ pointerEvents: "none" }}
-      >
-        {isOpen && (
-          <div
-            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
-            onClick={() => setIsOpen(false)}
-            style={{ pointerEvents: "auto" }}
-          />
-        )}
-
-        <div
-          className="fixed bottom-3 right-3 z-50"
-          style={{ pointerEvents: "auto" }}
-        >
-          {isOpen && (
-            <div className="absolute bottom-16 right-0 flex flex-col-reverse gap-2 sm:gap-3 min-w-max max-w-[calc(100vw-2rem)]">
-              {menuItems.map((item, index) => (
-                <div key={index} className="flex items-center gap-2 sm:gap-3">
-                  <div className="h-9 bg-white text-gray-800 px-2 py-2 rounded-lg text-xs sm:text-sm font-medium shadow-lg border border-gray-200 max-w-[120px] sm:max-w-none">
-                    <span className="whitespace-nowrap overflow-hidden text-ellipsis block">
-                      {item.label}
-                    </span>
-                  </div>
-
-                  {item.component ? (
-                    <div className="w-fit min-w-[200px] sm:min-w-[240px] h-12 rounded-lg flex items-center justify-center overflow-hidden">
-                      <div className="scale-75 sm:scale-90 w-full">
-                        {item.component}
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      className={`w-12 h-12 rounded-lg ${
-                        item.color || "bg-gray-600"
-                      } text-white shadow-lg flex items-center justify-center hover:shadow-xl`}
-                      onClick={() => {
-                        item.onClick?.();
-                        setIsOpen(false);
-                      }}
-                    >
-                      <item.icon size={18} />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          <button
-            className={`w-12 h-12 rounded-full ${themeClasses[currentTheme]} text-white shadow-lg flex items-center justify-center`}
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            <SettingsIcon size={20} />
-          </button>
+          <div className="col-span-2">
+            <LanguageSwitcher
+              t={t as (key: string) => string}
+              userId={userId}
+              showText={showText}
+            />
+          </div>
+          <div className="col-span-2">
+            <ThemeSwitcher
+              onChangeTheme={onChangeTheme}
+              t={t as (key: string) => string}
+              userId={userId}
+            />
+          </div>
+          <div className="col-span-3">
+            <TeachingModeSwitcher
+              t={t as (key: string) => string}
+              userId={userId}
+              onClick={() => {
+                router.push("/che-do-giang-day");
+              }}
+            />
+          </div>
+          <div className="col-span-3">
+            <LogoutButton
+              onLogout={onLogout}
+              t={t as (key: string) => string}
+            />
+          </div>
         </div>
       </div>
     </>

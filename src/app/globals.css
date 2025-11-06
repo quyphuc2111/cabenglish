@@ -1204,6 +1204,23 @@ body.performance-mode [data-state="open"] * {
   transition-duration: 0.3s !important;
 }
 
+/* Allow fixed navbar controls to render smoothly - Override performance-mode */
+.navbar-controls-mobile-wrapper,
+.navbar-controls-mobile-wrapper *,
+body.performance-mode .navbar-controls-mobile-wrapper,
+body.performance-mode .navbar-controls-mobile-wrapper * {
+  animation-duration: initial !important;
+  animation-iteration-count: initial !important;
+  transition-duration: initial !important;
+  transition-delay: initial !important;
+}
+
+/* Prevent navbar controls from being affected by performance mode */
+body.performance-mode .navbar-controls-mobile-wrapper {
+  animation: none !important;
+  transition: none !important;
+}
+
 /* Allow completion celebration animations to work fully */
 body.performance-mode .completion-celebration,
 body.performance-mode .completion-celebration * {

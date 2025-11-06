@@ -12,7 +12,7 @@ export function LogoutButton({ onLogout, t }: LogoutButtonProps) {
     <motion.div
       className="border border-gray-200 rounded-lg flex items-center justify-end
         bg-[#E25762]/90 w-full h-12 sm:h-12 md:h-14 xl:h-12
-        px-3 sm:px-4 md:px-2 2xl:pr-5 
+        px-3 sm:px-4 md:px-2 2xl:pr-5 2xl:pl-5
         shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
         hover:bg-[#E25762] transform-gpu will-change-transform backface-visibility-hidden order-6"
       whileHover={{ scale: 1.02 }}
@@ -25,13 +25,13 @@ export function LogoutButton({ onLogout, t }: LogoutButtonProps) {
       }}
       onClick={onLogout}
     >
-      <div className="flex items-center gap-2 sm:gap-1 md:gap-2 flex-nowrap w-full">
+      <div className="flex items-center justify-center  gap-2 sm:gap-1 md:gap-2 flex-nowrap w-full">
         <Image
           src="/assets/image/navbar/logout_icon.webp"
-          width={28}
-          height={28}
+          width={36}
+          height={36}
           alt="logout_icon"
-          className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7
+          className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9
             object-contain flex-shrink-0 
             group-hover:rotate-12 transition-all duration-300
             transform-gpu will-change-transform"

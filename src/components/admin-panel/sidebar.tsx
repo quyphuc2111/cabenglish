@@ -13,6 +13,9 @@ import { useSocket } from "@/hooks/useSocket";
 import { showToast } from "@/utils/toast-config";
 import { useEffect, memo } from "react";
 import { useSession } from "next-auth/react";
+import { useTranslation } from "@/hooks/useTranslation";
+
+
 export const Sidebar = memo(function Sidebar({
   notificationList
 }: {
@@ -21,6 +24,7 @@ export const Sidebar = memo(function Sidebar({
   const sidebar = useStore(useSidebarToggle, (state) => state);
   const { socket, notifications: socketNotifications } = useSocket();
   const { onOpen } = useModal();
+  const { t } = useTranslation("", "common"); 
 
   const { data: session } = useSession();
 
@@ -101,7 +105,7 @@ export const Sidebar = memo(function Sidebar({
                 variant="secondary" 
                 className="transition-[opacity,transform] duration-200 ease-in-out animate-in fade-in slide-in-from-right-2"
               >
-                Giáo viên
+                {t('teacher')}
               </Badge>
             )}
           </div>

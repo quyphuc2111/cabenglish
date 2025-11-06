@@ -24,7 +24,8 @@ const CustomSelect = memo(
     disabled = false,
     loading = false,
     icon: Icon,
-    label
+    label,
+    t
   }: {
     value: string;
     onChange: (value: string) => void;
@@ -34,6 +35,7 @@ const CustomSelect = memo(
     loading?: boolean;
     icon?: any;
     label: string;
+    t: (key: string) => string;
   }) => {
     const [isOpen, setIsOpen] = useState(false);
     const selectedOption = options.find((opt) => opt.value === value);
@@ -71,7 +73,7 @@ const CustomSelect = memo(
                 hasValue ? "text-green-900 font-semibold" : "text-gray-500"
               )}
             >
-              {loading ? "Đang tải..." : selectedOption?.label || placeholder}
+              {loading ? `${t("loading")}...` : selectedOption?.label || placeholder}
             </span>
 
             <ChevronDown
@@ -484,15 +486,16 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
                   value={selectedClassId}
                   onChange={handleClassChange}
                   options={[
-                    { value: "", label: "Tất cả lớp học" },
+                    { value: "", label: String(t("allClasses")) },
                     ...classrooms.map((classroom) => ({
                       value: classroom.class_id.toString(),
                       label: classroom.classname
                     }))
                   ]}
-                  placeholder="Chọn lớp học"
+                  placeholder={String(t("selectClass"))}
                   icon={Users}
-                  label="Lớp học"
+                  label={String(t("class"))}
+                  t={t as (key: string) => string}
                 />
               </div>
 
@@ -502,17 +505,18 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
                   value={selectedUnitId}
                   onChange={handleUnitChange}
                   options={[
-                    { value: "", label: "Tất cả Unit" },
+                    { value: "", label: String(t("allUnits")) },
                     ...units.map((unit) => ({
                       value: unit.unitId.toString(),
                       label: unit.unitName
                     }))
                   ]}
-                  placeholder="Chọn Unit"
+                  placeholder={String(t("selectUnit"))}
                   disabled={!selectedClassId}
                   loading={loadingUnits}
                   icon={BookOpen}
                   label="Unit"
+                  t={t as (key: string) => string}
                 />
               </div>
            </div>
@@ -523,17 +527,18 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
                   value={selectedWeekId}
                   onChange={handleWeekChange}
                   options={[
-                    { value: "", label: "Tất cả tuần học" },
+                    { value: "", label: String(t("allWeeks")) },
                     ...schoolWeeks.map((week) => ({
                       value: week.swId.toString(),
-                      label: `Tuần ${week.value}`
+                      label: `${String(t("week"))} ${week.value}`
                     }))
                   ]}
-                  placeholder="Chọn tuần học"
+                  placeholder={String(t("selectWeek"))}
                   disabled={!selectedUnitId}
                   loading={loadingWeeks}
                   icon={Calendar}
-                  label="Tuần học"
+                  label={String(t("week"))}
+                  t={t as (key: string) => string}
                 />
               </div>
             </div>
@@ -542,7 +547,7 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
             <div className="mt-4 pt-4 border-t border-gray-200">
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <span className="text-gray-600 font-medium">
-                  Bộ lọc đang áp dụng:
+                  {String(t("filterApplied"))}:
                 </span>
                 {selectedClassId && (
                   <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full font-medium">
@@ -563,7 +568,7 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
                 )}
                 {selectedWeekId && (
                   <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full font-medium">
-                    Tuần{" "}
+                    {String(t("week"))}{" "}
                     {
                       schoolWeeks.find(
                         (w) => w.swId.toString() === selectedWeekId
@@ -572,7 +577,7 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
                   </span>
                 )}
                 {!selectedClassId && !selectedUnitId && !selectedWeekId && (
-                  <span className="text-gray-500 italic">Hiển thị tất cả</span>
+                  <span className="text-gray-500 italic">{String(t("showingAll"))}</span>
                 )}
               </div>
             </div>
@@ -596,7 +601,7 @@ const LectureFavouriteList = memo(function LectureFavouriteList({
           ) : (
             <div className="flex justify-center items-center min-h-[200px] sm:min-h-[250px] md:min-h-[280px] h-full flex-col gap-4 sm:gap-8 md:gap-12">
               <p className="text-center text-base sm:text-lg md:text-2xl text-[#736E6E] font-medium px-2">
-                Hiện tại chưa có bài học nào được yêu thích !
+                {String(t("noFavouriteLessons"))}
               </p>
               <OptimizeImage
                 src="/assets/image/lesson/no_favourite_lesson.webp"

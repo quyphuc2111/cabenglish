@@ -14,9 +14,10 @@ import { useBroadcastSync } from "@/hooks/useBroadcastSync";
 interface LanguageSwitcherProps {
   t: (key: string) => string;
   userId?: string;
+  showText?: boolean;
 }
 
-export function LanguageSwitcher({ t, userId }: LanguageSwitcherProps) {
+export function LanguageSwitcher({ t, userId, showText }: LanguageSwitcherProps) {
   const [isChecked, setIsChecked] = useState(false);
   const { data: userInfo, isLoading, error } = useUserInfo(userId);
   const { mutate: updateUserInfo, isPending } = useUpdateUserInfo();
@@ -177,38 +178,54 @@ export function LanguageSwitcher({ t, userId }: LanguageSwitcherProps) {
       onClick={handleContainerClick}
     >
       <div
-        className="flex items-center justify-between gap-3 w-full
-        bg-white px-3 sm:px-4 md:px-2 2xl:pr-5 
-        h-12 sm:h-12 md:h-14 xl:h-12
-        shadow-sm hover:shadow-md transition-all duration-200 
-        border border-gray-200 rounded-lg
+        className="flex items-center justify-center gap-3 sm:gap-4 w-full
+        bg-gradient-to-r from-blue-50 to-indigo-50 px-4 sm:px-5 md:px-2 2xl:pr-5 2xl:pl-5
+        h-[46px] sm:h-12 md:h-14 xl:h-12
+        shadow-md hover:shadow-lg transition-all duration-200 
+        border-2 border-blue-200 hover:border-blue-300 rounded-xl
         transform-gpu will-change-transform backface-visibility-hidden"
       >
         {isLoading ? (
           <div className="flex items-center gap-3">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-gray-200 rounded-sm animate-pulse"></div>
-            <div className="w-10 h-5 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+            <div className="w-12 h-6 bg-gray-200 rounded-full animate-pulse"></div>
           </div>
         ) : (
           <>
-            <Image
-              src={
-                isChecked
-                  ? "/assets/image/navbar/american_flag.webp"
-                  : "/assets/image/navbar/vietnam_flag.webp"
-              }
-              width={40}
-              height={40}
-              alt={isChecked ? "american_flag" : "vietnam_flag"}
-              className="rounded-sm w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 
-                object-cover flex-shrink-0 transform-gpu will-change-transform"
-              priority
-              quality={100}
-              unoptimized={false}
-            />
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 justify-center">
+              <Image
+                src={
+                  isChecked
+                    ? "/assets/image/navbar/american_flag.webp"
+                    : "/assets/image/navbar/vietnam_flag.webp"
+                }
+                width={48}
+                height={48}
+                alt={isChecked ? "american_flag" : "vietnam_flag"}
+                className="rounded-lg w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 
+                  object-cover flex-shrink-0 transform-gpu will-change-transform
+                  shadow-sm border-2 border-white"
+                priority
+                quality={100}
+                unoptimized={false}
+              />
+            {
+              showText && (
+                <div className="flex flex-col items-start  ">
+                <span className="text-xs text-gray-600 font-medium leading-none mb-0.5">
+                  {isChecked ? "Language" : "Ngôn ngữ"}
+                </span>
+                <span className="text-sm sm:text-base font-bold text-blue-700 leading-none">
+                  {isChecked ? "English" : "Tiếng Việt"}
+                </span>
+              </div>
+              )
+            }
+            </div>
             <Switch
               id="change_language"
-              className="data-[state=checked]:bg-blue-600 scale-75 sm:scale-90 md:scale-100 switch-component"
+              className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-gray-300 
+                scale-90 sm:scale-100 switch-component flex-shrink-0"
               checked={isChecked}
               onCheckedChange={handleLanguageChange}
               disabled={isLoading || isPending}

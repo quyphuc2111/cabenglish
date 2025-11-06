@@ -364,10 +364,11 @@ function LessonClient({
           )}
         </div>
 
-        <div className={`flex relative h-full pt-5 landscape:pt-2 sm:pt-4 md:pt-6`}>
-          <div className={mainContentStyles.sectionList}>
+        <div className={`flex relative pt-5 landscape:pt-2 sm:pt-4 md:pt-6`} style={{ height: 'calc(100% - 20px)' }}>
+          <div className={mainContentStyles.sectionList} style={{ height: '100%' }}>
             <ScrollArea
-              className="w-full px-3 sm:px-6 h-full"
+              className="w-full px-3 sm:px-6"
+              style={{ height: '100%' }}
               onScrollCapture={(e) => {
                 const target = e.target as HTMLElement;
                 const { scrollTop, scrollHeight, clientHeight } = target;

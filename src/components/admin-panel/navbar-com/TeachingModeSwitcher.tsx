@@ -25,7 +25,7 @@ export function TeachingModeSwitcher({
 
   return (
     <motion.div
-      className="border border-gray-200 rounded-lg flex items-center justify-center md:justify-between
+      className="border border-gray-200 rounded-lg flex items-center justify-center 
         bg-white w-full h-12 sm:h-12 md:h-14 xl:h-12
         px-3 sm:px-4 md:px-2 2xl:px-5
         shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
@@ -49,10 +49,10 @@ export function TeachingModeSwitcher({
         <div className="flex items-center gap-2 sm:gap-3 flex-nowrap">
           <Image
             src="/bkt_logo.png"
-            width={40}
-            height={32}
+            width={48}
+            height={40}
             alt="bkt_logo"
-            className="object-contain w-6 h-5 sm:w-8 sm:h-6 md:w-10 md:h-8
+            className="object-contain w-8 h-7 sm:w-10 sm:h-8 md:w-12 md:h-10
               flex-shrink-0 hover:opacity-90 transition-opacity
               transform-gpu will-change-transform"
             quality={100}
@@ -71,10 +71,10 @@ export function TeachingModeSwitcher({
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap">
           <Image
             src="/assets/image/modal/freemode.webp"
-            width={36}
-            height={32}
+            width={44}
+            height={40}
             alt="freemode"
-            className="object-contain w-6 h-5 sm:w-7 sm:h-6 md:w-9 md:h-8
+            className="object-contain w-8 h-7 sm:w-9 sm:h-8 md:w-11 md:h-10
               flex-shrink-0 hover:opacity-90 transition-opacity
               transform-gpu will-change-transform"
             quality={100}

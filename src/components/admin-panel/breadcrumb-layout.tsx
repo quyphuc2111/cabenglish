@@ -1,6 +1,13 @@
+"use client";
+
 import { ScrollArea } from "../ui/scroll-area";
 import { BreadcrumbNavbar } from "./breadcrumb-navbar";
+import { NavbarMobile } from "./navbar-com/NavbarMobile";
 import { cn } from "@/lib/utils";
+import { useModal } from "@/hooks/useModalStore";
+import { useLogout } from "@/hooks/useLogout";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useSession } from "next-auth/react";
 
 interface BreadcrumbLayoutProps {
   title: string;
@@ -9,6 +16,21 @@ interface BreadcrumbLayoutProps {
 }
 
 export function BreadcrumbLayout({ title, type, children }: BreadcrumbLayoutProps) {
+  const { t } = useTranslation("", "common");
+  const { data: session } = useSession();
+  const { onOpen } = useModal();
+  const { logout } = useLogout();
+
+  const handleChangeTheme = () => {
+    onOpen("changeTheme");
+  };
+
+  const handleLogout = async () => {
+    await logout({
+      showToastMessages: true
+    });
+  };
+
   return (
     <>
       <div className="px-3 sm:px-4 md:px-6 2xl:px-8 mt-safe-top sm:mt-5">
@@ -28,6 +50,15 @@ export function BreadcrumbLayout({ title, type, children }: BreadcrumbLayoutProp
           {children}
         </div>
       </ScrollArea>
+
+      {/* Mobile navbar controls */}
+      <NavbarMobile
+        t={t as (key: string) => string}
+        onChangeTheme={handleChangeTheme}
+        onLogout={handleLogout}
+        userId={session?.user?.userId}
+        showText={true}
+      />
     </>
   );
 }

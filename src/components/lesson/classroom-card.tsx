@@ -68,6 +68,7 @@ const formatLikeCount = (count: number): string => {
 
 const ProgressIndicator = ({ progress, delay }: { progress: number, delay: number }) => {
   const flowerCount = Math.ceil(progress / 25);
+  console.log("progress", progress)
   
   return (
     <motion.div
@@ -81,7 +82,7 @@ const ProgressIndicator = ({ progress, delay }: { progress: number, delay: numbe
     >
       <div
         className={cn(
-          "flex items-center gap-1 sm:gap-2",
+          "flex items-center justify-around gap-1 sm:gap-2",
           progress === 0 && "justify-center"
         )}
       >
@@ -244,15 +245,15 @@ function ClassroomCard({
               "border-2 sm:border-4",
               progress == 0 ? "border-[#333333]/20" : "",
               progress > 0 && progress < 100 ? "border-[#e25762]/50" : "",
-              progress == 100 ? "border-[#3EC474]" : "",
+              progress == 1 ? "border-[#3EC474]" : "",
               "rounded-tr-lg p-1 flex justify-around items-center w-1/2"
             )}
           >
-            <ProgressIndicator progress={progress} delay={delay} />
-            {progress > 0 && progress < 100 && (
+            <ProgressIndicator progress={Number(formatProgress(progress))} delay={delay} />
+            {progress > 0 && progress < 1 && (
               <p className="text-center px-1 sm:px-2 text-xs sm:text-sm">{formatProgress(progress)}%</p>
             )}
-            {progress === 100 && (
+            {progress === 1 && (
               <motion.div
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -264,7 +265,7 @@ function ClassroomCard({
                   alt="check"
                   width={16}
                   height={20}
-                  className="w-[16px] h-[20px] sm:w-[21px] sm:h-[25px]"
+                  className="w-[16px] h-[16px] sm:w-[25px] sm:h-[25px]"
                 />
               </motion.div>
             )}

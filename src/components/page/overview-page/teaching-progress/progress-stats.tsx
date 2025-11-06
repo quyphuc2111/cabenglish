@@ -305,7 +305,10 @@ export const ProgressStats = memo(function ProgressStats({
                   {/* Progress text */}
                   <div className="absolute inset-0 flex items-center justify-center z-30">
                     <span
-                      className={`font-bold text-sm sm:text-base transition-all duration-300 bg-gradient-to-r ${currentColors.iconBg} bg-clip-text text-transparent font-extrabold`}
+                      className={`font-bold text-sm sm:text-base transition-all duration-300 text-${currentColors.iconBg}  font-extrabold`}
+                     style={{
+                      color: currentColors.iconBg
+                     }}
                     >
                       {progress}%
                     </span>
