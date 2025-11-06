@@ -16,6 +16,7 @@ import { showToast } from "@/utils/toast-config";
 import { useCreateSection } from "@/hooks/use-sections";
 import { SectionFormValues } from "@/lib/validations/section";
 import { useCreateLessonByClassIdUnitId, useLessonsByClassIdUnitId } from "@/hooks/use-lessons";
+import { useSchoolWeek } from "@/hooks/use-schoolweek";
 import { useLessonStore } from "@/store/use-lesson-store";
 import { LessonsFormValues } from "@/lib/validations/lessons";
 import { ExcelPreviewTable } from "@/components/common/excel-preview-table";
@@ -88,6 +89,7 @@ function ImportLessonModal() {
     activeLesson.classId,
     activeLesson.unitId
   );
+  const { data: schoolWeekData } = useSchoolWeek();
   const { mutate: createSection, isPending: isCreating } = useCreateSection();
   const { mutate: createLesson, isPending: isCreatingLesson } = useCreateLessonByClassIdUnitId();
 
@@ -246,10 +248,10 @@ function ImportLessonModal() {
 
       const lessonListData = formattedData.map((item) => ({
         lessonId: 0,
-        lessonName: item["Tên bài học"],
-        imageUrl: item["Hình ảnh"],
-        schoolweek: item["Tuần học"],
-        order: item["Thứ tự"],
+        lessonName: String(item["Tên bài học"] ?? "").trim(),
+        imageUrl: String(item["Hình ảnh"] ?? "").trim(),
+        schoolweek: Number(item["Tuần học"] ?? 0),
+        order: Number(item["Thứ tự"] ?? 0),
         numLiked: 0,
         isActive: true
       }));
@@ -395,10 +397,10 @@ function ImportLessonModal() {
   };
 
   const handleDownloadTemplate = () => {
-    const templateUrl = "/template_file/classroom-template.xlsx";
+    const templateUrl = "/template_file/lesson-template.xlsx";
     const a = document.createElement("a");
     a.href = templateUrl;
-    a.download = "classroom-template.xlsx";
+    a.download = "lesson-template.xlsx";
     a.click();
   };
 
@@ -489,6 +491,11 @@ function ImportLessonModal() {
         lesson.lessonName.toLowerCase().trim()
       ) || [];
 
+      // ✅ Lấy danh sách tuần học hợp lệ từ database
+      const validSchoolWeekValues = schoolWeekData?.data?.map((sw: any) => 
+        Number(sw.value)
+      ) || [];
+
       // Check toàn bộ validRows
       for (let i = 0; i < validRows.length; i++) {
         const lessonName = validRows[i][lessonNameIndex];
@@ -543,6 +550,16 @@ function ImportLessonModal() {
             rowIndex: i,
             field: "Tuần học",
             message: "Tuần học phải là số"
+          });
+          continue;
+        }
+
+        // ✅ Check Tuần học phải tồn tại trong database
+        if (!validSchoolWeekValues.includes(schoolWeekNumber)) {
+          errors.push({
+            rowIndex: i,
+            field: "Tuần học",
+            message: `Tuần học ${schoolWeekNumber} không tồn tại trong hệ thống`
           });
           continue;
         }
@@ -624,8 +641,8 @@ function ImportLessonModal() {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[1150px] !rounded-xl">
-        <DialogHeader>
+      <DialogContent className="w-[75vw] max-w-[85vw] h-[80vh] max-h-[90vh] !rounded-xl p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="p-4 sm:p-6 pb-4">
           <DialogTitle>
             <motion.div
               className="flex items-center gap-3"
@@ -639,12 +656,13 @@ function ImportLessonModal() {
           </DialogTitle>
         </DialogHeader>
 
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
-          className="mt-4"
-        >
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.3 }}
+          >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-6 order-1 lg:order-1">
               <FileUploadZone
@@ -674,6 +692,7 @@ function ImportLessonModal() {
                 <ul className="text-sm text-blue-600 space-y-2 list-disc list-inside mb-4">
                   <li>Sử dụng template mẫu để đảm bảo dữ liệu được import chính xác</li>
                   <li>Các cột bắt buộc: Tên bài học (duy nhất), Hình ảnh, Tuần học (số), Thứ tự (số)</li>
+                  <li>Tuần học phải tồn tại trong hệ thống (đã được tạo trước đó)</li>
                   <li>Không thay đổi tên và thứ tự các cột trong template</li>
                   <li>Giới hạn tối đa 100 dòng dữ liệu trong một lần import</li>
                   <li>Các ô trống hoặc không hợp lệ sẽ được đánh dấu màu đỏ</li>
@@ -737,7 +756,12 @@ function ImportLessonModal() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 mt-6 border-t">
+          </motion.div>
+        </div>
+
+        {/* Fixed footer */}
+        <div className="border-t bg-white p-4 sm:p-6 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end gap-3">
             <Button
               variant="outline"
               onClick={handleClose}
@@ -769,7 +793,7 @@ function ImportLessonModal() {
               )}
             </Button>
           </div>
-        </motion.div>
+        </div>
 
         {showFullData && fullData && (
           <FullDataViewModal

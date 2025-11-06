@@ -21,6 +21,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { useSchoolWeek } from "@/hooks/use-schoolweek";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Xử lý lỗi
 const handleError = (
@@ -41,47 +42,82 @@ interface ActionButtonsProps {
   isEnabled: boolean;
 }
 
-const ActionButtons = ({
+const ActionButtons = React.memo(({
   rowSelection,
   onDelete,
   onExport,
   onImport,
   onCreate,
   isEnabled
-}: ActionButtonsProps) => (
-  <>
-    {!isEnabled ? (
-      <div className="flex items-center text-gray-500 italic">
-        Vui lòng chọn lớp học và unit để xem các tùy chọn
-      </div>
-    ) : (
-      <div className="flex flex-col gap-4 items-end flex-wrap justify-end">
-        <Button
-          className="bg-blue-500 hover:bg-blue-600 text-white"
-          onClick={onCreate}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Tạo bài học mới
-        </Button>
-        <div className="flex flex-row gap-4">
-          {Object.keys(rowSelection).length > 0 && onDelete && (
-            <Button variant="destructive" onClick={onDelete}>
-              Xóa ({Object.keys(rowSelection).length})
+}: ActionButtonsProps) => {
+  const selectedCount = Object.keys(rowSelection).length;
+  
+  return (
+    <>
+      {!isEnabled ? (
+        <div className="flex items-center text-gray-500 italic text-sm sm:text-base px-1">
+          Vui lòng chọn lớp học và unit để xem các tùy chọn
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2 sm:gap-4 items-stretch w-full 2xl:w-auto">
+          {/* Tạo bài học mới - luôn hiển thị */}
+          <Button
+            className="bg-blue-500 hover:bg-blue-600 text-white w-full 2xl:w-auto h-9 text-sm"
+            onClick={onCreate}
+            aria-label="Tạo bài học mới"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Tạo bài học mới</span>
+            <span className="sm:hidden">Tạo mới</span>
+          </Button>
+          
+          {/* Các nút khác - responsive layout */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:auto-cols-max lg:grid-flow-col gap-2 sm:gap-3 w-full">
+           
+            
+            {/* Nút Xuất dữ liệu */}
+            <Button 
+              variant="outline" 
+              onClick={onExport}
+              className="w-full sm:w-auto order-3 h-9 text-sm"
+              aria-label="Xuất dữ liệu bài học"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Xuất dữ liệu</span>
+              <span className="sm:hidden">Xuất</span>
+            </Button>
+            
+            {/* Nút Nhập dữ liệu */}
+            <Button 
+              variant="outline" 
+              onClick={onImport}
+              className="w-full sm:w-auto order-2 h-9 text-sm"
+              aria-label="Nhập dữ liệu bài học"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Nhập dữ liệu</span>
+              <span className="sm:hidden">Nhập</span>
+            </Button>
+          </div>
+          {/* Nút Xóa - đưa xuống dưới trên mobile để giảm áp lực UI */}
+          {selectedCount > 0 && onDelete && (
+            <Button 
+              variant="destructive" 
+              onClick={onDelete}
+              className="w-full sm:w-auto h-9 text-sm"
+              aria-label={`Xóa ${selectedCount} bài học đã chọn`}
+            >
+              <span className="sm:hidden">Xóa {selectedCount} bài học</span>
+              <span className="hidden sm:inline">Xóa ({selectedCount})</span>
             </Button>
           )}
-          <Button variant="outline" onClick={onExport}>
-            <Download className="w-4 h-4 mr-2" />
-            Xuất dữ liệu
-          </Button>
-          <Button variant="outline" onClick={onImport}>
-            <Upload className="w-4 h-4 mr-2" />
-            Nhập dữ liệu
-          </Button>
         </div>
-      </div>
-    )}
-  </>
-);
+      )}
+    </>
+  );
+});
+
+ActionButtons.displayName = 'ActionButtons';
 
 function LessonsContainerClient() {
   const [rowSelection, setRowSelection] = React.useState<
@@ -224,30 +260,30 @@ function LessonsContainerClient() {
   }, []);
 
   const searchComponent = (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-row gap-4 items-center">
+    <div className="flex flex-col gap-3 sm:gap-4">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-center">
         <ClassroomCombobox
           onSelect={handleSelectClassroom}
           placeholder="Tìm kiếm lớp học..."
-          buttonClassName="w-full sm:w-[250px]"
+          buttonClassName="w-full sm:w-[240px]"
         />
         {activeLesson.classId && (
           <UnitByClassCombobox
             onSelect={handleSelectUnit}
             placeholder="Chọn unit..."
             classId={activeLesson.classId}
-            buttonClassName="w-full sm:w-[250px]"
+            buttonClassName="w-full sm:w-[240px]"
           />
         )}
       </div>
       {activeLesson.classId && activeLesson.unitId && (
-        <div className="bg-gray-50 p-4 rounded-lg border">
-          <h3 className="text-sm font-semibold text-gray-800 mb-3">
+        <div className="bg-gray-50 p-2 sm:p-4 rounded-lg border">
+          <h3 className="text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3">
             Bộ lọc và tìm kiếm
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-xs sm:text-sm font-medium text-gray-700">
                 Tìm kiếm bài học:
               </label>
               <div className="relative w-full">
@@ -255,7 +291,7 @@ function LessonsContainerClient() {
                   placeholder="Nhập tên bài học..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white pr-10"
+                  className="w-full bg-white pr-10 h-9 text-sm"
                 />
                 {searchQuery && (
                   <button
@@ -270,40 +306,66 @@ function LessonsContainerClient() {
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-xs sm:text-sm font-medium text-gray-700">
                 Tuần học:
               </label>
-              <Select
-                value={schoolWeekFilter}
-                onValueChange={setSchoolWeekFilter}
-              >
-                <SelectTrigger className="w-full bg-white">
-                  <SelectValue placeholder="Chọn tuần học" />
-                </SelectTrigger>
-                <SelectContent className="h-[300px] overflow-auto bg-white">
-                  <SelectItem value="all">Tất cả tuần học</SelectItem>
-                  {uniqueSchoolWeeks.map((week) => (
-                    <SelectItem key={week.id} value={week.id.toString()}>
-                      Tuần {week.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="relative">
+                <Select
+                  value={schoolWeekFilter}
+                  onValueChange={setSchoolWeekFilter}
+                >
+                  <SelectTrigger className="w-full bg-white pr-10 h-9 text-sm">
+                    <SelectValue placeholder="Chọn tuần học" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <ScrollArea className="h-[300px] overflow-auto bg-white">
+                      <SelectItem value="all">Tất cả tuần học</SelectItem>
+                      {uniqueSchoolWeeks.map((week) => (
+                        <SelectItem key={week.id} value={week.id.toString()}>
+                          Tuần {week.label}
+                        </SelectItem>
+                      ))}
+                    </ScrollArea>
+                  </SelectContent>
+                </Select>
+                {schoolWeekFilter !== "all" && (
+                 <Button
+                 variant="ghost"
+                 size="sm"
+                 className="h-6 w-6 p-0 absolute right-1 top-1/2 -translate-y-1/2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full z-10"
+                 onClick={() => setSchoolWeekFilter("all")}
+               >
+                 <X className="h-3 w-3 text-muted-foreground hover:text-red-500" />
+               </Button>
+                )}
+              </div>
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-xs sm:text-sm font-medium text-gray-700">
                 Sắp xếp theo thứ tự:
               </label>
-              <Select value={orderFilter} onValueChange={setOrderFilter}>
-                <SelectTrigger className="w-full bg-white">
-                  <SelectValue placeholder="Chọn thứ tự sắp xếp" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value="default">Mặc định</SelectItem>
-                  <SelectItem value="asc">Thứ tự tăng dần</SelectItem>
-                  <SelectItem value="desc">Thứ tự giảm dần</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="relative">
+                <Select value={orderFilter} onValueChange={setOrderFilter}>
+                  <SelectTrigger className="w-full bg-white pr-10 h-9 text-sm">
+                    <SelectValue placeholder="Chọn thứ tự sắp xếp" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem value="default">Mặc định</SelectItem>
+                    <SelectItem value="asc">Thứ tự tăng dần</SelectItem>
+                    <SelectItem value="desc">Thứ tự giảm dần</SelectItem>
+                  </SelectContent>
+                </Select>
+                {orderFilter !== "default" && (
+                 <Button
+                 variant="ghost"
+                 size="sm"
+                 className="h-6 w-6 p-0 absolute right-1 top-1/2 -translate-y-1/2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full z-10"
+                 onClick={() => setOrderFilter("default")}
+               >
+                 <X className="h-3 w-3 text-muted-foreground hover:text-red-500" />
+               </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -313,19 +375,30 @@ function LessonsContainerClient() {
 
   const handleDeleteLesson = React.useCallback(() => {
     const selectedIds = Object.keys(rowSelection).map(Number);
-    const selectedLessons = data?.data?.filter((lesson) =>
+    const selectedLessons = filteredData?.filter((lesson) =>
       selectedIds.includes(lesson.lessonId)
     );
+
 
     onOpen("deleteLesson", {
       lessonIds: selectedIds,
       lessons: selectedLessons,
-      onSuccess: () => setRowSelection({})
+      onSuccess: () => {
+        setRowSelection({});
+        toast.success(
+          <div className="flex flex-col gap-1">
+            <p className="font-medium">Xóa bài học thành công!</p>
+            <p className="text-sm text-gray-600">
+              Đã xóa {selectedIds.length} bài học được chọn.
+            </p>
+          </div>
+        );
+      }
     });
-  }, [rowSelection, data?.data, onOpen]);
+  }, [rowSelection, filteredData, onOpen]);
 
   return (
-    <div className="bg-white rounded-lg p-10 h-full">
+    <div className="bg-white rounded-lg p-4 sm:p-6 lg:p-10 h-full">
       <GenericTable
         data={filteredData}
         columns={columns}
@@ -341,6 +414,10 @@ function LessonsContainerClient() {
             isEnabled={!!(activeLesson.classId && activeLesson.unitId)}
           />
         }
+        // Optional layout overrides to keep header compact and aligned
+        headerClassName="gap-3 !sm:items-end sm:justify-end"
+        searchAreaClassName=""
+        actionsAreaClassName="w-full"
         // filterFunction={filterUnits}
         enableRowSelection={true}
         getRowId={(row) => row.lessonId.toString()}

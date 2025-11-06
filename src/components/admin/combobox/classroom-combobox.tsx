@@ -75,6 +75,7 @@ export function ClassroomCombobox({
       const newValue = currentValue === value ? "" : currentValue;
       setValue(newValue);
       setOpen(false);
+      setSearchValue(""); // Reset search value khi chọn
       onSelect(newValue);
     },
     [value, onSelect]
@@ -92,6 +93,14 @@ export function ClassroomCombobox({
     setSearchValue(search);
   }, []);
 
+  // Reset search value khi đóng popover
+  const handleOpenChange = React.useCallback((newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      setSearchValue(""); // Reset search khi đóng popover
+    }
+  }, []);
+
   if (isLoading) return <Skeleton className="w-[300px] h-10" />;
 
   const selectedClassroom = classrooms.find(
@@ -99,7 +108,7 @@ export function ClassroomCombobox({
   );
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <div className="flex items-center gap-2 relative">
         <PopoverTrigger asChild>
           <Button

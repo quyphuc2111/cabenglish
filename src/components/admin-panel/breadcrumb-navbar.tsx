@@ -10,6 +10,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useSession } from "next-auth/react";
 import { NavbarControls } from "./navbar-com/NavbarControls";
 import { useUserInfo } from "@/hooks/useUserInfo";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface BreadcrumbNavbarProps {
   title: string;
@@ -28,6 +29,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
 
   const { data: session } = useSession();
   const { data: userInfo } = useUserInfo(session?.user?.userId);
+  const isMobile = useMediaQuery("max-width: 1023px")
   
   // ✅ Ưu tiên theme từ data-theme attribute (đã set từ server)
   const dataTheme = typeof document !== 'undefined' 
@@ -66,10 +68,10 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
       initial="hidden"
       animate="visible"
     >
-      <div className="flex flex-col lg:flex-row gap-5 items-start lg:items-center justify-between">
+      <div className="flex flex-row gap-6 items-start lg:items-center justify-between">
         <SheetMenu />
         <motion.div
-          className={`w-full md:w-1/2 2xl:w-2/3 3xl:w-3/5 max-h-24 h-16 lg:h-24 ${foregroundThemeClasses[currentTheme]} rounded-xl  lg:rounded-bl-md lg:shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
+          className={`w-full xl:w-2/3 3xl:w-3/5 max-h-24 h-16 lg:h-24 ${foregroundThemeClasses[currentTheme]} rounded-xl  lg:rounded-bl-md lg:shadow-[0px_4px_6px_0px_rgba(0,0,0,0.25)] border border-[#c9d1c1] relative`}
           variants={navbarAnimations.item}
         >
           {/* <motion.div
@@ -82,8 +84,8 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
           </motion.div> */}
 
           <div className="w-full lg:w-3/4 lg:bg-white absolute top-1/2 -translate-y-1/2 left-0 lg:left-10  rounded-xl p-2 lg:px-4 xl:px-12">
-            <div className="w-full md:w-[calc(100%-50px)] relative overflow-x-auto overflow-y-hidden" style={{ WebkitOverflowScrolling: 'touch' }}>
-              <div className="flex gap-5 md:pb-2 2xl:w-fit 2xl:pb-0 min-w-min">
+            <div className="w-full  relative overflow-x-auto overflow-y-hidden" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <div className="flex gap-5 py-2 2xl:w-fit 2xl:pb-0 min-w-min">
                 <div
                   onClick={handleBack}
                   className=" cursor-pointer flex items-center gap-3 bg-white shadow-lg border border-[#c9d1c1] rounded-xl p-2 hover:shadow-xl transition-all duration-300 group flex-shrink-0"
@@ -175,7 +177,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                 alt="lesson"
               />
             </div> */}
-            <div className="absolute bottom-0 right-[13%] hidden lg:block">
+            <div className="absolute bottom-0 right-0 hidden lg:block">
               <Image
                 src="/navbar/langbac.png"
                 width={40}
@@ -184,7 +186,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
               />
             </div>
 
-            <div className="absolute top-0 right-0 bottom-0 rounded-r-xl overflow-hidden hidden lg:block">
+            {/* <div className="absolute top-0 right-0 bottom-0 rounded-r-xl overflow-hidden hidden lg:block">
               <Image
                 src="/navbar/bkt_jsc_texture.png"
                 width={75}
@@ -192,7 +194,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
                 alt="lesson"
                 className="h-full object-cover"
               />
-            </div>
+            </div> */}
 
             <motion.div
               className="absolute right-[42% hidden "
@@ -323,6 +325,7 @@ export function BreadcrumbNavbar({ title, type }: BreadcrumbNavbarProps) {
           onChangeTheme={handleChangeTheme}
           onLogout={handleLogout}
           userId={session?.user.userId}
+          showText={isMobile ? true : false}
         />
       </div>
     </motion.header>

@@ -7,6 +7,8 @@ import { BreadcrumbLayout } from "@/components/admin-panel/breadcrumb-layout";
 import { useRouter } from "next/navigation";
 import ClassroomCard from "@/components/lesson/classroom-card";
 import { ClassroomType } from "@/types/classroom";
+import { useTranslation } from "@/hooks/useTranslation";
+
 
 function ClassroomClient({
   classroomData,
@@ -24,6 +26,8 @@ function ClassroomClient({
   // Debounce timers cho mỗi classroom
   const debounceTimersRef = useRef<Record<number, NodeJS.Timeout>>({});
   const pendingLikesRef = useRef<Record<number, number>>({});
+
+  const { t } = useTranslation("", "common");
 
   // Nếu có selectedClassroomName, tự động chuyển đến classroom đó
   useEffect(() => {
@@ -123,7 +127,9 @@ function ClassroomClient({
           <p className="text-[#555] text-base sm:text-lg md:text-[20px] font-bold truncate">
             {selectedClassroomName 
               ? `Đang chuyển đến lớp: ${selectedClassroomName}` 
-              : "Danh sách lớp học"
+              : <span>
+                  {t("listOfClass")}
+              </span>
             }
           </p>
         </div>

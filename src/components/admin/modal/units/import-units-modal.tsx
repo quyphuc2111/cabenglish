@@ -55,6 +55,7 @@ type FullDataView = {
   currentPage: number;
   pageSize: number;
   duplicateRows?: number[];
+  errors?: Array<{ rowIndex: number; field: string; message: string }>;
 };
 
 function ImportUnitsModal() {
@@ -71,6 +72,7 @@ function ImportUnitsModal() {
   const [validationError, setValidationError] = React.useState<string | null>(null);
   const [duplicateRows, setDuplicateRows] = React.useState<number[]>([]);
   const [isCheckingDuplicates, setIsCheckingDuplicates] = React.useState(false);
+  const [rowValidationErrors, setRowValidationErrors] = React.useState<Array<{ rowIndex: number; field: string; message: string }>>([]);
   
   const selectedClassId = data?.selectedClassId || data?.classroomId;
   
@@ -93,6 +95,7 @@ function ImportUnitsModal() {
         setIsProcessing(false);
         setDuplicateRows([]);
         setIsCheckingDuplicates(false);
+        setRowValidationErrors([]);
         return;
       }
 
@@ -104,6 +107,7 @@ function ImportUnitsModal() {
       setIsProcessing(false);
       setDuplicateRows([]);
       setIsCheckingDuplicates(false);
+      setRowValidationErrors([]);
 
       // Tạo bản sao của file để tránh vấn đề permission
       const fileClone = new File([selectedFile], selectedFile.name, {
@@ -223,7 +227,7 @@ function ImportUnitsModal() {
 
       // Validate dữ liệu
       const invalidRows = unitsListData.filter(unit => 
-        !unit.unitName || unit.order <= 0 || unit.progress < 0 || unit.progress > 1
+        !unit.unitName || unit.unitName.toString().trim().length > 100 || unit.order <= 0 || unit.progress < 0 || unit.progress > 1
       );
 
       if (invalidRows.length > 0) {
@@ -314,6 +318,8 @@ function ImportUnitsModal() {
       const startIndex = (page - 1) * pageSize;
       const endIndex = Math.min(startIndex + pageSize, totalRows);
       const pageRows = validRows.slice(startIndex, endIndex);
+      const pageErrors = rowValidationErrors.filter(e => e.rowIndex >= startIndex && e.rowIndex < endIndex)
+        .map(e => ({ ...e, rowIndex: e.rowIndex - startIndex }));
       
       setFullData({
         headers,
@@ -321,7 +327,8 @@ function ImportUnitsModal() {
         totalRows,
         currentPage: page,
         pageSize,
-        duplicateRows
+        duplicateRows,
+        errors: pageErrors
       });
       
     } catch (error) {
@@ -447,12 +454,39 @@ function ImportUnitsModal() {
       );
       
       setTotalRows(validRows.length);
-      
+
+      // Kiểm tra dữ liệu bắt buộc theo từng dòng để hiển thị trong preview
+      const unitNameIndex = headers.indexOf('Tên Unit');
+      const orderIndex = headers.indexOf('Thứ tự');
+      const errors: Array<{ rowIndex: number; field: string; message: string }> = [];
+
+      validRows.forEach((row, index) => {
+        const unitName = row[unitNameIndex];
+        const order = row[orderIndex];
+
+        if (!unitName || unitName.toString().trim() === '') {
+          errors.push({ rowIndex: index, field: 'Tên Unit', message: 'Tên Unit không được để trống' });
+        } else if (unitName.toString().trim().length > 100) {
+          errors.push({ rowIndex: index, field: 'Tên Unit', message: 'Tên Unit không được vượt quá 100 ký tự' });
+        }
+
+        if (order === null || order === undefined || order.toString().trim() === '') {
+          errors.push({ rowIndex: index, field: 'Thứ tự', message: 'Thứ tự không được để trống' });
+        } else {
+          const orderNumber = Number(order);
+          if (!Number.isFinite(orderNumber) || orderNumber <= 0 || !Number.isInteger(orderNumber)) {
+            errors.push({ rowIndex: index, field: 'Thứ tự', message: 'Thứ tự phải là số nguyên dương' });
+          }
+        }
+      });
+
+      setRowValidationErrors(errors);
+
       setPreviewData({
         headers,
         rows: validRows.slice(0, 5) // Chỉ lấy 5 dòng đầu để preview
       });
-      
+
       // Kiểm tra dữ liệu trùng lặp
       await checkDuplicateData(validRows, headers);
       
@@ -469,8 +503,8 @@ function ImportUnitsModal() {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[1150px] !rounded-xl">
-        <DialogHeader>
+      <DialogContent className="w-[75vw] max-w-[85vw] h-[80vh] max-h-[90vh] !rounded-xl p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="p-4 sm:p-6 pb-4">
           <DialogTitle>
             <motion.div
               className="flex items-center gap-3"
@@ -484,13 +518,14 @@ function ImportUnitsModal() {
           </DialogTitle>
         </DialogHeader>
 
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
-          className="mt-4"
-        >
-          <div className="grid grid-cols-2 gap-6">
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.3 }}
+          >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Cột trái: Upload và Options */}
             <div className="space-y-6">
               {/* File Upload Zone */}
@@ -526,6 +561,7 @@ function ImportUnitsModal() {
                 <ul className="text-sm text-blue-600 space-y-2 list-disc list-inside mb-4">
                   <li>Sử dụng template mẫu để đảm bảo dữ liệu được import chính xác</li>
                   <li>Các cột bắt buộc: Tên Unit, Thứ tự</li>
+                  <li>Tên Unit tối đa 100 ký tự</li>
                   <li>Không thay đổi tên và thứ tự các cột trong template</li>
                   <li>Dữ liệu trong file Excel phải đúng định dạng quy định</li>
                   <li>Các ô trống trong cột bắt buộc sẽ được đánh dấu màu đỏ</li>
@@ -593,7 +629,7 @@ function ImportUnitsModal() {
                             <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                               <div className="flex items-center gap-2 text-green-700">
                                 <i className="fas fa-check-circle text-green-500"></i>
-                                <span className="text-sm font-medium">Không có dữ liệu trùng lặp - Sẵn sàng import</span>
+                                <span className="text-sm font-medium">Không có dữ liệu trùng lặp</span>
                               </div>
                             </div>
                           )}
@@ -614,7 +650,8 @@ function ImportUnitsModal() {
                           totalRows={totalRows}
                           onViewAll={totalRows > 5 ? handleShowFullData : undefined}
                           showRowNumbers={true}
-                          duplicateRows={duplicateRows.slice(0, 5)} // Chỉ hiển thị duplicates trong 5 dòng đầu
+                          duplicateRows={duplicateRows.slice(0, 5)}
+                          errors={rowValidationErrors.filter(e => e.rowIndex < 5)}
                         />
                       ) : (
                         <div className="text-center py-8 text-gray-500">
@@ -628,23 +665,27 @@ function ImportUnitsModal() {
             </div>
           </div>
 
-          {/* Buttons */}
-          <div className="flex justify-end gap-3 pt-4 mt-6 border-t">
+          </motion.div>
+        </div>
+
+        {/* Fixed footer */}
+        <div className="border-t bg-white p-4 sm:p-6 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end gap-3">
             <Button
               variant="outline"
               onClick={handleClose}
               disabled={isUploading}
-              className="border-2"
+              className="border-2 w-full sm:w-auto order-2 sm:order-1"
             >
               Hủy
             </Button>
             <Button
               onClick={handleUpload}
-              disabled={!file || isUploading || !isOptionAvailable(importOption) || isCreating || !selectedClassId || !!validationError || duplicateRows.length > 0 || isCheckingDuplicates}
-              className="bg-blue-500 hover:bg-blue-600"
+              disabled={!file || isUploading || !isOptionAvailable(importOption) || isCreating || !selectedClassId || !!validationError || duplicateRows.length > 0 || isCheckingDuplicates || rowValidationErrors.length > 0}
+              className="bg-blue-500 hover:bg-blue-600 w-full sm:w-auto order-1 sm:order-2"
             >
               {isUploading || isCreating ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-center">
                   <LoadingSpinner size="sm" className="mr-2" />
                   <span>Đang import...</span>
                 </div>
@@ -653,7 +694,7 @@ function ImportUnitsModal() {
               )}
             </Button>
           </div>
-        </motion.div>
+        </div>
       </DialogContent>
 
       {/* Full Data View Modal */}
@@ -670,6 +711,7 @@ function ImportUnitsModal() {
           onPageChange={handlePageChange}
           requiredColumns={['Tên Unit', 'Thứ tự']}
           duplicateRows={fullData.duplicateRows || []}
+          errors={fullData.errors || []}
         />
       )}
     </Dialog>

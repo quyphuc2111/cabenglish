@@ -15,6 +15,7 @@ import { LessonType } from "@/types/lesson";
 import OptimizeImage from "@/components/common/optimize-image";
 import { toast } from "react-toastify";
 import { X } from "lucide-react";
+import { useOrientation } from "@/hooks/useOrientation";
 
 interface ProgressStatsProps {
   onOpen: (type: ModalType, data?: ModalData) => void;
@@ -37,6 +38,7 @@ export const ProgressStats = memo(function ProgressStats({
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedAge, setSelectedAge] = useState<string | null>(null);
   const [previousPage, setPreviousPage] = useState(0);
+  const orientation = useOrientation();
 
   const ITEMS_PER_PAGE = 3;
   const totalPages = Math.ceil(classroomData.length / ITEMS_PER_PAGE);
@@ -259,8 +261,8 @@ export const ProgressStats = memo(function ProgressStats({
               <p className="text-xs sm:text-sm font-medium text-gray-700 mb-1">
                 Lớp học
               </p>
-              <div className="bg-white px-3 py-2 rounded-xl border border-gray-200   transition-all duration-300">
-                <p className="text-sm sm:text-base font-bold text-gray-800">
+              <div className="bg-white px-3 py-2 rounded-xl border border-gray-200 transition-all duration-300 w-[200px] max-w-[200px]">
+                <p className="text-sm sm:text-base font-bold text-gray-800 line-clamp-1 truncate">
                   {item.classname}
                 </p>
               </div>
@@ -303,7 +305,10 @@ export const ProgressStats = memo(function ProgressStats({
                   {/* Progress text */}
                   <div className="absolute inset-0 flex items-center justify-center z-30">
                     <span
-                      className={`font-bold text-sm sm:text-base transition-all duration-300 bg-gradient-to-r ${currentColors.iconBg} bg-clip-text text-transparent font-extrabold`}
+                      className={`font-bold text-sm sm:text-base transition-all duration-300 text-${currentColors.iconBg}  font-extrabold`}
+                     style={{
+                      color: currentColors.iconBg
+                     }}
                     >
                       {progress}%
                     </span>
@@ -465,7 +470,7 @@ export const ProgressStats = memo(function ProgressStats({
         </AnimatePresence>
       </div>
 
-      {/* Modal với theme-based styling */}
+      {/* Modal với theme-based styling - Responsive với safe area cho Safari mobile */}
       <Dialog
         open={showChart}
         onOpenChange={(open) => {
@@ -473,31 +478,118 @@ export const ProgressStats = memo(function ProgressStats({
           if (!open) setSelectedAge(null);
         }}
       >
-        <DialogContent className="w-[95vw] max-w-[900px] h-[90vh] max-h-[700px] p-0 border-0 bg-white">
+        <DialogContent 
+          className={`
+            ${orientation === "landscape" 
+              ? "!w-[calc(100vw-env(safe-area-inset-left)-env(safe-area-inset-right)-2rem)] !max-w-none !h-[calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-3rem)] !max-h-none" 
+              : "w-[90vw] max-w-[900px] h-[85vh] max-h-[700px]"
+            }
+            p-0 border-0 bg-white rounded-xl overflow-hidden
+            sm:w-[90vw] sm:max-w-[900px] sm:h-[85vh] sm:max-h-[700px]
+          `}
+          style={{
+            ...(orientation === "landscape" && {
+              left: `calc(50% + (env(safe-area-inset-left) - env(safe-area-inset-right)) / 2)`,
+              top: `calc(50% + (env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2)`,
+              maxHeight: 'calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 3rem)',
+              maxWidth: 'calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 2rem)',
+            })
+          }}
+        >
           <div
-            className={`bg-gradient-to-r ${currentColors.modalHeader} p-6 rounded-t-lg`}
+            className={`
+              bg-gradient-to-r ${currentColors.modalHeader} 
+              ${orientation === "landscape" ? "px-3 py-2" : "px-4 py-3 sm:px-6 sm:py-4"} 
+              rounded-t-lg flex-shrink-0
+            `}
           >
             <DialogHeader>
-              <DialogTitle className="text-xl sm:text-2xl font-bold text-white flex items-center gap-3">
-                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                  📊
+              <DialogTitle 
+                className={`
+                  ${orientation === "landscape" 
+                    ? "text-sm sm:text-base" 
+                    : "text-base sm:text-xl md:text-2xl"
+                  }
+                  font-bold text-white flex items-center gap-2
+                `}
+              >
+                <div 
+                  className={`
+                    ${orientation === "landscape" ? "w-5 h-5" : "w-7 h-7 sm:w-8 sm:h-8"}
+                    bg-white/20 rounded-full flex items-center justify-center flex-shrink-0
+                  `}
+                >
+                  <span className={orientation === "landscape" ? "text-xs" : "text-sm"}>
+                    📊
+                  </span>
                 </div>
-                {t("teachingProgressChart")}
+                <span className="line-clamp-1 truncate">
+                  {t("teachingProgressChart")}
+                </span>
               </DialogTitle>
             </DialogHeader>
           </div>
-          <div className="p-2 overflow-auto">
+          <div 
+            className={`
+              ${orientation === "landscape" ? "p-2 sm:p-3" : "p-3 sm:p-4 md:p-6"} 
+              overflow-y-auto overflow-x-hidden
+              ${orientation === "landscape" 
+                ? "h-[calc(100dvh-7rem)] max-h-[calc(100dvh-7rem)]" 
+                : "h-[calc(85vh-4rem)] max-h-[calc(700px-4rem)]"
+              }
+            `}
+            style={{
+              WebkitOverflowScrolling: 'touch',
+            }}
+          >
             {chartData.length > 0 ? (
-              <ProgressChart data={chartData} />
+              <div 
+                className={`
+                  ${orientation === "landscape" ? "h-full min-h-[200px]" : "min-h-[400px]"}
+                  w-full
+                `}
+              >
+                <ProgressChart data={chartData} />
+              </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-64 text-center">
-                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                  <span className="text-2xl text-gray-400">📊</span>
+              <div 
+                className={`
+                  flex flex-col items-center justify-center 
+                  ${orientation === "landscape" ? "h-full min-h-[200px] py-2" : "h-64 py-4"} 
+                  text-center px-4
+                `}
+              >
+                <div 
+                  className={`
+                    ${orientation === "landscape" ? "w-10 h-10" : "w-14 h-14 sm:w-16 sm:h-16"}
+                    bg-gray-200 rounded-full flex items-center justify-center 
+                    ${orientation === "landscape" ? "mb-2" : "mb-3 sm:mb-4"}
+                  `}
+                >
+                  <span 
+                    className={`
+                      ${orientation === "landscape" ? "text-lg" : "text-xl sm:text-2xl"} 
+                      text-gray-400
+                    `}
+                  >
+                    📊
+                  </span>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                <h3 
+                  className={`
+                    ${orientation === "landscape" ? "text-sm" : "text-base sm:text-lg"} 
+                    font-semibold text-gray-600 
+                    ${orientation === "landscape" ? "mb-1" : "mb-1.5 sm:mb-2"}
+                  `}
+                >
                   {t("noData")}
                 </h3>
-                <p className="text-gray-500">
+                <p 
+                  className={`
+                    ${orientation === "landscape" ? "text-xs" : "text-sm sm:text-base"} 
+                    text-gray-500
+                  `}
+                >
                   {t("noDataForProgressChart")}
                 </p>
               </div>

@@ -575,6 +575,16 @@ function ImportSchoolWeekModal() {
           continue;
         }
 
+        // ✅ Check giới hạn 1-52
+        if (weekNumber < 1 || weekNumber > 52) {
+          errors.push({
+            rowIndex: i,
+            field: 'tuầnhọc',
+            message: 'Tuần học phải trong khoảng 1 - 52'
+          });
+          continue;
+        }
+
         // ✅ Check trùng lặp với database (trong memory, không gọi API)
         // So sánh dạng number để tránh mismatch type
         if (existingWeeks.includes(weekNumber)) {
@@ -616,8 +626,8 @@ function ImportSchoolWeekModal() {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[1150px] !rounded-xl">
-        <DialogHeader>
+      <DialogContent className="w-[75vw] max-w-[85vw] h-[80vh] max-h-[90vh] !rounded-xl p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="p-4 sm:p-6 pb-4">
           <DialogTitle>
             <motion.div
               className="flex items-center gap-3"
@@ -631,12 +641,13 @@ function ImportSchoolWeekModal() {
           </DialogTitle>
         </DialogHeader>
 
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
-          className="mt-4"
-        >
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.3 }}
+          >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-6 order-1 lg:order-1">
               <FileUploadZone
@@ -729,8 +740,12 @@ function ImportSchoolWeekModal() {
               )}
             </div>
           </div>
+          </motion.div>
+        </div>
 
-          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 mt-6 border-t">
+        {/* Fixed footer */}
+        <div className="border-t bg-white p-4 sm:p-6 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end gap-3">
             <Button
               variant="outline"
               onClick={handleClose}
@@ -762,7 +777,7 @@ function ImportSchoolWeekModal() {
               )}
             </Button>
           </div>
-        </motion.div>
+        </div>
 
         {showFullData && fullData && (
           <FullDataViewModal

@@ -54,7 +54,8 @@ export function useLessonsValidation(
       unitId?.toString() || ""
     ),
     enabled: !!classId && !!unitId,
-    staleTime: 30000, // Cache 30 giây
+    staleTime: 0, // ✅ Không cache để luôn có dữ liệu mới nhất
+    refetchOnMount: 'always', // ✅ Luôn refetch khi mount
   });
 
   // Memoize danh sách lessons để tối ưu performance

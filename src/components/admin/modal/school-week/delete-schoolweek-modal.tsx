@@ -27,7 +27,7 @@ const modalVariants = {
     scale: 1,
     transition: {
       duration: 0.3,
-      ease: "easeOut"
+      ease: "easeOut" as const
     }
   },
   exit: {
@@ -80,33 +80,31 @@ function DeleteSchoolWeekModal() {
     if (!data?.schoolWeekIds?.length) return;
 
     try {
-      // Tạo array các promise để xử lý đồng thời
-      const deletePromises = data.schoolWeekIds.map(
-        (id) =>
-          new Promise((resolve, reject) => {
-            deleteSchoolWeek(id, {
-              onError: (error) => {
-                reject(error);
-              },
-              onSuccess: () => {
-                resolve(id);
-              }
-            });
-          })
-      );
-
-      // Chờ tất cả các promise hoàn thành
-      await Promise.all(deletePromises);
+      // ✅ Xóa tuần tự thay vì đồng thời để tránh conflict
+      for (const id of data.schoolWeekIds) {
+        await new Promise((resolve, reject) => {
+          deleteSchoolWeek(id, {
+            onError: (error) => {
+              reject(error);
+            },
+            onSuccess: () => {
+              resolve(id);
+            }
+          });
+        });
+      }
 
       // Chỉ hiển thị toast success khi tất cả đều thành công
       showToast.success(
         `Xóa ${data.schoolWeekIds.length} tuần học thành công!`
       );
 
+      // ✅ Đóng modal trước khi gọi onSuccess
+      onClose();
+      
       if (data.onSuccess) {
         data.onSuccess();
       }
-      onClose();
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);

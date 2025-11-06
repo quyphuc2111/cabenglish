@@ -430,7 +430,7 @@ function LessonTeachingClient({
                     <p>Active Tab: {activeTab}</p>
                     <p>
                       Selected Class ID:{" "}
-                      {activeTab !== "all" ? activeTab : "Tất cả"}
+                      {activeTab !== "all" ? activeTab : t("all")}
                     </p>
                     <p>Breakpoint: {breakpoint}</p>
                     <p>Is Client: {isClient.toString()}</p>
@@ -452,10 +452,10 @@ function LessonTeachingClient({
                     </div>
                     <div>
                       <h3 className="text-lg font-bold text-gray-800">
-                        Lọc theo lớp học
+                        {t("filter")} {t("class")}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        Chọn lớp học để xem Bài học đang dạy
+                        {t("selectClassToViewLessons")}
                       </p>
                     </div>
                   </div>
@@ -500,7 +500,7 @@ function LessonTeachingClient({
                             />
                           </div>
                           <span className="whitespace-nowrap">
-                            Tất cả lớp học
+                            {t("allClasses")}
                           </span>
                         </span>
                         <div
@@ -531,7 +531,7 @@ function LessonTeachingClient({
                       </span>
                       {activeTab === "all" ? (
                         <span className="px-3 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 rounded-full font-semibold border border-green-200">
-                          Tất cả lớp học ({(teachingLessons || []).length} bài)
+                          {t("allClasses")} ({(teachingLessons || []).length} {t("lessonsCount")})
                         </span>
                       ) : (
                         <span className="px-3 py-1.5 bg-gradient-to-r from-pink-100 to-rose-100 text-pink-800 rounded-full font-semibold border border-pink-200">
@@ -540,7 +540,7 @@ function LessonTeachingClient({
                               (c) => c.class_id.toString() === activeTab
                             )?.classname
                           }
-                          ({filteredTeachingLessons.length} bài)
+                          ({filteredTeachingLessons.length} {t("lessonsCount")})
                         </span>
                       )}
                     </div>
@@ -583,7 +583,7 @@ function LessonTeachingClient({
                               console.log("View all teaching lessons clicked");
                             }}
                           >
-                            Xem tất cả ({filteredTeachingLessons.length})
+                            {t("viewAll")} ({filteredTeachingLessons.length})
                           </Button>
                         </div>
                       )}

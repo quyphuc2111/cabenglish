@@ -265,6 +265,7 @@ export function PaginatedContent<T>({
   const [selectedItemPerPage, setSelectedItemPerPage] = useState(itemsPerPage);
   const [pageInput, setPageInput] = useState("");
   const [maxVisiblePages, setMaxVisiblePages] = useState(5);
+  const { t } = useTranslation();
 
   // Check for extra small screens
   const isExtraSmall = useMediaQuery("(max-width: 375px)");
@@ -425,7 +426,7 @@ export function PaginatedContent<T>({
                       isExtraSmall ? "text-xs" : "text-sm"
                     )}
                   >
-                    Hiển thị:
+                    {t("display")}:
                   </span>
                   <Select
                     value={selectedItemPerPage.toString()}
@@ -462,7 +463,7 @@ export function PaginatedContent<T>({
                         : "text-sm text-gray-600"
                     }
                   >
-                    mục/trang
+                    {t("itemsPerPage")}
                   </span>
                 </>
               )}
@@ -475,19 +476,19 @@ export function PaginatedContent<T>({
                 isExtraSmall ? "text-xs" : "text-sm"
               )}
             >
-              <span className="font-medium">Hiển thị:</span> {startIndex + 1}-
+              <span className="font-medium">{t("display")}:</span> {startIndex + 1}-
               {Math.min(endIndex, items.length)} /
               <span className="font-semibold text-blue-600 ml-1">
                 {items.length}
               </span>{" "}
-              mục
+              {t("items")}
             </div>
           </div>
 
           {/* Go to page - bottom row on mobile */}
           <div className="flex items-center justify-center gap-2 w-full">
             <span className="font-medium text-gray-700 text-xs sm:text-sm">
-              {isExtraSmall ? "Trang:" : "Đến trang:"}
+              {isExtraSmall ? `${t("page")}:` : `${t("goToPage")}:`}
             </span>
             <div className="flex items-center gap-1">
               <Input
@@ -498,7 +499,7 @@ export function PaginatedContent<T>({
                 onChange={handlePageInputChange}
                 onKeyDown={handleKeyDown}
                 placeholder={
-                  isExtraSmall ? "Trang" : isSmall ? "Trang" : "Số trang"
+                  isExtraSmall ? t("page") : isSmall ? t("page") : t("pageNumber")
                 }
                 className="border-gray-300 hover:border-blue-400 focus:border-blue-500 transition-colors text-center bg-white w-[60px] h-7 text-xs sm:w-[70px] md:w-[80px] md:h-8 md:text-sm lg:w-[100px] lg:h-9"
               />
@@ -512,7 +513,7 @@ export function PaginatedContent<T>({
                 size="sm"
                 className="bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 disabled:opacity-50 h-7 px-2 text-xs md:h-8 md:px-3 md:text-sm lg:h-9 lg:px-4"
               >
-                Đi
+                {t("go")}
               </Button>
             </div>
           </div>

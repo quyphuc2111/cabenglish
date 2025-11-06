@@ -103,7 +103,7 @@ export function ProgressChart({ data }: ProgressChartProps) {
         </motion.div>
       </div>
 
-      <div className="w-full h-[450px]">
+      <div className="w-full h-[450px] xl:h-[650px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={paginatedData}

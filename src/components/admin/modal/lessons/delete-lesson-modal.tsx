@@ -29,7 +29,7 @@ const modalVariants = {
     scale: 1,
     transition: {
       duration: 0.3,
-      ease: "easeOut"
+      ease: "easeOut" as const
     }
   },
   exit: {
@@ -75,6 +75,11 @@ interface DeleteLessonModalProps {
 
 function DeleteLessonModal() {
   const { isOpen, onClose, type, data } = useModal();
+  const lessonIdsArray: string[] = React.useMemo(() => {
+    const ids = data?.lessonIds;
+    if (!ids) return [];
+    return Array.isArray(ids) ? ids.map((v: any) => String(v)) : [String(ids)];
+  }, [data?.lessonIds]);
 
   const { mutate: deleteLesson, isPending } = useDeleteLesson();
   const { activeLesson } = useLessonStore();
@@ -82,7 +87,7 @@ function DeleteLessonModal() {
   const handleConfirm = React.useCallback(() => {
     deleteLesson(
       {
-        lessonIds: data?.lessonIds,
+        lessonIds: lessonIdsArray,
         classId: Number(activeLesson.classId),
         unitId: Number(activeLesson.unitId)
       },
@@ -92,7 +97,7 @@ function DeleteLessonModal() {
           showToast.error(error.message || "Có lỗi xảy ra khi xóa bài học!");
         },
         onSuccess: () => {
-          showToast.success("Xóa phần học thành công!");
+          showToast.success("Xóa bài học thành công!");
           if (data?.onSuccess) {
             data.onSuccess();
           }
@@ -102,7 +107,9 @@ function DeleteLessonModal() {
     );
   }, [data, deleteLesson, onClose, activeLesson.classId, activeLesson.unitId]);
 
+
   if (!isOpen || type !== "deleteLesson") return null;
+  const selectedCount = data?.lessons?.length ?? (Array.isArray(data?.lessonIds) ? data?.lessonIds.length : data?.lessonIds ? 1 : 0);
 
   return (
     <AnimatePresence>
@@ -175,21 +182,32 @@ function DeleteLessonModal() {
               </motion.div>
               <div className="text-center space-y-2 flex flex-col justify-center items-center">
                 <p className="text-2xl font-medium">
-                  Bạn có muốn xóa {data?.lessonIds?.length} phần học này không?
+                  {selectedCount === 1
+                    ? (
+                      <>Bạn có muốn xóa bài học &ldquo;{data?.lessons?.[0]?.lessonName || `ID: ${Array.isArray(data?.lessonIds) ? data.lessonIds[0] : data?.lessonIds}`}&rdquo; không?</>
+                    ) : (
+                      <>Bạn có muốn xóa {selectedCount} bài học này không?</>
+                    )}
                 </p>
                 <div>
                   <ScrollArea className="w-[500px] ">
                     <div className="flex gap-2 pb-4">
-                      {data?.lessons?.map((lesson: any) => (
-                        <p
-                          key={lesson.lessonId}
-                          className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0"
-                        >
-                          <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">
-                            {lesson.lessonName}
-                          </span>
+                      {data?.lessons && data.lessons.length > 0 ? (
+                        data.lessons.map((lesson: any) => (
+                          <p
+                            key={lesson.lessonId}
+                            className="text-lg text-gray-600 whitespace-nowrap flex-shrink-0"
+                          >
+                            <span className="font-medium text-blue-600 bg-blue-50 rounded-full px-4 py-1">
+                              {lesson.lessonName || `ID: ${lesson.lessonId}`}
+                            </span>
+                          </p>
+                        ))
+                      ) : (
+                        <p className="text-lg text-gray-500 italic">
+                          Không thể hiển thị tên bài học
                         </p>
-                      ))}
+                      )}
                     </div>
                     <ScrollBar orientation="horizontal" />
                   </ScrollArea>

@@ -780,21 +780,23 @@ export const TabsContainer = ({
       className="w-full h-full flex flex-col lesson-tabs-container"
     >
       <TabsList className="bg-[#f5fcff] w-full flex h-auto p-0 flex-shrink-0 justify-start items-start overflow-x-auto lesson-tab-list min-h-[32px] landscape:min-h-[40px] sm:min-h-[48px]">
-        <div className="flex items-center gap-1 landscape:gap-2 sm:gap-2 md:gap-3 h-full bg-[#56B165] rounded-md p-0.5 landscape:p-1 sm:p-2 min-w-[20%] landscape:min-w-[12%] sm:min-w-0 sm:w-1/4 lg:w-1/5">
-          <div className="w-4 h-4 landscape:w-5 landscape:h-5 sm:w-8 sm:h-8 md:w-10 md:h-10 flex-shrink-0">
+        <div className="flex items-center gap-1 landscape:gap-2 sm:gap-2 md:gap-3 h-full bg-[#56B165] rounded-md p-0.5 landscape:p-1 sm:p-2 min-w-[32%] lg:min-w-[10%] zena sm:min-w-0 sm:w-1/4 lg:w-1/5">
+          <div className="w-8 h-8 landscape:w-10 landscape:h-10 sm:w-8 sm:h-8 md:w-10 md:h-10 flex-shrink-0">
             <OptimizeImage
               src={sectionInfo.iconUrl}
               width={64}
               height={64}
               alt="section_icon"
+              unoptimized
+              // className="w-10 h-10"
             />
           </div>
-          <h5 className="text-[10px] landscape:text-xs sm:text-sm md:text-base font-medium text-white truncate">
+          <h5 className="text-sm landscape:text-lg sm:text-sm md:text-base font-medium text-white truncate">
             {sectionInfo?.sectionName}
           </h5>
         </div>
         <ScrollArea className="w-full">
-          <div className="flex gap-0.5 landscape:gap-1 sm:gap-2 pb-0.5 landscape:pb-1 sm:pb-2 mb-0.5 landscape:mb-1 sm:mb-2 mt-0.5 landscape:mt-1 sm:mt-2">
+          <div className="flex gap-0.5 landscape:gap-1 sm:gap-2 mb-0.5 landscape:mb-1 sm:mb-2 mt-0.5 landscape:mt-1 sm:mt-2">
             {sectionContents
               .sort((a, b) => a.order - b.order)
               .map((content, index) => (
@@ -806,7 +808,7 @@ export const TabsContainer = ({
                   <TabsTrigger
                     value={index.toString()}
                     className={cn(
-                      "flex gap-0.5 landscape:gap-1 sm:gap-2 items-center py-0.5 landscape:py-1 sm:py-2 relative min-w-0 h-6 landscape:h-8 sm:h-10 lesson-tab-trigger",
+                      "flex gap-0.5 landscape:gap-1 sm:gap-2 items-center py-0.5 landscape:py-2 sm:py-2 relative min-w-0 h-6 landscape:h-10 sm:h-12 lesson-tab-trigger",
                       ""
                     )}
                     disabled={isContentLocked(content)}
@@ -815,7 +817,7 @@ export const TabsContainer = ({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="flex gap-0.5 landscape:gap-1 sm:gap-2 items-center min-w-0 w-full">
-                            <div className="w-4 h-4 landscape:w-5 landscape:h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 flex-shrink-0 relative overflow-hidden rounded">
+                            <div className="w-10 h-10 landscape:w-8 landscape:h-8 sm:w-6 sm:h-6 md:w-8 md:h-8 flex-shrink-0 relative overflow-hidden rounded">
                               <Image
                                 src={
                                   content.icon_url || "/assets/image/sc1.png"

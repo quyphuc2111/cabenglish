@@ -49,7 +49,8 @@ function ExportClassroomModal() {
         const exportData = classrooms.data.map((classroom: ClassroomType) => ({
           'Tên lớp học': classroom.classname,
           'Mô tả': classroom.description,
-          'Hình ảnh': classroom.imageurl
+          'Hình ảnh': classroom.imageurl,
+          "Thứ tự": classroom.order
         }));
 
         // Tạo workbook và worksheet

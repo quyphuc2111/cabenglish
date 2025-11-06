@@ -12,7 +12,7 @@ interface LessonResponse {
   success: boolean;
 }
 
-interface LessonAdminResponse {
+export interface LessonAdminResponse {
   data: LessonAdminType[] | null;
   error?: string;
   success?: boolean;
@@ -36,7 +36,7 @@ export async function getAllLessonDataByUserId({
 
   try {
     await initializeProgress(userId)
-    await initializeLocked({userId, mode: mode })
+    await initializeLocked({userId, mode: mode || "default" })
     const data = await serverFetch(`/api/Lesson/user/${userId}`);
 
     if (!Array.isArray(data)) {
@@ -235,23 +235,33 @@ export async function createLessonAdminDataByClassIdUnitId({
   lessonData: LessonAdminType[];
   classId: number;
   unitId: number;
-}) {
+}): Promise<{ success: boolean; data: any; error?: string }> {
   const lesson = {
     classId: classId,
     unitId: unitId,
     lessons: lessonData
   };
 
-  const data = await serverFetch(`/api/Lesson/batch`, {
+  const response = await serverFetch(`/api/Lesson/batch`, {
     method: "POST",
     data: lesson
   });
 
-  if (!Array.isArray(data)) {
-    throw new Error("Dữ liệu không đúng định dạng");
+  // serverFetch may return structured error object
+  if (response && response.success === false) {
+    return {
+      success: false,
+      data: [],
+      error: response.message || response.error || "Có lỗi xảy ra khi tạo bài học"
+    };
   }
 
-  return data;
+  // Normalize success shape; backend may return array or object with data
+  return {
+    success: true,
+    data: response?.data ?? response,
+    error: undefined
+  };
 }
 
 export async function getSingleLessonAdminData({
@@ -332,7 +342,7 @@ export async function deleteLessonAdminData({
   unitId: number;
 }): Promise<LessonAdminResponse> {
   try {
-    const data = await serverFetch(`/api/Lesson/batch`, {
+    const response = await serverFetch(`/api/Lesson/batch`, {
       method: "DELETE",
       data: {
         lessonIds: lessonIds,
@@ -341,8 +351,17 @@ export async function deleteLessonAdminData({
       }
     });
 
+    // serverFetch may return structured error object
+    if (response && response.success === false) {
+      return {
+        data: [],
+        error: response.message || response.error || "Có lỗi xảy ra khi xóa bài học",
+        success: false
+      };
+    }
+
     return {
-      data,
+      data: response?.data ?? response,
       error: undefined,
       success: true
     };

@@ -21,17 +21,17 @@ const DASHBOARD_CARDS = [
   {
     title: "Số lượng yêu thích lớp học",
     key: "totalClassroomLiked",
-    imageUrl: "/assets/image/admin/user_icon.webp"
+    imageUrl: "/assets/image/admin/heart_icon.png"
   },
   {
     title: "Số lượng yêu thích bài học",
     key: "totalLessonLiked",
-    imageUrl: "/assets/image/admin/user_icon.webp"
+    imageUrl: "/assets/image/admin/heart_icon.png"
   },
   {
     title: "Số lượng thông báo",
     key: "totalNotification",
-    imageUrl: "/assets/image/admin/user_icon.webp"
+    imageUrl: "/assets/image/admin/alert_icon.png"
   }
 ] as const;
 

@@ -21,7 +21,7 @@ export function SheetMenu() {
         </Button>
       </SheetTrigger>
       <SheetContent
-        className="sm:w-[75vw] sm:max-w-[75vw] landscape:w-[50vw] landscape:max-w-[50vw] px-3 h-full flex flex-col"
+        className="sm:w-[85vw] sm:max-w-[85vw] w-full landscape:w-[50vw] landscape:max-w-[50vw] px-3 h-full flex flex-col"
         side="left"
       >
         <SheetTitle></SheetTitle>

@@ -7,19 +7,33 @@ import { NavbarControls } from "./navbar-com/NavbarControls";
 import { LogoDecorations } from "./navbar-com/LogoDecorations";
 import { useSession } from "next-auth/react";
 import { useUserInfo } from "@/hooks/useUserInfo";
+import { useState, useEffect } from "react";
 
 export function Navbar() {
   const { t } = useTranslation("", "common");
   const { data: session } = useSession();
   const { data: userInfo } = useUserInfo(session?.user?.userId);
-  
-  // ✅ Ưu tiên theme từ data-theme attribute (đã set từ server)
-  const dataTheme = typeof document !== 'undefined' 
-    ? document.body.getAttribute('data-theme') 
-    : null;
-  const currentTheme = dataTheme || userInfo?.theme || session?.user?.theme || "theme-red";
   const { onOpen } = useModal();
   const { logout } = useLogout();
+
+  // ✅ Khởi tạo theme từ server-side data-theme attribute để tránh hydration mismatch
+  const [currentTheme, setCurrentTheme] = useState<string>(() => {
+    // Trong quá trình SSR, luôn dùng theme-red mặc định
+    if (typeof window === "undefined") {
+      return "theme-red";
+    }
+    // Trong client, đọc từ data-theme attribute (đã được set từ server)
+    return document.body.getAttribute("data-theme") || "theme-red";
+  });
+
+  // Update theme khi userInfo hoặc session thay đổi
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const dataTheme = document.body.getAttribute("data-theme");
+      const theme = dataTheme || userInfo?.theme || session?.user?.theme || "theme-red";
+      setCurrentTheme(theme);
+    }
+  }, [userInfo?.theme, session?.user?.theme]);
 
   const handleChangeTheme = () => {
     onOpen("changeTheme");
@@ -43,6 +57,7 @@ export function Navbar() {
           onChangeTheme={handleChangeTheme}
           onLogout={handleLogout}
           userId={session?.user.userId}
+          showText={true}
         />
       </div>
     </header>

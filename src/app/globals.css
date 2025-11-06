@@ -1076,6 +1076,34 @@ select {
   overflow: visible !important;
 }
 
+/* Enhanced 3D perspective for carousel */
+.perspective-1000 {
+  perspective: 1000px;
+  perspective-origin: center;
+}
+
+/* Book card 3D transform optimization */
+.book-card {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Smooth card hover states */
+.book-card:hover {
+  z-index: 10;
+}
+
+/* Performance mode adjustments for book cards */
+body.performance-mode .book-card {
+  will-change: auto;
+}
+
+body.performance-mode .book-card:hover {
+  transition: transform 0.15s ease-out, box-shadow 0.2s ease-out !important;
+}
+
 /* Framer Motion optimizations for non-essential elements */
 .performance-mode .lesson-card [data-framer-motion],
 .performance-mode .course-swiper [data-framer-motion],
@@ -1174,6 +1202,23 @@ body.performance-mode [data-state="open"],
 body.performance-mode [data-state="open"] * {
   animation-duration: 0.3s !important;
   transition-duration: 0.3s !important;
+}
+
+/* Allow fixed navbar controls to render smoothly - Override performance-mode */
+.navbar-controls-mobile-wrapper,
+.navbar-controls-mobile-wrapper *,
+body.performance-mode .navbar-controls-mobile-wrapper,
+body.performance-mode .navbar-controls-mobile-wrapper * {
+  animation-duration: initial !important;
+  animation-iteration-count: initial !important;
+  transition-duration: initial !important;
+  transition-delay: initial !important;
+}
+
+/* Prevent navbar controls from being affected by performance mode */
+body.performance-mode .navbar-controls-mobile-wrapper {
+  animation: none !important;
+  transition: none !important;
 }
 
 /* Allow completion celebration animations to work fully */

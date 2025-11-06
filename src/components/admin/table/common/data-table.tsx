@@ -33,6 +33,7 @@ interface DataTableProps<TData, TValue> {
   totalItems: number;
   meta?: any;
   table: any;
+  enableRowClick?: boolean; // ✅ Thêm prop enableRowClick
 }
 
 // Tạo một wrapper component cho animation
@@ -98,11 +99,15 @@ export function DataTable<TData, TValue>({
   onPageSizeChange,
   isLoading,
   totalItems,
-  table
+  table,
+  enableRowClick = true // ✅ Default enable row click
 }: DataTableProps<TData, TValue>) {
 
   // Hàm xử lý click vào row
   const handleRowClick = (row: Row<TData>, event: React.MouseEvent) => {
+    // ✅ Chỉ xử lý khi enableRowClick = true
+    if (!enableRowClick) return;
+
     // Ngăn chặn click khi click vào checkbox hoặc action buttons
     const target = event.target as HTMLElement;
     const isCheckbox = target.closest('[data-checkbox]');
@@ -169,12 +174,14 @@ export function DataTable<TData, TValue>({
                   <motion.tr
                     key={row.id}
                     variants={tableRowAnimation}
-                    className={`border-b transition-all duration-200 hover:bg-muted/50 cursor-pointer relative group ${
+                    className={`border-b transition-all duration-200 hover:bg-muted/50 relative group ${
+                      enableRowClick ? "cursor-pointer" : ""
+                    } ${
                       row.getIsSelected() 
                         ? "bg-muted" 
                         : ""
                     }`}
-                    onClick={(event) => handleRowClick(row, event)}
+                    onClick={enableRowClick ? (event) => handleRowClick(row, event) : undefined}
                   >                  
                     {row.getVisibleCells().map((cell: Cell<TData, unknown>) => (
                       <TableCell 

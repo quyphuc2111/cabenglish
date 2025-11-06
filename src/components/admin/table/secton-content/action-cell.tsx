@@ -25,7 +25,6 @@ export const ActionCell = memo(function ActionCell({ row }: ActionCellProps) {
   const { activeLesson } = useLessonStore();
 
   const handleEdit = useCallback(() => {
-    console.log("🔧 Edit section content:", sectionContent);
     onOpen("createUpdateSectionContent", {
       formType: "update",
       sectionContents: [sectionContent], 
@@ -36,11 +35,7 @@ export const ActionCell = memo(function ActionCell({ row }: ActionCellProps) {
   const handleDelete = useCallback(() => {
     onOpen("deleteSectionContent", {
       sectionContentIds: [sectionContent.sc_id.toString()],
-      sectionContents: sectionContent
-    //   schoolWeek: {
-    //     swId: schoolWeek.swId,
-    //     value: schoolWeek.value
-    //   } as any
+      sectionContents: [sectionContent] 
     });
   }, [sectionContent, onOpen]);
 

@@ -95,7 +95,7 @@ export function CollapseMenuButton({
                   width={40}
                   height={40}
                   alt="icon"
-                  className="object-contain"
+                  className="object-contain w-10 h-10"
                 />
               </div>
               {/* <p

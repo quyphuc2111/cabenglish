@@ -63,6 +63,7 @@ type FullDataView = {
   totalRows: number;
   currentPage: number;
   pageSize: number;
+  errors?: ValidationErrorType[];
 };
 
 function ImportClassroomModal() {
@@ -282,7 +283,7 @@ function ImportClassroomModal() {
         class_id: 0,
         numliked: 0,
         progress: 0,
-        order: 0
+        order: String(item["Thứ tự"] || '').trim()
       }));
 
       if (importOption === "create") {
@@ -403,13 +404,18 @@ function ImportClassroomModal() {
       const pageRows = validRows.slice(startIndex, endIndex);
       
       const normalizedRows = await normalizeRowsInChunks(pageRows, headers, pageSize);
+      // Map validation errors to current page window
+      const pageErrors = validationErrors
+        .filter(e => e.rowIndex >= 0 && e.rowIndex >= startIndex && e.rowIndex < endIndex)
+        .map(e => ({ ...e, rowIndex: e.rowIndex - startIndex }));
       
       setFullData({
         headers,
         rows: normalizedRows,
         totalRows,
         currentPage: page,
-        pageSize
+        pageSize,
+        errors: pageErrors
       });
       
     } catch (error) {
@@ -712,6 +718,7 @@ function ImportClassroomModal() {
         onPageChange={handlePageChange}
         isLoading={isProcessing}
         requiredColumns={['Tên lớp học', 'Mô tả', 'Hình ảnh']}
+    errors={fullData?.errors || []}
       />
       
       

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, memo } from "react";
-import { type Units } from "./columns";
+import { LessonAdminType } from "@/types/lesson";
 import { useModal } from "@/hooks/useModalStore";
 import OptimizeImage from "@/components/common/optimize-image";
 import {
@@ -15,7 +15,7 @@ import { useLessonStore } from "@/store/use-lesson-store";
 
 interface ActionCellProps {
   row: {
-    original: Units;
+    original: LessonAdminType;
   };
   table: {
     options: {
@@ -31,9 +31,6 @@ export const ActionCell = memo(function ActionCell({ row, table }: ActionCellPro
   const lesson = row.original;
   const selectedClassId = table.options.meta?.selectedClassId;
   const {activeLesson} = useLessonStore();
-
-  console.log(activeLesson)
-  console.log("lesson", lesson)
 
   const handleEdit = useCallback(() => {
     if (!activeLesson.classId) {
@@ -51,13 +48,10 @@ export const ActionCell = memo(function ActionCell({ row, table }: ActionCellPro
 
   const handleDelete = useCallback(() => {
     onOpen("deleteLesson", {
-      lessonIds: [lesson.lessonId.toString()],
-      // lesson: {
-      //   lessonId: lesson.lessonId,
-      //   value: lesson.lessonName
-      // } as any
+      lessonIds: [lesson.lessonId],
+      lessons: [lesson]
     });
-  }, [lesson.lessonId, onOpen]);
+  }, [lesson, onOpen]);
 
   return (
     <div className="flex gap-2 ">

@@ -120,9 +120,13 @@ function ClassroomContainerClient() {
 
   const handleDeleteClassroom = () => {
     const selectedIds = Object.keys(rowSelection);
+    const selectedNames = filteredData
+      .filter((c) => selectedIds.includes(c.class_id.toString()))
+      .map((c) => c.classname);
 
     handleModalOpen("deleteClassroom", {
       classroomIds: selectedIds,
+      classroomNames: selectedNames,
       onSuccess: () => setRowSelection({})
     });
   };
