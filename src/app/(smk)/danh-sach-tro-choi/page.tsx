@@ -14,15 +14,18 @@ import { ActiveFilterBadges } from "@/components/games/active-filter-badges";
 import { GamePerformanceManager } from "@/components/games/game-performance-manager";
 import { GameProgress } from "@/components/games/game-progress";
 import { GamePlayerModal } from "@/components/games/game-player-modal";
-import { GameService } from "@/services/game.service";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useUserInfo } from "@/hooks/useUserInfo";
-import { getAllAges } from "@/app/api/actions/age";
-import { getAllTopics } from "@/app/api/actions/topics";
+import { getAges, getTopics } from "@/lib/game-api";
 import type { GameAge, GameTopic, AdminGame } from "@/types/admin-game";
 import { useGameProgress } from "@/hooks/use-game-progress";
-import { useGetGamesInfinite } from "@/hooks/use-game";
+import {
+  useGetGamesInfinite,
+  useToggleLikeGame,
+  useUpdatePlayTime,
+  useMarkAsPlayed
+} from "@/hooks/use-game";
 
 export default function ListOfGamesPage() {
   const { t } = useTranslation();
@@ -44,6 +47,8 @@ export default function ListOfGamesPage() {
   // Refs
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const planetRef = useRef<HTMLDivElement>(null);
+  const ageScrollContainerRef = useRef<HTMLDivElement>(null);
+  const ageItemRefs = useRef<(HTMLParagraphElement | null)[]>([]);
   
   // Constants
   const pageSize = 12;
@@ -75,20 +80,24 @@ export default function ListOfGamesPage() {
   }), [pageSize, selectedTopicIds, selectedAgeIds, search]);
 
   // Queries
-  const { 
-    data: gamesInfiniteData, 
+  const {
+    data: gamesInfiniteData,
     isLoading: gamesLoading,
     isFetchingNextPage,
     hasNextPage,
-    fetchNextPage,
-    refetch: refetchGames
+    fetchNextPage
   } = useGetGamesInfinite(gamesQueryParams);
-  
-  const { data: overallProgress, refetch: refetchOverallProgress } = useGameProgress({}, { staleTime: 0 });
-  const { data: filteredProgress, refetch: refetchFilteredProgress } = useGameProgress(
+
+  const { data: overallProgress } = useGameProgress({}, { staleTime: 0 });
+  const { data: filteredProgress } = useGameProgress(
     { topicIds: selectedTopicIds },
     { enabled: selectedTopicIds.length > 0, staleTime: 0 }
   );
+
+  // Mutations
+  const { mutate: toggleLike } = useToggleLikeGame();
+  const { mutate: updatePlayTimeMutation } = useUpdatePlayTime();
+  const { mutate: markAsPlayed } = useMarkAsPlayed();
   
   // Flatten all pages using lodash
   const games = useMemo(() => 
@@ -218,8 +227,8 @@ export default function ListOfGamesPage() {
     const loadData = async () => {
       try {
         const [agesResponse, topicsResponse] = await Promise.all([
-          getAllAges({ pageSize: 100 }),
-          getAllTopics({ pageSize: 100 })
+          getAges({ pageSize: 100 }),
+          getTopics({ pageSize: 100 })
         ]);
 
         // Process ages with "All Ages" option
@@ -274,31 +283,50 @@ export default function ListOfGamesPage() {
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  // Auto scroll to current age when it changes
+  useEffect(() => {
+    const ageItem = ageItemRefs.current[currentPlanetIndex];
+    const container = ageScrollContainerRef.current;
+
+    if (ageItem && container) {
+      const itemLeft = ageItem.offsetLeft;
+      const itemWidth = ageItem.offsetWidth;
+      const containerWidth = container.offsetWidth;
+
+      // Calculate scroll position to center the item
+      const scrollPosition = itemLeft - (containerWidth / 2) + (itemWidth / 2);
+
+      container.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+      });
+    }
+  }, [currentPlanetIndex]);
+
   // Handlers
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
   
-  const handleLike = async (gameId: number) => {
-    try {
-      await GameService.toggleLike(gameId);
-    } catch (error) {
-      console.error("Error toggling like:", error);
-    }
+  const handleLike = (gameId: number) => {
+    toggleLike(gameId, {
+      onError: (error) => {
+        console.error("Error toggling like:", error);
+        toast.error("Không thể cập nhật trạng thái yêu thích");
+      }
+    });
   };
 
-  const handleGameClick = async (game: AdminGame) => {
-    if (!game.self_progress_info) {
-      try {
-        await Promise.all([
-          GameService.markAsPlayed(game.game_id),
-          refetchGames(),
-          refetchOverallProgress(),
-          ...(selectedTopicIds.length > 0 ? [refetchFilteredProgress()] : [])
-        ]);
-        toast.success("Đã cập nhật tiến độ!");
-      } catch (error) {
-        console.error("Error marking game as played:", error);
-      }
-    }
+  const handleGameClick = (game: AdminGame) => {
+    // if (!game.self_progress_info) {
+    //   markAsPlayed(game.game_id, {
+    //     onSuccess: () => {
+    //       toast.success("Đã cập nhật tiến độ!");
+    //     },
+    //     onError: (error) => {
+    //       console.error("Error marking game as played:", error);
+    //       toast.error("Không thể cập nhật tiến độ");
+    //     }
+    //   });
+    // }
     setSelectedGame(game);
     setIsPlayerOpen(true);
   };
@@ -308,12 +336,15 @@ export default function ListOfGamesPage() {
     setTimeout(() => setSelectedGame(null), 300);
   };
 
-  const handlePlayTimeUpdate = async (gameId: number, playTime: number) => {
-    try {
-      await GameService.updatePlayTime(gameId, playTime);
-    } catch (error) {
-      console.error("Error updating play time:", error);
-    }
+  const handlePlayTimeUpdate = (gameId: number, playTime: number) => {
+    updatePlayTimeMutation(
+      { gameId, playTimeSeconds: playTime },
+      {
+        onError: (error) => {
+          console.error("Error updating play time:", error);
+        }
+      }
+    );
   };
 
   const handleRemoveTopic = (topic: string) => {
@@ -368,35 +399,45 @@ export default function ListOfGamesPage() {
 
       <div className="mx-auto py-6 space-y-6">
         <div className="rounded-2xl overflow-hidden shadow-xl">
-          <div 
-            className={`py-4 flex gap-2 justify-around items-center bg-gradient-to-r ${themeColors.gradient}`}
-            style={{ boxShadow: `inset 0 -4px 0 ${themeColors.dark}` }}
+          <div
+            ref={ageScrollContainerRef}
+            className={`py-4 bg-gradient-to-r ${themeColors.gradient} overflow-x-auto`}
+            style={{
+              boxShadow: `inset 0 -4px 0 ${themeColors.dark}`,
+              scrollbarWidth: "thin",
+              scrollbarColor: "rgba(255, 255, 255, 0.5) transparent"
+            }}
           >
-            {ages.length > 0 ? ages.map((age, index) => {
-              const isCurrentAge = index === currentPlanetIndex;
-              const color = themeColors.ages[index % themeColors.ages.length];
-              return (
-                <p 
-                  key={age.age_id}
-                  className={cn(
-                    "font-bold text-sm md:text-base transition-all cursor-pointer",
-                    isCurrentAge ? "scale-110" : "hover:scale-105"
-                  )}
-                  style={{ 
-                    color: "#ffffff",
-                    textShadow: isCurrentAge ? `0 0 10px ${color}` : "none",
-                    opacity: isCurrentAge ? 1 : 0.7
-                  }}
-                  onClick={() => handleJumpToPosition(index)}
-                >
-                  {isCurrentAge && "▶ "}{age.age_name}{isCurrentAge && " ◀"}
+            <div className="flex gap-3 md:gap-4 px-4 min-w-max md:min-w-0 md:justify-around items-center">
+              {ages.length > 0 ? ages.map((age, index) => {
+                const isCurrentAge = index === currentPlanetIndex;
+                const color = themeColors.ages[index % themeColors.ages.length];
+                return (
+                  <p
+                    key={age.age_id}
+                    ref={(el) => {
+                      ageItemRefs.current[index] = el;
+                    }}
+                    className={cn(
+                      "font-bold text-sm md:text-base transition-all cursor-pointer whitespace-nowrap flex-shrink-0",
+                      isCurrentAge ? "scale-110" : "hover:scale-105"
+                    )}
+                    style={{
+                      color: "#ffffff",
+                      textShadow: isCurrentAge ? `0 0 10px ${color}` : "none",
+                      opacity: isCurrentAge ? 1 : 0.7
+                    }}
+                    onClick={() => handleJumpToPosition(index)}
+                  >
+                    {isCurrentAge && "▶ "}{age.age_name}{isCurrentAge && " ◀"}
+                  </p>
+                );
+              }) : (
+                <p className="font-bold text-sm md:text-base" style={{ color: themeColors.ages[0] }}>
+                  Đang tải...
                 </p>
-              );
-            }) : (
-              <p className="font-bold text-sm md:text-base" style={{ color: themeColors.ages[0] }}>
-                Đang tải...
-              </p>
-            )}
+              )}
+            </div>
           </div>
 
           <div
@@ -511,18 +552,9 @@ export default function ListOfGamesPage() {
                       textShadow: `0 .20rem 0 ${themeColors.primary}, 0 0 20px ${themeColors.primary}50`
                     }}
                   >
-                    {ages[currentPlanetIndex]?.age_name_en || ages[currentPlanetIndex]?.age_name}
+                    {ages[currentPlanetIndex]?.age_name}
                   </p>
-                  <Button
-                    className="transition-all hover:scale-105 hover:brightness-110"
-                    style={{
-                      backgroundColor: themeColors.primary,
-                      boxShadow: `0 .35rem 0 0 ${themeColors.dark}`,
-                      borderRadius: "30px"
-                    }}
-                  >
-                    Mô tả chủ đề này!
-                  </Button>
+                
                 </div>
                 <div className="relative group">
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2 transition-colors">

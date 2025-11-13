@@ -146,7 +146,7 @@ export function useMenuList(
           label: t("listOfGames"),
           active: pathname.includes("/danh-sach-tro-choi"),
           icon: Tag,
-          iconSrc: "/menu-icon/setting_mode.png",
+          iconSrc: "/menu-icon/game_icon.png",
           submenus: []
         }
        

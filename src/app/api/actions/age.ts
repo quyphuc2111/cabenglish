@@ -70,7 +70,6 @@ export async function getAllAges(params: GetAgesParams = {}): Promise<GetAgesRes
 }
 
 export async function createAge(data: GameAgeFormData): Promise<CreateAgeResponse> {
-  console.log("📥 createAge action called with data:", data);
 
   const requestBody = {
     ages: [
@@ -85,8 +84,6 @@ export async function createAge(data: GameAgeFormData): Promise<CreateAgeRespons
     ]
   };
 
-  console.log("🚀 Create Age Request Body:", JSON.stringify(requestBody, null, 2));
-
   const response = await serverFetch(
     `/api/Age`,
     {
@@ -94,8 +91,6 @@ export async function createAge(data: GameAgeFormData): Promise<CreateAgeRespons
       data: requestBody,
     }
   );
-
-  console.log("📬 API Response:", response);
 
   if (!response || !response.success) {
     console.error("❌ API Error Response:", {
@@ -117,21 +112,16 @@ export async function createAge(data: GameAgeFormData): Promise<CreateAgeRespons
       errors: errors
     };
     
-    console.log("🔍 Processed errorData:", errorData);
-    
     // Combine all error info into message for display
     let errorMessage = errorData.message;
     if (response?.statusCode) {
       errorMessage = `[${response.statusCode}] ${errorMessage}`;
     }
     if (errorData.errors.length > 0) {
-      console.log("✅ Adding errors to message:", errorData.errors);
       errorMessage = `${errorMessage}\n${errorData.errors.join('\n')}`;
     } else {
       console.warn("⚠️ No errors array found or empty");
     }
-    
-    console.log("📝 Final error message:", errorMessage);
     
     const error = new Error(errorMessage);
     (error as any).statusCode = errorData.statusCode;

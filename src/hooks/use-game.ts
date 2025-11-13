@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { 
-  getAllGames, 
-  createGame, 
-  updateGame, 
+import {
+  getAllGames,
+  createGame,
+  updateGame,
   deleteGame,
   deleteGames,
   reorderGames
@@ -10,6 +10,11 @@ import {
 import { GameFormData, ReorderGameItem } from "@/types/admin-game";
 import { GameService } from "@/services/game.service";
 import { GamesQueryParams } from "@/types/game";
+import {
+  toggleLikeGame,
+  updatePlayTime,
+  markGameAsPlayed
+} from "@/lib/game-api";
 
 interface UseGamesParams {
   page?: number;
@@ -148,6 +153,146 @@ export function useReorderGames() {
         refetchType: "all"
       });
     },
+  });
+}
+
+// ============ Client-side Game Interaction Hooks ============
+
+/**
+ * Hook to toggle like/unlike a game
+ * Invalidates game queries after successful mutation
+ *
+ * @example
+ * ```tsx
+ * const { mutate: toggleLike, isPending } = useToggleLikeGame();
+ *
+ * const handleLike = (gameId: number) => {
+ *   toggleLike(gameId, {
+ *     onSuccess: (data) => {
+ *       console.log('Like toggled:', data.data.is_liked);
+ *     }
+ *   });
+ * };
+ * ```
+ */
+export function useToggleLikeGame() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (gameId: number) => toggleLikeGame(gameId),
+    onSuccess: () => {
+      // Invalidate all game-related queries to refetch updated data
+      queryClient.invalidateQueries({
+        queryKey: ["games"],
+        exact: false,
+        refetchType: "all"
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["games-infinite"],
+        exact: false,
+        refetchType: "all"
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["games-service"],
+        exact: false,
+        refetchType: "all"
+      });
+    },
+    onError: (error) => {
+      console.error("❌ Toggle like failed:", error);
+    }
+  });
+}
+
+/**
+ * Hook to update play time for a game
+ * Invalidates game progress queries after successful mutation
+ *
+ * @example
+ * ```tsx
+ * const { mutate: updateTime } = useUpdatePlayTime();
+ *
+ * const handlePlayTimeUpdate = (gameId: number, seconds: number) => {
+ *   updateTime({ gameId, playTimeSeconds: seconds });
+ * };
+ * ```
+ */
+export function useUpdatePlayTime() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ gameId, playTimeSeconds }: { gameId: number; playTimeSeconds: number }) =>
+      updatePlayTime(gameId, playTimeSeconds),
+    onSuccess: () => {
+      // Invalidate game progress queries
+      queryClient.invalidateQueries({
+        queryKey: ["game-progress"],
+        exact: false,
+        refetchType: "all"
+      });
+      // Also invalidate game lists in case they show play time
+      queryClient.invalidateQueries({
+        queryKey: ["games"],
+        exact: false,
+        refetchType: "all"
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["games-infinite"],
+        exact: false,
+        refetchType: "all"
+      });
+    },
+    onError: (error) => {
+      console.error("❌ Update play time failed:", error);
+    }
+  });
+}
+
+/**
+ * Hook to mark a game as played
+ * Invalidates game progress and game list queries after successful mutation
+ *
+ * @example
+ * ```tsx
+ * const { mutate: markPlayed } = useMarkAsPlayed();
+ *
+ * const handleGameStart = (gameId: number) => {
+ *   markPlayed(gameId);
+ * };
+ * ```
+ */
+export function useMarkAsPlayed() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (gameId: number) => markGameAsPlayed(gameId),
+    onSuccess: () => {
+      // Invalidate game progress queries
+      queryClient.invalidateQueries({
+        queryKey: ["game-progress"],
+        exact: false,
+        refetchType: "all"
+      });
+      // Invalidate game lists to update played status
+      queryClient.invalidateQueries({
+        queryKey: ["games"],
+        exact: false,
+        refetchType: "all"
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["games-infinite"],
+        exact: false,
+        refetchType: "all"
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["games-service"],
+        exact: false,
+        refetchType: "all"
+      });
+    },
+    onError: (error) => {
+      console.error("❌ Mark as played failed:", error);
+    }
   });
 }
 

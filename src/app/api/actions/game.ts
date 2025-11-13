@@ -141,7 +141,6 @@ export async function getAllGames(params: GetGamesParams = {}): Promise<GetGames
 }
 
 export async function createGame(data: GameFormData): Promise<CreateGameResponse> {
-  console.log("📥 createGame action called with data:", data);
   
   const requestBody = {
     games: [
@@ -160,9 +159,6 @@ export async function createGame(data: GameFormData): Promise<CreateGameResponse
     ]
   };
 
-  console.log("🚀 Create Game Request Body:", JSON.stringify(requestBody, null, 2));
-  console.log(requestBody);
-
   const response = await serverFetch(
     `/api/Game`,
     {
@@ -170,8 +166,6 @@ export async function createGame(data: GameFormData): Promise<CreateGameResponse
       data: requestBody,
     }
   );
-
-  console.log("📬 API Response:", response);
 
   if (!response || !response.success) {
     console.error("❌ API Error Response:", {
@@ -193,21 +187,16 @@ export async function createGame(data: GameFormData): Promise<CreateGameResponse
       errors: errors
     };
     
-    console.log("🔍 Processed errorData:", errorData);
-    
     // Combine all error info into message for display
     let errorMessage = errorData.message;
     if (response?.statusCode) {
       errorMessage = `[${response.statusCode}] ${errorMessage}`;
     }
     if (errorData.errors.length > 0) {
-      console.log("✅ Adding errors to message:", errorData.errors);
       errorMessage = `${errorMessage}\n${errorData.errors.join('\n')}`;
     } else {
       console.warn("⚠️ No errors array found or empty");
     }
-    
-    console.log("📝 Final error message:", errorMessage);
     
     const error = new Error(errorMessage);
     (error as any).statusCode = errorData.statusCode;

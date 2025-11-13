@@ -1,9 +1,9 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import { 
-  getGameProgress, 
-  GetGameProgressParams, 
-  GameProgressData 
-} from "@/app/api/actions/game";
+import {
+  getGameProgress,
+  GetGameProgressParams,
+  GameProgressData
+} from "@/lib/game-api";
 
 /**
  * Hook to fetch game progress statistics

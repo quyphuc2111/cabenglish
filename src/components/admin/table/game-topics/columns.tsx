@@ -85,7 +85,7 @@ export function useGameTopicsColumns() {
         cell: ({ row }) => {
           const icon = row.original.icon_url;
           return (
-            <Image src={icon || "/assets/image/no_image.png"} alt="Icon" width={48} height={48} />
+            <Image unoptimized src={icon || "/assets/image/no_image.png"} alt="Icon" width={48} height={48} />
           );
         }
       },
