@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import gsap from "gsap";
-import { flatMap, sortBy } from "lodash";
+import { debounce, flatMap, sortBy } from "lodash";
 
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import GameCard from "@/components/games/game-card";
@@ -40,16 +40,48 @@ export default function ListOfGamesPage() {
   const [ageGroup, setAgeGroup] = useState("");
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [currentPlanetIndex, setCurrentPlanetIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentRotation, setCurrentRotation] = useState(0);
+  const [planetTranslate, setPlanetTranslate] = useState(1100);
+  const [planetContainerHeight, setPlanetContainerHeight] = useState(1500);
+  const [planetTransformOrigin, setPlanetTransformOrigin] = useState<string>("center center");
   
   // Refs
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const planetRef = useRef<HTMLDivElement>(null);
+  const planetImageRef = useRef<HTMLImageElement>(null);
   const ageScrollContainerRef = useRef<HTMLDivElement>(null);
   const ageItemRefs = useRef<(HTMLParagraphElement | null)[]>([]);
+  const resizeTimeoutRef = useRef<number | undefined>(undefined);
   
+  const debouncedSetSearch = useMemo(
+    () =>
+      debounce((value: string) => {
+        setSearch(value);
+      }, 400),
+    []
+  );
+
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
+
+  useEffect(() => {
+    return () => {
+      debouncedSetSearch.cancel();
+    };
+  }, [debouncedSetSearch]);
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setSearchInput(value);
+      debouncedSetSearch(value);
+    },
+    [debouncedSetSearch]
+  );
+
   // Constants
   const pageSize = 12;
   const userAge = 5; // TODO: Get from user context
@@ -303,6 +335,69 @@ export default function ListOfGamesPage() {
     }
   }, [currentPlanetIndex]);
 
+  // Compute actual visual center of the planet image and set transform origin for rotation
+  useEffect(() => {
+    const computeCenter = () => {
+      const planetEl = planetRef.current;
+      const imgEl = planetImageRef.current;
+      if (!planetEl || !imgEl) return;
+      // Use element sizes instead of getBoundingClientRect to avoid transform influence
+      const planetWidth = planetEl.clientWidth;
+      const planetHeight = planetEl.clientHeight;
+      const imgWidth = imgEl.clientWidth;
+      const imgHeight = imgEl.clientHeight;
+      // Image is bottom-aligned and horizontally centered via left:50% translateX(-50%)
+      const centerX = planetWidth - imgWidth / 2;
+      const centerY = planetHeight - imgHeight / 2;
+      setPlanetTransformOrigin(`${centerX}px ${centerY}px`);
+    };
+    // Initial compute after layout
+    requestAnimationFrame(() => computeCenter());
+    // Debounced window resize handler
+    const handleResize = () => {
+      if (resizeTimeoutRef.current) {
+        window.clearTimeout(resizeTimeoutRef.current);
+      }
+      resizeTimeoutRef.current = window.setTimeout(() => {
+        requestAnimationFrame(() => computeCenter());
+      }, 50);
+    };
+    window.addEventListener("resize", handleResize);
+    // Observe element size changes (e.g., breakpoint class changes)
+    const ro = new ResizeObserver(() => {
+      requestAnimationFrame(() => computeCenter());
+    });
+    if (planetRef.current) ro.observe(planetRef.current);
+    if (planetImageRef.current) ro.observe(planetImageRef.current);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (resizeTimeoutRef.current) {
+        window.clearTimeout(resizeTimeoutRef.current);
+      }
+      ro.disconnect();
+    };
+  }, [planetTranslate, planetContainerHeight]);
+
+  // Responsive translate for planet wrapper to keep rotation logic consistent on mobile
+  useEffect(() => {
+    const updateTranslate = () => {
+      const width = window.innerWidth;
+      if (width < 640) {
+        setPlanetTranslate(180); // mobile
+        setPlanetContainerHeight(800);
+      } else if (width < 1024) {
+        setPlanetTranslate(550); // tablet / small screens
+        setPlanetContainerHeight(1200);
+      } else {
+        setPlanetTranslate(1100); // large screens
+        setPlanetContainerHeight(1500);
+      }
+    };
+    updateTranslate();
+    window.addEventListener("resize", updateTranslate);
+    return () => window.removeEventListener("resize", updateTranslate);
+  }, []);
+
   // Handlers
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
   
@@ -366,7 +461,6 @@ export default function ListOfGamesPage() {
     let diff = targetRotation - (currentRotation % 360);
     if (diff > 180) diff -= 360;
     if (diff < -180) diff += 360;
-    
     gsap.to(planetRef.current, {
       rotation: currentRotation + diff,
       duration,
@@ -386,6 +480,30 @@ export default function ListOfGamesPage() {
   const handleNextPlanet = () => rotatePlanet((currentPlanetIndex + 1) % numberOfAges, 1);
   const handlePrevPlanet = () => rotatePlanet((currentPlanetIndex - 1 + numberOfAges) % numberOfAges, 1);
   const handleJumpToPosition = (index: number) => rotatePlanet(index, 1.2);
+
+  const SearchBar = ({ className }: { className?: string }) => (
+    <div className={cn("relative group w-full", className)}>
+      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 transition-colors">
+        <Search
+          className={cn("w-5 h-5 transition-colors", searchInput ? "text-blue-500" : "text-gray-400")}
+        />
+      </div>
+      <input
+        type="text"
+        placeholder="Tìm trò chơi..."
+        value={searchInput}
+        onChange={(e) => handleSearchChange(e.target.value)}
+        className={cn(
+          "w-full pl-10 pr-4 py-3 rounded-xl transition-all",
+          "border-2 focus:outline-none",
+          searchInput
+            ? "border-blue-400 bg-blue-50/50"
+            : "border-gray-200 bg-white hover:border-gray-300",
+          "focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+        )}
+      />
+    </div>
+  );
 
   return (
     <ContentLayout title={t("listOfGames")}>
@@ -456,30 +574,49 @@ export default function ListOfGamesPage() {
               }}
             />
 
-            <div className="absolute bottom-0 left-0 w-full h-[1500px] z-[1]">
+            <div
+              className="absolute bottom-0 left-0 w-full z-[1]"
+              style={{
+                transform: `translateY(${planetTranslate}px)`,
+                height: `${planetContainerHeight}px`,
+              }}
+            >
               <div
                 ref={planetRef}
                 className="absolute bottom-0 left-0 w-full h-full"
                 style={{
-                  transformOrigin: "center center",
+                  transformOrigin: planetTransformOrigin,
                   willChange: "transform",
-                  transform: "translateY(1100px)"
                 }}
               >
                 {/* Responsive planet image with glow border */}
+                
                 <img
                   src={planetImageSrc}
-                  srcSet="/assets/image/pink_bg.png 1200w, /assets/image/pink_bg_3.png 2000w, /assets/image/pink_bg_3.png 4000w"
+                  // srcSet="/assets/image/pink_bg.png 1200w, /assets/image/pink_bg_3.png 2000w, /assets/image/pink_bg_3.png 4000w"
                   sizes="100vw"
                   alt=""
                   aria-hidden="true"
+                  ref={planetImageRef}
+                  onLoad={() => {
+                    // Recompute center when the image has loaded and sizes are known
+                    const planetEl = planetRef.current;
+                    const imgEl = planetImageRef.current;
+                    if (!planetEl || !imgEl) return;
+                    const planetWidth = planetEl.clientWidth;
+                    const planetHeight = planetEl.clientHeight;
+                    const imgWidth = imgEl.clientWidth;
+                    const imgHeight = imgEl.clientHeight;
+                    const centerX = planetWidth - imgWidth / 2;
+                    const centerY = planetHeight - imgHeight / 2;
+                    setPlanetTransformOrigin(`${centerX}px ${centerY}px`);
+                  }}
+                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[345px] sm:w-[800px] lg:w-[1500px]"
                   style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    objectPosition: "center bottom",
+                    aspectRatio: "1 / 1",
+                    height: "auto",
                     imageRendering: "-webkit-optimize-contrast",
-                    filter: `drop-shadow(0 0 24px ${themeColors.primary}) drop-shadow(0 0 48px ${themeColors.primary}66)`
+                    filter: `drop-shadow(0 0 24px ${themeColors.primary}) drop-shadow(0 0 48px ${themeColors.primary}66)`,
                   }}
                 />
               </div>
@@ -556,27 +693,8 @@ export default function ListOfGamesPage() {
                   </p>
                 
                 </div>
-                <div className="relative group">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 transition-colors">
-                    <Search className={cn(
-                      "w-5 h-5 transition-colors",
-                      search ? "text-blue-500" : "text-gray-400"
-                    )} />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Tìm trò chơi..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className={cn(
-                      "w-full pl-10 pr-4 py-3 rounded-xl transition-all",
-                      "border-2 focus:outline-none",
-                      search 
-                        ? "border-blue-400 bg-blue-50/50" 
-                        : "border-gray-200 bg-white hover:border-gray-300",
-                      "focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                    )}
-                  />
+                <div className="hidden md:block w-full max-w-xs md:max-w-sm lg:max-w-md">
+                  <SearchBar />
                 </div>
               </div>
 
@@ -677,6 +795,10 @@ export default function ListOfGamesPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="block md:hidden px-4">
+          <SearchBar className="mt-2" />
         </div>
 
         {selectedTopics.length > 0 && (

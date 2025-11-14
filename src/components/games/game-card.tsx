@@ -20,6 +20,25 @@ interface FloatingHeart {
   y: number;
 }
 
+const formatLikeCount = (count: number): string => {
+  const units = [
+    { value: 1_000_000_000_000, symbol: 'T' }, // trillion
+    { value: 1_000_000_000, symbol: 'B' },     // billion
+    { value: 1_000_000, symbol: 'M' },         // million
+    { value: 1_000, symbol: 'k' },             // thousand
+  ];
+
+  for (const unit of units) {
+    if (count >= unit.value) {
+      return (count / unit.value)
+        .toFixed(1)
+        .replace(/\.0$/, '') + unit.symbol;
+    }
+  }
+
+  return count.toString();
+};
+
 export default function GameCard({ game, userAge, onLike, onClick }: GameCardProps) {
   const [isLiked, setIsLiked] = useState(game.is_self_liked || false);
   const [likes, setLikes] = useState(game.num_liked);
@@ -217,7 +236,7 @@ export default function GameCard({ game, userAge, onLike, onClick }: GameCardPro
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 text-sm">
               <Heart className="w-4 h-4 text-red-400 fill-red-400" />
-              <span className="font-bold text-gray-800">{likes}</span>
+              <span className="font-bold text-gray-800">{formatLikeCount(likes)}</span>
             </div>
           
           </div>
