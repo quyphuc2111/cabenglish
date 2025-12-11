@@ -13,7 +13,7 @@
     "dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 next dev",
     "dev:turbo": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 next dev --turbopack",
     "dev:debug": "set NODE_OPTIONS=--inspect && next dev",
-    "build": "next build",
+    "build": "next build && node scripts/copyFiles.js",
     "start": "next start",
     "lint": "next lint",
     "analyze": "set ANALYZE=true && npm run build"
