@@ -53,6 +53,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true
   },
+  output: "standalone",
   // Add environment variables accessible on the client-side
   env: {
     NEXT_PUBLIC_BKT_ACCOUNT_API_URL: process.env.BKT_ACCOUNT_API_URL,
