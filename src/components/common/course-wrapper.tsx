@@ -16,6 +16,7 @@ function CourseWrapper({ children, className }: { children: React.ReactNode, cla
           width={40} 
           height={40} 
           className="w-8 h-8 sm:w-10 sm:h-10"
+          unoptimized
         />
         <Image 
           src="/rank.gif" 
@@ -23,6 +24,7 @@ function CourseWrapper({ children, className }: { children: React.ReactNode, cla
           width={40} 
           height={40} 
           className="w-8 h-8 sm:w-10 sm:h-10"
+          unoptimized
         />
         <Image 
           src="/longden_course.png" 

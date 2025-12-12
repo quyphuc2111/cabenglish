@@ -79,6 +79,7 @@ export const TeachingProgress = memo(function TeachingProgress({
                   width={35}
                   height={358}
                   className=""
+                  unoptimized
                 />
               </div>
             </div>

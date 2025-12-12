@@ -147,15 +147,12 @@ export default function ListOfGamesPage() {
   const totalCount = gamesInfiniteData?.pages[0]?.totalCount || 0;
   const numberOfAges = ages.length || 4;
   const rotationAngle = 360 / numberOfAges;
-
-  // Update current theme from document (client-side only)
+  
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const dataTheme = document.body.getAttribute("data-theme");
-      const theme =
-        dataTheme || userInfo?.theme || session?.user?.theme || "theme-red";
-      setCurrentTheme(theme);
-    }
+     if (typeof window !== "undefined") {
+    const dataTheme = document.body.getAttribute('data-theme');
+    setCurrentTheme(dataTheme || userInfo?.theme || session?.user?.theme || "theme-red");
+     }
   }, [userInfo?.theme, session?.user?.theme]);
 
   // Theme color mappings
