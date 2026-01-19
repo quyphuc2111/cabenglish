@@ -3,6 +3,7 @@ import React, { Fragment, useState } from "react";
 import Image from "next/image";
 import LessonItem from "@/components/lesson/lesson-item";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { WEEKLY_LESSONS, LESSONS_BY_GRADE, findLessonByIdGlobal } from "@/mock/data";
 
 const UnitData = [
   {
@@ -109,13 +110,39 @@ const UnitData = [
 
 function UnitPage() {
   const router = useRouter();
+  const params = useParams();
   const searchParams = useSearchParams();
 
   const lessonParams = searchParams.get("lesson");
+  
+  // Get grade from URL params (from route) or search params (from query string)
+  const gradeFromRoute = params.grade ? Number(params.grade) : null;
+  const gradeFromQuery = searchParams.get("grade");
+  const currentGrade = gradeFromRoute || (gradeFromQuery ? Number(gradeFromQuery) : 5);
+  
   const [isSliding, setIsSliding] = useState(false);
   const [initialSliding, setInitialSliding] = useState(false);
 
-  console.log(lessonParams);
+  console.log('Lesson:', lessonParams, 'Grade:', currentGrade);
+
+  // Find the lesson from LESSONS_BY_GRADE based on lessonParams ID
+  const currentLesson = React.useMemo(() => {
+    if (!lessonParams) return null;
+    
+    // Use global search to find lesson across all grades
+    const result = findLessonByIdGlobal(lessonParams);
+    return result?.lesson || null;
+  }, [lessonParams]);
+
+  // If we have a selected lesson, create a display list with just that lesson, otherwise use UnitData
+  const displayList = currentLesson
+    ? [{
+      ...UnitData[0], // Keep structure/mock stats from UnitData[0] for now layout compatibility
+      title: currentLesson.title,
+      image: currentLesson.image,
+      category_title: currentLesson.category_title
+    }]
+    : UnitData;
 
   const handleLessonClick = () => {
     if (!lessonParams) {
@@ -126,13 +153,10 @@ function UnitPage() {
   };
 
   const handleBackClick = () => {
-
-    if(lessonParams) { 
-      router.push("/lop-hoc")
-    }
-    
-    if (!isSliding && !lessonParams) {
-      router.push("/main/khoa-hoc/tieng-anh-lop-1");
+    if (lessonParams) {
+      router.push(`/lop-hoc?grade=${currentGrade}`)
+    } else if (!isSliding) {
+      router.push(`/main/khoa-hoc/tieng-anh-lop-${currentGrade}`);
     } else {
       setIsSliding(false);
     }
@@ -145,14 +169,12 @@ function UnitPage() {
           <Image src="/backic.png" width={64} height={64} alt="backic" />
         </div>
         <div
-          className={`shadow-md  ${
-            isSliding ? "p-0" : "py-5"
-          } rounded-2xl bg-[#f5fcff] lg:w-5/6 mx-auto h-[800px] relative overflow-hidden`}
+          className={`shadow-md  ${isSliding ? "p-0" : "py-5"
+            } rounded-2xl bg-[#f5fcff] lg:w-5/6 mx-auto h-[800px] relative overflow-hidden`}
         >
           <div
-            className={`w-full h-full ${
-              isSliding ? "animate-slideLeft" : "animate-slideRight px-3"
-            }`}
+            className={`w-full h-full ${isSliding ? "animate-slideLeft" : "animate-slideRight px-3"
+              }`}
           >
             {!lessonParams && (
               <h2 className="text-2xl font-semibold text-zinc-700 mb-3 lg:mb-12 ml-7">
@@ -160,7 +182,7 @@ function UnitPage() {
               </h2>
             )}
 
-            {UnitData.map((item, index) => {
+            {displayList.map((item, index) => {
               return (
                 <Fragment key={index}>
                   <LessonItem
@@ -171,6 +193,7 @@ function UnitPage() {
                     lessonInfo={item.lessonInfo}
                     onClick={handleLessonClick}
                     params={lessonParams}
+                    categoryTitle={item.category_title}
                   />
                 </Fragment>
               );

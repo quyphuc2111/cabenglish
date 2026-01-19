@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { PanelsTopLeft } from "lucide-react";
+import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
-import { Button } from "@/components/ui/button";
 import { Menu } from "@/components/admin-panel/menu";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import { SidebarToggle } from "@/components/admin-panel/sidebar-toggle";
@@ -17,35 +16,36 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed top-0 left-0 z-20 h-screen -translate-x-full lg:translate-x-0 transition-[width] ease-in-out duration-300 bg-[#21bdc6] text-white",
-        sidebar?.isOpen === false ? "w-[100px]" : "w-72"
+        "fixed top-0 left-0 z-20 h-screen -translate-x-full lg:translate-x-0 transition-[width] ease-in-out duration-300",
+        "bg-gradient-to-b from-[#BD5353]/66 to-[#BD5353]/66",
+        "rounded-r-[50px]",
+        sidebar?.isOpen === false ? "w-[100px]" : "w-[426px]"
       )}
+      style={{
+        backgroundImage: "url('/home/patten.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "bottom"
+      }}
     >
+       <div className="absolute inset-0 bg-white/50  pointer-events-none -mx-4 -my-2"></div>
+        
       <SidebarToggle isOpen={sidebar?.isOpen} setIsOpen={sidebar?.setIsOpen} />
-      <div className="relative h-full flex flex-col pt-10">
-        <Button
-          className={cn(
-            "transition-transform ease-in-out duration-300 mb-1",
-            sidebar?.isOpen === false ? "translate-x-1" : "translate-x-0"
-          )}
-          variant="link"
-          asChild
-        >
-          {/* <Link href="/dashboard" className="flex items-center gap-2">
-            <PanelsTopLeft className="w-6 h-6 mr-1" />
-            <h1
-              className={cn(
-                "font-bold text-lg whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300",
-                sidebar?.isOpen === false
-                  ? "-translate-x-96 opacity-0 hidden"
-                  : "translate-x-0 opacity-100"
-              )}
-            >
-              BKT Kids
-            </h1>
-          </Link> */}
-        </Button>
-       <AvatarUser sidebar={sidebar} />
+      <div className="relative h-full flex flex-col px-4 pt-4">
+        {/* Logo */}
+        <div className="mb-8 px-2">
+          <Image
+            src="/sidebar/logo.svg"
+            alt="Logo"
+            width={57}
+            height={57}
+            className="object-contain"
+          />
+        </div>
+
+        {/* Avatar User */}
+        <AvatarUser sidebar={sidebar} />
+        
+        {/* Menu */}
         <Menu isOpen={sidebar?.isOpen} />
       </div>
     </aside>

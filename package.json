@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev & npx next-video sync -w",
+    "dev:https": "next dev --experimental-https --experimental-https-key ./certificates/localhost+2-key.pem --experimental-https-cert ./certificates/localhost+2.pem & npx next-video sync -w",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

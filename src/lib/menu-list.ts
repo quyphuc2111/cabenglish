@@ -1,11 +1,11 @@
 import {
   Tag,
-  Users,
   Settings,
-  Bookmark,
-  SquarePen,
   LayoutGrid,
-  LucideIcon
+  LucideIcon,
+  BookOpen,
+  Gift,
+  Maximize2
 } from "lucide-react";
 
 type Submenu = {
@@ -33,9 +33,9 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "",
       menus: [
         {
-          href: "/lop-hoc",
-          label: "Lớp BKT",
-          active: pathname.includes("/lop-hoc"),
+          href: "/chon-lop-hoc",
+          label: "Lớp học",
+          active: pathname.includes("/chon-lop-hoc"),
           icon: LayoutGrid,
           submenus: []
         }
@@ -46,69 +46,57 @@ export function getMenuList(pathname: string): Group[] {
       menus: [
         {
           href: "/main/khoa-hoc",
-          label: "Khóa học",
-          active: pathname.includes("/main/khoa-hoc"),
-          icon: SquarePen,
+          label: "Khoá học",
+          active: pathname.includes("/main/khoa-hoc") || pathname.includes("/khoa-hoc"),
+          icon: BookOpen,
           submenus: [
-            // {
-            //   href: "/main/khoa-hoc",
-            //   label: "Khóa học mới",
-            //   active: pathname === "/main/khoa-hoc"
-            // },
             {
               href: "/main/khoa-hoc/tieng-anh-lop-1",
-              label: "Tiếng anh lớp 1",
+              label: "CAB Kid 1",
               active: pathname === "/main/khoa-hoc/tieng-anh-lop-1"
             },
             {
               href: "/main/khoa-hoc/tieng-anh-lop-2",
-              label: "Tiếng anh lớp 2",
+              label: "CAB Kid 2",
               active: pathname === "/main/khoa-hoc/tieng-anh-lop-2"
             },
             {
               href: "/main/khoa-hoc/tieng-anh-lop-3",
-              label: "Tiếng anh lớp 3",
+              label: "CAB Kid 3",
               active: pathname === "/main/khoa-hoc/tieng-anh-lop-3"
             },
             {
               href: "/main/khoa-hoc/tieng-anh-lop-4",
-              label: "Tiếng anh lớp 4",
+              label: "CAB Kid 4",
               active: pathname === "/main/khoa-hoc/tieng-anh-lop-4"
-            },
-            {
-              href: "/main/khoa-hoc/tieng-anh-lop-5",
-              label: "Tiếng anh lớp 5",
-              active: pathname === "/main/khoa-hoc/tieng-anh-lop-5"
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      groupLabel: "",
+      menus: [
         {
-          href: "/gift-shop",
-          label: "Quà tặng",
-          active: pathname.includes("/gift-shop"),
-          icon: Tag,
+          href: "/mo-rong",
+          label: "Mở rộng",
+          active: pathname.includes("/mo-rong"),
+          icon: Maximize2,
           submenus: []
         }
       ]
     },
-    // {
-    //   groupLabel: "",
-    //   menus: [
-    //     {
-    //       href: "/users",
-    //       label: "Users",
-    //       active: pathname.includes("/users"),
-    //       icon: Users,
-    //       submenus: []
-    //     },
-    //     {
-    //       href: "/account",
-    //       label: "Account",
-    //       active: pathname.includes("/account"),
-    //       icon: Settings,
-    //       submenus: []
-    //     }
-    //   ]
-    // }
+    {
+      groupLabel: "",
+      menus: [
+        {
+          href: "/gift-shop",
+          label: "Quà tặng",
+          active: pathname.includes("/gift-shop"),
+          icon: Gift,
+          submenus: []
+        }
+      ]
+    }
   ];
 }

@@ -1,9 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
-import Video from "next-video";
-import learning from "https://static.edupia.vn/dungchung/dungchung/core_cms/resources/uploads/tieng-anh/video_timestamps/2023/04/11/g2u10l1_video-vocab-new-convert.mp4";
 import { useDeviceOrientation } from "@/hooks/useDeviceOrientation";
+import VocabularyGame from "./vocabulary-game";
+import { LESSON_DETAILS } from "@/mock/lesson-detail";
 
 type LessonItemProps = {
   title: string;
@@ -13,6 +13,7 @@ type LessonItemProps = {
   lessonInfo: any;
   onClick: () => void;
   params?: string | any;
+  categoryTitle?: string;
 };
 
 function LessonItem({
@@ -22,11 +23,19 @@ function LessonItem({
   rate,
   onClick,
   lessonInfo,
-  params
+  params,
+  categoryTitle
 }: LessonItemProps) {
-  const { part } = lessonInfo;
 
-  const [activeIndexTab, setActiveIndexTab] = useState(1);
+  // Determine the lesson details to use (tabs configuration)
+  const details = useMemo(() => {
+    if (params && typeof params === 'string' && LESSON_DETAILS[params]) {
+      return LESSON_DETAILS[params];
+    }
+    return LESSON_DETAILS['default'];
+  }, [params]);
+
+  const [activeIndexTab, setActiveIndexTab] = useState(0); // 0-indexed for array access
 
   const { alpha, beta, gamma } = useDeviceOrientation();
 
@@ -34,14 +43,24 @@ function LessonItem({
     setActiveIndexTab(index);
   };
 
+  const activeTab = details[activeIndexTab];
+
+  // Extract Unit info from category_title (e.g., "Unit 1 - Lesson: Từ vựng" -> "Unit 1")
+  const unitInfo = useMemo(() => {
+    if (categoryTitle) {
+      const match = categoryTitle.match(/Unit\s+\d+/i);
+      return match ? match[0] : "Unit";
+    }
+    return "Unit";
+  }, [categoryTitle]);
+
   return (
     <div className="w-full">
       {!params && (
         <div
           onClick={onClick}
-          className={`w-full cursor-pointer bg-white shadow-course-inset mb-4 p-5 rounded-3xl border flex justify-between flex-col lg:flex-row ${
-            !point ? "lg:items-center" : ""
-          }`}
+          className={`w-full cursor-pointer bg-white shadow-course-inset mb-4 p-5 rounded-3xl border flex justify-between flex-col lg:flex-row ${!point ? "lg:items-center" : ""
+            }`}
         >
           <div className="flex items-center gap-2">
             <Image src={image} width={58} height={58} alt="" />
@@ -65,29 +84,30 @@ function LessonItem({
           )}
         </div>
       )}
-      <div className={`absolute top-0 ${
-            params ? "left-0" : "left-full"
-          } flex w-[1150px]`}>
+      <div className={`absolute top-0 ${params ? "left-0" : "left-full"
+        } flex w-[1150px]`}>
         <div
-          className={` tab-container h-[800px]`}
+          className={`tab-container h-[800px] flex flex-col`}
         >
-          <div className="bg-[#f5fcff] ">
-            <div className="p-3 md:p-7 text-white bg-[#00cccc] rounded-tl-3xl">
-              <h2 className="text-xl md:text-2xl font-semibold">Unit 9</h2>
-              <p className="text-lg text-nowrap">Từ vựng</p>
+          <div className="bg-[#f5fcff] h-full flex flex-col">
+            {/* Header - Fixed */}
+            <div className="p-3 md:p-7 text-white bg-[#00cccc] rounded-tl-3xl flex-shrink-0">
+              <h2 className="text-xl md:text-2xl font-semibold">{unitInfo}</h2>
+              <p className="text-lg text-nowrap">{activeTab?.title || "Bài học"}</p>
             </div>
-            <div className="flex flex-col">
-              {part.map((part: any, index: number) => {
+            
+            {/* Tabs - Scrollable */}
+            <div className="flex flex-col overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              {details.map((part, index) => {
                 return (
                   <div
                     key={index}
-                    onClick={() => handleTabClick(index + 1)}
-                    className={`flex flex-col gap-3 items-center py-5 cursor-pointer w-full ${
-                      index + 1 === activeIndexTab ? "bg-[#e9f8f9]" : ""
-                    }`}
+                    onClick={() => handleTabClick(index)}
+                    className={`flex flex-col gap-3 items-center py-5 cursor-pointer w-full ${index === activeIndexTab ? "bg-[#e9f8f9]" : ""
+                      }`}
                   >
                     <Image
-                      src={`/exercise_type/${part.type}.png`}
+                      src={`/exercise_type/${part.iconType}.png`}
                       alt="Image"
                       width={72}
                       height={72}
@@ -101,36 +121,46 @@ function LessonItem({
         </div>
 
         <div
-          className={`video-container ${
-            params ? "left-[113px]" : ""
-          }  w-full h-[800px]  top-0 bg-white`}
+          className={`video-container ${params ? "left-[113px]" : ""
+            }  w-full h-[800px]  top-0 bg-white overflow-hidden rounded-tr-3xl rounded-br-3xl`}
         >
-          <div className="video-content">
-            {!params && activeIndexTab === 1 && (
-              <div>
-                <Video src={learning} />
+          <div className="video-content w-full h-full">
+            {/* RENDER CONTENT BASED ON ACTIVE TAB TYPE */}
+            {activeTab?.type === 'video' && activeTab.videoUrl && (
+              <div className="w-full h-full flex flex-col p-6">
+                <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-xl">
+                  <video
+                    src={activeTab.videoUrl}
+                    controls
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+                <div className="flex items-start gap-7 mt-6">
+                  <Image
+                    src="/ga_con_lesson.png"
+                    width={100}
+                    height={100}
+                    alt="ga-con"
+                    className="object-contain"
+                  />
+                  <p className="how-to-play bg-[#f5f5f5] p-6 rounded-3xl border relative text-lg text-slate-600">
+                    Cùng Pea học Tiếng Anh qua Video bài giảng thú vị sau đây nhé.
+                    Nếu chưa hiểu bài, em có thể tua lại để hiểu hơn nội dung bài
+                    giảng.
+                  </p>
+                </div>
               </div>
             )}
 
-            {params && activeIndexTab === 1 && (
-              <div>
-                <Video src={learning} />
+            {activeTab?.type === 'game' && activeTab.gameData && (
+              <div className="w-full h-full">
+                <VocabularyGame 
+                  data={activeTab.gameData.vocabularyItems} 
+                  gameType={activeTab.gameData.gameType}
+                />
               </div>
             )}
-
-            <div className="flex items-start gap-7 mt-3">
-              <Image
-                src="/ga_con_lesson.png"
-                width={173}
-                height={174}
-                alt="ga-con"
-              />
-              <p className="how-to-play bg-[#f5f5f5] p-9 rounded-3xl border relative">
-                Cùng Pea học Tiếng Anh qua Video bài giảng thú vị sau đây nhé.
-                Nếu chưa hiểu bài, em có thể tua lại để hiểu hơn nội dung bài
-                giảng.
-              </p>
-            </div>
           </div>
         </div>
       </div>
