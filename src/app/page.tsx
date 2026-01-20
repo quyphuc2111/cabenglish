@@ -100,7 +100,7 @@ export default function HomePage() {
                   </h3>
                 </div>
                 <p className="text-[28px] leading-[1.57] text-black text-justify">
-                  "Đến năm 2028, chúng tôi hướng tới trở thành website học tiếng Anh cho học sinh tiểu học lớn nhất Đông Nam Á, dẫn đầu về số lượng học sinh sử dụng. Bằng việc ứng dụng công nghệ tiên tiến một cách thông minh và thực tế, chúng tôi mang đến giải pháp học tập chuẩn mực với chi phí tối ưu nhất, giúp mọi học sinh đều có cơ hội tiếp cận tiếng Anh chất lượng và phát triển năng lực giao tiếp toàn diện."
+                  &ldquo;Đến năm 2028, chúng tôi hướng tới trở thành website học tiếng Anh cho học sinh tiểu học lớn nhất Đông Nam Á, dẫn đầu về số lượng học sinh sử dụng. Bằng việc ứng dụng công nghệ tiên tiến một cách thông minh và thực tế, chúng tôi mang đến giải pháp học tập chuẩn mực với chi phí tối ưu nhất, giúp mọi học sinh đều có cơ hội tiếp cận tiếng Anh chất lượng và phát triển năng lực giao tiếp toàn diện.&rdquo;
                 </p>
               </div>
               
