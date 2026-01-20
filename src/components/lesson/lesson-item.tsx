@@ -97,7 +97,7 @@ function LessonItem({
             </div>
             
             {/* Tabs - Scrollable */}
-            <div className="flex flex-col overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <div className="flex flex-col overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pb-[80px]">
               {details.map((part, index) => {
                 return (
                   <div

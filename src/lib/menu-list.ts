@@ -78,7 +78,7 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "",
       menus: [
         {
-          href: "/mo-rong",
+          href: "",
           label: "Mở rộng",
           active: pathname.includes("/mo-rong"),
           icon: Maximize2,
@@ -90,7 +90,7 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "",
       menus: [
         {
-          href: "/gift-shop",
+          href: "",
           label: "Quà tặng",
           active: pathname.includes("/gift-shop"),
           icon: Gift,

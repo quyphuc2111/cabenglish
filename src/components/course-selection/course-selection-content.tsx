@@ -83,11 +83,11 @@ function CourseSelection() {
           {[1, 2, 3, 4, 5].map((i) => (
             <Image
               key={i}
-              src="/menu-icons/rocking-horse-1.png"
+              src="/menu-icons/rocking-horse.gif"
               alt="rocking horse"
               width={118 - (i - 1) * 10}
               height={118 - (i - 1) * 10}
-              className="object-contain"
+              className="object-contain rounded-full"
               style={{ 
                 width: `${118 - (i - 1) * 10}px`,
                 height: `${118 - (i - 1) * 10}px`
@@ -119,11 +119,11 @@ function CourseSelection() {
               {/* New Badge */}
               <div className="absolute -top-6 right-12">
                 <Image
-                  src="/courses/new-badge.png"
+                  src="/courses/new.gif"
                   alt="new"
                   width={75}
                   height={74}
-                  className="object-contain"
+                  className="object-contain rounded-full"
                 />
               </div>
 
@@ -216,8 +216,9 @@ function CourseSelection() {
                   {course.description}
                 </p>
 
-                {/* Teachers Section */}
-                <div className="space-y-2 pt-2">
+               <div className="flex justify-between items-start">
+                 {/* Teachers Section */}
+                 <div className="space-y-2 pt-2">
                   <p className="text-[18px] font-semibold text-[#1D5995] leading-[1.21]">
                     {course.teachers}
                   </p>
@@ -249,6 +250,7 @@ function CourseSelection() {
                     className="object-contain"
                   />
                 </div>
+               </div>
               </div>
             </div>
           ))}

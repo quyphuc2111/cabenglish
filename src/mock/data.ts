@@ -85,8 +85,8 @@ const VOCABULARY_PLACES: VocabularyItem[] = [
         id: 4,
         word: "crowded",
         meaning: "đông đúc",
-        audio: "https://static.edupia.vn/resource/voice/2018/05/28/crowded.mp3",
-        image: "https://static.edupia.vn/resource/images/2018/05/28/crowded.png",
+        audio: "https://static.edupia.vn/audio/word/2018/05/07/crowded.mp3",
+        image: "https://static.edupia.vn/resource/images/2018/05/07/crowded.png",
     },
     {
         id: 5,
@@ -240,7 +240,7 @@ const VOCABULARY_PHONICS: VocabularyItem[] = [
 // ============================================
 
 const GRADE_5_LESSONS: WeeklyLessonConfig = {
-    13: {
+    1: {
         weekTitle: "Tuần 13: Unit 1 - Địa chỉ và nơi ở",
         lessons: [
         {
@@ -459,7 +459,7 @@ const GRADE_5_LESSONS: WeeklyLessonConfig = {
             }
         ]
     },
-    14: {
+    2: {
         weekTitle: "Tuần 14: Unit 2 - Các hoạt động hàng ngày",
         lessons: [
         {
@@ -670,7 +670,7 @@ const GRADE_5_LESSONS: WeeklyLessonConfig = {
             }
         ]
     },
-    15: {
+    3: {
         weekTitle: "Tuần 15: Unit 3 - Ôn tập",
         lessons: [
             {

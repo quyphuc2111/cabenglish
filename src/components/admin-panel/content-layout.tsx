@@ -10,9 +10,9 @@ interface ContentLayoutProps {
 export function ContentLayout({ title, type,  children }: ContentLayoutProps) {
   return (
     <>
-      <ScrollArea className="h-full xl:p-[20px] 2xl:px-[20px]">
+      <ScrollArea className="h-full xl:p-[20px] ">
         {/* <Navbar title={title} type={type}  /> */}
-        <div className="lg:pt-8 lg:pb-12 md:px-4 px-0">{children}</div>
+        <div className="lg:pt-2 lg:pb-12 md:px-4 px-0">{children}</div>
       </ScrollArea>
     </>
   );

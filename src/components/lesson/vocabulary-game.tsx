@@ -54,6 +54,14 @@ function TypingGame({ data }: { data: VocabularyQuestion[] }) {
             }, 1500);
         } else {
             setFeedback("incorrect");
+            // Reset after 1.5 seconds to allow retry
+            setTimeout(() => {
+                setFeedback(null);
+                setUserInput("");
+                if (inputRef.current) {
+                    inputRef.current.focus();
+                }
+            }, 1500);
         }
     };
 
@@ -124,11 +132,16 @@ function TypingGame({ data }: { data: VocabularyQuestion[] }) {
                         </div>
 
                         <div className="flex flex-col gap-6 items-center">
-                            <div className="flex gap-2 flex-wrap justify-center">
+                            <div 
+                                className="flex gap-2 flex-wrap justify-center relative cursor-text"
+                                onClick={() => {
+                                    inputRef.current?.focus();
+                                }}
+                            >
                                 {Array.from({ length: currentQuestion.word.length }).map((_, idx) => (
                                     <div
                                         key={idx}
-                                        className={`w-12 h-14 rounded-xl border-b-4 flex items-center justify-center text-2xl font-bold transition-all
+                                        className={`w-12 h-14 rounded-xl border-b-4 flex items-center justify-center text-2xl font-bold transition-all relative z-0
                                             ${userInput[idx]
                                                 ? 'bg-white border-[#00ACC1] text-[#00838F] shadow-md -translate-y-1'
                                                 : 'bg-black/10 border-black/5 text-transparent'
@@ -140,32 +153,42 @@ function TypingGame({ data }: { data: VocabularyQuestion[] }) {
                                         {userInput[idx] || ""}
                                     </div>
                                 ))}
+                                
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    value={userInput}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        // Only allow letters and spaces, limit to word length
+                                        const filteredValue = value.replace(/[^a-zA-Z\s]/g, '');
+                                        if (filteredValue.length <= currentQuestion.word.length) {
+                                            setUserInput(filteredValue);
+                                        }
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            handleSubmit();
+                                        } else if (e.key === 'Backspace' && userInput.length === 0) {
+                                            e.preventDefault();
+                                        }
+                                    }}
+                                    className="absolute inset-0 opacity-0 cursor-text"
+                                    style={{ zIndex: 1 }}
+                                    autoFocus
+                                    autoComplete="off"
+                                    spellCheck="false"
+                                />
                             </div>
 
-                            <input
-                                ref={inputRef}
-                                type="text"
-                                value={userInput}
-                                onChange={(e) => {
-                                    if (e.target.value.length <= currentQuestion.word.length) {
-                                        setUserInput(e.target.value);
-                                    }
-                                }}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') handleSubmit();
-                                }}
-                                className="opacity-0 absolute w-0 h-0"
-                                autoFocus
-                            />
-
-                            <p className="text-slate-500 font-medium">Nhập {currentQuestion.word.length} chữ cái</p>
+                            <p className="text-slate-500 font-medium">Nhập {currentQuestion.word.length} chữ cái (Click vào các ô để gõ)</p>
                         </div>
                     </div>
 
                     <div className="mt-10">
                         <Button
                             onClick={handleSubmit}
-                            disabled={userInput.length !== currentQuestion.word.length}
+                            disabled={feedback === 'correct' || (userInput.length !== currentQuestion.word.length && feedback !== 'incorrect')}
                             className={`
                                 rounded-full px-12 py-6 text-xl font-bold shadow-lg transition-all
                                 ${feedback === 'correct'

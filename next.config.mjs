@@ -1,18 +1,17 @@
-import { withNextVideo } from "next-video/process";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["static.edupia.vn"]
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'static.edupia.vn',
+      },
+    ],
   },
-  // async redirects() {
-  //   return [
-  //     {
-  //       source: "/",
-  //       destination: "/",
-  //       permanent: true
-  //     }
-  //   ];
-  // }
+  generateBuildId: async () => {
+    // Use timestamp as build ID
+    return `build-${Date.now()}`;
+  },
 };
 
-export default withNextVideo(nextConfig);
+export default nextConfig;

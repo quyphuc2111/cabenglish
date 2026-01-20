@@ -38,12 +38,12 @@ export default function CourseDetailContent({ courseTitle, units }: CourseDetail
     <div className="flex items-center justify-between">
     <div className="flex items-center gap-4 mb-8">
       <Image
-        src="/lesson/unit-1-616afd.png"
+        src="/menu-icons/return_icon.png"
         alt="Course Detail"
-        width={100}
-        height={100}
+        width={35}
+        height={35}
       />
-      <p> Cab KID</p>
+      <p className="text-[#BD5353] text-[23px] font-semibold"> Cab KID</p>
      </div>
      <Button 
           className="bg-[#BD5353] text-white rounded-full px-8 hover:bg-[#a04545] shadow-md font-semibold"

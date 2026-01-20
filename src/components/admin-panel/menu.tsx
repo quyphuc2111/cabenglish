@@ -42,7 +42,7 @@ export function Menu({ isOpen }: MenuProps) {
 
   return (
     <nav className="h-full w-full flex flex-col ">
-      <ul className="flex flex-col items-start space-y-2 px-0 flex-1 bg-[#BD5353]/80">
+      <ul className="flex flex-col items-start  px-0 flex-1 bg-[#BD5353]/80">
         {menuList.map(({ groupLabel, menus }, index) => (
           <li className={cn("w-full", groupLabel ? "pt-5" : "")} key={index}>
             {(isOpen && groupLabel) || isOpen === undefined ? (
@@ -68,20 +68,21 @@ export function Menu({ isOpen }: MenuProps) {
             {menus.map(
               ({ href, label, icon: Icon, active, submenus }, index) =>
                 submenus.length === 0 ? (
-                  <div className="w-full mb-2" key={index}>
+                  <div className="w-full" key={index}>
                     <TooltipProvider disableHoverableContent>
                       <Tooltip delayDuration={100}>
                         <TooltipTrigger asChild>
                           <Link href={href} className="block w-full">
                             <div
                               className={cn(
-                                "flex items-center gap-3 py-3 px-4 transition-all relative rounded-2xl",
+                                "flex items-center gap-3 py-3 transition-all relative",
+                                isOpen === false ? "justify-center px-0" : "px-4",
                                 active
                                   ? "bg-white/20"
                                   : "hover:bg-white/10"
                               )}
                             >
-                              <div className="w-[40px] h-[40px] flex items-center justify-center relative z-10">
+                              <div className="w-[40px] h-[40px] flex items-center justify-center relative z-10 flex-shrink-0">
                                 <Image
                                   src={menuIcons[label] || "/placeholder.png"}
                                   alt={label}
@@ -92,10 +93,10 @@ export function Menu({ isOpen }: MenuProps) {
                               </div>
                               <span
                                 className={cn(
-                                  "text-[20px] font-semibold text-white relative z-10 leading-[1.21]",
+                                  "text-[20px] font-semibold text-white relative z-10 leading-[1.21] transition-all",
                                   isOpen === false
-                                    ? "-translate-x-96 opacity-0"
-                                    : "translate-x-0 opacity-100"
+                                    ? "w-0 opacity-0 overflow-hidden"
+                                    : "w-auto opacity-100"
                                 )}
                               >
                                 {label}
@@ -131,28 +132,40 @@ export function Menu({ isOpen }: MenuProps) {
       </ul>
 
       {/* Notification Button at Bottom */}
-      <div className="flex px-4 pb-8 mt-auto justify-between gap-3 items-end">
-        <div>
-        <Image
-            src="/home/noti_icon.png"
-            alt="notification"
-            width={200}
-            height={35}
-            className="object-contain"
-          />
-        </div>
+      <div className={cn(
+        "flex pb-8 pt-2 mt-auto items-end transition-all",
+        isOpen === false ? "px-2 justify-center" : "px-4 justify-between gap-3"
+      )}>
+        {isOpen !== false && (
+          <div>
+            <Image
+              src="/home/noti_icon.png"
+              alt="notification"
+              width={200}
+              height={35}
+              className="object-contain"
+            />
+          </div>
+        )}
         <Button
           variant="outline"
-          className="w-full h-[100px]   bg-white text-[#D12828] flex-col border-none rounded-[50px] py-8 hover:bg-white/90 shadow-md flex items-center justify-center gap-3"
+          className={cn(
+            "bg-white text-[#D12828] flex-col border-none rounded-[50px] hover:bg-white/90 shadow-md flex items-center justify-center gap-3 transition-all",
+            isOpen === false 
+              ? "w-[80px] h-[80px] py-4" 
+              : "w-full h-[100px] py-8"
+          )}
         >
           <Image
             src="/menu-icons/bells.png"
             alt="notification"
-            width={48}
-            height={35}
+            width={isOpen === false ? 32 : 48}
+            height={isOpen === false ? 24 : 35}
             className="object-contain"
           />
-          <span className="text-[32px] font-bold leading-[1.21]">Thông báo</span>
+          {isOpen !== false && (
+            <span className="text-[32px] font-bold leading-[1.21]">Thông báo</span>
+          )}
         </Button>
       </div>
     </nav>

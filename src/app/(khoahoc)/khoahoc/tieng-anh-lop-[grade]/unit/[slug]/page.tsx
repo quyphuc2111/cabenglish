@@ -154,9 +154,11 @@ function UnitPage() {
 
   const handleBackClick = () => {
     if (lessonParams) {
-      router.push(`/lop-hoc?grade=${currentGrade}`)
+      // router.push(`/lop-hoc?grade=${currentGrade}`)
+      router.push(`/lop-hoc`)
     } else if (!isSliding) {
-      router.push(`/main/khoa-hoc/tieng-anh-lop-${currentGrade}`);
+      // router.push(`/main/khoa-hoc/tieng-anh-lop-${currentGrade}`);
+      router.push(`/main/khoa-hoc/tieng-anh-lop-4`);
     } else {
       setIsSliding(false);
     }
@@ -170,7 +172,7 @@ function UnitPage() {
         </div>
         <div
           className={`shadow-md  ${isSliding ? "p-0" : "py-5"
-            } rounded-2xl bg-[#f5fcff] lg:w-5/6 mx-auto h-[800px] relative overflow-hidden`}
+            } rounded-2xl bg-[#f5fcff] lg:w-5/6 mx-auto h-[750px] relative overflow-hidden`}
         >
           <div
             className={`w-full h-full ${isSliding ? "animate-slideLeft" : "animate-slideRight px-3"
@@ -193,7 +195,7 @@ function UnitPage() {
                     lessonInfo={item.lessonInfo}
                     onClick={handleLessonClick}
                     params={lessonParams}
-                    categoryTitle={item.category_title}
+                    categoryTitle={'category_title' in item ? item.category_title : undefined}
                   />
                 </Fragment>
               );
