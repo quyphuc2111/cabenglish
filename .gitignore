@@ -41,3 +41,7 @@ videos/*
 !videos/*.js
 !videos/*.ts
 public/_next-video
+
+# Large video files
+public/AICourse/
+*.mp4
