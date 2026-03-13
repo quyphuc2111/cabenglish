@@ -12,6 +12,7 @@ import {
 import MainContent from "../main-content";
 import { LESSONS_BY_GRADE, getLessonsByGradeAndWeek, getAvailableWeeksByGrade } from "@/mock/data";
 import Image from "next/image";
+import { Button } from "../ui/button";
 
 import coin from "@/assets/coin.png";
 import ExtraItem from "./extra-item";
@@ -75,16 +76,46 @@ function ClassroomContent() {
   return (
     <div>
       {/* Grade Display */}
-      <div className="mb-6 flex items-center gap-4">
-        <div className="bg-gradient-to-r from-[#1D5995] to-[#2B7AC4] text-white px-6 py-3 rounded-2xl shadow-md">
+      <div className="mb-6 flex items-center gap-4 w-full justify-between">
+        <div className="bg-white text-[#F17575] px-6 py-3 rounded-2xl shadow-md">
           <h2 className="text-2xl font-bold">Lớp {currentGrade}</h2>
         </div>
-        <button
-          onClick={() => router.push('/chon-lop-hoc')}
-          className="text-[#1D5995] hover:text-[#2B7AC4] font-semibold underline"
+              <div className="flex">
+            <Image
+              src="/polls1.png"
+              width={50}
+              height={50}
+              alt="Learning"
+            />
+            <Button
+              variant="outline"
+              className="bg-[#E99240] h-[50px] w-[200px] text-white border-none rounded-r-full hover:bg-[#d17f2f] shadow-md font-semibold"
+            >
+
+              Kết quả
+            </Button>
+          </div>
+          <div className="flex">
+            <Image
+              src="/win1.png"
+              width={50}
+              height={50}
+              alt="Learning"
+            />
+            <Button
+              variant="outline"
+              className="bg-[#E99240] h-[50px] w-[200px] text-white border-none rounded-r-full hover:bg-[#d17f2f] shadow-md font-semibold"
+            >
+
+              Vinh danh
+            </Button>
+          </div>
+        <Button
+          className="bg-[#BD5353] h-[50px] w-[200px] text-white rounded-full px-8 hover:bg-[#a04545] shadow-md font-semibold"
+          onClick={() => router.push('/')}
         >
-          Đổi lớp học
-        </button>
+          Trang chủ
+        </Button>
       </div>
 
       {/* Week Selection */}
@@ -114,7 +145,7 @@ function ClassroomContent() {
                 <div
                   key={index}
                   className="flex gap-5 bg-white py-7 px-5 rounded-3xl shadow-course-inset cursor-pointer"
-                  onClick={() => router.push(`/khoahoc/tieng-anh-lop-${currentGrade}/unit/4432?lesson=${item.id}`)}
+                  onClick={() => router.push(`/khoahoc/tieng-anh-lop-${currentGrade}/unit/4432?lesson=${item.id}&grade=${currentGrade}`)}
                 >
                   <Image
                     className="rounded-3xl"

@@ -80,20 +80,20 @@ function CourseSelection() {
       {/* Header with Rocking Horses */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Image
-              key={i}
-              src="/menu-icons/rocking-horse.gif"
-              alt="rocking horse"
-              width={118 - (i - 1) * 10}
-              height={118 - (i - 1) * 10}
-              className="object-contain rounded-full"
-              style={{ 
-                width: `${118 - (i - 1) * 10}px`,
-                height: `${118 - (i - 1) * 10}px`
-              }}
-            />
-          ))}
+         {[1, 2, 3, 4, 5].map((i) => (
+  <Image
+    key={i}
+    src="/menu-icons/rocking-horse.gif"
+    alt="rocking horse"
+    width={78 + (i - 1) * 10}
+    height={78 + (i - 1) * 10}
+    className="object-contain rounded-full"
+    style={{
+      width: `${78 + (i - 1) * 10}px`,
+      height: `${78 + (i - 1) * 10}px`
+    }}
+  />
+))}
         </div>
 
         <Button 

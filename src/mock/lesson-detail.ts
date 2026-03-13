@@ -1,4 +1,4 @@
-import { WEEKLY_LESSONS, LessonDetail, findLessonById } from "./data";
+import { WEEKLY_LESSONS, LESSONS_BY_GRADE, LessonDetail, findLessonById } from "./data";
 
 // Re-export types for backward compatibility
 export type { LessonDetail as LessonTabConfig } from "./data";
@@ -46,10 +46,12 @@ export const LESSON_DETAILS: Record<string, LessonDetail[]> = (() => {
         ]
     };
     
-    // Build from WEEKLY_LESSONS
-    Object.values(WEEKLY_LESSONS).forEach(weekData => {
-        weekData.lessons.forEach(lesson => {
-            details[lesson.id] = lesson.lessonDetails;
+    // Build from ALL grades in LESSONS_BY_GRADE (not just grade 5)
+    Object.values(LESSONS_BY_GRADE).forEach(gradeData => {
+        Object.values(gradeData).forEach(weekData => {
+            weekData.lessons.forEach(lesson => {
+                details[lesson.id] = lesson.lessonDetails;
+            });
         });
     });
     

@@ -21,14 +21,15 @@ interface CourseDetailContentProps {
     semester2: Unit[];
     summerSemester: Unit[];
   };
+  grade: number;
 }
 
-export default function CourseDetailContent({ courseTitle, units }: CourseDetailContentProps) {
+export default function CourseDetailContent({ courseTitle, units, grade }: CourseDetailContentProps) {
   const [activeTab, setActiveTab] = useState<'semester1' | 'semester2' | 'summerSemester'>('semester1');
   const router = useRouter();
 
   const handleUnitClick = (slug: string) => {
-    router.push(`/khoahoc/tieng-anh-lop-1/unit/${slug}`);
+    router.push(`/khoahoc/tieng-anh-lop-${grade}/unit/${slug}`);
   };
 
   const currentUnits = units[activeTab];
@@ -46,7 +47,7 @@ export default function CourseDetailContent({ courseTitle, units }: CourseDetail
       <p className="text-[#BD5353] text-[23px] font-semibold"> Cab KID</p>
      </div>
      <Button 
-          className="bg-[#BD5353] text-white rounded-full px-8 hover:bg-[#a04545] shadow-md font-semibold"
+          className="bg-[#BD5353] w-[200px] h-[50px] text-white rounded-full px-8 hover:bg-[#a04545] shadow-md font-semibold"
           onClick={() => router.push('/')}
         >
           Trang chủ
@@ -98,12 +99,14 @@ export default function CourseDetailContent({ courseTitle, units }: CourseDetail
             className="bg-white border-[5px] border-[#E87D7D] rounded-[50px] cursor-pointer hover:scale-105 transition-transform duration-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
           >
             {/* Unit Image */}
-            <div className="relative w-full h-[200px] -mt-[100px] px-12">
+            <div className="  -mt-[50px] flex justify-center">
               <Image
                 src={unit.image}
                 alt={unit.titleEn}
-                fill
-                className="object-contain rounded-[20px] px-12"
+                height={200}
+                width={100}
+                className=" h-[120px] w-3/4 rounded-[20px] "
+                quality={100}
               />
             </div>
 

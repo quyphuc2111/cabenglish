@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Volume2, Check, X, Trophy, Mic, MicOff, Square } from "lucide-react";
 import { GameType, VocabularyItem } from "@/mock/data";
+import { useGameAudio } from "@/hooks/useAudioPlayer";
 
 export type VocabularyQuestion = VocabularyItem;
 
@@ -25,6 +26,7 @@ function TypingGame({ data }: { data: VocabularyQuestion[] }) {
 
     const currentQuestion = data[currentQuestionIdx];
     const inputRef = useRef<HTMLInputElement>(null);
+    const { playVocabulary, playCorrect, playIncorrect, playLevelComplete } = useGameAudio();
 
     useEffect(() => {
         setUserInput("");
@@ -33,27 +35,29 @@ function TypingGame({ data }: { data: VocabularyQuestion[] }) {
     }, [currentQuestionIdx]);
 
     const handlePlayAudio = () => {
-        if (currentQuestion?.audio) {
-            const audio = new Audio(currentQuestion.audio);
-            audio.play().catch(console.error);
+        if (currentQuestion) {
+            playVocabulary(currentQuestion).catch(console.error);
         }
     };
 
     const handleSubmit = () => {
         if (!currentQuestion) return;
-        
+
         if (userInput.toLowerCase().trim() === currentQuestion.word.toLowerCase()) {
             setFeedback("correct");
+            playCorrect();
             setScore((prev) => prev + 10);
             setTimeout(() => {
                 if (currentQuestionIdx < data.length - 1) {
                     setCurrentQuestionIdx((prev) => prev + 1);
                 } else {
                     setIsCompleted(true);
+                    playLevelComplete();
                 }
             }, 1500);
         } else {
             setFeedback("incorrect");
+            playIncorrect();
             // Reset after 1.5 seconds to allow retry
             setTimeout(() => {
                 setFeedback(null);
@@ -72,7 +76,7 @@ function TypingGame({ data }: { data: VocabularyQuestion[] }) {
                     <Trophy size={80} className="mx-auto text-yellow-500 mb-4" />
                     <h2 className="text-3xl font-bold text-green-600 mb-2">Hoàn thành!</h2>
                     <p className="text-5xl font-bold text-teal-600 mb-4">{score} ĐIỂM</p>
-                    <Button 
+                    <Button
                         onClick={() => {
                             setCurrentQuestionIdx(0);
                             setScore(0);
@@ -132,7 +136,7 @@ function TypingGame({ data }: { data: VocabularyQuestion[] }) {
                         </div>
 
                         <div className="flex flex-col gap-6 items-center">
-                            <div 
+                            <div
                                 className="flex gap-2 flex-wrap justify-center relative cursor-text"
                                 onClick={() => {
                                     inputRef.current?.focus();
@@ -153,7 +157,7 @@ function TypingGame({ data }: { data: VocabularyQuestion[] }) {
                                         {userInput[idx] || ""}
                                     </div>
                                 ))}
-                                
+
                                 <input
                                     ref={inputRef}
                                     type="text"
@@ -221,15 +225,16 @@ function ChoiceGame({ data }: { data: VocabularyQuestion[] }) {
     const [options, setOptions] = useState<VocabularyQuestion[]>([]);
 
     const currentQuestion = data[currentQuestionIdx];
+    const { playVocabulary, playCorrect, playIncorrect, playLevelComplete } = useGameAudio();
 
     useEffect(() => {
         if (!currentQuestion) return;
-        
+
         // Generate 4 random options including the correct answer
         const shuffled = [...data].filter(item => item.id !== currentQuestion.id)
             .sort(() => Math.random() - 0.5)
             .slice(0, 3);
-        
+
         const allOptions = [...shuffled, currentQuestion].sort(() => Math.random() - 0.5);
         setOptions(allOptions);
         setSelectedAnswer(null);
@@ -237,30 +242,32 @@ function ChoiceGame({ data }: { data: VocabularyQuestion[] }) {
     }, [currentQuestionIdx, currentQuestion, data]);
 
     const handlePlayAudio = () => {
-        if (currentQuestion?.audio) {
-            const audio = new Audio(currentQuestion.audio);
-            audio.play().catch(console.error);
+        if (currentQuestion) {
+            playVocabulary(currentQuestion).catch(console.error);
         }
     };
 
     const handleSelectAnswer = (index: number) => {
         if (feedback) return;
-        
+
         setSelectedAnswer(index);
         const selected = options[index];
-        
+
         if (selected.id === currentQuestion.id) {
             setFeedback("correct");
+            playCorrect();
             setScore((prev) => prev + 10);
             setTimeout(() => {
                 if (currentQuestionIdx < data.length - 1) {
                     setCurrentQuestionIdx((prev) => prev + 1);
                 } else {
                     setIsCompleted(true);
+                    playLevelComplete();
                 }
             }, 1500);
         } else {
             setFeedback("incorrect");
+            playIncorrect();
             setTimeout(() => {
                 setFeedback(null);
                 setSelectedAnswer(null);
@@ -275,7 +282,7 @@ function ChoiceGame({ data }: { data: VocabularyQuestion[] }) {
                     <Trophy size={80} className="mx-auto text-yellow-500 mb-4" />
                     <h2 className="text-3xl font-bold text-purple-600 mb-2">Hoàn thành!</h2>
                     <p className="text-5xl font-bold text-indigo-600 mb-4">{score} ĐIỂM</p>
-                    <Button 
+                    <Button
                         onClick={() => {
                             setCurrentQuestionIdx(0);
                             setScore(0);
@@ -344,7 +351,7 @@ function ChoiceGame({ data }: { data: VocabularyQuestion[] }) {
                         {options.map((option, idx) => {
                             const isCorrect = option.id === currentQuestion.id;
                             const isSelected = selectedAnswer === idx;
-                            
+
                             return (
                                 <button
                                     key={option.id}
@@ -386,6 +393,7 @@ function RecordingGame({ data }: { data: VocabularyQuestion[] }) {
     const [micPermission, setMicPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
 
     const currentQuestion = data[currentQuestionIdx];
+    const { playVocabulary, playCorrect, playIncorrect, playLevelComplete } = useGameAudio();
 
     useEffect(() => {
         setIsRecording(false);
@@ -414,7 +422,7 @@ function RecordingGame({ data }: { data: VocabularyQuestion[] }) {
                 recognitionInstance.onerror = (event: any) => {
                     console.error('Speech recognition error:', event.error);
                     setIsRecording(false);
-                    
+
                     if (event.error === 'not-allowed') {
                         setErrorMessage('Vui lòng cho phép truy cập microphone trong cài đặt trình duyệt!');
                         setMicPermission('denied');
@@ -433,13 +441,12 @@ function RecordingGame({ data }: { data: VocabularyQuestion[] }) {
                 setRecognition(recognitionInstance);
             }
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handlePlayAudio = () => {
-        if (currentQuestion?.audio) {
-            const audio = new Audio(currentQuestion.audio);
-            audio.play().catch(console.error);
+        if (currentQuestion) {
+            playVocabulary(currentQuestion).catch(console.error);
         }
     };
 
@@ -448,13 +455,13 @@ function RecordingGame({ data }: { data: VocabularyQuestion[] }) {
             setErrorMessage('Trình duyệt của bạn không hỗ trợ ghi âm. Vui lòng sử dụng Chrome hoặc Edge.');
             return;
         }
-        
+
         // Check if mediaDevices is available
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             setErrorMessage('⚠️ Trình duyệt không hỗ trợ ghi âm. Vui lòng sử dụng HTTPS hoặc Chrome/Edge.');
             return;
         }
-        
+
         // Check microphone permission first
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -463,7 +470,7 @@ function RecordingGame({ data }: { data: VocabularyQuestion[] }) {
             setErrorMessage("");
         } catch (error: any) {
             console.error('Microphone permission error:', error);
-            
+
             if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
                 setErrorMessage('⚠️ Vui lòng cho phép truy cập microphone để sử dụng tính năng này!');
                 setMicPermission('denied');
@@ -476,7 +483,7 @@ function RecordingGame({ data }: { data: VocabularyQuestion[] }) {
             }
             return;
         }
-        
+
         setIsRecording(true);
         setRecognizedText("");
         setErrorMessage("");
@@ -504,28 +511,31 @@ function RecordingGame({ data }: { data: VocabularyQuestion[] }) {
         // Check if recognized text matches the expected word
         const expectedWord = currentQuestion.word.toLowerCase().trim();
         const spokenWord = recognizedText.toLowerCase().trim();
-        
+
         // Allow some flexibility in matching (remove spaces, hyphens)
         const normalizedExpected = expectedWord.replace(/[\s-]/g, '');
         const normalizedSpoken = spokenWord.replace(/[\s-]/g, '');
-        
-        const isCorrect = normalizedSpoken === normalizedExpected || 
-                         spokenWord === expectedWord ||
-                         spokenWord.includes(expectedWord) ||
-                         expectedWord.includes(spokenWord);
-        
+
+        const isCorrect = normalizedSpoken === normalizedExpected ||
+            spokenWord === expectedWord ||
+            spokenWord.includes(expectedWord) ||
+            expectedWord.includes(spokenWord);
+
         if (isCorrect) {
             setFeedback("correct");
+            playCorrect();
             setScore((prev) => prev + 10);
             setTimeout(() => {
                 if (currentQuestionIdx < data.length - 1) {
                     setCurrentQuestionIdx((prev) => prev + 1);
                 } else {
                     setIsCompleted(true);
+                    playLevelComplete();
                 }
             }, 1500);
         } else {
             setFeedback("incorrect");
+            playIncorrect();
             setTimeout(() => {
                 setFeedback(null);
                 setHasRecorded(false);
@@ -541,7 +551,7 @@ function RecordingGame({ data }: { data: VocabularyQuestion[] }) {
                     <Trophy size={80} className="mx-auto text-yellow-500 mb-4" />
                     <h2 className="text-3xl font-bold text-orange-600 mb-2">Hoàn thành!</h2>
                     <p className="text-5xl font-bold text-red-600 mb-4">{score} ĐIỂM</p>
-                    <Button 
+                    <Button
                         onClick={() => {
                             setCurrentQuestionIdx(0);
                             setScore(0);
@@ -585,16 +595,16 @@ function RecordingGame({ data }: { data: VocabularyQuestion[] }) {
                     <div className="flex flex-col md:flex-row items-center gap-12 w-full justify-center">
                         <div className="relative group cursor-pointer" onClick={handlePlayAudio}>
                             <div className="w-48 h-48 bg-white rounded-3xl shadow-inner flex items-center justify-center border-4 border-[#FFAB91] overflow-hidden">
-                                {/* <Image
+                                <Image
                                     src={currentQuestion.image}
                                     alt={currentQuestion.word}
                                     width={160}
                                     height={160}
                                     className="object-contain"
                                     onError={(e) => {
-                                        e.currentTarget.src = "https://via.placeholder.com/160?text=" + currentQuestion.word;
+                                        e.currentTarget.src = "/placeholder.png";
                                     }}
-                                /> */}
+                                />
                             </div>
                             <div className="absolute -bottom-4 -right-4 bg-[#FF7043] text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform">
                                 <Volume2 size={32} />

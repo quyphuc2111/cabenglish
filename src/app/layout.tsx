@@ -14,24 +14,24 @@ export const metadata: Metadata = {
       ? `https://${process.env.VERCEL_URL}`
       : `http://localhost:${process.env.PORT || 3000}`
   ),
-  title: "Lớp học BKT",
+  title: "CAB English - Học tiếng Anh trực tuyến",
   description:
-    "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness.",
+    "Hệ thống học tiếng Anh trực tuyến CAB English dành cho học sinh tiểu học từ lớp 1 đến lớp 5.",
   alternates: {
     canonical: "/"
   },
   openGraph: {
     url: "/",
-    title: "Lớp học BKT",
+    title: "CAB English - Học tiếng Anh trực tuyến",
     description:
-      "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness.",
+      "Hệ thống học tiếng Anh trực tuyến CAB English dành cho học sinh tiểu học từ lớp 1 đến lớp 5.",
     type: "website"
   },
   twitter: {
     card: "summary_large_image",
-    title: "Lớp học BKT",
+    title: "CAB English - Học tiếng Anh trực tuyến",
     description:
-      "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness."
+      "Hệ thống học tiếng Anh trực tuyến CAB English dành cho học sinh tiểu học từ lớp 1 đến lớp 5."
   }
 };
 
@@ -43,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       {/* className={GeistSans.className} */}
-      <body  className="font-poppins">
+      <body  className="">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
         </ThemeProvider>

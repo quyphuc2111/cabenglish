@@ -42,28 +42,46 @@ function GradeSelection() {
 
   return (
     <div className="space-y-8">
-          <div className="flex justify-between">
-             <div className="flex gap-3">
-          <Button 
-            variant="outline" 
-            className="bg-[#E99240] text-white border-none rounded-full px-6 hover:bg-[#d17f2f] shadow-md font-semibold"
-          >
-            Kết quả
-          </Button>
-          <Button 
-            variant="outline" 
-            className="bg-[#E99240] text-white border-none rounded-full px-6 hover:bg-[#d17f2f] shadow-md font-semibold"
-          >
-            Vinh danh
-          </Button>
+      <div className="flex justify-between">
+        <div className="flex gap-20">
+          <div className="flex">
+            <Image
+              src="/polls1.png"
+              width={50}
+              height={50}
+              alt="Learning"
+            />
+            <Button
+              variant="outline"
+              className="bg-[#E99240] h-[50px] w-[100px] text-white border-none rounded-r-full hover:bg-[#d17f2f] shadow-md font-semibold"
+            >
+
+              Kết quả
+            </Button>
+          </div>
+          <div className="flex">
+            <Image
+              src="/win1.png"
+              width={50}
+              height={50}
+              alt="Learning"
+            />
+            <Button
+              variant="outline"
+              className="bg-[#E99240] h-[50px] w-[100px] text-white border-none rounded-r-full hover:bg-[#d17f2f] shadow-md font-semibold"
+            >
+
+              Vinh danh
+            </Button>
+          </div>
         </div>
-         <Button 
-          className="bg-[#BD5353] text-white rounded-full px-8 hover:bg-[#a04545] shadow-md font-semibold"
+        <Button
+          className="bg-[#BD5353] h-[50px] w-[180px] text-white rounded-full px-8 hover:bg-[#a04545] shadow-md font-semibold"
           onClick={() => router.push('/')}
         >
           Trang chủ
         </Button>
-          </div>
+      </div>
       {/* Header Section */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

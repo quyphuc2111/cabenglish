@@ -78,7 +78,7 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "",
       menus: [
         {
-          href: "",
+          href: "/mo-rong",
           label: "Mở rộng",
           active: pathname.includes("/mo-rong"),
           icon: Maximize2,

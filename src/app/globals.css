@@ -94,20 +94,26 @@
   .btn-orange-head {
     background: #fff2e2;
     border-radius: 24px;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 24px;
-    color: #ff9213 ;
-    margin-left: 12px !important;
+    color: #ff9213;
     -webkit-box-shadow: none;
     box-shadow: none;
-    padding: 22px !important;
+    padding: 10px 20px;
     font-weight: 600;
+    transition: all 0.2s ease;
+    border: none;
+  }
+
+  .btn-orange-head:hover {
+    background: #ffe8cc;
+    transform: translateY(-1px);
   }
 
   .btn__medium {
-    padding: 8px 16px;
+    padding: 10px 20px;
     font-weight: 700;
-    line-height: 32px;
+    line-height: 24px;
     border-radius: 24px;
     border: none;
     cursor: pointer;
@@ -115,19 +121,33 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-}
+    transition: all 0.2s ease;
+    font-size: 15px;
+  }
 
-.btn__cyan100, .btn__cyan100:hover {
-  color: #21bdc6;
-  background-color: #e9f8f9;
-}
+  .btn__medium:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn__cyan100, .btn__cyan100:hover {
+    color: #21bdc6;
+    background-color: #e9f8f9;
+  }
+
+  .btn__cyan100:hover {
+    background-color: #d4f3f5;
+  }
 
 @media (max-width: 600px) {
- .btn-orange-head {
-      padding: 5px !important;
-      background: unset;
-      font-size: 13px;
-      line-height: 21px;
+  .btn-orange-head {
+    padding: 8px 12px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .btn__medium {
+    padding: 8px 14px;
+    font-size: 14px;
   }
 }
 
@@ -202,4 +222,19 @@
     right: -1153px;
   }
 }
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee linear infinite;
+}
+
+
 

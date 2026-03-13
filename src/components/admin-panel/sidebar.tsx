@@ -33,7 +33,7 @@ export function Sidebar() {
       <div className="relative h-full flex flex-col  pt-4">
         {/* Logo */}
         <div className={cn(
-          "mb-8 transition-all flex justify-center",
+          "mb-8 transition-all flex justify-start",
           sidebar?.isOpen === false ? "px-0" : "px-2"
         )}>
           <Image

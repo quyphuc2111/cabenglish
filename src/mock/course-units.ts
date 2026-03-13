@@ -3,8 +3,8 @@ export const cabKid1Units = {
     {
       id: 1,
       image: "/lesson/unit-1-616afd.png",
-      titleEn: "Unit 1: We're in the playground",
-      titleVi: "Bài 1: Chúng tớ đang ở sân trường",
+      titleEn: "Unit 1: FriendShip & Kindness",
+      titleVi: "Bài 1: Tình bạn và lòng tốt",
       progress: 36,
       slug: "unit-1"
     },
@@ -15,38 +15,6 @@ export const cabKid1Units = {
       titleVi: "Bài 2: Gia đình của tôi",
       progress: 45,
       slug: "unit-2"
-    },
-    {
-      id: 3,
-      image: "/lesson/unit-3-2aa18e.png",
-      titleEn: "Unit 3: My toys",
-      titleVi: "Bài 3: Đồ chơi của tôi",
-      progress: 0,
-      slug: "unit-3"
-    },
-    {
-      id: 4,
-      image: "/lesson/unit-4-22b809.png",
-      titleEn: "Unit 4: My school",
-      titleVi: "Bài 4: Trường học của tôi",
-      progress: 28,
-      slug: "unit-4"
-    },
-    {
-      id: 5,
-      image: "/lesson/unit-5-23d506.png",
-      titleEn: "Unit 5: My body",
-      titleVi: "Bài 5: Cơ thể của tôi",
-      progress: 62,
-      slug: "unit-5"
-    },
-    {
-      id: 6,
-      image: "/lesson/unit-6-6870f1.png",
-      titleEn: "Unit 6: My pets",
-      titleVi: "Bài 6: Thú cưng của tôi",
-      progress: 15,
-      slug: "unit-6"
     }
   ],
   semester2: [
@@ -257,3 +225,100 @@ export const cabKid4Units = {
     }
   ]
 };
+
+export const cabKid5Units = {
+  semester1: [
+    {
+      id: 1,
+      image: "/lesson/unit-1-616afd.png",
+      titleEn: "Unit 1: My hometown",
+      titleVi: "Bài 1: Quê hương của tôi",
+      progress: 80,
+      slug: "unit-1"
+    },
+    {
+      id: 2,
+      image: "/lesson/unit-2-49a67f.png",
+      titleEn: "Unit 2: Daily routines",
+      titleVi: "Bài 2: Thói quen hàng ngày",
+      progress: 75,
+      slug: "unit-2"
+    },
+    {
+      id: 3,
+      image: "/lesson/unit-3-2aa18e.png",
+      titleEn: "Unit 3: My favorite subject",
+      titleVi: "Bài 3: Môn học yêu thích",
+      progress: 68,
+      slug: "unit-3"
+    },
+    {
+      id: 4,
+      image: "/lesson/unit-4-22b809.png",
+      titleEn: "Unit 4: My weekend",
+      titleVi: "Bài 4: Cuối tuần của tôi",
+      progress: 55,
+      slug: "unit-4"
+    }
+  ],
+  semester2: [
+    {
+      id: 5,
+      image: "/lesson/unit-5-23d506.png",
+      titleEn: "Unit 5: My holiday",
+      titleVi: "Bài 5: Kỳ nghỉ của tôi",
+      progress: 62,
+      slug: "unit-5"
+    },
+    {
+      id: 6,
+      image: "/lesson/unit-6-6870f1.png",
+      titleEn: "Unit 6: My dream job",
+      titleVi: "Bài 6: Công việc mơ ước",
+      progress: 48,
+      slug: "unit-6"
+    },
+    {
+      id: 7,
+      image: "/lesson/unit-7.png",
+      titleEn: "Unit 7: My country",
+      titleVi: "Bài 7: Đất nước của tôi",
+      progress: 40,
+      slug: "unit-7"
+    }
+  ],
+  summerSemester: [
+    {
+      id: 8,
+      image: "/lesson/unit-8-530776.png",
+      titleEn: "Unit 8: Summer vacation",
+      titleVi: "Bài 8: Kỳ nghỉ hè",
+      progress: 35,
+      slug: "unit-8"
+    }
+  ]
+};
+
+// Helper function to get units by grade
+export const getUnitsByGrade = (grade: number) => {
+  switch (grade) {
+    case 1:
+      return cabKid1Units;
+    case 2:
+      return cabKid2Units;
+    case 3:
+      return cabKid3Units;
+    case 4:
+      return cabKid4Units;
+    case 5:
+      return cabKid5Units;
+    default:
+      return cabKid1Units;
+  }
+};
+
+// Helper function to get course title by grade
+export const getCourseTitleByGrade = (grade: number) => {
+  return `CAB Kid ${grade}`;
+};
+

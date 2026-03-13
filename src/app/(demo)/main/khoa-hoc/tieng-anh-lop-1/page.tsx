@@ -9,6 +9,7 @@ function MainUnit() {
       <CourseDetailContent 
         courseTitle="CAB Kid 1"
         units={cabKid1Units}
+        grade={1}
       />
     </ContentLayout>
   );
