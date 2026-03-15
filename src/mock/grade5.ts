@@ -207,7 +207,7 @@ export const GRADE_5_LESSONS: WeeklyLessonConfig = {
         lessons: [
             {
                 id: 'g5-w1-l1',
-                category_title: 'Unit 1 - Lesson: Cônßg việc mơ ước',
+                category_title: 'Unit 1 - Lesson: Từ vựng',
                 title: 'Công việc mơ ước',
                 image: 'https://static.edupia.vn/uploads/v3/assets/images/classroom/thumb-default/1.png',
                 progress: 80,
@@ -244,6 +244,49 @@ export const GRADE_5_LESSONS: WeeklyLessonConfig = {
                         iconType: 'game',
                         gameData: { gameType: 'recording', vocabularyItems: VOCAB_DREAM_JOBS }
                     }
+                ]
+            },
+
+             {
+                id: 'g5-w1-l2',
+                category_title: 'Unit 1 - Lesson: Từ vựng',
+                title: 'Gọi tên sở thích bằng tiếng Anh',
+                image: 'https://static.edupia.vn/uploads/v3/assets/images/classroom/thumb-default/1.png',
+                progress: 0,
+                lessonDetails: [
+                    {
+                        id: 1,
+                        type: 'video',
+                        title: 'Video bài giảng',
+                        score: "100",
+                        iconType: 'video',
+                        videoUrl: "/AICourse/videocanva/L5. Gọi tên sở thích bằng tiếng Anh.mp4"
+                    },
+                      {
+                        id: 2,
+                        type: 'game',
+                        title: 'Gõ lại từ vựng',
+                        score: "100",
+                        iconType: 'game',
+                        gameData: { gameType: 'typing', vocabularyItems: VOCAB_DREAM_JOBS }
+                    },
+                    {
+                        id: 3,
+                        type: 'game',
+                        title: 'Chọn từ vựng đúng',
+                        score: "100",
+                        iconType: 'game',
+                        gameData: { gameType: 'choice', vocabularyItems: VOCAB_DREAM_JOBS }
+                    },
+                    {
+                        id: 4,
+                        type: 'game',
+                        title: 'Ghi âm phát âm',
+                        score: "50",
+                        iconType: 'game',
+                        gameData: { gameType: 'recording', vocabularyItems: VOCAB_DREAM_JOBS }
+                    }
+                   
                 ]
             }
         ]

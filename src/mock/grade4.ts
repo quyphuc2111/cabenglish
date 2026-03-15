@@ -207,6 +207,16 @@ export const GRADE_4_LESSONS: WeeklyLessonConfig = {
                         gameData: { gameType: 'recording', vocabularyItems: VOCAB_WEATHER }
                     }
                 ]
+            },
+
+
+                {
+                id: 'g111-w3-l1',
+                category_title: 'Unit 1 - Lesson: Từ vựng',
+                title: 'Đồ ăn',
+                image: 'https://static.edupia.vn/uploads/v3/assets/images/classroom/thumb-default/1.png',
+                progress: 0,
+                lessonDetails: createLessonDetails(VOCAB_HOBBIES)
             }
         ]
     },
