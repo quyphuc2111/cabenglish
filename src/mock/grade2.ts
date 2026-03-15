@@ -173,8 +173,50 @@ export const GRADE_2_LESSONS: WeeklyLessonConfig = {
         lessons: [
             {
                 id: 'g2-w1-l1',
-                category_title: 'Unit 1 - Lesson 1',
+                category_title: 'Unit 1 - Lesson: Từ vựng',
                 title: 'Các công cụ học tập',
+                image: 'https://static.edupia.vn/uploads/v3/assets/images/classroom/thumb-default/1.png',
+                progress: 0,
+                lessonDetails: [
+                    {
+                        id: 1,
+                        type: 'video',
+                        title: 'Video bài giảng',
+                        score: "100",
+                        iconType: 'video',
+                        videoUrl: "/AICourse/videocanva/2. Các công cụ học tập.mp4"
+                    },
+                    {
+                        id: 2,
+                        type: 'game',
+                        title: 'Gõ lại từ vựng',
+                        score: "100",
+                        iconType: 'game',
+                        gameData: { gameType: 'typing', vocabularyItems: VOCAB_SCHOOL_SUPPLIES }
+                    },
+                    {
+                        id: 3,
+                        type: 'game',
+                        title: 'Chọn từ vựng đúng',
+                        score: "100",
+                        iconType: 'game',
+                        gameData: { gameType: 'choice', vocabularyItems: VOCAB_SCHOOL_SUPPLIES }
+                    },
+                    {
+                        id: 4,
+                        type: 'game',
+                        title: 'Ghi âm phát âm',
+                        score: "50",
+                        iconType: 'game',
+                        gameData: { gameType: 'recording', vocabularyItems: VOCAB_SCHOOL_SUPPLIES }
+                    }
+                ]
+            },
+
+             {
+                id: 'g111-w3-l1',
+                category_title: 'Unit 1 - Lesson từ vựng',
+                title: 'Học màu sắc',
                 image: 'https://static.edupia.vn/uploads/v3/assets/images/classroom/thumb-default/1.png',
                 progress: 0,
                 lessonDetails: [

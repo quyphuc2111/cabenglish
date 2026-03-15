@@ -19,11 +19,92 @@ export type UnitLesson = {
   lessonDetails?: LessonDetail[];
 };
 
+// ============================================
+// VIDEO URLs - mỗi lesson có link video riêng
+// ============================================
+const VIDEO_URLS = {
+  grade1: {
+    "unit-1": {
+      lesson1: "/AICourse/videocanva/G1_U1_L1_Greetings_Vocab.mp4",
+      lesson2: "/AICourse/videocanva/G1_U1_L2_Greetings_Phrases.mp4",
+      lesson3: "/AICourse/videocanva/G1_U1_L3_Greetings_Intro.mp4",
+      lesson4: "/AICourse/videocanva/G1_U1_L4_Greetings_Pronunciation.mp4",
+      lesson5: "/AICourse/FriendshipKindness.mp4",
+    },
+    "unit-2": {
+      lesson1: "/AICourse/videocanva/G1_U2_L1_Family_Members.mp4",
+      lesson2: "/AICourse/videocanva/G1_U2_L2_My_Family.mp4",
+    },
+    "unit-3": {
+      lesson1: "/AICourse/videocanva/G1_U3_L1_Toys_Vocab.mp4",
+      lesson2: "/AICourse/videocanva/G1_U3_L2_Favorite_Toy.mp4",
+    },
+    "unit-4": {
+      lesson1: "/AICourse/videocanva/G1_U4_L1_School_Items.mp4",
+      lesson2: "/AICourse/videocanva/G1_U4_L2_In_Classroom.mp4",
+    },
+    "unit-5": {
+      lesson1: "/AICourse/videocanva/G1_U5_L1_Body_Parts.mp4",
+      lesson2: "/AICourse/videocanva/G1_U5_L2_My_Body.mp4",
+    },
+    "unit-6": {
+      lesson1: "/AICourse/videocanva/G1_U6_L1_Pet_Names.mp4",
+      lesson2: "/AICourse/videocanva/G1_U6_L2_My_Pet.mp4",
+    },
+  },
+  grade2: {
+    "unit-1": {
+      lesson1: "/AICourse/videocanva/G2_U1_L1_Welcome_Back.mp4",
+      lesson2: "/AICourse/videocanva/G2_U1_L2_Classroom_Language.mp4",
+    },
+    "unit-2": {
+      lesson1: "/AICourse/videocanva/G2_U2_L1_My_Friends.mp4",
+      lesson2: "/AICourse/videocanva/G2_U2_L2_Friend_Activities.mp4",
+    },
+  },
+  grade3: {
+    "unit-1": {
+      lesson1: "/AICourse/videocanva/G3_U1_L1_Back_To_School.mp4",
+      lesson2: "/AICourse/videocanva/G3_U1_L2_School_Subjects.mp4",
+    },
+    "unit-2": {
+      lesson1: "/AICourse/videocanva/G3_U2_L1_Neighborhood.mp4",
+      lesson2: "/AICourse/videocanva/G3_U2_L2_Directions.mp4",
+    },
+  },
+  grade4: {
+    "unit-1": {
+      lesson1: "/AICourse/videocanva/G4_U1_L1_New_School_Year.mp4",
+      lesson2: "/AICourse/videocanva/G4_U1_L2_Goals_Plans.mp4",
+    },
+    "unit-2": {
+      lesson1: "/AICourse/videocanva/G4_U2_L1_Community_Helpers.mp4",
+      lesson2: "/AICourse/videocanva/G4_U2_L2_Community_Places.mp4",
+    },
+  },
+  grade5: {
+    "unit-1": {
+      lesson1: "/AICourse/videocanva/G5_U1_L1_My_Hometown.mp4",
+      lesson2: "/AICourse/videocanva/G5_U1_L2_Places_In_Town.mp4",
+      lesson3: "/AICourse/videocanva/G5_U1_L3_Comparing_Places.mp4",
+    },
+    "unit-2": {
+      lesson1: "/AICourse/videocanva/G5_U2_L1_Daily_Routines.mp4",
+      lesson2: "/AICourse/videocanva/G5_U2_L2_Time_Expressions.mp4",
+    },
+  },
+};
+
 // Helper to create lesson details for unit lessons
-const createUnitLessonDetails = (vocabItems: VocabularyItem[], scores?: { video: string; typing: string; choice: string; recording: string }): LessonDetail[] => {
+const createUnitLessonDetails = (
+  vocabItems: VocabularyItem[],
+  scores?: { video: string; typing: string; choice: string; recording: string },
+  videoUrl?: string
+): LessonDetail[] => {
   const s = scores || { video: "0", typing: "0", choice: "0", recording: "0" };
+  const url = videoUrl || "/AICourse/Dream Big!!.mp4";
   return [
-    { id: 1, type: 'video', title: 'Video bài giảng', score: s.video, iconType: 'video', videoUrl: "/AICourse/🎵 Friendship & Kindness 🎵 (2).mp4" },
+    { id: 1, type: 'video', title: 'Video bài giảng', score: s.video, iconType: 'video', videoUrl: url },
     { id: 2, type: 'game', title: 'Gõ lại từ vựng', score: s.typing, iconType: 'game', gameData: { gameType: 'typing', vocabularyItems: vocabItems } },
     { id: 3, type: 'game', title: 'Chọn từ vựng đúng', score: s.choice, iconType: 'game', gameData: { gameType: 'choice', vocabularyItems: vocabItems } },
     { id: 4, type: 'game', title: 'Ghi âm phát âm', score: s.recording, iconType: 'game', gameData: { gameType: 'recording', vocabularyItems: vocabItems } }
@@ -43,11 +124,27 @@ const VOCAB_PLAYGROUND: VocabularyItem[] = [
 ];
 
 const VOCAB_GREETINGS_UNIT: VocabularyItem[] = [
-  { id: 1, word: "hello", meaning: "xin chào", image: "/grade1_school.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/hello.mp3" },
-  { id: 2, word: "goodbye", meaning: "tạm biệt", image: "/grade1_school.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/goodbye.mp3" },
-  { id: 3, word: "thank you", meaning: "cảm ơn", image: "/grade1_school.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/thanks.mp3" },
-  { id: 4, word: "please", meaning: "làm ơn", image: "/grade1_school.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/please.mp3" },
-  { id: 5, word: "sorry", meaning: "xin lỗi", image: "/grade1_school.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/sorry.mp3" }
+  { id: 1, word: "hello", meaning: "xin chào", image: "/vocab_hello.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/hello.mp3" },
+  { id: 2, word: "goodbye", meaning: "tạm biệt", image: "/vocab_goodbye.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/goodbye.mp3" },
+  { id: 3, word: "thank you", meaning: "cảm ơn", image: "/vocab_thanks.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/thanks.mp3" },
+  { id: 4, word: "please", meaning: "làm ơn", image: "/vocab_please.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/please.mp3" },
+  { id: 5, word: "sorry", meaning: "xin lỗi", image: "/vocab_sorry.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/sorry.mp3" }
+];
+
+const VOCAB_GREETINGS_PHRASES: VocabularyItem[] = [
+  { id: 1, word: "Good morning", meaning: "Chào buổi sáng", image: "/vocab_hello.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/hello.mp3" },
+  { id: 2, word: "Good afternoon", meaning: "Chào buổi chiều", image: "/vocab_greetings_lesson.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/hello.mp3" },
+  { id: 3, word: "Good evening", meaning: "Chào buổi tối", image: "/vocab_greetings_lesson.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/hello.mp3" },
+  { id: 4, word: "Good night", meaning: "Chúc ngủ ngon", image: "/vocab_greetings_lesson.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/goodbye.mp3" },
+  { id: 5, word: "See you later", meaning: "Hẹn gặp lại", image: "/vocab_goodbye.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/goodbye.mp3" }
+];
+
+const VOCAB_GREETINGS_INTRO: VocabularyItem[] = [
+  { id: 1, word: "What is your name?", meaning: "Tên bạn là gì?", image: "/vocab_greetings_lesson.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/hello.mp3" },
+  { id: 2, word: "My name is...", meaning: "Tên tôi là...", image: "/vocab_hello.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/hello.mp3" },
+  { id: 3, word: "Nice to meet you", meaning: "Rất vui được gặp bạn", image: "/vocab_greetings_lesson.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/thanks.mp3" },
+  { id: 4, word: "How are you?", meaning: "Bạn có khỏe không?", image: "/vocab_greetings_lesson.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/hello.mp3" },
+  { id: 5, word: "I am fine", meaning: "Tôi khỏe", image: "/vocab_hello.png", audio: "https://static.edupia.vn/audio/word/2018/05/07/thanks.mp3" }
 ];
 
 const VOCAB_FAMILY_UNIT: VocabularyItem[] = [
@@ -70,17 +167,65 @@ const VOCAB_TOYS: VocabularyItem[] = [
 const grade1UnitLessons: Record<string, UnitLesson[]> = {
   "unit-1": [
     {
-      title: "Lesson 1: Greetings",
-      content: "Learn how to say hello and goodbye",
-      image: "/lesson/1.png",
+      title: "Lesson 1: Greetings - Từ vựng chào hỏi",
+      content: "Học các từ vựng chào hỏi cơ bản: hello, goodbye, thank you, please, sorry",
+      image: "/vocab_greetings_lesson.png",
       link: "/unit1",
       point: "100/400",
       rate: 25,
-      lessonInfo: { part: [{ type: "video", score: "100" }, { type: "normal", score: "100" }] },
-      categoryTitle: "Unit 1 - Lesson: Từ vựng",
-      lessonDetails: createUnitLessonDetails(VOCAB_GREETINGS_UNIT, { video: "100", typing: "0", choice: "0", recording: "0" })
+      lessonInfo: { part: [{ type: "video", score: "100" }, { type: "normal", score: "0" }, { type: "normal", score: "0" }, { type: "normal", score: "0" }] },
+      categoryTitle: "Unit 1 - Lesson 1: Từ vựng",
+      lessonDetails: createUnitLessonDetails(VOCAB_GREETINGS_UNIT, { video: "100", typing: "0", choice: "0", recording: "0" }, VIDEO_URLS.grade1["unit-1"].lesson1)
     },
-
+    {
+      title: "Lesson 2: Greetings - Mẫu câu chào hỏi theo thời gian",
+      content: "Học cách chào hỏi theo buổi sáng, chiều và tối: Good morning, Good afternoon, Good evening",
+      image: "/vocab_greetings_lesson.png",
+      link: "/unit1",
+      point: "0/400",
+      rate: 0,
+      lessonInfo: { part: [{ type: "video", score: "0" }, { type: "normal", score: "0" }, { type: "normal", score: "0" }, { type: "normal", score: "0" }] },
+      categoryTitle: "Unit 1 - Lesson 2: Mẫu câu",
+      lessonDetails: createUnitLessonDetails(VOCAB_GREETINGS_PHRASES, undefined, VIDEO_URLS.grade1["unit-1"].lesson2)
+    },
+    {
+      title: "Lesson 3: Greetings - Giới thiệu bản thân",
+      content: "Tập hỏi và trả lời: What is your name? - How are you? - Nice to meet you!",
+      image: "/vocab_hello.png",
+      link: "/unit1",
+      point: "0/400",
+      rate: 0,
+      lessonInfo: { part: [{ type: "video", score: "0" }, { type: "normal", score: "0" }, { type: "normal", score: "0" }, { type: "normal", score: "0" }] },
+      categoryTitle: "Unit 1 - Lesson 3: Giao tiếp",
+      lessonDetails: createUnitLessonDetails(VOCAB_GREETINGS_INTRO, undefined, VIDEO_URLS.grade1["unit-1"].lesson3)
+    },
+    {
+      title: "Lesson 4: Greetings - Luyện phát âm",
+      content: "Luyện phát âm chuẩn các từ chào hỏi qua trò chơi ghi âm và nhận diện giọng nói",
+      image: "/vocab_greetings_lesson.png",
+      link: "/unit1",
+      point: "0/400",
+      rate: 0,
+      lessonInfo: { part: [{ type: "video", score: "0" }, { type: "normal", score: "0" }, { type: "normal", score: "0" }, { type: "normal", score: "0" }] },
+      categoryTitle: "Unit 1 - Lesson 4: Phát âm",
+      lessonDetails: [
+        { id: 1, type: 'video', title: 'Video phát âm chào hỏi', score: "0", iconType: 'video', videoUrl: VIDEO_URLS.grade1["unit-1"].lesson4 },
+        { id: 2, type: 'game', title: 'Gõ lại từ vựng', score: "0", iconType: 'game', gameData: { gameType: 'typing', vocabularyItems: VOCAB_GREETINGS_UNIT } },
+        { id: 3, type: 'game', title: 'Phát âm - Ghi âm giọng nói', score: "0", iconType: 'game', gameData: { gameType: 'recording', vocabularyItems: VOCAB_GREETINGS_UNIT } },
+        { id: 4, type: 'game', title: 'Phát âm câu chào - Ghi âm giọng nói', score: "0", iconType: 'game', gameData: { gameType: 'recording', vocabularyItems: VOCAB_GREETINGS_PHRASES } }
+      ]
+    },
+    {
+      title: "Lesson 5: Greetings - Ôn tập tổng hợp",
+      content: "Ôn tập toàn bộ Unit 1: từ vựng, mẫu câu, phát âm và hội thoại chào hỏi",
+      image: "/vocab_goodbye.png",
+      link: "/unit1",
+      point: "0/500",
+      rate: 0,
+      lessonInfo: { part: [{ type: "video", score: "0" }, { type: "normal", score: "0" }, { type: "normal", score: "0" }, { type: "normal", score: "0" }] },
+      categoryTitle: "Unit 1 - Lesson 5: Ôn tập",
+      lessonDetails: createUnitLessonDetails([...VOCAB_GREETINGS_UNIT, ...VOCAB_GREETINGS_PHRASES], undefined, VIDEO_URLS.grade1["unit-1"].lesson5)
+    }
   ],
   "unit-2": [
     {
@@ -92,7 +237,7 @@ const grade1UnitLessons: Record<string, UnitLesson[]> = {
       rate: 38,
       lessonInfo: { part: [{ type: "video", score: "100" }, { type: "normal", score: "100" }] },
       categoryTitle: "Unit 2 - Lesson: Từ vựng",
-      lessonDetails: createUnitLessonDetails(VOCAB_FAMILY_UNIT, { video: "100", typing: "50", choice: "0", recording: "0" })
+      lessonDetails: createUnitLessonDetails(VOCAB_FAMILY_UNIT, { video: "100", typing: "50", choice: "0", recording: "0" }, VIDEO_URLS.grade1["unit-2"].lesson1)
     },
     {
       title: "Lesson 2: My family",
@@ -103,7 +248,7 @@ const grade1UnitLessons: Record<string, UnitLesson[]> = {
       rate: 20,
       lessonInfo: { part: [{ type: "video", score: "100" }, { type: "normal", score: "100" }] },
       categoryTitle: "Unit 2 - Lesson: Mẫu câu",
-      lessonDetails: createUnitLessonDetails(VOCAB_FAMILY_UNIT, { video: "100", typing: "0", choice: "0", recording: "0" })
+      lessonDetails: createUnitLessonDetails(VOCAB_FAMILY_UNIT, { video: "100", typing: "0", choice: "0", recording: "0" }, VIDEO_URLS.grade1["unit-2"].lesson2)
     }
   ],
   "unit-3": [
@@ -116,7 +261,7 @@ const grade1UnitLessons: Record<string, UnitLesson[]> = {
       rate: 0,
       lessonInfo: { part: [{ type: "video", score: "100" }, { type: "normal", score: "100" }] },
       categoryTitle: "Unit 3 - Lesson: Từ vựng",
-      lessonDetails: createUnitLessonDetails(VOCAB_TOYS)
+      lessonDetails: createUnitLessonDetails(VOCAB_TOYS, undefined, VIDEO_URLS.grade1["unit-3"].lesson1)
     },
     {
       title: "Lesson 2: My favorite toy",
@@ -127,7 +272,7 @@ const grade1UnitLessons: Record<string, UnitLesson[]> = {
       rate: 0,
       lessonInfo: { part: [{ type: "video", score: "100" }, { type: "normal", score: "100" }] },
       categoryTitle: "Unit 3 - Lesson: Mẫu câu",
-      lessonDetails: createUnitLessonDetails(VOCAB_TOYS)
+      lessonDetails: createUnitLessonDetails(VOCAB_TOYS, undefined, VIDEO_URLS.grade1["unit-3"].lesson2)
     }
   ],
   "unit-4": [
@@ -140,7 +285,7 @@ const grade1UnitLessons: Record<string, UnitLesson[]> = {
       rate: 28,
       lessonInfo: { part: [{ type: "video", score: "100" }, { type: "normal", score: "100" }] },
       categoryTitle: "Unit 4 - Lesson: Từ vựng",
-      lessonDetails: createUnitLessonDetails(VOCAB_PLAYGROUND, { video: "100", typing: "12", choice: "0", recording: "0" })
+      lessonDetails: createUnitLessonDetails(VOCAB_PLAYGROUND, { video: "100", typing: "12", choice: "0", recording: "0" }, VIDEO_URLS.grade1["unit-4"].lesson1)
     },
     {
       title: "Lesson 2: In the classroom",
@@ -151,7 +296,7 @@ const grade1UnitLessons: Record<string, UnitLesson[]> = {
       rate: 0,
       lessonInfo: { part: [{ type: "video", score: "100" }, { type: "normal", score: "100" }] },
       categoryTitle: "Unit 4 - Lesson: Mẫu câu",
-      lessonDetails: createUnitLessonDetails(VOCAB_PLAYGROUND)
+      lessonDetails: createUnitLessonDetails(VOCAB_PLAYGROUND, undefined, VIDEO_URLS.grade1["unit-4"].lesson2)
     }
   ],
   "unit-5": [
@@ -164,7 +309,7 @@ const grade1UnitLessons: Record<string, UnitLesson[]> = {
       rate: 62,
       lessonInfo: { part: [{ type: "video", score: "100" }, { type: "normal", score: "100" }] },
       categoryTitle: "Unit 5 - Lesson: Từ vựng",
-      lessonDetails: createUnitLessonDetails(VOCAB_PLAYGROUND, { video: "100", typing: "100", choice: "48", recording: "0" })
+      lessonDetails: createUnitLessonDetails(VOCAB_PLAYGROUND, { video: "100", typing: "100", choice: "48", recording: "0" }, VIDEO_URLS.grade1["unit-5"].lesson1)
     },
     {
       title: "Lesson 2: My body",
@@ -175,7 +320,7 @@ const grade1UnitLessons: Record<string, UnitLesson[]> = {
       rate: 40,
       lessonInfo: { part: [{ type: "video", score: "100" }, { type: "normal", score: "100" }] },
       categoryTitle: "Unit 5 - Lesson: Mẫu câu",
-      lessonDetails: createUnitLessonDetails(VOCAB_PLAYGROUND, { video: "100", typing: "100", choice: "0", recording: "0" })
+      lessonDetails: createUnitLessonDetails(VOCAB_PLAYGROUND, { video: "100", typing: "100", choice: "0", recording: "0" }, VIDEO_URLS.grade1["unit-5"].lesson2)
     }
   ],
   "unit-6": [
@@ -188,7 +333,7 @@ const grade1UnitLessons: Record<string, UnitLesson[]> = {
       rate: 15,
       lessonInfo: { part: [{ type: "video", score: "100" }, { type: "normal", score: "100" }] },
       categoryTitle: "Unit 6 - Lesson: Từ vựng",
-      lessonDetails: createUnitLessonDetails(VOCAB_PLAYGROUND, { video: "60", typing: "0", choice: "0", recording: "0" })
+      lessonDetails: createUnitLessonDetails(VOCAB_PLAYGROUND, { video: "60", typing: "0", choice: "0", recording: "0" }, VIDEO_URLS.grade1["unit-6"].lesson1)
     },
     {
       title: "Lesson 2: My pet",
@@ -199,7 +344,7 @@ const grade1UnitLessons: Record<string, UnitLesson[]> = {
       rate: 0,
       lessonInfo: { part: [{ type: "video", score: "100" }, { type: "normal", score: "100" }] },
       categoryTitle: "Unit 6 - Lesson: Mẫu câu",
-      lessonDetails: createUnitLessonDetails(VOCAB_PLAYGROUND)
+      lessonDetails: createUnitLessonDetails(VOCAB_PLAYGROUND, undefined, VIDEO_URLS.grade1["unit-6"].lesson2)
     }
   ]
 };

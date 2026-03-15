@@ -168,7 +168,7 @@ export const GRADE_3_LESSONS: WeeklyLessonConfig = {
         lessons: [
             {
                 id: 'g3-w1-l1',
-                category_title: 'Unit 1 - Lesson 1',
+                category_title: 'Unit 1 - Lesson: Từ vựng',
                 title: 'Gia đình',
                 image: 'https://static.edupia.vn/uploads/v3/assets/images/classroom/thumb-default/1.png',
                 progress: 0,
@@ -206,6 +206,16 @@ export const GRADE_3_LESSONS: WeeklyLessonConfig = {
                         gameData: { gameType: 'recording', vocabularyItems: VOCAB_FAMILY }
                     }
                 ]
+            },
+
+
+             {
+                id: 'g111-w3-l1',
+                category_title: 'Unit 1 - Lesson: Từ vựng',
+                title: 'Những hoạt động thường ngày của trẻ',
+                image: 'https://static.edupia.vn/uploads/v3/assets/images/classroom/thumb-default/1.png',
+                progress: 0,
+                lessonDetails: createLessonDetails(VOCAB_TIME)
             }
         ]
     },
